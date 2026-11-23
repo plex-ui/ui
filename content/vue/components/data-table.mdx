@@ -1,6 +1,6 @@
 ---
 title: Data Table
-description: "Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers."
+description: "Table of your data on TanStack Table v8, with sorting, pagination, filtering and row selection."
 metaDescription: "Vue 3 data table component powered by TanStack Table v8: sorting, pagination, filtering, row selection, column visibility and ready-made cells."
 ---
 
@@ -264,8 +264,6 @@ const columns: ColumnDef<User>[] = [
 
 For plain markup tables, use [Table](/vue/components/table): Data Table draws its rows with its parts.
 
-The examples import `users` (15 rows) and its `User` type from a local `./data` file. Column definitions live in `<script setup>`: header and cell renderers are functions that return VNodes (`h()`), rendered with TanStack Table's `FlexRender`.
-
 ## Examples
 
 {/* The Variant example is the Overview; Empty state is its setting; both anchors stay */}
@@ -274,7 +272,10 @@ The examples import `users` (15 rows) and its `User` type from a local `./data` 
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background. Toggle <code>empty</code> to supply no rows without resetting sorting or changing columns. <code>emptyMessage</code> selects the default message, custom text through <code>empty-message</code>, or rich content through the <code>emptyMessage</code> slot. Filtering and its no-results state are shown separately.</>} code={variant} previewMinHeight={300}>
+<ComponentPreview language="vue" details={<>
+  <p>The examples import <code>users</code> (15 rows) and its <code>User</code> type from a local <code>./data</code> file. Column definitions live in <code>&lt;script setup&gt;</code>: header and cell renderers are functions that return VNodes (<code>h()</code>), rendered with TanStack Table's <code>FlexRender</code>.</p>
+  <p>Use <code>variant="bordered"</code> for a card-like table with a rounded border and tinted header background. Toggle <code>empty</code> to supply no rows without resetting sorting or changing columns. <code>emptyMessage</code> selects the default message, custom text through <code>empty-message</code>, or rich content through the <code>emptyMessage</code> slot. Filtering and its no-results state are shown separately.</p>
+</>} code={variant} previewMinHeight={300}>
   <VueDataTableDemo
     example="variant"
     code={variant}

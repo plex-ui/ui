@@ -1,122 +1,255 @@
 ---
 title: Input
-description: Single-line text field with outline, soft and ghost variants, adornments and a clear button, plus TextField with a label, help and an error; an iOS 26 field on iOS, Material 3's text field on Android.
+description: A single-line text field with adornments and a clear button, plus TextField with a label.
+metaDescription: Single-line text field with outline, soft and ghost variants, start and end adornments and a clear button, plus TextField with a label, help and an error; an iOS 26 field on iOS, a 50dp outlined or filled field on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `<Input placeholder="Outline" />
-<Input variant="soft" placeholder="Soft" />
-<Input variant="ghost" placeholder="Ghost" />`
+export const overviewCode = `import { Input, List, ListItem, Text } from "@plexui/react-native"
 
-export const adornmentsCode = `import { Search } from "@plexui/react-native/icons"
+const [value, setValue] = useState("janeappleseed")
+const [adornment, setAdornment] = useState<"none" | "start" | "end">("none")
+const [clearable, setClearable] = useState(false)
+const [selectTextOnFocus, setSelectTextOnFocus] = useState(false)
+const [readOnly, setReadOnly] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [invalid, setInvalid] = useState(false)
 
-const [query, setQuery] = useState("Coffee")
+// The input is the value of a row: a ghost field, the row is its frame
+<List>
+  <ListItem
+    label="Username"
+    error={invalid ? "This username is taken." : undefined}
+    trailing={
+      <Input
+        variant="ghost"
+        value={value}
+        onChangeText={setValue}
+        onClear={clearable ? () => setValue("") : undefined}
+        maxLength={16}
+        placeholder="Required"
+        autoCapitalize="none"
+        startAdornment={adornment === "start" ? <Text color="secondary">@</Text> : undefined}
+        endAdornment={adornment === "end" ? <Text color="secondary" tabularNums>{value.length}/16</Text> : undefined}
+        selectTextOnFocus={selectTextOnFocus}
+        readOnly={readOnly}
+        disabled={disabled}
+        invalid={invalid}
+        accessibilityLabel="Username"
+      />
+    }
+  />
+</List>`
 
-<Input
-  variant="soft"
-  value={query}
-  onChangeText={setQuery}
-  onClear={() => setQuery("")}
-  startAdornment={<Search />}
-  placeholder="Search"
-/>
-<Input placeholder="0.00" keyboardType="decimal-pad" endAdornment={<Text color="secondary">USD</Text>} />`
-
-export const pillCode = `<Input pill placeholder="Outline pill" />
-<Input pill variant="soft" startAdornment={<Search />} placeholder="Search" />`
-
-export const statesCode = `<Input defaultValue="hello@" invalid />
-<Input defaultValue="Can't be edited" disabled />`
-
-export const fieldCode = `const EMAIL = /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/
-const [email, setEmail] = useState("hello@")
-
-<TextField label="Name" placeholder="Jane Appleseed" description="As on your card" />
-<TextField
-  label="Email"
-  value={email}
-  onChangeText={setEmail}
-  errorMessage={EMAIL.test(email) ? undefined : "Enter a full address"}
-  required
-  keyboardType="email-address"
-  autoCapitalize="none"
-/>`
-
-export const fieldVariantsCode = `<TextField label="Notes" variant="soft" defaultValue="Leave at the door" />
-<TextField label="Account" disabled defaultValue="jane@example.com" />`
-
-export const passwordCode = `import { Eye, EyeOff } from "@plexui/react-native/icons"
+export const passwordCode = `import { Input, List, ListItem } from "@plexui/react-native"
+import { Eye, EyeOff } from "@plexui/react-native/icons"
 
 const [visible, setVisible] = useState(false)
 
-<TextField
-  label="Password"
-  secureTextEntry={!visible}
-  autoCapitalize="none"
-  description="At least 8 characters"
-  endAdornment={
-    <IconButton
-      icon={visible ? <EyeOff /> : <Eye />}
-      accessibilityLabel={visible ? "Hide password" : "Show password"}
-      onPress={() => setVisible((value) => !value)}
-    />
-  }
-/>`
+<List>
+  <ListItem
+    label="Password"
+    trailing={
+      <Input
+        variant="ghost"
+        placeholder="Required"
+        secureTextEntry={!visible}
+        autoCapitalize="none"
+        autoComplete="password"
+        accessibilityLabel="Password"
+        endAdornment={
+          <Input.AdornmentButton
+            accessibilityLabel={visible ? "Hide" : "Show"}
+            selected={visible}
+            onPress={() => setVisible((value) => !value)}
+          >
+            {visible ? <EyeOff /> : <Eye />}
+          </Input.AdornmentButton>
+        }
+      />
+    }
+  />
+</List>`
+
+export const ssnCode = `import { Input, List, ListItem } from "@plexui/react-native"
+import { Eye, EyeOff } from "@plexui/react-native/icons"
+
+const [digits, setDigits] = useState("")
+const [visible, setVisible] = useState(false)
+const formatted = formatSSN(digits) // XXX-XX-XXXX
+
+<List>
+  <ListItem
+    label="SSN"
+    trailing={
+      <Input
+        variant="ghost"
+        placeholder="XXX-XX-XXXX"
+        value={formatted}
+        onChangeText={(next) => setDigits(next.replace(/\\D/g, "").slice(0, 9))}
+        secureTextEntry={!visible}
+        maxLength={11}
+        inputMode="numeric"
+        autoComplete="off"
+        accessibilityLabel="SSN"
+        endAdornment={
+          <Input.AdornmentButton
+            accessibilityLabel={visible ? "Hide" : "Show"}
+            selected={visible}
+            onPress={() => setVisible((value) => !value)}
+          >
+            {visible ? <EyeOff /> : <Eye />}
+          </Input.AdornmentButton>
+        }
+      />
+    }
+  />
+</List>`
+
+export const birthdayCode = `import { Input, List, ListItem } from "@plexui/react-native"
+
+const [birthday, setBirthday] = useState("")
+
+<List>
+  <ListItem
+    label="Birthday"
+    trailing={
+      <Input
+        variant="ghost"
+        placeholder="MM / DD / YYYY"
+        value={birthday}
+        onChangeText={(next) => setBirthday(formatBirthday(next))} // MM / DD / YYYY
+        maxLength={14}
+        inputMode="numeric"
+        autoComplete="birthdate-full"
+        accessibilityLabel="Birthday"
+      />
+    }
+  />
+</List>`
+
+export const birthdayValidationCode = `import { Input, List, ListItem } from "@plexui/react-native"
+
+const [birthday, setBirthday] = useState("02 / 30 / 2001")
+const errorMessage = birthday && !isValidBirthday(birthday) ? "Please enter a valid date." : undefined
+
+<List>
+  <ListItem
+    label="Birthday"
+    error={errorMessage}
+    trailing={
+      <Input
+        variant="ghost"
+        placeholder="MM / DD / YYYY"
+        value={birthday}
+        onChangeText={(next) => setBirthday(formatBirthday(next))}
+        maxLength={14}
+        inputMode="numeric"
+        invalid={!!errorMessage}
+        accessibilityLabel="Birthday"
+      />
+    }
+  />
+</List>`
+
+export const withButtonCode = `import { Button, Input, List, ListItem } from "@plexui/react-native"
+
+<List>
+  <ListItem
+    label="Email"
+    trailing={
+      <Input
+        variant="ghost"
+        placeholder="name@example.com"
+        inputMode="email"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoComplete="email"
+        accessibilityLabel="Email"
+      />
+    }
+  />
+</List>
+<Button color="primary" size="3xl" block>Subscribe</Button>`
 
 <UsageBlock>{`import { Input, TextField } from "@plexui/react-native"`}</UsageBlock>
 
-The props follow `@plexui/ui`'s Input, on top of React Native's `TextInput`. On iOS a field takes the height of every phone control, with 17pt type and the radius of the control scale; `outline` draws a border that darkens on focus, `soft` a gray fill with no focus ring. On Android a field is Material 3's 56dp text field in Body L: `outline` is the outlined text field, `soft` the filled one (a `surfaceContainerHighest` fill over an indicator line) and `ghost` the filled one with no fill or line; the line turns 2dp in the accent on focus and the caret takes the accent. `TextField` adds a label, help and an error: over and under the field on iOS, a floating label and supporting text on Android.
-
 ## Examples
 
-### Variants
+### Overview
 
-<RNPreview demo="input/Overview" code={overviewCode} />
+<span id="variants" />
+<span id="adornments" />
+<span id="clear-button" />
+<span id="sizing--roundness" />
+<span id="behavior" />
+<span id="optical-alignment" />
 
-### Adornments and clear
+<ComponentPreview details={<>
+  <p>On a phone, put an input in a row of a <code>List</code>, the grouped section of a settings form: the row sets the label and its height, and the input is a <code>ghost</code> field at its end, which draws no frame of its own. The props follow <code>@plexui/ui</code>'s Input, on top of React Native's <code>TextInput</code>, whose other props pass through.</p>
+  <p><code>variant</code> styles the field. On iOS <code>outline</code> draws a border that darkens on focus, <code>soft</code> a gray fill with no focus ring, and <code>ghost</code> neither, for a field its container already frames, such as a row; it still turns red when <code>invalid</code>. On Android <code>outline</code> is the outlined field, 8dp corners and a hairline that thickens to 1.67dp in the accent on focus (its lighter text at night); <code>soft</code> a field filled with the text color at 5%, with no line; and <code>ghost</code> the bare field of a card, with neither, its text 21dp in. Their text is 17sp with a hint at 38%; the caret takes the accent, and the text color in a <code>ghost</code> field. A <code>soft</code> field with a <code>startAdornment</code> and no label is the search field: a 40dp pill of the text color at 5% (7% at night), 15sp text 48dp in after the 24dp magnifier, its hint at 50%. <code>size</code> is the Plex UI scale: on iOS every step is the 44pt phone control and the size changes the radius, gutter and type; Android fields are 50dp, 56 with a label. <code>pill</code> makes a capsule. In a <code>Toolbar</code> the field takes the bar's look: glass on iOS, and on Android the search of a bar, a capsule of the bar's glass at its 46dp height, 18sp text 18dp in, the hint in a field's gray and the caret in the text color, in the bar's row or in a <code>Toolbar.Row</code> under it.</p>
+  <p><code>startAdornment</code> puts content before the value, such as a prefix or a search icon, and <code>endAdornment</code> after it, such as a character counter; an icon takes the platform's size and color. <code>onClear</code> shows a clear button while the field has a value and is neither disabled nor read-only: the filled circle of an iOS text field, or Material's cancel symbol on Android; in a search field on Android, a cross that stays in place and shows with the first letter, growing and turning in (from 45° over 180ms in a bar, from 90° over 380ms in the 40dp field). A press clears the text (<code>onChangeText</code> receives an empty string), then calls it.</p>
+  <p><code>selectTextOnFocus</code>, React Native's own prop, selects all the text when the field takes focus, as the web's <code>autoSelect</code> does for copy actions. <code>readOnly</code> keeps the value and hides the clear button. <code>disabled</code> dims the field and takes no input. <code>invalid</code> draws it in the error color: a red border on iOS; on Android a red line (a red outline on a soft field, a 2dp red underline on a ghost one) and a red label, caret and trailing icon. The error message here is the row's <code>description</code>, under its label.</p>
+  <p>As the row's <code>ghost</code> field, in its <code>trailing</code> slot, the example offers neither <code>variant</code> nor <code>size</code>. The React page's <code>orientation</code> and <code>columns</code> belong to its form rows, which React Native's List does not have, and browser autofill extensions are a desktop matter: iOS and Android offer autofill from the system, by <code>autoComplete</code>.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="input/Overview" />
+</ComponentPreview>
 
-`startAdornment` and `endAdornment` take an icon (sized and colored for the platform) or any element. `onClear` shows a clear button while the field has a value: iOS's filled circle with an X, Material's cancel symbol on Android.
+`TextField` is an Input with a `label`, a `description` under it and an `errorMessage` that takes the description's place and marks the field invalid; `required` adds an asterisk to the label. On iOS the label stands over the field (15/20 medium) and the help 4pt under it; on Android the label floats onto the outline, or to the top of a filled field, when the field has focus or a value, in the accent while it has focus (its lighter text at night), and the help is 14sp text in the secondary gray under the field.
 
-<RNPreview demo="input/Adornments" code={adornmentsCode} />
+### Password with visibility toggle
 
-### Pill
+<ComponentPreview details={<>Put an <code>Input.AdornmentButton</code> in <code>endAdornment</code> to switch <code>secureTextEntry</code> on and off. On iOS the 19pt eye stands at the end of the row in the tertiary text color, its 44pt target reaching past it; on Android a 24dp icon on a 48dp target.</>} code={passwordCode} previewMinHeight={168}>
+  <RNExample demo="input/Password" />
+</ComponentPreview>
 
-<RNPreview demo="input/Pill" code={pillCode} />
+### SSN input
 
-### Invalid and disabled
+<ComponentPreview details={<>A masked SSN field that formats input as <code>XXX-XX-XXXX</code> as you type and hides it as a secure field (<code>secureTextEntry</code>) until the eye in <code>endAdornment</code> shows it. <code>inputMode="numeric"</code> brings up the number pad, and <code>autoComplete="off"</code> keeps the system's autofill away.</>} code={ssnCode} previewMinHeight={168}>
+  <RNExample demo="input/SSN" />
+</ComponentPreview>
 
-<RNPreview demo="input/States" code={statesCode} />
+### Birthday input
 
-### Text field
+<ComponentPreview details={<>A date-of-birth field that inserts the separators as you type (<code>MM / DD / YYYY</code>), with the pattern as its placeholder. <code>autoComplete="birthdate-full"</code> lets the system offer the person's birthday.</>} code={birthdayCode} previewMinHeight={168}>
+  <RNExample demo="input/Birthday" />
+</ComponentPreview>
 
-`TextField` is an Input with a `label`, a `description` under it and an `errorMessage` that takes the description's place and marks the field invalid. `required` adds an asterisk to the label. On iOS the label stands over the field (15/20 medium) and the help 4pt under it; on Android the label floats into the outline (or to the top of a filled field) when the field has focus or a value, and the help is Material's supporting text.
+### Birthday with validation
 
-<RNPreview demo="input/Field" code={fieldCode} />
+<ComponentPreview details={<>Use <code>invalid</code> when the entered date is not valid, and show the message in the row's <code>error</code>. On iOS it is a line of its own under the row with an exclamation mark, in the danger color, as the web's row; on Android it stands under the label and the field takes a red 2dp line.</>} code={birthdayValidationCode} previewMinHeight={168}>
+  <RNExample demo="input/BirthdayValidation" />
+</ComponentPreview>
 
-### Text field variants
+### With button
 
-<RNPreview demo="input/FieldVariants" code={fieldVariantsCode} />
+<ComponentPreview details={<>On a phone a form's main action is the large button under its group, as wide as the screen: <code>size="3xl"</code> and <code>block</code>, 50pt tall on iOS and the big 48dp button on Android.</>} code={withButtonCode} previewMinHeight={168}>
+  <RNExample demo="input/WithButton" />
+</ComponentPreview>
 
-### Password
+## Platforms
 
-Every prop of `TextInput` passes through, such as `secureTextEntry`. An `IconButton` in `endAdornment` toggles it.
-
-<RNPreview demo="input/Password" code={passwordCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Text field | Text field (filled or outlined) |
+| Look | A 44pt field in 17pt type, its border darkening on focus | A 50dp field in 17sp type, its outline thickening in the accent on focus |
+| In a List row | The row's value: no frame, the text at the row's end, the error a line under the row | A field at the row's end, the error under the label |
 
 ## API
 
 ### Input
 
 <PropsTable data={[
-  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Fill style. On Android outline is Material's outlined text field, soft and ghost its filled one" },
-  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Step of the control scale. On iOS every step is the 44pt phone control and the size changes the radius, gutter and type; Android fields are 56dp" },
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Fill style; ghost has no frame. On Android outline is the outlined field, soft a field filled with the text color at 5% (with a startAdornment and no label, the 40dp search field)" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Step of the control scale. On iOS every step is the 44pt phone control and the size changes the radius, gutter and type; Android fields are 50dp, 56 with a label" },
   { prop: "value", type: "string", description: "Controlled text" },
   { prop: "defaultValue", type: "string", description: "Initial text (uncontrolled)" },
   { prop: "onChangeText", type: "(text: string) => void", description: "Called with the text on every change" },
   { prop: "placeholder", type: "string", description: "Shown while the field is empty" },
   { prop: "invalid", type: "boolean", default: "false", description: "Draws the field in the error color" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the field and takes no input (TextInput's editable is not used)" },
+  { prop: "readOnly", type: "boolean", default: "false", description: "Keeps the value and hides the clear button" },
   { prop: "onClear", type: "() => void", description: "Shows a clear button while the field has a value. A press clears the text (onChangeText receives an empty string), then calls it" },
   { prop: "startAdornment", type: "ReactNode", description: "An icon or element before the text" },
   { prop: "endAdornment", type: "ReactNode", description: "An icon or element after the text" },
@@ -125,7 +258,19 @@ Every prop of `TextInput` passes through, such as `secureTextEntry`. An `IconBut
   { prop: "testID", type: "string", description: "Test id" },
 ]} />
 
-Every other prop of React Native's `TextInput` passes through to the text input (`keyboardType`, `secureTextEntry`, `autoCapitalize`, `onFocus`, `onBlur`, `readOnly` and so on). A read-only field shows no clear button.
+Every other prop of React Native's `TextInput` passes through to the text input (`keyboardType`, `inputMode`, `secureTextEntry`, `selectTextOnFocus`, `autoCapitalize`, `autoComplete`, `maxLength`, `onFocus`, `onBlur` and so on).
+
+### Input.AdornmentButton
+
+A button in `startAdornment` or `endAdornment`, as the web's `Input.AdornmentButton` (also exported as `InputAdornmentButton`). Every other prop of `Pressable` passes through.
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The icon: it takes the button's color and size (19pt at an iOS row's end, 20 in a field, 24dp on Android)" },
+  { prop: "accessibilityLabel", type: "string", description: "The button's name for screen readers (required)" },
+  { prop: "selected", type: "boolean", description: "A toggle's state, read as selected" },
+  { prop: "onPress", type: "() => void", description: "Called on a press" },
+  { prop: "disabled", type: "boolean", description: "Dims the button and takes no press" },
+]} />
 
 ### TextField
 

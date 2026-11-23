@@ -1,6 +1,6 @@
 ---
 title: Badge
-description: Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
+description: Compact label for statuses and inline metadata, with semantic colors, variants, sizes and icons.
 metaDescription: React badge component for status indicators and inline labels with semantic colors, multiple variants, icon support, and loading state
 ---
 
@@ -28,7 +28,8 @@ const [pill, setPill] = useState(false)
 const [leading, setLeading] = useState("none") // or "icon", "loading"
 const [onRemove, setOnRemove] = useState(false)
 const [shown, setShown] = useState(true)
-const label = { none: "New", icon: "Beta", loading: "In progress" }[leading]
+// A badge with a cross is a tag the reader added
+const label = (onRemove ? { none: "Design", icon: "Research", loading: "Uploading" } : { none: "New", icon: "Beta", loading: "In progress" })[leading]
 
 {shown ? (
   <Badge

@@ -3,7 +3,7 @@
   "name": "card",
   "type": "registry:ui",
   "title": "Card",
-  "description": "A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.",
+  "description": "A surface that groups a title, a description, content and actions, in an outline, solid or ghost style.",
   "dependencies": [
     "@plexui/vue"
   ],

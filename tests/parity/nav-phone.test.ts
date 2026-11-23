@@ -92,9 +92,9 @@ describe("Page examples on a phone", () => {
     const react = read("components/docs/PageDemos.tsx")
     expect(react).toContain("import { BarBackgroundRow, Rows } from './ToolbarDemos';")
     expect(react).not.toMatch(/function Rows\(/)
-    expect(read("components/docs/ToolbarDemos.tsx")).toMatch(/export function Rows\(\) \{\n {2}return \(\n {4}<FieldGroup>/)
+    expect(read("components/docs/ToolbarDemos.tsx")).toMatch(/export function Rows\(\{ view = 'all' \}: \{ view\?: OrderView \}\) \{\n {2}return \(\n {4}<FieldGroup>/)
     const vue = read("content/vue/components/page.mdx")
-    expect(vue).toMatch(/export const list = `<FieldGroup>\n\s+<div v-for="row in rows" :key="row" data-row class="\$\{toolbarStyles\.Row\}">/)
+    expect(vue).toMatch(/export const list = `<FieldGroup>\n\s+<div v-for="row in rows" :key="row.number" data-row class="\$\{toolbarStyles\.Row\} \$\{toolbarStyles\.TwoLines\}">/)
   })
 
   test("each title matches the orders under it", () => {
@@ -287,7 +287,8 @@ describe("a Phone preview is a phone screen in a phone frame (plan 164)", () => 
 
   test("by default, and an example that is not a screen itself stands on a phone page", () => {
     // A page whose phone view is not ready (frontmatter phoneDraft, plan 169h) has no phone examples on a desktop
-    expect(source).toContain("const phonePresentation = !pageViewport.phoneViews && !phoneOnly ? 'none' : requestedPhonePresentation ?? 'screen';")
+    // A React Native page draws its examples on a phone whatever the page's phone views say
+    expect(source).toContain("const phonePresentation = !pageViewport.phoneViews && !phoneOnly && !native ? 'none' : requestedPhonePresentation ?? 'screen';")
     expect(source).toContain("const phonePage = requestedPhonePresentation === undefined && !phoneDialog && !phoneOnly;")
     expect(source).toContain("data-preview-phone-page={phonePage || undefined}")
   })

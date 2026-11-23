@@ -9,7 +9,7 @@ const COLORS: TextColor[] = ["primary", "secondary", "tertiary", "disabled", "ac
 export function TextScreen() {
   return (
     <>
-      <Section title="Platform text styles" note="iOS: Human Interface Guidelines; Android: the nearest Material 3 role">
+      <Section title="Platform text styles" note="iOS: Human Interface Guidelines; Android: the nearest Material 3 role, the Android look's sizes where it sets them">
         {VARIANTS.map((variant) => (
           <Text key={variant} variant={variant} numberOfLines={1}>
             {variant}

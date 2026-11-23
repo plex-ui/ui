@@ -1,101 +1,102 @@
+import { useState, type ReactNode } from 'react';
 import { Button, Chip, Text } from '@plexui/react-native';
-import { Calendar, Filter, MapPin, Star } from '@plexui/react-native/icons';
-import { useState } from 'react';
+import { AtSign, AvatarProfile, Email, Star } from '@plexui/react-native/icons';
 import { View } from 'react-native';
+import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
+import { RNScreen, docsDemo } from '../RNScreen';
 
-const row = { flexDirection: 'row', flexWrap: 'wrap', columnGap: 8 } as const;
-const stack = { alignSelf: 'stretch', gap: 4 } as const;
+// Which of the props the chips set: `selected` and `onSelectedChange` (a filter chip), `onPress` alone (an action
+// chip) or `onRemove` (an input chip)
+const TYPES = ['filter', 'action', 'input'] as const;
+const CHIPS: readonly { value: string; label: string; icon: ReactNode }[] = [
+  { value: 'unread', label: 'Unread', icon: <Email /> },
+  { value: 'starred', label: 'Starred', icon: <Star /> },
+  { value: 'mentions', label: 'Mentions', icon: <AtSign /> },
+];
+// An input chip is a value the reader entered and can take back: the recipients of a message
+const RECIPIENTS: readonly { value: string; label: string; icon: ReactNode }[] = [
+  { value: 'anna', label: 'Anna Kim', icon: <AvatarProfile /> },
+  { value: 'ben', label: 'Ben Carter', icon: <AvatarProfile /> },
+  { value: 'maya', label: 'Maya Patel', icon: <AvatarProfile /> },
+];
 
-const FILTERS = ['Nearby', 'Open now', 'Top rated'];
+/** A row of chips, 8 apart, centered as the React Toggle Group centers its row on a phone */
+const row = { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', columnGap: 8 } as const;
 
-export function Overview() {
-  const [filters, setFilters] = useState(['Nearby']);
-  const toggle = (name: string) => (on: boolean) => setFilters((list) => (on ? [...list, name] : list.filter((item) => item !== name)));
+/**
+ * Chips with every setting, as the filters of the React Toggle Group page's Text example (Unread, Starred and
+ * Mentions, Unread on): `type` makes them filter chips that toggle, action chips that keep no state, or input chips,
+ * the recipients of a message, with a cross that removes them (as the React Badge's `onRemove`); `icon` puts a symbol
+ * before each label and `disabled` dims them.
+ */
+export const Overview = docsDemo(function Overview() {
+  const [type, setType] = useState<(typeof TYPES)[number]>('filter');
+  const [icon, setIcon] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [selected, setSelected] = useState<string[]>(['unread']);
+  const [shown, setShown] = useState<string[]>(RECIPIENTS.map((chip) => chip.value));
+  const chips = type === 'input' ? RECIPIENTS.filter((chip) => shown.includes(chip.value)) : CHIPS;
   return (
-    <View style={stack}>
-      <View style={row}>
-        {FILTERS.map((name) => (
-          <Chip key={name} selected={filters.includes(name)} onSelectedChange={toggle(name)}>
-            {name}
-          </Chip>
-        ))}
-      </View>
-      <Text variant="footnote" color="secondary">
-        Filters: {filters.join(', ') || 'none'}
-      </Text>
-    </View>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="type" options={TYPES} value={type} onChange={setType} />
+        <DemoControlBoolean name="icon" value={icon} onChange={setIcon} />
+        <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
+      </div>
+      <RNScreen minHeight={168}>
+        {chips.length > 0 ? (
+          <View style={row}>
+            {chips.map((chip) => (
+              <Chip
+                key={chip.value}
+                icon={icon ? chip.icon : undefined}
+                disabled={disabled}
+                selected={type === 'filter' ? selected.includes(chip.value) : undefined}
+                onSelectedChange={
+                  type === 'filter'
+                    ? (on: boolean) => setSelected((list) => (on ? [...list, chip.value] : list.filter((value) => value !== chip.value)))
+                    : undefined
+                }
+                onPress={type === 'action' ? () => {} : undefined}
+                onRemove={type === 'input' ? () => setShown((list) => list.filter((value) => value !== chip.value)) : undefined}
+                removeLabel={`Remove ${chip.label}`}
+              >
+                {chip.label}
+              </Chip>
+            ))}
+          </View>
+        ) : (
+          <View style={{ alignSelf: 'center' }}>
+            <Button color="secondary" variant="outline" size="sm" onPress={() => setShown(RECIPIENTS.map((chip) => chip.value))}>
+              Show again
+            </Button>
+          </View>
+        )}
+      </RNScreen>
+    </>
   );
-}
+});
 
-export function Icons() {
-  const [starred, setStarred] = useState(false);
-  return (
-    <View style={row}>
-      <Chip icon={<MapPin />} defaultSelected>
-        Nearby
-      </Chip>
-      <Chip icon={<Star />} selected={starred} onSelectedChange={setStarred}>
-        Starred
-      </Chip>
-    </View>
-  );
-}
-
-export function Actions() {
-  const [last, setLast] = useState('nothing yet');
-  return (
-    <View style={stack}>
-      <View style={row}>
-        <Chip icon={<Filter />} onPress={() => setLast('Filters')}>
-          Filters
-        </Chip>
-        <Chip icon={<Calendar />} onPress={() => setLast('Add to calendar')}>
-          Add to calendar
-        </Chip>
-      </View>
-      <Text variant="footnote" color="secondary">
-        Pressed: {last}
-      </Text>
-    </View>
-  );
-}
-
-const TAGS = ['Design', 'Mobile', 'Plex'];
-
-export function Removable() {
-  const [tags, setTags] = useState(TAGS);
-  return (
-    <View style={stack}>
-      <View style={row}>
-        {tags.map((tag) => (
-          <Chip key={tag} onRemove={() => setTags((list) => list.filter((item) => item !== tag))} removeLabel={`Remove ${tag}`}>
-            {tag}
-          </Chip>
-        ))}
-      </View>
-      {tags.length < TAGS.length ? (
-        <View style={{ alignItems: 'flex-start' }}>
-          <Button size="sm" variant="ghost" onPress={() => setTags(TAGS)}>
-            Restore tags
-          </Button>
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
+/**
+ * Disabled chips keep their state, as the React Toggle Group page's Disabled example keeps its items: Email stays on,
+ * as account emails cannot be turned off, and SMS stays off until there is a phone number.
+ */
 export function Disabled() {
   return (
-    <View style={row}>
-      <Chip disabled defaultSelected>
-        Selected
-      </Chip>
-      <Chip disabled onSelectedChange={() => {}}>
-        Not selected
-      </Chip>
-      <Chip icon={<Star />} disabled onPress={() => {}}>
-        Action
-      </Chip>
+    <View style={{ alignItems: 'flex-start', gap: 12 }}>
+      <Text size="md">Notify me by</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 8 }}>
+        <Chip disabled defaultSelected>
+          Email
+        </Chip>
+        <Chip defaultSelected>Push</Chip>
+        <Chip disabled defaultSelected={false}>
+          SMS
+        </Chip>
+      </View>
+      <Text size="sm" color="secondary">
+        Account emails are always on. Add a phone number to get SMS.
+      </Text>
     </View>
   );
 }

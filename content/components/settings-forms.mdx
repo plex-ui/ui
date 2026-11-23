@@ -1,6 +1,6 @@
 ---
 title: "Forms: Settings"
-description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout details, selection pages, sliders and every kind of settings row built with Plex UI."
+description: "Settings and editing forms built with Plex UI: grouped rows, choices, tags, selection pages and sliders."
 metaDescription: "Production-ready React settings forms: grouped rows, choices, tags, account actions, payout details, selection pages, sliders and every kind of settings row built with Plex UI."
 ---
 
@@ -122,14 +122,6 @@ export const tagRowCode = (label, one, options, value, onChange, onOptionsChange
 )}`.split("\n").map((line) => " ".repeat(indent) + line).join("\n")
 
 Settings and editing forms composed from [Field](/components/field), [Input](/components/input), [Select](/components/select), [File Upload](/components/file-upload), and [Button](/components/button). Sign-up, log-in and verification screens are on [Forms: Auth](/components/auth-forms).
-
-The screen examples share [FormScreen](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.tsx), [AuthFormStage](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFormStage.tsx), and [presentation controls](https://github.com/plex-ui/ui/blob/master/components/docs/ScreenPresentationControls.tsx). Copy their styles and helpers with the example. Grouped is the default mobile surface; Plain is optional. Page uses base colors and Dialog uses elevated colors. Keep field values, selections and custom options in the owner above the presentation wrapper so switching Page/Dialog preserves them. The error control demonstrates a visual state; it does not validate a payout account.
-
-Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/MobileTagRow.tsx) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks in the tint. Tap anywhere on a row to select it; search from the bar at the bottom; Clear all ends the list while something is selected. Apply saves the draft; Close discards it. Desktop keeps removable badges.
-
-Keep both `options` and the selected `value` in the form's state, updating them through `onOptionsChange` and `onChange`. The desktop fields use the same options, so labels added there survive switching between Phone and Desktop.
-
-Grouped editors use `surface="grouped"`. Choose one surface for the screens of a flow; the palette adapts to light and dark mode on phones without changing the screen layout.
 
 <span id="form-in-a-dialog" />
 
@@ -747,3 +739,13 @@ Every header and footer of a group: a header over a footer of one line; a promin
 <ComponentPreview phonePresentation="screen" code={settingsFootersReactCode} previewMinHeight={720}>
   <SettingsFootersDemo />
 </ComponentPreview>
+
+## Notes
+
+The screen examples share [FormScreen](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.tsx), [AuthFormStage](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFormStage.tsx), and [presentation controls](https://github.com/plex-ui/ui/blob/master/components/docs/ScreenPresentationControls.tsx). Copy their styles and helpers with the example. Grouped is the default mobile surface; Plain is optional. Page uses base colors and Dialog uses elevated colors. Keep field values, selections and custom options in the owner above the presentation wrapper so switching Page/Dialog preserves them. The error control demonstrates a visual state; it does not validate a payout account.
+
+Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/MobileTagRow.tsx) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks in the tint. Tap anywhere on a row to select it; search from the bar at the bottom; Clear all ends the list while something is selected. Apply saves the draft; Close discards it. Desktop keeps removable badges.
+
+Keep both `options` and the selected `value` in the form's state, updating them through `onOptionsChange` and `onChange`. The desktop fields use the same options, so labels added there survive switching between Phone and Desktop.
+
+Grouped editors use `surface="grouped"`. Choose one surface for the screens of a flow; the palette adapts to light and dark mode on phones without changing the screen layout.

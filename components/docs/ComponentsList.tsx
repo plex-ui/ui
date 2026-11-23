@@ -41,7 +41,12 @@ export function ComponentsList({ framework = 'react' }: { framework?: 'react' | 
     <div className="not-prose my-8 flex flex-col gap-10">
       {groups.map((group) => (
         <section key={group.id} aria-labelledby={`components-${group.id}`}>
-          <h2 id={`components-${group.id}`} className="m-0 mb-4 text-sm font-medium text-fd-muted-foreground">
+          {/* A group heading stands above its names: larger and semibold, with a rule under it, so it does not read
+              as one more component */}
+          <h2
+            id={`components-${group.id}`}
+            className="m-0 mb-5 border-b border-fd-border pb-3 text-lg font-semibold leading-7 text-fd-foreground"
+          >
             {group.label}
           </h2>
           <ul className="m-0 grid list-none grid-cols-1 gap-x-12 gap-y-4 p-0 text-base sm:grid-cols-2 lg:grid-cols-3">

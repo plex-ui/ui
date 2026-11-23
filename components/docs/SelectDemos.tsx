@@ -22,25 +22,25 @@ function PhoneSelectRow({ label, children }: { label: string; children: React.Re
   );
 }
 
-const fruitsOptions = [
-  { label: 'Apple', value: 'apple' },
-  { label: 'Banana', value: 'banana' },
-  { label: 'Blueberry', value: 'blueberry' },
-  { label: 'Grapes', value: 'grapes' },
-  { label: 'Mango', value: 'mango' },
-  { label: 'Pineapple', value: 'pineapple' },
-  { label: 'Watermelon', value: 'watermelon' },
+const currencyOptions = [
+  { label: 'US dollar', value: 'usd' },
+  { label: 'Euro', value: 'eur' },
+  { label: 'British pound', value: 'gbp' },
+  { label: 'Japanese yen', value: 'jpy' },
+  { label: 'Swiss franc', value: 'chf' },
+  { label: 'Canadian dollar', value: 'cad' },
+  { label: 'Australian dollar', value: 'aud' },
 ];
 
-const items = [
-  { label: 'List item 1', value: '1' },
-  { label: 'List item 2', value: '2' },
-  { label: 'List item 3', value: '3', disabled: true },
-  { label: 'List item 4', value: '4' },
-  { label: 'List item 5', value: '5' },
-  { label: 'List item 6', value: '6' },
-  { label: 'List item 7', value: '7' },
-  { label: 'List item 8', value: '8' },
+const projects = [
+  { label: 'Website redesign', value: 'website' },
+  { label: 'Mobile app', value: 'mobile' },
+  { label: 'Spring campaign (archived)', value: 'spring', disabled: true },
+  { label: 'Q3 roadmap', value: 'roadmap' },
+  { label: 'Customer portal', value: 'portal' },
+  { label: 'Brand guidelines', value: 'brand' },
+  { label: 'Data migration', value: 'migration' },
+  { label: 'Help center', value: 'help' },
 ];
 
 const groupedItems = [
@@ -86,7 +86,7 @@ const groupedItems = [
     },
   },
   {
-    label: 'Custom Deployments',
+    label: 'Custom deployments',
     options: [
       { label: 'Production US-East (v2.4.1)', value: 'ft1' },
       { label: 'Production EU-West (v2.4.0)', value: 'ft2' },
@@ -117,16 +117,25 @@ const roles: Role[] = [
     label: 'Owner',
     description: (
       <RoleOptionDescription>
-        Can modify project information and manage project members
+        Can manage members, billing and settings
       </RoleOptionDescription>
     ),
   },
   {
-    value: 'reader',
-    label: 'Reader',
+    value: 'editor',
+    label: 'Editor',
     description: (
       <RoleOptionDescription>
-        Can make API requests that read or modify data
+        Can edit and comment
+      </RoleOptionDescription>
+    ),
+  },
+  {
+    value: 'viewer',
+    label: 'Viewer',
+    description: (
+      <RoleOptionDescription>
+        Can view only
       </RoleOptionDescription>
     ),
   },
@@ -134,8 +143,9 @@ const roles: Role[] = [
 
 // A phone row passes its descriptions as text: the list sets them as an iOS menu does its subtitles (13pt, wrapped)
 const phoneRoles = [
-  { value: 'owner', label: 'Owner', description: 'Can modify project information and manage project members' },
-  { value: 'reader', label: 'Reader', description: 'Can make API requests that read or modify data' },
+  { value: 'owner', label: 'Owner', description: 'Can manage members, billing and settings' },
+  { value: 'editor', label: 'Editor', description: 'Can edit and comment' },
+  { value: 'viewer', label: 'Viewer', description: 'Can view only' },
 ];
 
 const SELECT_VARIANT_OPTIONS = ['outline', 'soft', 'ghost'] as const;
@@ -169,7 +179,7 @@ function Segments<T extends string>({ name, options, value, onChange, desktopOnl
 }
 
 /** The Overview, with every setting of the select: Multiple selection, once an example of its own, is its `multiple`
- * (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»). The select is the Fruit field of
+ * (owner 11.11: «в первом примере можно сразу показать все со всеми настройками»). The select is the Currency field of
  * a 290px form. A setting shows only where it acts: a block list matches its field, so `align` is offered only when
  * the select is not block, and `opticallyAlign` offsets a ghost trigger by its gutter, `start` its text onto the label's
  * edge and `end`, with block, its indicator onto the field's end, so it is offered only for `ghost`, where there is no
@@ -179,8 +189,8 @@ function Segments<T extends string>({ name, options, value, onChange, desktopOnl
  * with the list's None row. */
 export function SelectOverviewDemo() {
   const phone = usePhoneRows();
-  const [fruit, setFruit] = useState('');
-  const [fruits, setFruits] = useState<string[]>([]);
+  const [currency, setCurrency] = useState('');
+  const [currencies, setCurrencies] = useState<string[]>([]);
   const [variant, setVariant] = useState<(typeof SELECT_VARIANT_OPTIONS)[number]>('outline');
   const [size, setSize] = useState<(typeof OVERVIEW_SIZE_OPTIONS)[number]>('md');
   const [pill, setPill] = useState(false);
@@ -201,12 +211,12 @@ export function SelectOverviewDemo() {
   // On a phone the checkmark leads every row: `end` is `start` there, and `none` still leaves it out
   const checkPositionOptions = phone ? OVERVIEW_CHECK_POSITION_OPTIONS.filter((option) => option !== 'end') : OVERVIEW_CHECK_POSITION_OPTIONS;
   const shownCheckPosition = phone && checkPosition === 'end' ? 'start' : checkPosition;
-  const shared = { options: fruitsOptions, name: 'fruits', clearable, loading, disabled };
+  const shared = { options: currencyOptions, name: 'currencies', clearable, loading, disabled };
   // The desktop field's own settings; a phone row sets its look and opens its list over the value
   const look = phone
     ? { placeholder: 'None', block: false, align: 'end' as const, checkPosition: shownCheckPosition }
     : {
-      placeholder: multiple ? 'Select fruits...' : 'Select a fruit...',
+      placeholder: multiple ? 'Select currencies...' : 'Select a currency...',
       variant,
       size,
       pill,
@@ -225,9 +235,9 @@ export function SelectOverviewDemo() {
       {...shared}
       {...look}
       multiple
-      value={fruits}
-      onChange={(values) => setFruits(values.map(({ value }) => value))}
-      TriggerView={MultiFruitTriggerView}
+      value={currencies}
+      onChange={(values) => setCurrencies(values.map(({ value }) => value))}
+      TriggerView={MultiCurrencyTriggerView}
     />
   ) : (
     <Select
@@ -235,8 +245,8 @@ export function SelectOverviewDemo() {
       {...shared}
       {...look}
       multiple={false}
-      value={fruit}
-      onChange={(option) => setFruit(option.value)}
+      value={currency}
+      onChange={(option) => setCurrency(option.value)}
     />
   );
   return (
@@ -257,11 +267,11 @@ export function SelectOverviewDemo() {
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       {phone ? (
-        <PhoneSelectRow label={multiple ? 'Fruits' : 'Fruit'}>{select}</PhoneSelectRow>
+        <PhoneSelectRow label={multiple ? 'Currencies' : 'Currency'}>{select}</PhoneSelectRow>
       ) : (
         <div data-demo-stage className="flex-1 w-full py-12 flex items-center justify-center">
           <div className="w-[290px]">
-            <Field label={multiple ? 'Fruits' : 'Fruit'}>{select}</Field>
+            <Field label={multiple ? 'Currencies' : 'Currency'}>{select}</Field>
           </div>
         </div>
       )}
@@ -270,7 +280,7 @@ export function SelectOverviewDemo() {
 }
 
 export function SelectCustomViewsDemo() {
-  const [role, setRole] = useState<string>('reader');
+  const [role, setRole] = useState<string>('editor');
   const [variant, setVariant] = useState<(typeof SELECT_VARIANT_OPTIONS)[number]>('outline');
   const [size, setSize] = useState<(typeof SELECT_SIZE_OPTIONS)[number]>('md');
   const [checkPosition, setCheckPosition] = useState<(typeof CHECK_POSITION_OPTIONS)[number]>('start');
@@ -373,7 +383,7 @@ export function SelectActionsDemo() {
   if (phone) {
     return (
       <PhoneSelectRow label="Project">
-        <Select value={value} block={false} options={items} placeholder="None" align="end" onChange={(v) => setValue(v.value)} actions={ACTIONS} />
+        <Select value={value} block={false} options={projects} placeholder="None" align="end" onChange={(v) => setValue(v.value)} actions={ACTIONS} />
       </PhoneSelectRow>
     );
   }
@@ -383,7 +393,7 @@ export function SelectActionsDemo() {
         variant="soft"
         value={value}
         block
-        options={items}
+        options={projects}
         placeholder="Select..."
         align="start"
         listMinWidth={240}
@@ -401,7 +411,7 @@ export function SelectGroupedOptionsDemo() {
   if (phone) {
     return (
       <PhoneSelectRow label="Plan">
-        <Select value={value} block={false} align="end" options={groupedItems} searchPlaceholder="Select an option..." onChange={(v) => setValue(v.value)} />
+        <Select value={value} block={false} align="end" options={groupedItems} searchPlaceholder="Search plans..." onChange={(v) => setValue(v.value)} />
       </PhoneSelectRow>
     );
   }
@@ -414,7 +424,7 @@ export function SelectGroupedOptionsDemo() {
         size="lg"
         options={groupedItems}
         listMinWidth={300}
-        searchPlaceholder="Select an option..."
+        searchPlaceholder="Search plans..."
         clearable
         onChange={(v) => setValue(v.value)}
       />
@@ -422,7 +432,7 @@ export function SelectGroupedOptionsDemo() {
   );
 }
 
-function MultiFruitTriggerView({
+function MultiCurrencyTriggerView({
   values,
   selectedAll,
 }: {
@@ -430,10 +440,10 @@ function MultiFruitTriggerView({
   selectedAll: boolean;
 }) {
   const displayValue = selectedAll
-    ? 'All fruits'
+    ? 'All currencies'
     : values.length === 1
       ? values[0].label
-      : `${values.length} fruits`;
+      : `${values.length} currencies`;
 
   return <>{displayValue}</>;
 }

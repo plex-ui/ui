@@ -1,6 +1,6 @@
 ---
 title: Radio Group
-description: Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
+description: "A group of options from which a person chooses exactly one, as a list, a row, cards or settings rows."
 metaDescription: Vue 3 radio group component built on Reka UI for single-choice selection, with row or column layout, v-model:value binding, rich item slots, and card-style options.
 ---
 
@@ -193,9 +193,9 @@ export const withFieldError = `<div class="max-w-sm">
     v-slot="fieldProps"
   >
     <RadioGroup direction="col" v-model:value="value" aria-label="Subscription plan" v-bind="fieldProps">
-      <RadioGroupItem value="monthly">Monthly ($9.99/month)</RadioGroupItem>
-      <RadioGroupItem value="yearly">Yearly ($99.99/year)</RadioGroupItem>
-      <RadioGroupItem value="lifetime">Lifetime ($299.99)</RadioGroupItem>
+      <RadioGroupItem value="monthly" description="$9.99/month">Pay monthly</RadioGroupItem>
+      <RadioGroupItem value="yearly" description="$99.99/year">Pay yearly</RadioGroupItem>
+      <RadioGroupItem value="lifetime" description="$299.99 for lifetime access">Pay once</RadioGroupItem>
     </RadioGroup>
   </Field>
 </div>`
@@ -209,9 +209,9 @@ export const withFieldErrorPhone = `<RadioGroup
   :aria-describedby="showError ? 'subscription-plan-error' : undefined"
 >
   <FieldGroup title="Subscription plan" description="Select a plan to continue.">
-    <Field row label="Monthly ($9.99/month)"><RadioGroupItem value="monthly" /></Field>
-    <Field row label="Yearly ($99.99/year)"><RadioGroupItem value="yearly" /></Field>
-    <Field row label="Lifetime ($299.99)"><RadioGroupItem value="lifetime" /></Field>
+    <Field row label="Pay monthly" description="$9.99/month"><RadioGroupItem value="monthly" /></Field>
+    <Field row label="Pay yearly" description="$99.99/year"><RadioGroupItem value="yearly" /></Field>
+    <Field row label="Pay once" description="$299.99 for lifetime access"><RadioGroupItem value="lifetime" /></Field>
     <template v-if="showError" #footer>
       <FieldError id="subscription-plan-error">Please select a subscription plan.</FieldError>
     </template>
@@ -243,18 +243,18 @@ export const choiceCard = `<RadioGroup class="flex-col w-[320px] gap-3" v-model:
   </div>
 </RadioGroup>`
 
-export const cardSelection = `<RadioGroup class="flex-col w-full min-w-0 max-w-[390px] gap-4" aria-label="Sample options">
+export const cardSelection = `<RadioGroup class="flex-col w-full min-w-0 max-w-[390px] gap-4" aria-label="Plan">
   <RadioGroupItem class="gap-2.5" value="basic">
     <div>
-      <h4 class="font-semibold mb-1">Basic Plan</h4>
+      <h4 class="font-semibold mb-1">Basic plan</h4>
       <p class="text-secondary text-sm">5 GB storage • Email support • Free</p>
     </div>
   </RadioGroupItem>
   <hr class="border-default" />
   <RadioGroupItem class="gap-2.5" value="standard">
     <div>
-      <h4 class="font-semibold mb-1">Standard Plan</h4>
-      <p class="text-secondary text-sm">100 GB storage • Priority email support • $9.99/m</p>
+      <h4 class="font-semibold mb-1">Standard plan</h4>
+      <p class="text-secondary text-sm">100 GB storage • Priority email support • $9.99/month</p>
     </div>
   </RadioGroupItem>
   <hr class="border-default" />
@@ -265,7 +265,7 @@ export const cardSelection = `<RadioGroup class="flex-col w-full min-w-0 max-w-[
     <TooltipTrigger>
       <RadioGroupItem class="gap-2.5" value="enterprise" disabled>
         <div>
-          <h4 class="font-semibold mb-1">Enterprise Plan</h4>
+          <h4 class="font-semibold mb-1">Enterprise plan</h4>
           <p class="text-secondary text-sm">Unlimited storage • 24/7 phone support • Custom pricing</p>
         </div>
       </RadioGroupItem>
@@ -299,8 +299,6 @@ import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
 <UsageBlock>{`import { RadioGroup, RadioGroupItem } from "@plexui/vue/components/RadioGroup";`}</UsageBlock>
 
-On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`: each `Field row` names an option, and its `RadioGroupItem` without content is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. Direction and orientation are desktop settings of the Overview, and the cards and the alignment check are desktop-only examples.
-
 export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGroup direction="col" class="w-full" v-model:value="visibility" aria-label="Visibility">
         <FieldGroup title="Visibility" description="Control who can see project resources.">
           <Field row label="Hidden"><RadioGroupItem value="hidden" /></Field>
@@ -329,6 +327,7 @@ export const groupedSectionsMobile = formScreenTemplate("Preferences", `<RadioGr
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>On Phone, put the options in the rows of a <code>FieldGroup</code> inside the <code>RadioGroup</code>: each <code>Field row</code> names an option, and its <code>RadioGroupItem</code> without content is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. The cards and the alignment check are desktop-only examples.</p>
   <p><code>direction</code> sets whether the items flow in a column or a row; the gap follows it. <code>orientation="right"</code> on <code>RadioGroupItem</code> places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set <code>block</code> on the items so they fill the group and the indicators line up.</p>
   <p>Use <code>description</code> (or the <code>description</code> slot) on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option.</p>
   <p><code>disabled</code> on <code>RadioGroup</code> disables every option; on a single <code>RadioGroupItem</code> it disables only that one, here Monthly, so that setting is offered only while the group is enabled.</p>

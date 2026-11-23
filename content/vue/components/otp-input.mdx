@@ -1,6 +1,6 @@
 ---
 title: OTP Input
-description: Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
+description: "A field for one-time passwords and verification codes, entered one digit per cell, with autofill."
 metaDescription: Vue 3 OTP input component for one-time password and verification code entry, with split digit cells, grouped layouts, error states, and autofill.
 ---
 
@@ -52,11 +52,10 @@ ${overview}
 
 ### Overview
 
-A code is entered in a verification step, so the field stands under the step's title and the recipient the code went to. For the whole screen, with Resend and its countdown, on the web and on a phone, see [Forms: Auth › Verify email or phone](/vue/components/auth-forms#verify-email-or-phone).
-
-Choose Empty or Filled to replace the current code with a preset. `grouping` splits the cells, here into two groups of three. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
-
-<ComponentPreview language="vue" code={overviewCode} previewMinHeight={168}>
+<ComponentPreview details={<>
+  <p>A code is entered in a verification step, so the field stands under the step's title and the recipient the code went to. For the whole screen, with Resend and its countdown, on the web and on a phone, see <a href="/vue/components/auth-forms#verify-email-or-phone">Forms: Auth › Verify email or phone</a>.</p>
+  <p>Choose Empty or Filled to replace the current code with a preset. <code>grouping</code> splits the cells, here into two groups of three. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.</p>
+</>} language="vue" code={overviewCode} previewMinHeight={168}>
   <VueDemo template={overview} controls={overviewControls} stageClassName="py-10 flex justify-center" />
 </ComponentPreview>
 

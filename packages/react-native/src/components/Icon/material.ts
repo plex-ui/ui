@@ -34,3 +34,9 @@ export const MaterialDash = createIcon("MaterialDash", "0 0 18 18", [["path", { 
 
 /** `check`: the Material Symbol a switch's thumb shows on (SettingsLib's `settingslib_expressive_switch_thumb_icon`). */
 export const MaterialCheckSymbol = createIcon("MaterialCheckSymbol", "0 -960 960 960", [["path", { d: "M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z", fill: 0 }]])
+
+/**
+ * `arrow_back`: the up arrow of an app bar (`Icons.AutoMirrored.Filled.ArrowBack`, AppCompat's
+ * `abc_ic_ab_back_material` that Settings' toolbar shows); it is mirrored right to left.
+ */
+export const MaterialArrowBack = createIcon("MaterialArrowBack", "0 0 24 24", [["path", { d: "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z", fill: 0 }]])

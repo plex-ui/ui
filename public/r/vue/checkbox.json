@@ -3,7 +3,7 @@
   "name": "checkbox",
   "type": "registry:ui",
   "title": "Checkbox",
-  "description": "Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.",
+  "description": "Checkbox for binary on/off selection, with solid, pill and ghost variants and an indeterminate state.",
   "dependencies": [
     "@plexui/vue"
   ],

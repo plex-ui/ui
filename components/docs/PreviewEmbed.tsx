@@ -24,6 +24,13 @@ export function usePreviewEmbed() {
   return useContext(PreviewEmbedContext);
 }
 
+const PreviewEmbedPlatformContext = createContext<'ios' | 'android' | null>(null);
+
+/** The platform a React Native phone preview draws (its `platform` search parameter), or null */
+export function usePreviewEmbedPlatform() {
+  return useContext(PreviewEmbedPlatformContext);
+}
+
 /* ------------------------------------------------------------------ */
 /*  Control values shared by the parent page and phone view           */
 /* ------------------------------------------------------------------ */
@@ -227,7 +234,7 @@ export function measureCompactPreviewHeight(stage: HTMLElement): number {
 /*  The phone view's page                                             */
 /* ------------------------------------------------------------------ */
 
-export function PreviewEmbed({ target, children }: { target: string; children: ReactNode }) {
+export function PreviewEmbed({ target, platform = null, children }: { target: string; platform?: 'ios' | 'android' | null; children: ReactNode }) {
   const controls = useMemo(() => createDemoControlChannel(target, 'embed'), [target]);
   useLayoutEffect(() => controls.connect((name, value) => {
     if (window.parent === window) return;
@@ -249,6 +256,14 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
     root.setAttribute('data-preview-standalone', '');
     return () => root.removeAttribute('data-preview-standalone');
   }, []);
+
+  // The frame's insets differ by device: an Android phone's status bar and gesture handle (PreviewEmbed.module.css)
+  useEffect(() => {
+    if (!platform) return;
+    const root = document.documentElement;
+    root.setAttribute('data-preview-platform', platform);
+    return () => root.removeAttribute('data-preview-platform');
+  }, [platform]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -307,11 +322,23 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
       // Dialog.Content owns a transparent positioning layer; its first child is
       // the painted panel. A fullscreen panel also covers the native status bar.
       const background = getComputedStyle(fullscreenDialog?.firstElementChild ?? page ?? el).backgroundColor;
+      // A React Native overlay is react-native-web's Modal (role="dialog", aria-modal): it dims the frame's status bar
+      // as a dialog's scrim does, while its scrim shows (a menu's is transparent)
+      const nativeOverlays = el.hasAttribute('data-preview-native')
+        ? Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]'))
+        : [];
+      const nativeScrim = nativeOverlays.some((modal) => Array.from(modal.querySelectorAll<HTMLElement>('div')).slice(0, 8).some((node) => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return rect.width >= window.innerWidth - 1 && rect.height >= window.innerHeight - 1
+          && style.backgroundColor !== 'rgba(0, 0, 0, 0)' && style.backgroundColor !== 'transparent'
+          && Number.parseFloat(style.opacity) > 0.2;
+      }));
       const presentation = {
         previewKey: target,
         previewHeight: el.dataset.previewPresentation === 'component' ? measureCompactPreviewHeight(el) : Math.ceil(el.getBoundingClientRect().height),
-        previewDialogOpen: Boolean(topDialog),
-        previewStatusBarScrim: Boolean(topDialog && topDialog !== fullscreenDialog),
+        previewDialogOpen: Boolean(topDialog) || nativeOverlays.length > 0,
+        previewStatusBarScrim: Boolean(topDialog && topDialog !== fullscreenDialog) || nativeScrim,
         previewBackground: background,
       };
       const signature = JSON.stringify(presentation);
@@ -359,9 +386,11 @@ export function PreviewEmbed({ target, children }: { target: string; children: R
 
   return (
     <PreviewEmbedContext.Provider value={target}>
-      <DemoControlEmbedContext.Provider value={controls}>
-        <div className={s.Root}>{children}</div>
-      </DemoControlEmbedContext.Provider>
+      <PreviewEmbedPlatformContext.Provider value={platform}>
+        <DemoControlEmbedContext.Provider value={controls}>
+          <div className={s.Root}>{children}</div>
+        </DemoControlEmbedContext.Provider>
+      </PreviewEmbedPlatformContext.Provider>
     </PreviewEmbedContext.Provider>
   );
 }

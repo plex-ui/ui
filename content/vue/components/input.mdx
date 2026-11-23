@@ -1,6 +1,6 @@
 ---
 title: Input
-description: Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
+description: Text input with start and end adornments, a clear button and a password visibility toggle.
 metaDescription: Vue 3 text input component with start and end adornment slots, clear button, password visibility toggle, and masked SSN and birthday presets.
 ---
 
@@ -239,7 +239,7 @@ export const birthdayValidation = `<div class="w-[320px]">
 </div>`
 
 export const withButton = `<div class="flex w-[320px] gap-2">
-  <Input placeholder="jane.doe@gmail.com" :size="size" :variant="variant" />
+  <Input placeholder="name@example.com" :size="size" :variant="variant" />
   <Button color="primary" :size="size" :variant="variant">Subscribe</Button>
 </div>`
 
@@ -348,14 +348,12 @@ export const birthdayValidationPhone = `<FieldGroup>
 
 export const withButtonPhone = `<FieldGroup>
   <Field row label="Email">
-    <Input type="email" placeholder="jane.doe@gmail.com" />
+    <Input type="email" placeholder="name@example.com" />
   </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Subscribe</Button>`
 
 <UsageBlock>{`import { Input, InputAdornmentButton } from "@plexui/vue/components/Input";`}</UsageBlock>
-
-On Phone, put an input in a row of a `FieldGroup`, as the [Forms: Settings](/vue/components/settings-forms) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `size`, `gutter-size`, `pill` and `variant` controls.
 
 ## Examples
 
@@ -371,6 +369,7 @@ On Phone, put an input in a row of a `FieldGroup`, as the [Forms: Settings](/vue
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>On Phone, put an input in a row of a <code>FieldGroup</code>, as the <a href="/vue/components/settings-forms">Forms: Settings</a> do.</p>
   <p>Use <code>variant</code> to stylize the input. <code>ghost</code> has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when <code>invalid</code>. <code>size</code> sets the control <code>height</code> and gives a <code>gutter-size</code> (the horizontal padding) and a <code>font-size</code>, each of which can be overridden; Input shares the 9-step size scale with Button, Select, SelectControl and SegmentedControl, so adjacent controls of one <code>size</code> line up. <code>pill</code> rounds it fully. Bind the text with <code>v-model:value</code>.</p>
   <p>The <code>startAdornment</code> slot puts content before the value, such as a prefix or a search icon, and the <code>endAdornment</code> slot after it, such as a character counter. <code>gutter-size</code> sets the space at the edges (a negative margin on the adornment, such as <code>-ml-2</code>, fine-tunes it), and <code>gap</code> on the container the space between the adornment and the value. Listening to <code>@clear</code> shows a built-in clear button while the input has a value and is not disabled or read-only (bind <code>:on-clear</code> to show it under a condition); clicking it keeps focus in the input. <code>optically-align</code> (<code>"start"</code> or <code>"end"</code>) offsets the gutter so the text lines up with the content around it, here the label; on a <code>Field</code> it is forwarded to its control.</p>
   <p><code>auto-select</code> selects all the text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; <code>allow-autofill-extensions</code> lets them in, and a <code>name</code> or <code>type="password"</code> turns it on by default. <code>read-only</code> keeps the value and hides the clear button. <code>disabled</code> greys the input out and blocks interaction. <code>invalid</code> marks it invalid, with <code>[data-invalid]</code> on the container; you decide how the state is removed (<code>@focus</code>, <code>@update:value</code>, a submit handler).</p>

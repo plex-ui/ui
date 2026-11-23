@@ -1,17 +1,16 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
-import { AccessibilityInfo, Animated, Easing, PanResponder, Pressable, StyleSheet, View } from "react-native"
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
+import { AccessibilityInfo, Animated, Easing, PanResponder, Platform, Pressable, StyleSheet, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import CheckCircleFilled from "../../icons/plex/CheckCircleFilled"
-import ExclamationMarkCircleFilled from "../../icons/plex/ExclamationMarkCircleFilled"
+import CheckCircle from "../../icons/plex/CheckCircle"
 import InfoCircle from "../../icons/plex/InfoCircle"
 import Warning from "../../icons/plex/Warning"
+import XCircle from "../../icons/plex/XCircle"
 import { Glass } from "../../internal/Glass"
 import { glassOpacity } from "../../internal/Overlay"
 import { textOf } from "../../internal/children"
-import { elevationShadow, stateLayer, withAlpha } from "../../theme/material"
+import { mix, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
-import { materialType } from "../../theme/typography"
 import { MaterialClose } from "../Icon/material"
 import { Text } from "../Text/Text"
 
@@ -23,13 +22,16 @@ export type ToastOptions = {
   description?: ReactNode
   /** One action, as sonner's `action`. */
   action?: { label: string; onClick: () => void }
-  /** Milliseconds on screen. @default 4000 */
+  /**
+   * Milliseconds on screen; `Infinity` stays until it is dismissed. On a device Android lengthens it to the person's
+   * "Time to take action" (`getRecommendedTimeoutMillis`). @default 4000; on Android 2750, 5000 with an action
+   */
   duration?: number
-  /** A symbol of its own before the title (iOS). */
+  /** A symbol of its own before the title (iOS); `null` or `false` shows none, as sonner's `icon: null`. */
   icon?: ReactNode
   /**
-   * A close button, as the web's `closeButton`. Android: the snackbar's dismiss action, a Material close icon at its
-   * end. iOS banners have none: they close with a swipe up, and the option is ignored there.
+   * A close button, as the web's `closeButton`. Android: a close icon at the end of the toast card. iOS banners have
+   * none: they close with a swipe up, and the option is ignored there.
    */
   closeButton?: boolean
   /** The close button's accessible name. @default "Close toast" */
@@ -41,6 +43,9 @@ export type ToastT = ToastOptions & { id: ToastId; title: ReactNode; type: Toast
 
 let toasts: ToastT[] = []
 let counter = 0
+/** When each toast was last shown or updated: Android shows the latest one, and the others leave. */
+const stamps = new Map<ToastId, number>()
+let stamp = 0
 const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((listener) => listener())
 const subscribe = (listener: () => void) => {
@@ -51,16 +56,38 @@ const subscribe = (listener: () => void) => {
 function show(type: ToastType, title: ReactNode, options: ToastOptions = {}): ToastId {
   const id = options.id ?? ++counter
   const previous = toasts.find((toast) => toast.id === id)
-  const next: ToastT = { ...options, id, title, type, version: (previous?.version ?? 0) + 1 }
-  // A toast of the same id is updated in place, as sonner does
-  toasts = toasts.some((toast) => toast.id === id) ? toasts.map((toast) => (toast.id === id ? next : toast)) : [...toasts, next]
+  // A toast of the same id is updated in place, as sonner does: what the update does not set it keeps
+  const next: ToastT = { ...previous, ...options, id, title, type, version: (previous?.version ?? 0) + 1 }
+  toasts = previous ? toasts.map((toast) => (toast.id === id ? next : toast)) : [...toasts, next]
+  stamps.set(id, ++stamp)
   emit()
   return id
+}
+
+/** The Toasters mounted: sonner's toasts live in its Toaster, and go with the last one. */
+let toasters = 0
+
+function useToasterHost() {
+  useEffect(() => {
+    toasters++
+    return () => {
+      toasters--
+      // A Toaster mounted again at once (StrictMode, a remount) keeps them; a screen that went keeps none of its toasts,
+      // nor their callbacks, for the next one to show
+      setTimeout(() => {
+        if (toasters > 0 || toasts.length === 0) return
+        toasts = []
+        stamps.clear()
+        emit()
+      }, 0)
+    }
+  }, [])
 }
 
 function dismiss(id?: ToastId) {
   const gone = toasts.filter((toast) => id === undefined || toast.id === id)
   toasts = id === undefined ? [] : toasts.filter((toast) => toast.id !== id)
+  gone.forEach((toast) => stamps.delete(toast.id))
   gone.forEach((toast) => toast.onDismiss?.())
   emit()
 }
@@ -78,93 +105,264 @@ export const toast = Object.assign((title: ReactNode, options?: ToastOptions) =>
 })
 
 export type ToasterProps = {
-  /** How many toasts stand at once on iOS; Material shows one snackbar at a time. @default 3 */
+  /** How many toasts stand at once on iOS; on Android a new toast card replaces the one shown. @default 3 */
   visibleToasts?: number
+  /**
+   * Android: the height of a bar at the bottom of the screen the toast card stands 8dp above (a TabBar, a bottom
+   * Toolbar, from the bottom edge, its safe area included), as Android lifts its toast card over the bottom tabs.
+   * @default 0 (the toast card stands 8dp over the safe area)
+   */
+  bottomOffset?: number
   testID?: string
 }
 
 /**
- * Where toasts appear. iOS 26: glass banners from the top (radius 24, 21.5 for a single line, 12/14 padding, the
- * title 15/17 semibold, the description 15/18, an action in a 34pt capsule; `--toast-mobile-*`), swiped up to go;
- * Android: Material 3's snackbar at the bottom (inverseSurface, 4dp corners, 48dp for one line, Body M, the action
- * in inversePrimary), one at a time.
+ * Where toasts appear. iOS 26: glass banners from the top, 16 under the safe area, as wide as their message between
+ * 14pt gutters and centered (Toast.module.css: radius 24, 21.5 without a description, 12/14 padding, the title 15/17
+ * medium, semibold over a description, the description 15/18, an action in the solid 34pt capsule with a regular
+ * label; `--toast-mobile-*`), swiped up to go;
+ * Android: a toast card at the bottom (a dark card, 16dp corners, 16 from the sides, 48dp for one line, a 24dp
+ * icon, Regular 15 in white, the action in a light accent), above `bottomOffset`: one at a time, a new one replacing
+ * it; it springs up from under its place, a sideways swipe takes it away, and a touch holds its time. It is a view of
+ * the app's own: a Dialog or a sheet, a Modal of its own, stands over it.
  */
-export function Toaster({ visibleToasts = 3, testID }: ToasterProps) {
+export function Toaster({ visibleToasts = 3, bottomOffset = 0, testID }: ToasterProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
+  useToasterHost()
   const all = useSyncExternalStore(subscribe, () => toasts, () => toasts)
-  // Material shows one snackbar at a time and queues the rest, each with its full time when its turn comes. iOS
-  // keeps every banner mounted, so one past `visibleToasts` keeps its timer, and hides the oldest
-  const shown = theme.isAndroid ? all.slice(0, 1) : all.slice().reverse()
+  // iOS keeps every banner mounted, so one past `visibleToasts` keeps its timer, and hides the oldest
+  if (theme.isAndroid) return <AndroidToaster all={all} theme={theme} bottom={Math.max(insets.bottom, bottomOffset)} testID={testID} />
+  const shown = all.slice().reverse()
   return (
     <View
       pointerEvents="box-none"
       accessibilityLiveRegion="polite"
       testID={testID}
-      style={[styles.host, theme.isAndroid ? { bottom: insets.bottom + 12, justifyContent: "flex-end" } : { top: insets.top + 8 }]}
+      style={[
+        styles.host,
+        // The web's mobile offsets: 16 under the safe area, 14 beside it (Toaster.tsx)
+        { top: insets.top + 16, paddingLeft: insets.left + 14, paddingRight: insets.right + 14 },
+      ]}
     >
       {shown.map((item, index) => (
-        <ToastView key={item.id} item={item} theme={theme} hidden={!theme.isAndroid && index >= visibleToasts} />
+        <ToastView key={item.id} item={item} theme={theme} hidden={index >= visibleToasts} />
       ))}
     </View>
   )
 }
 
-const ICONS = { success: CheckCircleFilled, error: ExclamationMarkCircleFilled, warning: Warning, info: InfoCircle } as const
+/**
+ * Android's toast cards: the latest one stands 8 over the bottom (or the bar under it) and 16 from the sides; one
+ * shown before it leaves as it comes (showing one hides the visible one). They rise from the host's bottom edge,
+ * which clips them.
+ */
+function AndroidToaster({ all, theme, bottom, testID }: { all: ToastT[]; theme: Theme; bottom: number; testID?: string }) {
+  let latest: ToastT | undefined
+  for (const item of all) if (!latest || (stamps.get(item.id) ?? 0) >= (stamps.get(latest.id) ?? 0)) latest = item
+  return (
+    <View pointerEvents="box-none" accessibilityLiveRegion="polite" testID={testID} style={[styles.host, styles.androidHost, { bottom }]}>
+      {all.map((item) => (
+        // The same wrapper either way, so a toast that is replaced keeps its state as it leaves
+        <View key={item.id} pointerEvents="box-none" style={item === latest ? null : styles.replaced}>
+          <ToastView item={item} theme={theme} hidden={false} replaced={item !== latest} />
+        </View>
+      ))}
+    </View>
+  )
+}
 
-function ToastView({ item, theme, hidden }: { item: ToastT; theme: Theme; hidden: boolean }) {
+/** The web Toaster's symbols, in the outline colors of their types (Toast.module.css `--toast-icon-color`). */
+const ICONS = {
+  success: { Icon: CheckCircle, color: "--color-text-success-outline" },
+  error: { Icon: XCircle, color: "--color-text-danger-outline" },
+  warning: { Icon: Warning, color: "--color-text-warning-outline" },
+  info: { Icon: InfoCircle, color: "--color-text-info-outline" },
+} as const
+
+/** The toast card: slate at 92%, near-black at 96% in dark mode. */
+const cardFill = (scheme: "light" | "dark") => (scheme === "dark" ? "rgba(24, 24, 24, 0.96)" : "rgba(39, 47, 56, 0.92)")
+/** The toast card's action (#85CAFF / #6CB7FF): the accent half white, 40% in dark mode. */
+const cardAction = (theme: Theme) => mix("#FFFFFF", theme.material.primary, theme.scheme === "dark" ? 0.4 : 0.5)
+/**
+ * Android's toast card rises by its own height on a spring and goes back down the same way, with no fade
+ * (its spring: damping ratio 0.8, stiffness 400; at mass 1 a damping of 0.8 × 2√400).
+ */
+const CARD_SPRING = { stiffness: 400, damping: 32, mass: 1 }
+/** A swiped toast card goes past a third of its width, or on a flick of 2000 px/s (about 0.76dp per ms). */
+const CARD_FLING = 0.76
+
+function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; theme: Theme; hidden: boolean; replaced?: boolean }) {
+  // iOS: the banner's slide and fade; Android: the toast card's spring up. `scale` is Android's press (2% down)
   const [progress] = useState(() => new Animated.Value(0))
+  const [scale] = useState(() => new Animated.Value(1))
+  // iOS: the drag up; Android: the swipe sideways
   const [drag] = useState(() => new Animated.Value(0))
   const android = theme.isAndroid
+  // The toast card's size: it rises by its height, and fades as it is swiped across its width
+  const [card, setCard] = useState({ width: 360, height: 56 })
+  // Android: a touch holds the toast card's time, which starts again in full as it ends
+  const hold = useRef<{ pause: () => void; resume: () => void } | null>(null)
   // The version that is leaving: an update in place brings the toast back
   const [leavingVersion, setLeavingVersion] = useState<number | null>(null)
   const leaving = leavingVersion === item.version
   const version = useRef(item.version)
+  // The version whose exit has begun, at once: its action runs once, however fast it is pressed again
+  const left = useRef<number | null>(null)
   const leave = () => {
+    if (left.current === version.current) return
+    left.current = version.current
     setLeavingVersion(version.current)
-    Animated.timing(progress, { toValue: 0, duration: theme.reducedMotion ? 0 : 200, easing: Easing.in(Easing.cubic), useNativeDriver: false }).start(({ finished }) => {
-      // An update stops the exit (the entrance takes the value over), and the toast stays
+    // An update stops the exit (the entrance takes the value over), and the toast stays
+    const done = ({ finished }: { finished: boolean }) => {
+      if (finished) dismiss(item.id)
+    }
+    if (android && !theme.reducedMotion) Animated.spring(progress, { toValue: 0, ...CARD_SPRING, useNativeDriver: false }).start(done)
+    else Animated.timing(progress, { toValue: 0, duration: theme.reducedMotion ? 0 : 200, easing: Easing.in(Easing.cubic), useNativeDriver: false }).start(done)
+  }
+  // Swiped away, a toast card goes on to the side, fading, and is gone (the swipe: 200ms, accelerating)
+  const swipeAway = (direction: number) => {
+    if (left.current === version.current) return
+    left.current = version.current
+    setLeavingVersion(version.current)
+    Animated.timing(drag, { toValue: direction * card.width, duration: theme.reducedMotion ? 0 : 200, easing: Easing.quad, useNativeDriver: false }).start(({ finished }) => {
       if (finished) dismiss(item.id)
     })
   }
+  // The gesture is made once: it reads the platform and the exit of the current render
+  const live = useRef({ android, leave, swipeAway, width: card.width })
+  useLayoutEffect(() => {
+    live.current = { android, leave, swipeAway, width: card.width }
+  })
   useEffect(() => {
     version.current = item.version
-    Animated.timing(progress, { toValue: 1, duration: theme.reducedMotion ? 0 : 300, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start()
+    // An update brings back a toast that was being swiped away
+    drag.setValue(0)
+    if (android && !theme.reducedMotion) Animated.spring(progress, { toValue: 1, ...CARD_SPRING, useNativeDriver: false }).start()
+    else Animated.timing(progress, { toValue: 1, duration: theme.reducedMotion ? 0 : 300, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start()
+    // The toaster is a polite live region, which Android and the web read; VoiceOver is told
     const text = [textOf(item.title), textOf(item.description)].filter(Boolean).join(". ")
-    if (text) AccessibilityInfo.announceForAccessibility(text)
-    // An update in place starts its time again; `Infinity` stays until it is dismissed, as sonner
-    const duration = item.duration ?? 4000
+    if (text && Platform.OS === "ios") AccessibilityInfo.announceForAccessibility(text)
+    // An update in place starts its time again; `Infinity` stays until it is dismissed, as sonner. Android keeps a
+    // a toast 2750ms (its long duration), 5000 with an action (a prolonged one)
+    const duration = item.duration ?? (android ? (item.action ? 5000 : 2750) : 4000)
     if (!Number.isFinite(duration)) return
-    const timer = setTimeout(() => leave(), duration)
-    return () => clearTimeout(timer)
+    let active = true
+    let held = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const start = (ms: number) => {
+      clearTimeout(timer)
+      if (active && !held) timer = setTimeout(() => live.current.leave(), ms)
+    }
+    const arm = () => {
+      // Android lengthens a timeout to the person's "Time to take action" (getRecommendedTimeoutMillis)
+      if (Platform.OS === "android" && AccessibilityInfo.getRecommendedTimeoutMillis) {
+        AccessibilityInfo.getRecommendedTimeoutMillis(duration).then(start, () => start(duration))
+      } else {
+        start(duration)
+      }
+    }
+    arm()
+    // Android's toast card keeps still while it is touched, then takes its full time again
+    hold.current = {
+      pause: () => {
+        held = true
+        clearTimeout(timer)
+      },
+      resume: () => {
+        held = false
+        arm()
+      },
+    }
+    return () => {
+      active = false
+      hold.current = null
+      clearTimeout(timer)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id, item.version])
+  // A toast card that another replaces leaves as the new one comes
+  useEffect(() => {
+    if (replaced) live.current.leave()
+  }, [replaced])
   const [responder] = useState(() =>
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 4,
-      // The banner follows the finger up; down it resists
-      onPanResponderMove: (_, gesture) => drag.setValue(android ? Math.max(0, gesture.dy) : Math.min(0, gesture.dy)),
+      // The banner moves up; the toast card sideways, as on Android
+      onMoveShouldSetPanResponder: (_, gesture) => (live.current.android ? Math.abs(gesture.dx) > 4 && Math.abs(gesture.dx) > Math.abs(gesture.dy) : Math.abs(gesture.dy) > 4),
+      // The banner follows the finger up, and resists the other way; the toast card follows it either way
+      onPanResponderMove: (_, gesture) => drag.setValue(live.current.android ? gesture.dx : Math.min(0, gesture.dy)),
       onPanResponderRelease: (_, gesture) => {
-        if ((android ? gesture.dy > 24 : gesture.dy < -24) || Math.abs(gesture.vy) > 0.8) leave()
+        if (live.current.android) {
+          // Past a third of its width, or on a flick, it goes on that way; else it comes back over 200ms
+          const flick = Math.abs(gesture.vx) > CARD_FLING
+          if (flick || Math.abs(gesture.dx) > live.current.width / 3) live.current.swipeAway(Math.sign(flick ? gesture.vx : gesture.dx) || 1)
+          else Animated.timing(drag, { toValue: 0, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: false }).start()
+          return
+        }
+        if (gesture.dy < -24 || Math.abs(gesture.vy) > 0.8) live.current.leave()
         else Animated.spring(drag, { toValue: 0, useNativeDriver: false, bounciness: 0 }).start()
+      },
+      onPanResponderTerminate: () => {
+        if (live.current.android) Animated.timing(drag, { toValue: 0, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: false }).start()
       },
     }),
   )
-  const offset = progress.interpolate({ inputRange: [0, 1], outputRange: [android ? 24 : -24, 0] })
-  // An offset, not a transform: a transform would stop the glass's blur on the web
-  const motion = { opacity: progress, top: Animated.add(offset, drag), display: hidden ? ("none" as const) : undefined }
+  const act = () => {
+    if (left.current === version.current) return
+    item.action?.onClick()
+    leave()
+  }
+  // A leaving toast takes no more touches
+  const touches = leaving ? ("none" as const) : ("auto" as const)
+  const display = hidden ? ("none" as const) : undefined
   if (android) {
-    const m = theme.material
-    const body = materialType.bodyMedium
-    const label = materialType.labelLarge
+    const described = item.description != null
+    const symbol = item.type !== "default" ? ICONS[item.type] : null
+    // A typed toast card shows its symbol in white, as Android's icons on the dark card
+    const icon = item.icon !== undefined ? item.icon : symbol ? <symbol.Icon size={24} color="#FFFFFF" /> : null
+    const action = cardAction(theme)
+    const press = (to: number) => Animated.timing(scale, { toValue: to, duration: theme.reducedMotion ? 0 : 120, useNativeDriver: false }).start()
+    const release = () => {
+      press(1)
+      hold.current?.resume()
+    }
     return (
-      <Animated.View {...responder.panHandlers} accessibilityRole="alert" style={[styles.snackbar, { backgroundColor: m.inverseSurface }, item.closeButton ? styles.snackClosable : null, motion]}>
-        <View style={styles.snackText}>
-          <Text color={m.inverseOnSurface} style={{ fontSize: body.fontSize, lineHeight: body.lineHeight }}>
+      <Animated.View
+        {...responder.panHandlers}
+        accessibilityRole="alert"
+        pointerEvents={touches}
+        // A touch presses the whole card 2% down, as on Android, and holds its time
+        onTouchStart={() => {
+          press(0.98)
+          hold.current?.pause()
+        }}
+        onTouchEnd={release}
+        onTouchCancel={release}
+        onLayout={(event) => {
+          const { width, height } = event.nativeEvent.layout
+          setCard((current) => (current.width === width && current.height === height ? current : { width, height }))
+        }}
+        style={[
+          styles.card,
+          {
+            backgroundColor: cardFill(theme.scheme),
+            paddingEnd: item.action || item.closeButton ? 0 : 16,
+            // It fades only as it is swiped across
+            opacity: drag.interpolate({ inputRange: [-card.width, 0, card.width], outputRange: [0, 1, 0], extrapolate: "clamp" }),
+            // From under the host's clipped edge: its height and the 8 under it
+            transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [card.height + 8, 0] }) }, { translateX: drag }, { scale }],
+            display,
+          },
+        ]}
+      >
+        {icon ? <View style={styles.cardIcon}>{icon}</View> : null}
+        <View style={[styles.cardText, described ? styles.cardTwoLines : null]}>
+          {/* One line: Regular 15; over a subtitle the title is Medium 14, the subtitle 13 */}
+          <Text color="#FFFFFF" style={described ? [{ fontSize: 14, lineHeight: 18 }, theme.font("medium")] : { fontSize: 15, lineHeight: 20 }}>
             {item.title}
           </Text>
-          {item.description != null ? (
-            <Text color={withAlpha(m.inverseOnSurface, 0.8)} style={{ fontSize: body.fontSize, lineHeight: body.lineHeight }}>
+          {described ? (
+            <Text color="#FFFFFF" style={{ fontSize: 13, lineHeight: 16 }}>
               {item.description}
             </Text>
           ) : null}
@@ -172,51 +370,58 @@ function ToastView({ item, theme, hidden }: { item: ToastT; theme: Theme; hidden
         {item.action ? (
           <Pressable
             accessibilityRole="button"
-            onPress={() => {
-              item.action?.onClick()
-              leave()
-            }}
-            style={({ pressed }) => [styles.snackAction, pressed ? { backgroundColor: withAlpha(m.inversePrimary, stateLayer.pressed) } : null]}
+            disabled={leaving}
+            onPress={act}
+            // The toast card's undo button: 12/8 inside 8 of margin, its press the action color at 10% in 6dp corners
+            style={({ pressed }) => [styles.cardAction, pressed ? { backgroundColor: withAlpha(action, 0.1) } : null]}
           >
-            <Text color={m.inversePrimary} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight, ...theme.font("medium") }}>
+            <Text color={action} style={{ fontSize: 14, lineHeight: 18, ...theme.font("medium") }}>
               {item.action.label}
             </Text>
           </Pressable>
         ) : null}
         {item.closeButton ? (
-          // Compose's dismissAction: an IconButton with Icons.Filled.Close in inverseOnSurface, flush with the end
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={item.closeButtonAriaLabel ?? "Close toast"}
+            disabled={leaving}
             onPress={leave}
-            style={({ pressed }) => [styles.snackClose, pressed ? { backgroundColor: withAlpha(m.inverseOnSurface, stateLayer.pressed) } : null]}
+            style={({ pressed }) => [styles.cardClose, pressed ? { backgroundColor: "rgba(255, 255, 255, 0.12)" } : null]}
           >
-            <MaterialClose size={24} color={m.inverseOnSurface} />
+            <MaterialClose size={24} color="rgba(255, 255, 255, 0.7)" />
           </Pressable>
         ) : null}
       </Animated.View>
     )
   }
-  const single = item.description == null && !item.action
-  const Icon = item.type !== "default" ? ICONS[item.type] : null
-  const iconColor =
-    item.type === "success"
-      ? theme.color("--color-text-success")
-      : item.type === "error"
-        ? theme.color("--color-text-danger")
-        : item.type === "warning"
-          ? theme.color("--color-text-warning")
-          : theme.color("--color-text-info")
+  const described = item.description != null
+  const symbol = item.type !== "default" ? ICONS[item.type] : null
+  // sonner's `icon: null` takes the type's symbol away, as `false` does
+  const icon = item.icon !== undefined ? item.icon : symbol ? <symbol.Icon size={20} color={theme.color(symbol.color)} /> : null
+  // The web toast sets its title at --font-weight-medium, semibold over a description (500 and 600): on the web the
+  // named weights are the phone's 510 and 590, a device's system font takes 500 and 600 for them
+  const titleWeight = Platform.OS === "web" ? fontWeight(theme.token(described ? "--font-weight-semibold" : "--font-weight-medium")) : undefined
   return (
-    <Animated.View {...responder.panHandlers} accessibilityRole="alert" style={[styles.iosWrap, motion, { opacity: glassOpacity(progress, !leaving) }]}>
-      <Glass radius={single ? 21.5 : 24} elevation="raised" fillToken="--toast-mobile-background" style={styles.iosToast}>
-        {item.icon ?? (Icon ? <Icon size={20} color={iconColor} /> : null)}
-        <View style={styles.iosText}>
-          <Text weight="semibold" style={{ fontSize: 15, lineHeight: single ? 19.5 : 17 }}>
+    <Animated.View
+      {...responder.panHandlers}
+      accessibilityRole="alert"
+      pointerEvents={touches}
+      // An offset, not a transform: a transform would stop the glass's blur on the web
+      style={[styles.iosWrap, { top: Animated.add(progress.interpolate({ inputRange: [0, 1], outputRange: [-24, 0] }), drag), display, opacity: glassOpacity(progress, !leaving) }]}
+    >
+      {/* Without a description it is a capsule, half the 43 of a line; with one it keeps the banner's 24 */}
+      <Glass radius={described ? 24 : 21.5} elevation="raised" fillToken="--toast-mobile-background" style={styles.iosToast}>
+        {/* sonner's 16pt icon box, 3 into the padding and 4 before the gap, holds the 20pt symbol over its edges: the
+            message starts 42 from the toast's edge, and a line of text alone keeps the toast 43 high */}
+        {icon != null && icon !== false ? <View style={styles.iosIcon}>{icon}</View> : null}
+        {/* Beside a button the message keeps 8em, and a button that would leave it less wraps under it */}
+        <View style={[styles.iosText, item.action ? { minWidth: 8 * 15 } : null]}>
+          <Text weight={described ? "semibold" : "medium"} style={{ fontSize: 15, lineHeight: 17, fontWeight: titleWeight }}>
             {item.title}
           </Text>
-          {item.description != null ? (
-            <Text color="secondary" style={{ fontSize: 15, lineHeight: 18 }}>
+          {described ? (
+            // The web toast's description is the opaque secondary gray, not the phone's 50% label
+            <Text color={theme.colors.textSecondary} style={{ fontSize: 15, lineHeight: 18 }}>
               {item.description}
             </Text>
           ) : null}
@@ -224,13 +429,13 @@ function ToastView({ item, theme, hidden }: { item: ToastT; theme: Theme; hidden
         {item.action ? (
           <Pressable
             accessibilityRole="button"
-            onPress={() => {
-              item.action?.onClick()
-              leave()
-            }}
-            style={({ pressed }) => [styles.iosAction, { backgroundColor: theme.color("--dialog-alert-fill"), opacity: pressed ? 0.7 : 1 }]}
+            disabled={leaving}
+            onPress={act}
+            // A 34pt capsule in a 44pt target
+            hitSlop={5}
+            style={({ pressed }) => [styles.iosAction, { backgroundColor: theme.color("--color-background-primary-solid"), opacity: pressed ? 0.7 : 1 }]}
           >
-            <Text weight="semibold" style={{ fontSize: 15, lineHeight: 20 }}>
+            <Text weight="regular" color={theme.color("--color-text-primary-solid")} style={{ fontSize: 15, lineHeight: 20 }}>
               {item.action.label}
             </Text>
           </Pressable>
@@ -240,17 +445,29 @@ function ToastView({ item, theme, hidden }: { item: ToastT; theme: Theme; hidden
   )
 }
 
+/** A `--font-weight-*` token as a font weight. */
+function fontWeight(value: unknown) {
+  return typeof value === "number" || typeof value === "string" ? (String(value) as "500") : undefined
+}
+
 const styles = StyleSheet.create({
-  host: { position: "absolute", left: 0, right: 0, gap: 8, paddingHorizontal: 12, zIndex: 1000 },
-  iosWrap: { alignSelf: "center", maxWidth: 420, width: "100%" },
-  iosToast: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
-  iosText: { flex: 1, minWidth: 0, gap: 1 },
-  iosAction: { height: 34, paddingHorizontal: 14, borderRadius: 17, alignItems: "center", justifyContent: "center" },
-  // SnackbarTokens: 4dp corners, level 3 shadow; OneRowSnackbar's 16 before the text, 8 after the action
-  snackbar: { minHeight: 48, borderRadius: 4, flexDirection: "row", alignItems: "center", paddingLeft: 16, paddingRight: 8, maxWidth: 600, alignSelf: "center", width: "100%", boxShadow: elevationShadow.level3 },
-  // With a dismiss action its 48dp button ends the row
-  snackClosable: { paddingRight: 0 },
-  snackClose: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
-  snackText: { flex: 1, minWidth: 0, paddingVertical: 14 },
-  snackAction: { height: 40, paddingHorizontal: 12, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+  host: { position: "absolute", left: 0, right: 0, gap: 8, zIndex: 1000 },
+  // As wide as its message, up to the gutters, in the middle of the screen
+  iosWrap: { alignSelf: "center", maxWidth: "100%" },
+  // 12/14 of padding inside sonner's 1px border, transparent on a phone
+  iosToast: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 10, paddingVertical: 13, paddingHorizontal: 15 },
+  iosIcon: { width: 16, height: 16, marginStart: -3, marginEnd: 4, justifyContent: "center", alignItems: "flex-start" },
+  iosText: { flexShrink: 1, minWidth: 0 },
+  iosAction: { minHeight: 34, paddingVertical: 7, paddingHorizontal: 14, borderRadius: 9999, alignItems: "center", justifyContent: "center" },
+  // Android's toast card: a 16dp-cornered card at least 48 tall, the text 16 in (56 past a 24dp icon at 16)
+  card: { minHeight: 48, borderRadius: 16, flexDirection: "row", alignItems: "center", paddingStart: 16, maxWidth: 600, alignSelf: "center", width: "100%", overflow: "hidden" },
+  cardIcon: { width: 24, height: 24, marginEnd: 16, alignItems: "center", justifyContent: "center" },
+  cardText: { flex: 1, minWidth: 0, paddingVertical: 14 },
+  cardTwoLines: { paddingVertical: 8 },
+  cardAction: { marginHorizontal: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6, alignItems: "center", justifyContent: "center" },
+  // The toast cards' place: the whole screen above the bottom (or the bar there), clipped at its bottom edge
+  androidHost: { top: 0, justifyContent: "flex-end", paddingHorizontal: 16, paddingBottom: 8, overflow: "hidden" },
+  // A toast card that another replaces, in its place as it leaves
+  replaced: { position: "absolute", left: 16, right: 16, bottom: 8 },
+  cardClose: { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
 })

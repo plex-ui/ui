@@ -133,7 +133,7 @@ export function MenuHeroContent() {
 }
 
 /** The More menu of a folder in Files on iOS (the owner's shots of 08.11): actions with their symbols, the view, the sort
- * order with the order of the chosen sort under it (IMG_5687: Name, Ascending), and Group By (IMG_5689) as a submenu. */
+ * order with the order of the chosen sort under it (IMG_5687: Name, Ascending), and Group by (IMG_5689) as a submenu. */
 export function MenuBaseDemo() {
   const [icons, setIcons] = useState(true);
   const [checkmarks, setCheckmarks] = useState(true);
@@ -161,9 +161,9 @@ export function MenuBaseDemo() {
       >
         <Menu.Content minWidth={220} pill={pill}>
           <Menu.Item onSelect={() => { }}>{icons && <CheckCircle />} Select</Menu.Item>
-          <Menu.Item onSelect={() => { }}>{icons && <FolderPlus />} New Folder</Menu.Item>
-          <Menu.Item onSelect={() => { }}>{icons && <FileDocument />} Scan Documents</Menu.Item>
-          <Menu.Item onSelect={() => { }}>{icons && <Desktop />} Connect to Server</Menu.Item>
+          <Menu.Item onSelect={() => { }}>{icons && <FolderPlus />} New folder</Menu.Item>
+          <Menu.Item onSelect={() => { }}>{icons && <FileDocument />} Scan documents</Menu.Item>
+          <Menu.Item onSelect={() => { }}>{icons && <Desktop />} Connect to server</Menu.Item>
           <Menu.Separator />
           {checkmarks && (
             <>
@@ -175,13 +175,13 @@ export function MenuBaseDemo() {
               <Menu.RadioGroup value={sort} onChange={setSort}>
                 <Menu.RadioItem value="name">Name</Menu.RadioItem>
                 <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
-                <Menu.RadioItem value="date" description={sort === 'date' ? 'Newest to Oldest' : undefined}>Date</Menu.RadioItem>
+                <Menu.RadioItem value="date" description={sort === 'date' ? 'Newest to oldest' : undefined}>Date</Menu.RadioItem>
                 <Menu.RadioItem value="size">Size</Menu.RadioItem>
                 <Menu.RadioItem value="tags">Tags</Menu.RadioItem>
               </Menu.RadioGroup>
               <Menu.Separator />
               <Menu.Sub>
-                <Menu.SubTrigger>Group By</Menu.SubTrigger>
+                <Menu.SubTrigger>Group by</Menu.SubTrigger>
                 <Menu.SubContent>
                   <Menu.RadioGroup value={group} onChange={setGroup}>
                     <Menu.RadioItem value="none">None</Menu.RadioItem>
@@ -194,7 +194,7 @@ export function MenuBaseDemo() {
               </Menu.Sub>
             </>
           )}
-          <Menu.Item onSelect={() => { }}>View Options</Menu.Item>
+          <Menu.Item onSelect={() => { }}>View options</Menu.Item>
         </Menu.Content>
       </MenuExample>
     </>
@@ -216,25 +216,25 @@ export function MenuNaturalSizingDemo() {
           <Functions height={18} width={18} /> Function
         </Menu.Item>
         <Menu.Item onSelect={() => { }}>
-          <Search height={18} width={18} /> File Search
+          <Search height={18} width={18} /> File search
         </Menu.Item>
         <Menu.Item onSelect={() => { }}>
-          <Globe height={18} width={18} /> Web Search
+          <Globe height={18} width={18} /> Web search
         </Menu.Item>
         <Menu.Item onSelect={() => { }}>
-          <Code height={18} width={18} /> Code Interpreter
+          <Code height={18} width={18} /> Code interpreter
         </Menu.Item>
         <Menu.Item onSelect={() => { }}>
-          <ImageSquare height={18} width={18} /> Image Generation
+          <ImageSquare height={18} width={18} /> Image generation
         </Menu.Item>
       </Menu.Content>
     </MenuExample>
   );
 }
 
-// A list's menu as Reminders opens it on iOS (the owner's shot of 08.11, Groceries): View as Columns over a separator,
-// then the list's actions, Manage Sections and Sort By as submenus, Sort By showing its order under it, and Delete List
-// last in red. Sort By holds Reminders' five orders (Apple's iPhone guide); Manage Sections its New Section.
+// A list's menu as Reminders opens it on iOS (the owner's shot of 08.11, Groceries): View as columns over a separator,
+// then the list's actions, Manage sections and Sort by as submenus, Sort by showing its order under it, and Delete list
+// last in red. Sort by holds Reminders' five orders (Apple's iPhone guide); Manage sections its New section.
 export function MenuSubmenuDemo() {
   const [sort, setSort] = useState('Manual');
   return (
@@ -247,32 +247,32 @@ export function MenuSubmenuDemo() {
       }
     >
       <Menu.Content align="end" minWidth={220}>
-        <Menu.Item onSelect={() => { }}><Storyboard /> View as Columns</Menu.Item>
+        <Menu.Item onSelect={() => { }}><Storyboard /> View as columns</Menu.Item>
         <Menu.Separator />
-        <Menu.Item onSelect={() => { }}><InfoCircle /> Show List Info</Menu.Item>
-        <Menu.Item onSelect={() => { }}><CheckCircle /> Select Items</Menu.Item>
+        <Menu.Item onSelect={() => { }}><InfoCircle /> Show list info</Menu.Item>
+        <Menu.Item onSelect={() => { }}><CheckCircle /> Select items</Menu.Item>
         <Menu.Sub>
-          <Menu.SubTrigger><List /> Manage Sections</Menu.SubTrigger>
+          <Menu.SubTrigger><List /> Manage sections</Menu.SubTrigger>
           <Menu.SubContent>
-            <Menu.Item onSelect={() => { }}><Plus /> New Section</Menu.Item>
+            <Menu.Item onSelect={() => { }}><Plus /> New section</Menu.Item>
           </Menu.SubContent>
         </Menu.Sub>
         <Menu.Sub>
-          <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
+          <Menu.SubTrigger description={sort}><Sort /> Sort by</Menu.SubTrigger>
           <Menu.SubContent>
             <Menu.RadioGroup value={sort} onChange={setSort}>
               <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
-              <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
-              <Menu.RadioItem value="Creation Date">Creation Date</Menu.RadioItem>
+              <Menu.RadioItem value="Due date">Due date</Menu.RadioItem>
+              <Menu.RadioItem value="Creation date">Creation date</Menu.RadioItem>
               <Menu.RadioItem value="Priority">Priority</Menu.RadioItem>
               <Menu.RadioItem value="Title">Title</Menu.RadioItem>
             </Menu.RadioGroup>
           </Menu.SubContent>
         </Menu.Sub>
-        <Menu.Item onSelect={() => { }}><EyeOff /> Hide Completed</Menu.Item>
-        <Menu.Item onSelect={() => { }}><UploadDocuments /> Save as Template</Menu.Item>
+        <Menu.Item onSelect={() => { }}><EyeOff /> Hide completed</Menu.Item>
+        <Menu.Item onSelect={() => { }}><UploadDocuments /> Save as template</Menu.Item>
         <Menu.Item onSelect={() => { }}><FileDocument /> Print</Menu.Item>
-        <Menu.Item onSelect={() => { }} danger><Trash /> Delete List</Menu.Item>
+        <Menu.Item onSelect={() => { }} danger><Trash /> Delete list</Menu.Item>
       </Menu.Content>
     </MenuExample>
   );
@@ -289,7 +289,7 @@ export function MenuItemActionsDemo() {
         </Menu.Trigger>
         <Menu.Content width={270}>
           <Menu.Item onSelect={() => { }}>
-            <span className="flex-1 truncate">Sample thread title</span>
+            <span className="flex-1 truncate">Trip to Lisbon</span>
             <Menu.ItemActions>
               <Menu.ItemAction onClick={() => { }}>
                 <Trash />
@@ -297,7 +297,7 @@ export function MenuItemActionsDemo() {
             </Menu.ItemActions>
           </Menu.Item>
           <Menu.Item onSelect={() => { }}>
-            <span className="flex-1 truncate">Another sample thread title</span>
+            <span className="flex-1 truncate">Q3 roadmap review</span>
             <Menu.ItemActions>
               <Menu.ItemAction onClick={() => { }}>
                 <Trash />
@@ -305,7 +305,7 @@ export function MenuItemActionsDemo() {
             </Menu.ItemActions>
           </Menu.Item>
           <Menu.Item onSelect={() => { }}>
-            <span className="flex-1 truncate">Long thread title that is going to be clipped off</span>
+            <span className="flex-1 truncate">Ideas for the onboarding emails we send to new workspace members</span>
             <Menu.ItemActions>
               <Menu.ItemAction onClick={() => { }}>
                 <Trash />
@@ -372,7 +372,7 @@ export function MenuWithCheckboxesDemoWithControls() {
         }
       >
         <Menu.Content minWidth={220}>
-          <Menu.Label>View Options</Menu.Label>
+          <Menu.Label>View options</Menu.Label>
           <Menu.CheckboxItem
             checked={view.categories}
             onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
@@ -380,7 +380,7 @@ export function MenuWithCheckboxesDemoWithControls() {
             indicatorPosition={indicatorPosition}
             indicatorVariant={indicatorVariant}
           >
-            <Storyboard /> Show Categories
+            <Storyboard /> Show categories
           </Menu.CheckboxItem>
           <Menu.CheckboxItem
             checked={view.priority}
@@ -389,7 +389,7 @@ export function MenuWithCheckboxesDemoWithControls() {
             indicatorPosition={indicatorPosition}
             indicatorVariant={indicatorVariant}
           >
-            <Atom /> Show Priority
+            <Atom /> Show priority
           </Menu.CheckboxItem>
           <Menu.CheckboxItem
             checked={view.contactPhotos}
@@ -398,11 +398,11 @@ export function MenuWithCheckboxesDemoWithControls() {
             indicatorPosition={indicatorPosition}
             indicatorVariant={indicatorVariant}
           >
-            <AvatarProfile /> Show Contact Photos
+            <AvatarProfile /> Show contact photos
           </Menu.CheckboxItem>
           <Menu.Separator />
           <Menu.Item onSelect={() => {}}>
-            <InfoCircle /> About Categories
+            <InfoCircle /> About categories
           </Menu.Item>
         </Menu.Content>
       </MenuExample>
@@ -438,7 +438,7 @@ export function MenuWithRadioItemsDemoWithControls() {
         title="Radio items"
         trigger={
           <Button color="primary" variant="ghost">
-            Radio menu <ChevronDownMd />
+            Date modified <ChevronDownMd />
           </Button>
         }
       >
@@ -614,12 +614,12 @@ export function MenuGroupedDemo() {
             <XSquare /> Spam
           </Menu.RadioItem>
           <Menu.RadioItem value="deleted">
-            <Trash /> Recently Deleted
+            <Trash /> Recently deleted
           </Menu.RadioItem>
         </Menu.RadioGroup>
         <Menu.Separator />
         <Menu.Group>
-          <Menu.Label>Filter By</Menu.Label>
+          <Menu.Label>Filter by</Menu.Label>
           <Menu.RadioGroup value={filter} onChange={setFilter}>
             <Menu.RadioItem value="unread">
               <Chat /> Unread
@@ -630,7 +630,7 @@ export function MenuGroupedDemo() {
           </Menu.RadioGroup>
         </Menu.Group>
         <Menu.Separator />
-        <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
+        <Menu.Item onSelect={() => {}}>Manage filtering</Menu.Item>
       </Menu.Content>
     </MenuExample>
   );

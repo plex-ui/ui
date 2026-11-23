@@ -3,7 +3,7 @@
   "name": "avatar-group",
   "type": "registry:ui",
   "title": "Avatar Group",
-  "description": "Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.",
+  "description": "Stacks user avatars into a single overlapping cluster, with one size for the whole group.",
   "dependencies": [
     "@plexui/vue"
   ],

@@ -18,14 +18,14 @@ export function ListsScreen() {
   const [opened, setOpened] = useState("none")
   return (
     <>
-      <Section title="List" note={theme.isAndroid ? "Android 16 Settings: a card per row, 2dp apart, 20 and 4dp corners, 72dp rows" : "iOS 26 inset grouped: radius 26, 52pt rows, hairlines from the text"}>
+      <Section title="List" note={theme.isAndroid ? "Android settings: a white section r16, 50dp rows, the value in the accent" : "iOS 26 inset grouped: radius 26, 52pt rows, hairlines from the text"}>
         <List header="General" footer="Notifications show on the lock screen." testID="list-general">
           <ListItem label="Notifications" leading={<Bell />} leadingColor={theme.color("--color-background-danger-solid")} value="On" onPress={() => setOpened("notifications")} testID="row-notifications" />
           <ListItem label="Language" leading={<Globe />} leadingColor={theme.color("--color-background-info-solid")} value="English" onPress={() => setOpened("language")} />
           <ListItem label="Dark mode" leading={<Moon />} leadingColor={theme.color("--color-background-discovery-solid")} trailing={<Switch checked={dark} onCheckedChange={setDark} accessibilityLabel="Dark mode" />} />
           <ListItem label="Privacy" description="Who can see your profile" leading={<LockKeyHole />} leadingColor={theme.color("--color-background-success-solid")} onPress={() => setOpened("privacy")} />
           <ListItem label="Beta" trailing={<Badge color="info">New</Badge>} onPress={() => setOpened("beta")} />
-          <ListItem label="Unavailable" disabled onPress={() => {}} />
+          <ListItem label="Screen Time" description="Managed by your organization" disabled onPress={() => {}} />
         </List>
         <List>
           <ListItem label="Sign out" destructive onPress={() => setOpened("sign out")} />
@@ -34,7 +34,7 @@ export function ListsScreen() {
           Opened: {opened}
         </Text>
       </Section>
-      <Section title="Card" note={theme.isAndroid ? "Material 3 outlined and filled cards, 12dp corners" : "Phone cards: radius 26, padding 16 or 20"}>
+      <Section title="Card" note={theme.isAndroid ? "Android section cards: 16dp corners, no border, white on the gray page" : "Phone cards: radius 26, padding 16 or 20"}>
         <Card testID="card-outline">
           <Card.Header>
             <Card.Title>Weekly summary</Card.Title>
@@ -51,25 +51,25 @@ export function ListsScreen() {
         </Card>
         <Card variant="solid" size="lg">
           <Card.Header>
-            <Card.Title>Solid, large</Card.Title>
-            <Card.Description>A gray fill stands apart from list sections.</Card.Description>
+            <Card.Title>Storage almost full</Card.Title>
+            <Card.Description>14.2 GB of 15 GB used. Free up space or get more storage.</Card.Description>
           </Card.Header>
         </Card>
-        <Card onPress={() => setOpened("photo card")} accessibilityLabel="Sunset over the hills, a photo card" testID="card-photo">
-          <Card.Media source={photo} aspectRatio={4 / 3} title="Sunset over the hills" description="A photo card with a caption over the picture" />
+        <Card onPress={() => setOpened("photo card")} accessibilityLabel="Sunset over the hills, Sintra" testID="card-photo">
+          <Card.Media source={photo} aspectRatio={4 / 3} title="Sunset over the hills" description="Sintra, Portugal · June 14" />
         </Card>
         <Card>
           <Card.Media source={photo} aspectRatio={2} />
           <Card.Header>
-            <Card.Title>Picture on top</Card.Title>
-            <Card.Description>The picture reaches the card's edges.</Card.Description>
+            <Card.Title>Lisbon · 4 nights</Card.Title>
+            <Card.Description>May 12–16 · 2 guests · €640</Card.Description>
           </Card.Header>
         </Card>
       </Section>
-      <Section title="Slider" note={theme.isAndroid ? "Material 3: a 16dp track, a 4x44dp handle" : "iOS 26: a 6pt track, a 38x24 thumb"}>
+      <Section title="Slider" note={theme.isAndroid ? "Android: a 3dp track, a 12dp thumb" : "iOS 26: a 6pt track, a 38x24 thumb"}>
         <Slider label="Volume" value={volume} onChange={setVolume} unit="%" resetValue={60} startAdornment={<SoundOffSpeaker size={20} color={theme.colors.textSecondary} />} endAdornment={<SoundOnSpeaker size={20} color={theme.colors.textSecondary} />} testID="slider-volume" />
         <Slider label="Brightness" value={brightness} onChange={setBrightness} step={10} testID="slider-brightness" />
-        <Slider label="Disabled" value={40} onChange={() => {}} disabled />
+        <Slider label="Microphone (not connected)" value={40} onChange={() => {}} disabled />
         <Slider range label="Price" value={price} onChange={setPrice} min={0} max={500} step={10} prefixUnit="$" minStepsBetweenThumbs={5} testID="slider-price" />
         <Slider
           label="Text size"
@@ -94,7 +94,7 @@ export function ListsScreen() {
           Price: {price.join("–")}, text size: {size}, bass: {bass}
         </Text>
       </Section>
-      <Section title="Page control" note="Dots of the iOS 26 kit; seven and more pages shrink the ends">
+      <Section title="Page control" note={theme.isAndroid ? "Android page dots: 5dp, all full size, the current one in the accent" : "Dots of the iOS 26 kit; seven and more pages shrink the ends"}>
         <View style={styles.pages}>
           <PageControl count={4} value={page} onChange={setPage} testID="pages-four" />
           <PageControl count={12} defaultValue={5} background="prominent" />

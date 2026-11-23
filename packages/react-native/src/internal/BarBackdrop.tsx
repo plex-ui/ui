@@ -1,6 +1,108 @@
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { barSurface, withAlpha } from "../theme/material"
 import { useTheme } from "../theme/ThemeProvider"
+import type { Theme } from "../theme/types"
 import { blurModule } from "./optional"
+import { useReduceTransparency } from "./reduceTransparency"
+
+/** The blur of a glass bar, from `--page-bar-glass-filter` (`blur(6px) saturate(180%)`). */
+export function glassBarBlur(theme: Theme): number {
+  const filter = theme.token("--page-bar-glass-filter")
+  const match = typeof filter === "string" ? /blur\(\s*([\d.]+)px\s*\)/.exec(filter) : null
+  return match ? Number(match[1]) : 6
+}
+
+/**
+ * The ease of Android's bar fades: cubic-bezier(0.42, 0, 0.58, 1), solved for `x` by bisection.
+ */
+function easeBoth(x: number): number {
+  const curve = (t: number, a: number, b: number) => 3 * (1 - t) * (1 - t) * t * a + 3 * (1 - t) * t * t * b + t * t * t
+  let low = 0
+  let high = 1
+  for (let i = 0; i < 24; i++) {
+    const mid = (low + high) / 2
+    if (curve(mid, 0.42, 0.58) < x) low = mid
+    else high = mid
+  }
+  return curve((low + high) / 2, 0, 1)
+}
+
+/**
+ * The eight stops of an Android bar fade toward the bottom: `alpha` at the top of the last `length` px, eased out to
+ * clear at the bottom. Each as `[alpha, px from the top of the fade]`.
+ */
+function fadeStops(alpha: number, length: number): [number, number][] {
+  return Array.from({ length: 8 }, (_, i) => [easeBoth(1 - i / 7) * alpha, Math.round(((length * i) / 7) * 100) / 100])
+}
+
+/** Black at an alpha: a stop of a mask. */
+const black = (alpha: number) => `rgba(0, 0, 0, ${Math.round(alpha * 1000) / 1000})`
+
+/** A mask to the bottom from `fadeStops`: opaque above the last `length` px, eased out to clear (the web). */
+function fadeMask(length: number): string {
+  const stops = fadeStops(1, length).map(([alpha, from]) => `${black(alpha)} calc(100% - ${Math.round((length - from) * 100) / 100}px)`)
+  return `linear-gradient(to bottom, ${stops.join(", ")})`
+}
+
+/** The channels of a `#rrggbb` or `rgb(a)()` color; undefined for any other form. */
+function channels(color: string): [number, number, number] | undefined {
+  if (color.startsWith("#") && (color.length === 7 || color.length === 9)) {
+    return [parseInt(color.slice(1, 3), 16), parseInt(color.slice(3, 5), 16), parseInt(color.slice(5, 7), 16)]
+  }
+  const match = /^rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(color)
+  return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : undefined
+}
+
+/**
+ * The color that, at `alpha` over `base`, shows `target` (solved for the source color), each channel kept in range: the
+ * fill of a glass that reads as a card over the screen. Falls back to `target` at `alpha`.
+ */
+function over(target: string, base: string, alpha: number): string {
+  const top = channels(target)
+  const under = channels(base)
+  if (!top || !under) return withAlpha(target, alpha)
+  const channel = (i: number) => Math.max(0, Math.min(255, Math.round((top[i] - under[i] * (1 - alpha)) / alpha)))
+  return `rgba(${channel(0)}, ${channel(1)}, ${channel(2)}, ${alpha})`
+}
+
+/**
+ * The glass of Android's bar controls, without a liquid-glass effect: `bar` is a top bar's circle or capsule, `tabs`
+ * the capsule of the main tabs. A fill that reads as a card over `base` (the screen), a thin lit rim along the top and
+ * a darker one along the bottom, and a soft shadow, with the content blurred under it on the web. An opaque card with
+ * Reduce Transparency.
+ */
+export function useAndroidGlass(kind: "bar" | "tabs", base?: string): ViewStyle {
+  const theme = useTheme()
+  const reduce = useReduceTransparency()
+  const dark = theme.scheme === "dark"
+  const card = barSurface(theme.material, theme.scheme)
+  // A top bar's control: 80% over the screen, a 0.55dp rim, the shadow 8dp soft and 2.33dp down (none at night).
+  // The main tabs: 76%, a 0.4dp rim, the shadow 2.67dp soft and 0.85dp down.
+  const spec =
+    kind === "bar"
+      ? {
+          alpha: 0.8,
+          rim: 0.55,
+          top: dark ? "rgba(255, 255, 255, 0.125)" : "#FFFFFF",
+          bottom: dark ? "rgba(255, 255, 255, 0.078)" : "#FFFFFF",
+          shadow: dark ? null : "0 2.33px 8px rgba(51, 51, 51, 0.086)",
+        }
+      : {
+          alpha: 0.76,
+          rim: 0.4,
+          top: dark ? "rgba(255, 255, 255, 0.024)" : "rgba(0, 0, 0, 0.067)",
+          bottom: dark ? "rgba(255, 255, 255, 0.067)" : "rgba(0, 0, 0, 0.125)",
+          shadow: `0 0.85px 2.67px ${dark ? "rgba(255, 255, 255, 0.016)" : "rgba(0, 0, 0, 0.125)"}`,
+        }
+  const rim = `inset 0 ${spec.rim}px 0 ${spec.top}, inset 0 -${spec.rim}px 0 ${spec.bottom}`
+  const boxShadow = spec.shadow ? `${rim}, ${spec.shadow}` : rim
+  if (reduce) return { backgroundColor: card, boxShadow }
+  const fill = over(card, base ?? theme.colors.background, spec.alpha)
+  if (Platform.OS !== "web") return { backgroundColor: fill, boxShadow }
+  const token = theme.token("--mobile-glass-backdrop-filter")
+  const filter = typeof token === "string" ? token : "blur(12px)"
+  return { backgroundColor: fill, boxShadow, backdropFilter: filter, WebkitBackdropFilter: filter } as ViewStyle
+}
 
 /**
  * The background of a bar over scrolled content: a fill (a veil of the canvas, or an opaque one) with the content
@@ -40,6 +142,89 @@ export function BarBackdrop({
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, hairline, style]}>
       {module ? <module.BlurView intensity={40} tint={theme.scheme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFill} /> : null}
       <View style={[StyleSheet.absoluteFill, { backgroundColor: fill }]} />
+    </View>
+  )
+}
+
+/** The alpha of the screen's color in Android's fade under its tabs, 0xE8 of 285. */
+export const ANDROID_FADE_ALPHA = 232 / 285
+/** Its steps over the fade, as fractions of that alpha: 0, 0x60, 0xB0 and 0xE8 of 285. */
+export const ANDROID_FADE_STOPS = [0, 96 / 232, 176 / 232, 1] as const
+
+/**
+ * The soft scroll edge of a bottom bar (Toolbar.module.css): the canvas color from `tail` above the bar's items down
+ * to the screen's edge, fading in over its first `tail`, over a light blur. It covers the content fully from the
+ * items' top down, so none shows through a soft or glass item, as the edge of native iOS 26 starts 27pt above them.
+ * `top` is where the items start in the bar. `stops` sets the fade in: the fill's alpha at even steps over `tail`
+ * (a straight fade from 0 to 1 when left out); `blur` 0 draws no blur.
+ */
+export function SoftBottomEdge({
+  fill,
+  top,
+  tail,
+  blur,
+  stops,
+}: {
+  fill: string
+  top: number
+  tail: number
+  blur: number
+  stops?: readonly number[]
+}) {
+  const place: ViewStyle = { position: "absolute", top: top - tail, left: 0, right: 0, bottom: 0 }
+  const at = (index: number) => (stops && stops.length > 1 ? Math.round(((tail * index) / (stops.length - 1)) * 100) / 100 : 0)
+  if (Platform.OS === "web") {
+    const mask = stops
+      ? `linear-gradient(to bottom, ${stops.map((alpha, index) => `${black(alpha)} ${at(index)}px`).join(", ")})`
+      : `linear-gradient(to bottom, transparent, #000 ${tail}px)`
+    const filter = blur ? `blur(${blur}px)` : undefined
+    return (
+      <View
+        pointerEvents="none"
+        style={[place, { backgroundColor: fill }, { maskImage: mask, WebkitMaskImage: mask } as ViewStyle, filter ? ({ backdropFilter: filter, WebkitBackdropFilter: filter } as ViewStyle) : null]}
+      />
+    )
+  }
+  const gradient = stops
+    ? `linear-gradient(to bottom, ${stops.map((alpha, index) => `${withAlpha(fill, alpha)} ${at(index)}px`).join(", ")})`
+    : `linear-gradient(to bottom, ${withAlpha(fill, 0)}, ${fill})`
+  return (
+    <View pointerEvents="none" style={place}>
+      <View style={{ height: tail, backgroundImage: gradient } as ViewStyle} />
+      <View style={{ flex: 1, backgroundColor: fill }} />
+    </View>
+  )
+}
+
+/**
+ * The soft edge under Android's top bar: the content blurred under the whole bar, its blur eased out over the last
+ * 32dp, under the screen's color at 160/255 eased out over the last 56dp. Where there is no blur (native, or `blur`
+ * 0), the color alone at 210/255, eased out over the last 48dp, as Android's fallback. Each fade eases with
+ * cubic-bezier(0.42, 0, 0.58, 1) in eight steps.
+ */
+export function SoftTopEdge({ fill, blur }: { fill: string; blur: number }) {
+  if (Platform.OS === "web") {
+    const filter = blur > 0 ? `blur(${blur}px)` : null
+    const mask = fadeMask(filter ? 56 : 48)
+    const blurMask = fadeMask(32)
+    return (
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+        {filter ? (
+          <View
+            style={[StyleSheet.absoluteFill, { maskImage: blurMask, WebkitMaskImage: blurMask, backdropFilter: filter, WebkitBackdropFilter: filter } as ViewStyle]}
+          />
+        ) : null}
+        <View
+          style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(fill, filter ? 160 / 255 : 210 / 255), maskImage: mask, WebkitMaskImage: mask } as ViewStyle]}
+        />
+      </View>
+    )
+  }
+  const stops = fadeStops(210 / 255, 48).map(([alpha, from]) => `${withAlpha(fill, alpha)} ${from}px`)
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <View style={{ flex: 1, backgroundColor: withAlpha(fill, 210 / 255) }} />
+      <View style={{ height: 48, backgroundImage: `linear-gradient(to bottom, ${stops.join(", ")})` } as ViewStyle} />
     </View>
   )
 }

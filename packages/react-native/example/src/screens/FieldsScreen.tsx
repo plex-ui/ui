@@ -4,24 +4,24 @@ import { useState } from "react"
 import { StyleSheet, View } from "react-native"
 import { Section } from "../demo"
 
-const FRUITS = [
-  { value: "apple", label: "Apple" },
-  { value: "banana", label: "Banana", description: "Ripe this week" },
-  { value: "cherry", label: "Cherry" },
-  { value: "durian", label: "Durian", disabled: true },
+const COUNTRIES = [
+  { value: "us", label: "United States" },
+  { value: "gb", label: "United Kingdom", description: "Prices in pounds" },
+  { value: "de", label: "Germany" },
+  { value: "jp", label: "Japan", description: "Coming soon", disabled: true },
 ]
 
 export function FieldsScreen() {
   const theme = useTheme()
   const [query, setQuery] = useState("Coffee")
   const [email, setEmail] = useState("hello@")
-  const [fruit, setFruit] = useState<string | null>("banana")
+  const [country, setCountry] = useState<string | null>("gb")
   return (
     <>
-      <Section title="Input" note={theme.isAndroid ? "Material 3 text fields: outlined and filled, 56dp" : "iOS 26: 44pt fields in 17pt type"}>
+      <Section title="Input" note={theme.isAndroid ? "Android's outlined field: 50dp, 8dp corners, the accent on focus; search its 40dp pill" : "iOS 26: 44pt fields in 17pt type"}>
         <View style={styles.stack}>
-          <Input placeholder="Outline" />
-          <Input variant="soft" placeholder="Soft" />
+          <Input placeholder="Full name" />
+          <Input variant="soft" placeholder="Promo code" />
           <Input
             variant="soft"
             value={query}
@@ -32,27 +32,27 @@ export function FieldsScreen() {
             testID="input-search"
             accessibilityLabel="Search"
           />
-          <Input pill placeholder="Pill" />
-          <Input placeholder="Invalid" invalid />
-          <Input placeholder="Disabled" disabled />
+          <Input pill placeholder="Message" />
+          <Input placeholder="Phone number" defaultValue="+1 415 55" invalid />
+          <Input placeholder="Company ID" disabled />
         </View>
       </Section>
       <Section title="Text field" note={theme.isAndroid ? "A floating label and supporting text" : "The label over the field, help under it"}>
         <View style={styles.stack}>
           <TextField label="Name" placeholder="Jane Appleseed" description="As on your card" />
           <TextField label="Email" value={email} onChangeText={setEmail} errorMessage={email.includes(".") ? undefined : "Enter a full address"} required testID="field-email" />
-          <TextField label="Notes" variant="soft" defaultValue="Filled" />
-          <TextField label="Disabled" disabled defaultValue="Read only" />
+          <TextField label="Display name" variant="soft" defaultValue="Anna Kim" />
+          <TextField label="Employee ID" disabled defaultValue="48291" description="Managed by your organization" />
         </View>
       </Section>
-      <Section title="Select" note={theme.isAndroid ? "An exposed dropdown menu" : "A pop-up field and its menu"}>
+      <Section title="Select" note={theme.isAndroid ? "Android's single-choice dialog: radio rows, one Cancel" : "A pop-up field and its menu"}>
         <View style={styles.stack}>
-          <Select aria-label="Fruit" options={FRUITS} value={fruit} onChange={(option) => setFruit(option.value)} testID="select-fruit" />
-          <Select aria-label="Empty" options={FRUITS} value={null} onChange={() => {}} placeholder="Choose a fruit" variant="soft" />
-          <Select aria-label="Disabled" options={FRUITS} value="apple" onChange={() => {}} disabled />
+          <Select aria-label="Country or region" options={COUNTRIES} value={country} onChange={(option) => setCountry(option.value)} testID="select-country" />
+          <Select aria-label="Shipping country" options={COUNTRIES} value={null} onChange={() => {}} placeholder="Choose a country" variant="soft" />
+          <Select aria-label="Account region" options={COUNTRIES} value="us" onChange={() => {}} disabled />
         </View>
         <Text variant="footnote" color="secondary" testID="select-value">
-          Fruit: {fruit ?? "none"}
+          Country or region: {COUNTRIES.find((option) => option.value === country)?.label ?? "none"}
         </Text>
       </Section>
     </>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { componentsSource, source, vueComponentsSource } from '@/lib/source';
+import { componentsSource, reactNativeComponentsSource, source, vueComponentsSource } from '@/lib/source';
 import { getMDXComponents } from '@/mdx-components';
 import { PreviewEmbed } from '@/components/docs/PreviewEmbed';
 
@@ -16,22 +16,26 @@ function pageFor(slug: string[]) {
     const vueSlug = rest.slice(1);
     return vueComponentsSource.getPage(vueSlug.length ? vueSlug : undefined);
   }
+  if (section === 'react-native' && rest[0] === 'components') {
+    const nativeSlug = rest.slice(1);
+    return reactNativeComponentsSource.getPage(nativeSlug.length ? nativeSlug : undefined);
+  }
   if (section === 'docs') return source.getPage(rest.length ? rest : undefined);
   return undefined;
 }
 
 export default async function Page(props: {
   params: Promise<{ slug: string[] }>;
-  searchParams: Promise<{ key?: string }>;
+  searchParams: Promise<{ key?: string; platform?: string }>;
 }) {
-  const [{ slug }, { key }] = await Promise.all([props.params, props.searchParams]);
+  const [{ slug }, { key, platform }] = await Promise.all([props.params, props.searchParams]);
   const page = pageFor(slug);
   if (!page || !key) notFound();
 
   const MDX = page.data.body;
 
   return (
-    <PreviewEmbed target={key}>
+    <PreviewEmbed target={key} platform={platform === 'android' || platform === 'ios' ? platform : null}>
       <MDX components={getMDXComponents()} />
     </PreviewEmbed>
   );

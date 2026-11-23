@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
-import { Calendar, CalendarToday, Grid, List } from '@plexui/ui/components/Icon';
-import { NavigationButton } from '@plexui/ui/components/Button';
+import { Calendar, CalendarToday, Clock, Grid } from '@plexui/ui/components/Icon';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl, type SegmentedControlBadgeProp } from '@plexui/ui/components/SegmentedControl';
@@ -34,15 +33,29 @@ const PHONE_SIZE_OPTIONS = ['sm', 'md'] as const;
 // bookmarks, IMG_5561). A day of a calendar scrolls under it, so the glass of the bars shows (owner 10.11: «плохой
 // пример тк нет контента для скролла»).
 const PLACEMENT_OPTIONS = ['top', 'bottom', 'content'] as const;
-const AGENDA = ['Standup', 'Design review', 'Focus time', 'Lunch', 'Interviews', 'Planning', 'Gym', 'Dinner'];
-const AGENDA_ROWS = Array.from({ length: 16 }, (_, index) => ({
-  time: `${String(7 + index).padStart(2, '0')}:00`,
-  title: AGENDA[index % AGENDA.length],
-}));
-// The views of a calendar, each with an icon and the events it holds as a badge
+// A busy day of a calendar: its events at their times, more than a phone shows, so the day scrolls under the bars
+const AGENDA_ROWS = [
+  { time: '07:00', title: 'Gym' },
+  { time: '08:30', title: 'School drop-off' },
+  { time: '09:30', title: 'Standup' },
+  { time: '10:00', title: 'Design review' },
+  { time: '11:00', title: '1:1 with Maya' },
+  { time: '11:30', title: 'Interview' },
+  { time: '12:30', title: 'Lunch with Ben' },
+  { time: '13:30', title: 'Customer call' },
+  { time: '14:00', title: 'Focus time' },
+  { time: '15:00', title: 'Dentist' },
+  { time: '16:00', title: 'Sprint planning' },
+  { time: '17:00', title: 'Code review' },
+  { time: '18:00', title: 'Pick up groceries' },
+  { time: '19:30', title: 'Dinner with Sofia' },
+  { time: '21:00', title: 'Call Mom' },
+];
+// The views of a calendar, each with an icon (the day's hours, a week and a month of the calendar, the year's grid)
+// and the events it holds as a badge
 const VIEWS: { value: string; label: string; icon: ReactNode; badge?: Exclude<SegmentedControlBadgeProp, ReactNode> }[] = [
-  { value: 'day', label: 'Day', icon: <CalendarToday />, badge: { content: 3, color: 'danger' } },
-  { value: 'week', label: 'Week', icon: <List />, badge: { content: 12, color: 'info' } },
+  { value: 'day', label: 'Day', icon: <Clock />, badge: { content: 3, color: 'danger' } },
+  { value: 'week', label: 'Week', icon: <CalendarToday />, badge: { content: 12, color: 'info' } },
   { value: 'month', label: 'Month', icon: <Calendar />, badge: { content: 48 } },
   { value: 'year', label: 'Year', icon: <Grid /> },
 ];
@@ -191,15 +204,10 @@ export function TabsOverviewDemo() {
         <div data-demo-stage className={pageStyles.Stage}>
           <div className={pageStyles.Frame}>
             <Page surface="grouped">
+              {/* The views hold the top bar alone */}
               {placement === 'top' && (
                 <Toolbar>
-                  <Toolbar.Leading>
-                    <NavigationButton action="close" />
-                  </Toolbar.Leading>
                   <Toolbar.Content>{control}</Toolbar.Content>
-                  <Toolbar.Trailing>
-                    <NavigationButton action="confirm" />
-                  </Toolbar.Trailing>
                 </Toolbar>
               )}
               <Page.Content>

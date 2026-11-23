@@ -3,7 +3,7 @@
   "name": "toggle-group",
   "type": "registry:ui",
   "title": "Toggle Group",
-  "description": "A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.",
+  "description": "\"A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on.\"",
   "dependencies": [
     "@plexui/vue"
   ],

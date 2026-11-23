@@ -22,9 +22,9 @@ for (const platform of ["ios", "android"] as const) {
     await page.getByRole("button", { name: "Language, English" }).click()
     await expect(page.getByTestId("list-value")).toHaveText("Opened: language")
     // A disabled row does not open
-    await page.getByRole("button", { name: "Unavailable" }).click({ force: true })
+    await page.getByRole("button", { name: "Screen Time" }).click({ force: true })
     await expect(page.getByTestId("list-value")).toHaveText("Opened: language")
-    await page.getByRole("button", { name: "Sunset over the hills, a photo card" }).click()
+    await page.getByRole("button", { name: "Sunset over the hills, Sintra" }).click()
     await expect(page.getByTestId("list-value")).toHaveText("Opened: photo card")
 
     const volume = page.getByRole("slider", { name: "Volume" })
@@ -87,7 +87,9 @@ for (const platform of ["ios", "android"] as const) {
     await expect(more).toContainText("Price: 10–500")
 
     // The marks stand under the track
-    for (const mark of ["Small", "Default", "Large"]) await expect(page.getByText(mark, { exact: true })).toBeVisible()
+    // On Android a hidden accent copy of each mark blends in as a thumb nears it: the first copy is the one a screen
+    // reader reads
+    for (const mark of ["Small", "Default", "Large"]) await expect(page.getByText(mark, { exact: true }).first()).toBeVisible()
 
     // The reset shows once the value leaves it, and brings it back
     const reset = page.getByRole("button", { name: "Reset to default" })

@@ -1,6 +1,7 @@
 ---
 title: React Native
-description: "Plex UI for React Native, with the component names and props of @plexui/ui: drawn as iOS 26 on iOS and as Android 16 (Material 3 Expressive) on Android, from the same CSS tokens."
+description: "Plex UI for React Native: the names and props of @plexui/ui, the iOS 26 look on iOS and the Plex Android look."
+metaDescription: "Plex UI for React Native, with the component names and props of @plexui/ui: drawn as iOS 26 on iOS and in the Plex Android look on Android (Material 3 Expressive where it has no pattern of its own), from the same CSS tokens."
 ---
 
 `@plexui/react-native` is not released yet: these pages document the `feat/react-native` branch. Every example on them is live, drawn by react-native-web. The switch above the examples draws them as iOS or Android, light or dark.
@@ -29,16 +30,44 @@ export default function App() {
 }
 ```
 
-`ThemeProvider` follows the device: iOS draws the iOS 26 look, Android the look of Android 16 and Google's own apps (Material 3 Expressive), the web the iOS look. `platform` overrides it, `scheme` takes `"light"`, `"dark"` or `"system"`, and `brand` sets a product's colors, faces and radii over the Plex UI defaults.
+`ThemeProvider` follows the device: iOS draws the iOS 26 look, Android the Plex Android look, and Android 16's Material 3 Expressive where it has no pattern of its own; the web the iOS look. `platform` overrides it, `scheme` takes `"light"`, `"dark"` or `"system"`, and `brand` sets a product's colors, faces and radii over the Plex UI defaults. `selectionColor` is the on color of every Switch, Checkbox and RadioGroup that sets none of its own, and a nested `ThemeProvider` takes its parent's: `"primary"` (the default) is the Plex primary, the ink, as on the web; `"accent"` is each platform's own, on iOS a green switch and accent checkboxes and checkmarks, the iOS tint, and on Android the accent for all of them.
 
 ## Components
 
-**Actions:** [Button](/react-native/components/button) and `IconButton`, [Chip](/react-native/components/chip), [Menu](/react-native/components/menu), [Segmented control](/react-native/components/segmented-control)
+One name on every platform, as in `@plexui/ui`. The table gives each component's native name, in the order of the sidebar's groups; a dash means the platform has no system component, and Plex draws one in the platform's style.
 
-**Selection and input:** [Checkbox](/react-native/components/checkbox), [Radio group](/react-native/components/radio-group), [Switch](/react-native/components/switch), [Slider](/react-native/components/slider), [Input](/react-native/components/input) and `TextField`, [Select](/react-native/components/select)
+| Plex | iOS 26 | Android (Material's name) |
+| --- | --- | --- |
+| [Button](/react-native/components/button) | Button | Button: filled, tonal, outlined, text |
+| `IconButton` | Circular button | Icon button |
+| `NavigationButton` | Bar button item | Navigation or action icon of a top app bar (a glass circle in a bar) |
+| [Menu](/react-native/components/menu) | Menu | Menu |
+| [Input](/react-native/components/input), `TextField` | Text field | Text field: filled, outlined |
+| [Checkbox](/react-native/components/checkbox) | — (a checkmark row or a toggle) | Checkbox |
+| [Chip](/react-native/components/chip) | — (a filter capsule) | Chip |
+| [Radio Group](/react-native/components/radio-group) | — (a checkmark list) | Radio button |
+| [Segmented Control](/react-native/components/segmented-control) | Segmented control | — (a segmented capsule; Material's is a connected button group) |
+| [Select](/react-native/components/select) | Pop-up button | Exposed dropdown menu |
+| [Slider](/react-native/components/slider) | Slider | Slider |
+| [Switch](/react-native/components/switch) | Toggle | Switch |
+| [Page Control](/react-native/components/page-control) | Page control | — (a pager indicator) |
+| [Tab Bar](/react-native/components/tab-bar) | Tab bar | Navigation bar (drawn as a glass capsule of tabs) |
+| [Toolbar](/react-native/components/toolbar), top | Navigation bar | Top app bar (drawn as glass circles and capsules) |
+| [Toolbar](/react-native/components/toolbar), bottom | Toolbar | — (a bottom row: one wide action, or a field with its circles) |
+| [Action Sheet](/react-native/components/action-sheet) | Action sheet (confirmation dialog) | Modal bottom sheet with a list |
+| [Bottom Sheet](/react-native/components/bottom-sheet) | Sheet | Modal bottom sheet |
+| [Dialog](/react-native/components/dialog) | Alert | Dialog |
+| [Toast](/react-native/components/toast) | — | Snackbar |
+| [Empty Message](/react-native/components/empty-message) | Content unavailable view | — (an empty state) |
+| [Skeleton](/react-native/components/skeleton) | Redacted placeholder | — |
+| [Avatar](/react-native/components/avatar) | — | — |
+| [Badge](/react-native/components/badge) | Badge | Badge |
+| [Card](/react-native/components/card) | — | Card |
+| [List](/react-native/components/list) | Inset grouped list | List, as a Settings preference group |
+| [Text](/react-native/components/text), `Heading` | Text styles (Dynamic Type) | Type scale |
 
-**Overlays:** [Dialog](/react-native/components/dialog), [Bottom sheet](/react-native/components/bottom-sheet), [Action sheet](/react-native/components/action-sheet), [Toast](/react-native/components/toast)
+Names that clash between the platforms:
 
-**Navigation:** [Toolbar](/react-native/components/toolbar) and `NavigationButton`, [Tab bar](/react-native/components/tab-bar), [Page control](/react-native/components/page-control)
-
-**Content:** [Text](/react-native/components/text) and `Heading`, [List](/react-native/components/list), [Card](/react-native/components/card), [Avatar](/react-native/components/avatar), [Badge](/react-native/components/badge), [Skeleton](/react-native/components/skeleton), [Empty message](/react-native/components/empty-message)
+- **Navigation bar** is the top bar on iOS (Toolbar) and the bottom bar of destinations on Android (Tab Bar).
+- **Toolbar** is the bottom bar of actions on iOS, floating in glass; Material's floating toolbar is not used on Android, where the bottom of a screen holds one wide action or a field.
+- **Tabs** on Android sit under a top app bar and switch views inside one screen; use Segmented Control for that.

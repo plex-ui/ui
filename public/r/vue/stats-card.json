@@ -3,7 +3,7 @@
   "name": "stats-card",
   "type": "registry:ui",
   "title": "Stats Card",
-  "description": "Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.",
+  "description": "\"A dashboard card that shows one figure, such as a KPI, with its trend, an icon or a progress bar.\"",
   "dependencies": [
     "@plexui/vue"
   ],

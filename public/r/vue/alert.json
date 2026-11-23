@@ -3,7 +3,7 @@
   "name": "alert",
   "type": "registry:ui",
   "title": "Alert",
-  "description": "Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.",
+  "description": "Inline message for notices and warnings, with semantic colors, a title, a description and actions.",
   "dependencies": [
     "@plexui/vue"
   ],

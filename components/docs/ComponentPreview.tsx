@@ -8,7 +8,8 @@ import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Button } from '@plexui/ui/components/Button';
 import { Eye, Code, InfoCircle, Desktop, Mobile, Reload } from '@plexui/ui/components/Icon';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
-import { DemoControlHostContext, DemoControlValuesContext, DemoControlsBottomSlotContext, compactPreviewHeight, createDemoControlChannel, createDemoControlValues, usePreviewEmbed, type DemoControlValues } from './PreviewEmbed';
+import { DemoControlHostContext, DemoControlValuesContext, DemoControlsBottomSlotContext, compactPreviewHeight, createDemoControlChannel, createDemoControlValues, usePreviewEmbed, usePreviewEmbedPlatform, type DemoControlValues } from './PreviewEmbed';
+import { NativePlatformContext, NativeScreenTitleContext, isNativePath, type NativePlatform } from './react-native/platform';
 import { renderDemoCode } from './demoCode.mjs';
 import s from './ComponentPreview.module.css';
 import { usePreviewViewport } from './PreviewViewport';
@@ -71,7 +72,10 @@ export function ComponentPreview({
   const pageViewport = usePreviewViewport();
   // A page whose phone view is not ready shows no Phone switch on a desktop (frontmatter `phoneDraft`); its own
   // phone iframe still renders the example, as a phone-only example does.
-  const phonePresentation = !pageViewport.phoneViews && !phoneOnly ? 'none' : requestedPhonePresentation ?? 'screen';
+  const pathname = usePathname();
+  // A React Native page: its examples are always phone screens, of iOS or Android, in place of Desktop and Phone
+  const native = isNativePath(pathname);
+  const phonePresentation = !pageViewport.phoneViews && !phoneOnly && !native ? 'none' : requestedPhonePresentation ?? 'screen';
   // An example that does not draw its own screen stands on a phone page (ComponentPreview.module.css)
   const phonePage = requestedPhonePresentation === undefined && !phoneDialog && !phoneOnly;
   const [mode, setMode] = useState<Mode>('preview');
@@ -80,20 +84,32 @@ export function ComponentPreview({
   const [controlValues] = useState(createDemoControlValues);
   const [phoneActivation, setPhoneActivation] = useState(0);
   const [override, setOverride] = useState<{ viewport: Viewport; revision: number } | null>(null);
-  const viewport = phoneOnly ? 'phone' : override?.revision === pageViewport.revision ? override.viewport : pageViewport.viewport;
+  const viewport = phoneOnly || native ? 'phone' : override?.revision === pageViewport.revision ? override.viewport : pageViewport.viewport;
   const setViewport = (next: Viewport) => setOverride({ viewport: next, revision: pageViewport.revision });
+  // The example's platform follows the page's switch until its own picks another, as the viewport does
+  const embedPlatform = usePreviewEmbedPlatform();
+  const [platformOverride, setPlatformOverride] = useState<{ platform: NativePlatform; revision: number } | null>(null);
+  const platform: NativePlatform = embedPlatform
+    ?? (platformOverride?.revision === pageViewport.platformRevision ? platformOverride.platform : pageViewport.platform);
   // Under md the page is a phone already: no switch and no iframe
   const wide = useBreakpoint('md');
-  const pathname = usePathname();
   const embedTarget = usePreviewEmbed();
   const hasCode = Boolean(code);
   const hasDetails = Boolean(details);
 
-  const { registerPhoneExample } = pageViewport;
+  const { registerPhoneExample, registerNativeExample, registerPhoneOnlyExample } = pageViewport;
   useEffect(() => {
-    if (embedTarget !== null || phonePresentation === 'none' || phoneOnly) return;
+    if (embedTarget !== null || phonePresentation === 'none' || phoneOnly || native) return;
     return registerPhoneExample();
-  }, [embedTarget, phoneOnly, phonePresentation, registerPhoneExample]);
+  }, [embedTarget, phoneOnly, native, phonePresentation, registerPhoneExample]);
+  useEffect(() => {
+    if (embedTarget !== null || !phoneOnly || native || phonePresentation !== 'screen') return;
+    return registerPhoneOnlyExample();
+  }, [embedTarget, phoneOnly, native, phonePresentation, registerPhoneOnlyExample]);
+  useEffect(() => {
+    if (embedTarget !== null || !native) return;
+    return registerNativeExample();
+  }, [embedTarget, native, registerNativeExample]);
 
   type ElementProps = Record<string, unknown>;
   const childArray = React.Children.toArray(children);
@@ -137,6 +153,18 @@ export function ComponentPreview({
   // The phone view of one preview: only that preview, at the iframe's width
   if (embedTarget !== null) {
     if (embedTarget !== previewId) return null;
+    if (native) {
+      // A React Native screen draws its own top bar, in its platform's look (RNScreen)
+      return (
+        <div className={`${s.PreviewContainer} not-prose`} data-preview-embed data-preview-native data-preview-presentation="screen">
+          <NativePlatformContext.Provider value={platform}>
+            <NativeScreenTitleContext.Provider value={{ page: phonePage, title: previewTitle }}>
+              <div className={`${s.PreviewInner} ${className ?? ''}`.trim()}>{normalizedChildren}</div>
+            </NativeScreenTitleContext.Provider>
+          </NativePlatformContext.Provider>
+        </div>
+      );
+    }
     return (
       <div className={`${s.PreviewContainer} not-prose`} data-preview-embed data-preview-presentation={phonePresentation} data-preview-phone-page={phonePage || undefined} data-preview-initial-dialog={phoneDialog || undefined}>
         {/* A phone page is a screen of an app: the top bar under the status bar always takes its place, and names the
@@ -154,14 +182,31 @@ export function ComponentPreview({
   return (
     <div className={`${s.Wrapper} not-prose`} data-component-preview data-preview-viewport={viewport}>
       {/* Tab bar — outside the bordered block */}
-      <div className={s.TabBar} onClickCapture={(event) => {
+      <div className={s.TabBar} data-preview-bar onClickCapture={(event) => {
         // Re-selecting the active Phone tab is still an explicit activation.
         // Page-wide Phone mode deliberately does not focus every mounted iframe.
         if (viewport === 'phone' && event.target instanceof Element && event.target.closest('button[aria-label="Phone"]')) {
           setPhoneActivation((value) => value + 1);
         }
       }}>
-        {phonePresentation !== 'none' && !phoneOnly && <SegmentedControl
+        {/* A React Native example's look; a React or Vue example's phone: an iPhone or an Android phone, the web
+            components inside the same on both, as a phone's browser draws them */}
+        {(native || (viewport === 'phone' && phonePresentation === 'screen')) && <SegmentedControl
+          value={platform}
+          onChange={(next) => {
+            setPlatformOverride({ platform: next as NativePlatform, revision: pageViewport.platformRevision });
+            setPhoneActivation((value) => value + 1);
+            setMode('preview');
+          }}
+          size="xs"
+          pill
+          aria-label="Platform"
+          className={native ? undefined : s.ScreenSwitch}
+        >
+          <SegmentedControl.Option value="ios">iOS</SegmentedControl.Option>
+          <SegmentedControl.Option value="android">Android</SegmentedControl.Option>
+        </SegmentedControl>}
+        {phonePresentation !== 'none' && !phoneOnly && !native && <SegmentedControl
           value={viewport}
           onChange={(v) => {
             setViewport(v as Viewport);
@@ -209,9 +254,16 @@ export function ComponentPreview({
             className={className}
             previewMinHeight={previewMinHeight}
             resizable={resizable}
-            phone={viewport === 'phone' && wide && phonePresentation !== 'none' ? { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation } : null}
+            phone={viewport === 'phone' && wide && phonePresentation !== 'none'
+              ? native
+                ? { src: `/preview${pathname}?key=${previewId}&platform=${platform}`, previewKey: previewId, dialog: false, presentation: 'screen', activation: phoneActivation, platform }
+                // A screen stands in the device picked; a bare slice has no frame
+                : phonePresentation === 'screen' && platform === 'android'
+                  ? { src: `/preview${pathname}?key=${previewId}&platform=android`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation, platform }
+                  : { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation }
+              : null}
           >
-            {normalizedChildren}
+            {native ? <NativePlatformContext.Provider value={platform}>{normalizedChildren}</NativePlatformContext.Provider> : normalizedChildren}
           </PreviewPane>
         </DemoControlValuesContext.Provider>
         {mode === 'code' ? (
@@ -246,7 +298,7 @@ function PreviewCode({ code, codeValues, controlValues, language }: { code: stri
 }
 
 /* ------------------------------------------------------------------ */
-/*  Phone view: a live viewport inside the original iPhone bezel       */
+/*  Phone view: a live viewport in an iPhone or an Android phone       */
 /* ------------------------------------------------------------------ */
 
 /**
@@ -263,6 +315,7 @@ function PhonePreview({
   frameRef,
   onReady,
   activation,
+  platform,
 }: {
   src: string;
   previewKey: string;
@@ -272,6 +325,9 @@ function PhonePreview({
   frameRef: React.RefObject<HTMLIFrameElement | null>;
   onReady: () => void;
   activation: number;
+  /** The device of the screen, an iPhone or an Android phone: a React Native example's platform, or the one picked
+   * for a React or Vue example */
+  platform?: NativePlatform;
 }) {
   const screen = presentation === 'screen';
   const minimumHeight = typeof previewMinHeight === 'number' ? previewMinHeight : 168;
@@ -352,7 +408,7 @@ function PhonePreview({
       loading="lazy"
       className={screen ? s.PhoneFrame : s.ComponentPhoneFrame}
       data-pending={screen && !ready || undefined}
-      style={screen && keyboard.open ? { height: 874 - (keyboard.kind === 'text' ? TEXT_KEYBOARD_HEIGHT : NUMERIC_KEYBOARD_HEIGHT) } : undefined}
+      style={screen && keyboard.open ? { height: (platform === 'android' ? ANDROID_SCREEN.height : 874) - (keyboard.kind === 'text' ? TEXT_KEYBOARD_HEIGHT : NUMERIC_KEYBOARD_HEIGHT) } : undefined}
     />
   );
 
@@ -372,6 +428,29 @@ function PhonePreview({
           {loading}
         </div>
       </div>
+    );
+  }
+
+  if (platform === 'android') {
+    return (
+      <>
+      {keyboard.available && <div className={s.KeyboardControl}>
+        <label htmlFor={keyboardControlId}>keyboard</label>
+        <Switch id={keyboardControlId} checked={keyboard.open} onCheckedChange={(open) => sendKeyboard(open ? 'show' : 'hide')} />
+      </div>}
+      <div className={s.PhoneContainer} data-dialog-open={(dialogOpen || !ready) || undefined} data-status-bar-scrim={(statusBarScrim || !ready) || undefined} style={{ minHeight: previewMinHeight ?? 168 }}>
+        <div ref={deviceRef} className={s.AndroidDevice}>
+          <div className={s.AndroidScreen} style={{ '--phone-screen-background': screenBackground } as React.CSSProperties} aria-busy={!loaded || undefined}>
+            <AndroidStatusBar />
+            {frame}
+            {loading}
+            {keyboard.open && keyboard.kind && <PreviewKeyboard kind={keyboard.kind} onKey={sendKeyboard} />}
+            <span className={s.AndroidGestureHandle} aria-hidden="true" />
+          </div>
+          <span className={s.AndroidBezel} aria-hidden="true" />
+        </div>
+      </div>
+      </>
     );
   }
 
@@ -405,6 +484,27 @@ function PhonePreview({
   );
 }
 
+/** The screen of the Android phone frame: a Pixel 9's 412 by 923 dp, as Google draws its own apps on it. */
+const ANDROID_SCREEN = { width: 412, height: 923 };
+
+/**
+ * Android's status bar over the screen, drawn as the system draws it: the time at the start, the camera cut in the
+ * middle, Wi-Fi, signal and battery at the end (Material Symbols' wifi, signal_cellular_4_bar, battery_full).
+ */
+function AndroidStatusBar() {
+  return (
+    <div className={s.AndroidStatusBar} aria-hidden="true">
+      <span className={s.AndroidTime}>9:41</span>
+      <span className={s.AndroidCamera} />
+      <span className={s.AndroidStatusIcons}>
+        <svg viewBox="0 -960 960 960" width="17" height="17" fill="currentColor"><path d="M480-120 0-600q95-97 219.5-148.5T480-800q137 0 261 51.5T960-600L480-120Z" /></svg>
+        <svg viewBox="0 -960 960 960" width="17" height="17" fill="currentColor"><path d="M80-80 880-880v800H80Z" /></svg>
+        <svg viewBox="0 -960 960 960" width="17" height="17" fill="currentColor"><path d="M320-80q-17 0-28.5-11.5T280-120v-640q0-17 11.5-28.5T320-800h80v-80h160v80h80q17 0 28.5 11.5T680-760v640q0 17-11.5 28.5T640-80H320Z" /></svg>
+      </span>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /*  Resizable preview pane                                            */
 /* ------------------------------------------------------------------ */
@@ -426,7 +526,7 @@ function PreviewPane({
   className?: string;
   previewMinHeight?: number | string;
   resizable: boolean;
-  phone: { src: string; previewKey: string; dialog: boolean; presentation: Exclude<PhonePresentation, 'none'>; activation: number } | null;
+  phone: { src: string; previewKey: string; dialog: boolean; presentation: Exclude<PhonePresentation, 'none'>; activation: number; platform?: NativePlatform } | null;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
@@ -536,6 +636,8 @@ function PreviewPane({
       </div>
       {phone && (
         <PhonePreview
+          // Another device is another phone: its frame loads, and reports its dialog and keyboard, afresh
+          key={phone.platform ?? 'ios'}
           src={phone.src}
           previewKey={phone.previewKey}
           startsWithDialog={phone.dialog}
@@ -544,6 +646,7 @@ function PreviewPane({
           frameRef={frameRef}
           onReady={sendAll}
           activation={phone.activation}
+          platform={phone.platform}
         />
       )}
       {/* Controls for the bottom of the screen follow the phone, on screen and in the reading order */}

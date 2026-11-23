@@ -4,6 +4,17 @@ import { useState } from "react"
 import { Backdrop, Labeled, Row, Section } from "../demo"
 
 const COLORS: ButtonColor[] = ["primary", "secondary", "danger", "success", "info", "discovery", "caution", "warning"]
+/** An action that suits each color. */
+const ACTIONS: Record<ButtonColor, string> = {
+  primary: "Continue",
+  secondary: "Cancel",
+  danger: "Delete",
+  success: "Approve",
+  info: "Learn more",
+  discovery: "Upgrade",
+  caution: "Retry",
+  warning: "Review",
+}
 const VARIANTS: ButtonVariant[] = ["solid", "soft", "outline", "ghost"]
 const SIZES: ControlSize[] = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]
 
@@ -16,31 +27,34 @@ export function ButtonsScreen() {
       <Section title="Pressable" note="Press to count: the pressed state, the native ripple on Android">
         <Row>
           <Button onPress={() => setCount((n) => n + 1)} testID="button-count">
-            Pressed {count}
+            {count > 0 ? `In cart: ${count}` : "Add to cart"}
           </Button>
           <Button variant="soft" selected={selected} onPress={() => setSelected((value) => !value)} testID="button-toggle">
-            {selected ? "Selected" : "Not selected"}
+            {selected ? "Following" : "Follow"}
           </Button>
         </Row>
       </Section>
       {VARIANTS.map((variant) => (
-        <Section key={variant} title={variant} testID={`variant-${variant}`}>
+        <Section key={variant} title={variant} note={variant === VARIANTS[0] ? `Colors in order: ${COLORS.join(", ")}` : undefined} testID={`variant-${variant}`}>
           <Row>
             {COLORS.map((color) => (
               <Button key={color} color={color} variant={variant}>
-                {color}
+                {ACTIONS[color]}
               </Button>
             ))}
           </Row>
         </Section>
       ))}
-      <Section title="Sizes" note={theme.isIOS ? "The phone layer: 28 up to sm, 34 at md and lg, 50 from xl" : "Material 3: XS 32 up to sm, S 40 at md and lg, M 56 from xl"}>
+      <Section title="Sizes" note={theme.isIOS ? "The phone layer: 28 up to sm, 34 at md and lg, 50 from xl" : "Android's 48dp from xl; 32 up to sm and 40 at md and lg in its proportions"}>
         {SIZES.map((size) => (
           <Row key={size}>
-            <Button size={size}>Size {size}</Button>
+            <Button size={size}>Download</Button>
             <Button size={size} variant="soft" uniform accessibilityLabel="Add">
               <Plus />
             </Button>
+            <Text variant="footnote" color="tertiary">
+              {size}
+            </Text>
           </Row>
         ))}
       </Section>
@@ -56,21 +70,21 @@ export function ButtonsScreen() {
           </Button>
           <Button variant="outline" color="info">
             <Plus />
-            New
+            New folder
           </Button>
         </Row>
       </Section>
-      <Section title="States">
+      <Section title="States" note="Disabled, loading and selected">
         {VARIANTS.map((variant) => (
           <Row key={variant}>
             <Button variant={variant} disabled>
-              Disabled
+              Send
             </Button>
             <Button variant={variant} loading>
-              Loading
+              Save
             </Button>
             <Button variant={variant} selected>
-              Selected
+              Unread
             </Button>
           </Row>
         ))}
@@ -82,17 +96,17 @@ export function ButtonsScreen() {
         </Button>
       </Section>
       {theme.isAndroid ? (
-        <Section title="Shape" note="Material 3 Expressive: round or square; corners tighten while pressed">
+        <Section title="Shape" note="Android: a pill, or 8dp corners">
           <Row>
             <Labeled label="round">
-              <Button>Round</Button>
+              <Button>Join</Button>
             </Labeled>
             <Labeled label="square">
-              <Button shape="square">Square</Button>
+              <Button shape="square">Join</Button>
             </Labeled>
             <Labeled label="square xl">
               <Button shape="square" size="xl">
-                Square
+                Join
               </Button>
             </Labeled>
           </Row>
@@ -102,10 +116,10 @@ export function ButtonsScreen() {
         <Backdrop>
           <Row>
             <Button variant="soft" mobileMaterial="glass">
-              Glass
+              Select
             </Button>
             <Button variant="ghost" mobileMaterial="glass">
-              Ghost glass
+              Cancel
             </Button>
             <Button variant="soft" mobileMaterial="glass" uniform accessibilityLabel="Add">
               <Plus />

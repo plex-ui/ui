@@ -1,6 +1,6 @@
 ---
 title: "Forms: Auth"
-description: "Sign-up, log-in, OAuth, password entry, email and phone verification, billing details, and document upload forms built with Plex UI."
+description: "Sign-up, log-in, OAuth, password, verification, billing and document upload forms built with Plex UI."
 metaDescription: "Vue 3 auth forms: sign-up, log-in, OAuth, password entry, email and phone verification, billing details, and document upload built with Plex UI for Vue."
 ---
 
@@ -665,10 +665,6 @@ export const aboutYou = `<template v-if="wide">${aboutYouDesktop}</template>
 
 Sign-up, log-in, password and verification screens composed from [Float Input](/vue/components/floating-label-input), [OTP Input](/vue/components/otp-input), [Select](/vue/components/select), and [Button](/vue/components/button). Settings and editing forms are on [Forms: Settings](/vue/components/settings-forms). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>: <code>AuthFormStage</code> (the shared Page or Sheet shell), the brand logos, <code>FlagIcon</code>, <code>PhoneCountryTrigger</code> and <code>BirthdayMaskedInput</code>.
 
-Auth examples share [AuthInput](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthInput.ts), [AuthFields](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthFields.ts), and their [styles](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFields.module.css). The [AuthFormStage helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthFormStage.ts) supplies the common Page or Sheet shell and mobile context. Copy these files together. Phones use a single filled pill or linked rows without floating labels; desktop keeps FloatingLabelInput. The form owns values, validation and submission.
-
-Screens default to Grouped. The `surface` control switches to Plain without changing fields or values. Page uses base colors; Dialog uses elevated colors. Auth screens use a shared `Page` shell in Phone view: a 54px toolbar area, a 10px gap before the form, and 16px side gutters. The `dialog` control switches to a tall mobile Sheet with its own toolbar. Changes to presentation preserve entered values. Individual input examples keep their component-only layout.
-
 <HashForward to="/vue/components/settings-forms" ids={["form-in-a-dialog", "errors-in-rows", "several-groups", "group-of-inputs", "group-of-mixed-controls", "choice-in-rows", "long-form-in-one-group", "tags-in-rows", "rows-with-actions", "payout-details", "settings-with-selection-pages", "image-and-title", "settings-with-a-slider"]} />
 
 ## Log in (email)
@@ -870,3 +866,9 @@ ${storageLocation.replace(' :phone-preview="phonePreview" :phone-host="phoneHost
 </template>`} previewMinHeight={620}>
   <VueStorageLocationDemo template={storageLocation} />
 </ComponentPreview>
+
+## Notes
+
+Auth examples share [AuthInput](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthInput.ts), [AuthFields](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthFields.ts), and their [styles](https://github.com/plex-ui/ui/blob/master/components/docs/AuthFields.module.css). The [AuthFormStage helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/AuthFormStage.ts) supplies the common Page or Sheet shell and mobile context. Copy these files together. Phones use a single filled pill or linked rows without floating labels; desktop keeps FloatingLabelInput. The form owns values, validation and submission.
+
+Screens default to Grouped. The `surface` control switches to Plain without changing fields or values. Page uses base colors; Dialog uses elevated colors. Auth screens use a shared `Page` shell in Phone view: a 54px toolbar area, a 10px gap before the form, and 16px side gutters. The `dialog` control switches to a tall mobile Sheet with its own toolbar. Changes to presentation preserve entered values. Individual input examples keep their component-only layout.

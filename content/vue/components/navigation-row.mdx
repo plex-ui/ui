@@ -1,26 +1,26 @@
 ---
 title: Navigation Row
-description: "A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
+description: "A list row that opens a page of its own, with a label, the current value and a chevron, as in iOS Settings."
 metaDescription: "Vue 3 navigation row for lists in the iOS style: a FieldGroup row with a label, its current value in the secondary color and a chevron, pressed as one button or link, with a description line, disabled state and FieldGroup columns."
 ---
 
 import { VueNavigationRowColumnsDemo, VueNavigationRowLeadingDemo, VueNavigationRowOverviewDemo } from "@/components/docs/vue/VueNavigationRowDemos"
 
 export const overview = `<FieldGroup>
-  <NavigationRow label="Language" :value="language" @click="open('language')" />
-  <NavigationRow label="Region" :value="region" @click="open('region')" />
-  <NavigationRow label="Calendar" :value="calendar" @click="open('calendar')" />
+  <NavigationRow label="Time zone" :value="timeZone" @click="open('timeZone')" />
+  <NavigationRow label="Start week on" :value="weekStart" @click="open('weekStart')" />
+  <NavigationRow label="Day starts at" :value="dayStart" @click="open('dayStart')" />
 </FieldGroup>
 <FieldGroup>
   <NavigationRow
-    label="Fetch New Data"
-    description="How new mail arrives"
-    :value="fetch"
-    @click="open('fetch')"
+    label="Sync"
+    description="How far back events are kept"
+    :value="sync"
+    @click="open('sync')"
   />
-  <NavigationRow label="Temperature" value="°C" disabled />
+  <NavigationRow label="Default calendar" description="Managed by your organization" value="Work" disabled />
   <NavigationRow
-    label="Default Alerts"
+    label="Default alerts"
     :value="alerts"
     value-placement="auto"
     @click="open('alerts')"
@@ -49,19 +49,20 @@ export const leading = `<FieldGroup>
 </FieldGroup>`
 
 export const columns = `<FieldGroup columns>
-  <NavigationRow label="Language" :value="language" @click="open('language')" />
-  <NavigationRow label="Region" :value="region" @click="open('region')" />
+  <NavigationRow label="Time zone" :value="timeZone" @click="open('timeZone')" />
+  <NavigationRow label="Start week on" :value="weekStart" @click="open('weekStart')" />
 </FieldGroup>`
 
 <UsageBlock>{`import { NavigationRow } from "@plexui/vue/components/NavigationRow";`}</UsageBlock>
-
-A navigation row leads into what it holds, as a row of iOS Settings does: General › Language shows the language in use and opens the list to change it. Use it for a setting whose choices or details need a page of their own; for a choice made in place, use a [Select](/vue/components/select) in a [Field](/vue/components/field) row, and for a row that does something at once, an action row (a ghost `Button` with `block` in a `data-row`).
 
 ## Examples
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Put the rows in a <code>FieldGroup</code>: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The <code>value</code> stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A <code>description</code> adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A <code>disabled</code> row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with <code>valuePlacement="auto"</code>, at the full width of the text, and a description under the value, as Calendar sets a long value (<code>below</code> puts it there always). With <code>to</code> or <code>href</code> the row is a link through the <code>linkComponent</code> of <code>PlexUIProvider</code> (or <code>as</code>), for a router&apos;s page.</>} code={overview}>
+<ComponentPreview language="vue" details={<>
+  <p>A navigation row leads into what it holds, as a row of iOS Settings does: General › Language shows the language in use and opens the list to change it. Use it for a setting whose choices or details need a page of their own; for a choice made in place, use a <a href="/vue/components/select">Select</a> in a <a href="/vue/components/field">Field</a> row, and for a row that does something at once, an action row (a ghost <code>Button</code> with <code>block</code> in a <code>data-row</code>).</p>
+  <p>Put the rows in a <code>FieldGroup</code>: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The <code>value</code> stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A <code>description</code> adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A <code>disabled</code> row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with <code>valuePlacement="auto"</code>, at the full width of the text, and a description under the value, as Calendar sets a long value (<code>below</code> puts it there always). With <code>to</code> or <code>href</code> the row is a link through the <code>linkComponent</code> of <code>PlexUIProvider</code> (or <code>as</code>), for a router&apos;s page.</p>
+</>} code={overview}>
   <VueNavigationRowOverviewDemo />
 </ComponentPreview>
 

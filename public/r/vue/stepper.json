@@ -3,7 +3,7 @@
   "name": "stepper",
   "type": "registry:ui",
   "title": "Stepper",
-  "description": "Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.",
+  "description": "\"Two segments that decrease and increase a number in steps, as the iOS 26 stepper does.\"",
   "dependencies": [
     "@plexui/vue"
   ],

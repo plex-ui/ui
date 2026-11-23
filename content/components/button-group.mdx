@@ -16,10 +16,6 @@ import {
 
 <UsageBlock>{`import { ButtonGroup } from "@plexui/ui/components/ButtonGroup";`}</UsageBlock>
 
-Wraps any row of controls (`Button`, `Input`, `Popover.Trigger`, etc.) and removes the shared border so they read as one unit. Nest `ButtonGroup` inside itself to create visually separated sub-groups (the outer group automatically spaces them).
-
-On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/toolbar) is the Button Group of iOS: one glass capsule holding its buttons, the same as `Toolbar.Group`. `mobileMaterial="glass"` asks for the capsule outside a toolbar, for controls that float over the content. iOS has no joined buttons in the content, so a group there keeps its joined look at the touch sizes. A field among glass buttons comes apart from them, each a glass shape of its own, as the composer of iOS Messages. The Phone view of each example shows the group where iOS puts it, in a bar or floating at the bottom of the screen, or the screen iOS builds where it has no such group.
-
 ## Examples
 
 {/* The Size example is the size setting of the Overview (owner 11.11: the first example shows everything with every
@@ -35,6 +31,8 @@ On a phone with `touch.css` a group of buttons in a [`Toolbar`](/components/tool
 ### Overview
 
 <ComponentPreview phonePresentation="screen" details={<>
+  <p>Wraps any row of controls (<code>Button</code>, <code>Input</code>, <code>Popover.Trigger</code>, etc.) and removes the shared border so they read as one unit.</p>
+  <p>On a phone with <code>touch.css</code> a group of buttons in a <a href="/components/toolbar"><code>Toolbar</code></a> is the Button Group of iOS: one glass capsule holding its buttons, the same as <code>Toolbar.Group</code>. <code>mobileMaterial="glass"</code> asks for the capsule outside a toolbar, for controls that float over the content. iOS has no joined buttons in the content, so a group there keeps its joined look at the touch sizes. A field among glass buttons comes apart from them, each a glass shape of its own, as the composer of iOS Messages. The Phone view of each example shows the group where iOS puts it, in a bar or floating at the bottom of the screen, or the screen iOS builds where it has no such group.</p>
   <p>Set <code>size</code> on every <code>Button</code> inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (<code>uniform</code>) with text buttons; each child keeps its own padding.</p>
   <p>Place a <code>ButtonGroup</code> inside a <code>ButtonGroup</code> to make sub-groups, as Back, Pin and Tag, Bookmark and More here, or a pager's pages beside its arrows: the outer group sets a gap between them (<code>--button-group-nested-gap</code>, 8px) and each sub-group stays joined.</p>
   <p>On a phone with <code>touch.css</code> a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, <code>sm</code>) and medium (34px, <code>md</code> and <code>lg</code>) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own.</p>

@@ -1,6 +1,6 @@
 ---
 title: Radio Group
-description: Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
+description: "A group of options from which a person chooses exactly one, as a list, a row, cards or settings rows."
 metaDescription: React radio group component for single-choice selection with horizontal or vertical layout, per-item descriptions, and Field integration
 ---
 
@@ -18,8 +18,6 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { RadioGroup } from "@plexui/ui/components/RadioGroup";`}</UsageBlock>
 
-On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`: each `Field row` names an option, and its `RadioGroup.Item` without children is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. Direction and orientation are desktop settings of the Overview, and the cards and the alignment check are desktop-only examples.
-
 ## Examples
 
 {/* Direction, Orientation, Group disabled, Item disabled and With description are settings of the Overview (owner
@@ -33,6 +31,7 @@ On Phone, put the options in the rows of a `FieldGroup` inside the `RadioGroup`:
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>On Phone, put the options in the rows of a <code>FieldGroup</code> inside the <code>RadioGroup</code>: each <code>Field row</code> names an option, and its <code>RadioGroup.Item</code> without children is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. The cards and the alignment check are desktop-only examples.</p>
   <p><code>direction</code> sets whether the items flow in a column or a row; the gap follows it. <code>orientation="right"</code> on <code>RadioGroup.Item</code> places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set <code>block</code> on the items so they fill the group and the indicators line up.</p>
   <p>Use <code>description</code> on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through <code>aria-describedby</code>; clicking it does not select the option.</p>
   <p><code>disabled</code> on <code>RadioGroup</code> disables every option; on a single <code>RadioGroup.Item</code> it disables only that one, here Monthly, so that setting is offered only while the group is enabled.</p>
@@ -149,9 +148,9 @@ const block = direction === "col" && orientation === "right"
 >
   {(fieldProps) => (
     <RadioGroup direction="col" aria-label="Subscription plan" {...fieldProps}>
-      <RadioGroup.Item value="monthly">Monthly ($9.99/month)</RadioGroup.Item>
-      <RadioGroup.Item value="yearly">Yearly ($99.99/year)</RadioGroup.Item>
-      <RadioGroup.Item value="lifetime">Lifetime ($299.99)</RadioGroup.Item>
+      <RadioGroup.Item value="monthly" description="$9.99/month">Pay monthly</RadioGroup.Item>
+      <RadioGroup.Item value="yearly" description="$99.99/year">Pay yearly</RadioGroup.Item>
+      <RadioGroup.Item value="lifetime" description="$299.99 for lifetime access">Pay once</RadioGroup.Item>
     </RadioGroup>
   )}
 </Field>
@@ -171,9 +170,9 @@ const block = direction === "col" && orientation === "right"
     description="Select a plan to continue."
     footer={showError ? <FieldError id={errorId}>Please select a subscription plan.</FieldError> : undefined}
   >
-    <Field row label="Monthly ($9.99/month)"><RadioGroup.Item value="monthly" /></Field>
-    <Field row label="Yearly ($99.99/year)"><RadioGroup.Item value="yearly" /></Field>
-    <Field row label="Lifetime ($299.99)"><RadioGroup.Item value="lifetime" /></Field>
+    <Field row label="Pay monthly" description="$9.99/month"><RadioGroup.Item value="monthly" /></Field>
+    <Field row label="Pay yearly" description="$99.99/year"><RadioGroup.Item value="yearly" /></Field>
+    <Field row label="Pay once" description="$299.99 for lifetime access"><RadioGroup.Item value="lifetime" /></Field>
   </FieldGroup>
 </RadioGroup>`} previewMinHeight={240}>
   <RadioGroupWithFieldErrorDemo />
@@ -303,7 +302,7 @@ const block = direction === "col" && orientation === "right"
 
 <ComponentPreview phonePresentation="none" details={<>Leverage component composition and <code>className</code> overrides to build card-style radio selections with rich content per option. Desktop only, like Choice card.</>} className="justify-start" code={`<RadioGroup className="flex-col w-full min-w-0 max-w-[390px] gap-4">
   <RadioGroup.Item className="gap-2.5" value="basic">
-    <div><h4>Basic Plan</h4><p className="text-secondary text-sm">5 GB storage</p></div>
+    <div><h4>Basic plan</h4><p className="text-secondary text-sm">5 GB storage</p></div>
   </RadioGroup.Item>
   ...
 </RadioGroup>`} previewMinHeight={168}>

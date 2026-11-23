@@ -42,3 +42,7 @@ export const Ellipse = shape('ellipse');
 export const Line = shape('line');
 export const Polyline = shape('polyline');
 export const Polygon = shape('polygon');
+// Paints: the fill of a gradient avatar
+export const Defs = shape('defs');
+export const LinearGradient = shape('linearGradient');
+export const Stop = shape('stop');

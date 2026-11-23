@@ -131,7 +131,7 @@ test("Slider: on a phone the Overview's slider stands in a cell of a grouped lis
   expect(cells).toContain("export const sliderCellStackedClassName = 'flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]';")
   expect(cells).toContain("text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)]")
   const demos = read("components/docs/SliderDemos.tsx")
-  expect(demos.match(/<FieldGroup title="Example field">/g)).toHaveLength(1)
+  expect(demos.match(/<FieldGroup title=\{name\}>/g)).toHaveLength(1)
   expect(demos.match(/className=\{sliderCellClassName\}/g)).toHaveLength(2)
   expect(demos.match(/className=\{sliderCellStackedClassName\}/g)).toHaveLength(1)
   expect(demos.match(/sliderCellValueBelowClassName\}/g)).toHaveLength(1)

@@ -1,6 +1,6 @@
 ---
 title: Date Picker
-description: Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
+description: Date picker with a calendar, a time picker, month and year dropdowns, and min and max limits.
 metaDescription: React date picker component with interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets
 ---
 
@@ -88,8 +88,6 @@ const max = limits === "around" ? today.plus({ days: 30 }).endOf("day") : limits
 
 <UsageBlock>{`import { DatePicker } from "@plexui/ui/components/DatePicker";`}</UsageBlock>
 
-On Phone, put a date picker in a row of a `FieldGroup`, as the [Forms: Settings](/components/settings-forms) do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row's capsule is its frame and sets its height, insets and type, and iOS opens the calendar under the row, so the Phone previews leave out the `variant`, `size`, `pill`, `block`, icon, date format and placement controls, and set `triggerShowIcon={false}` and the date as iOS writes it, `"MMM d, yyyy"`. To type a date instead, put a [Date Input](/components/date-input) in the row.
-
 ## Examples
 
 <span id="disabled" />
@@ -102,6 +100,7 @@ On Phone, put a date picker in a row of a `FieldGroup`, as the [Forms: Settings]
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>On Phone, put a date picker in a row of a <code>FieldGroup</code>, as the <a href="/components/settings-forms">Forms: Settings</a> do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row's capsule is its frame and sets its height, insets and type, and iOS opens the calendar under the row, so the Phone previews leave out the <code>variant</code>, <code>size</code>, <code>pill</code>, <code>block</code>, icon, date format and placement controls, and set <code>{'triggerShowIcon={false}'}</code> and the date as iOS writes it, <code>"MMM d, yyyy"</code>. To type a date instead, put a <a href="/components/date-input">Date Input</a> in the row.</p>
   <p>Pass the date (a luxon <code>DateTime</code>, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</p>
   <p><code>showTime</code> adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. <code>triggerTimeFormat</code> writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a <code>showTime</code> trigger writes <code>"MM/dd/yy HH:mm"</code> unless you set <code>triggerDateFormat</code>.</p>
   <p><code>captionLayout="dropdown"</code> adds month and year dropdowns beside the arrows, for a date of birth or a date years away; <code>yearRange</code> sets their years (the last 120 by default); with <code>min</code> or <code>max</code> the years are those they allow, so here it is offered without limits. <code>min</code> and <code>max</code> limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day.</p>

@@ -3,7 +3,7 @@ import path from "node:path"
 import { describe, expect, test } from "vitest"
 // @ts-expect-error plain .mjs script without types
 import { vueMeta } from "../../scripts/sync-vue-meta.mjs"
-import { COMPONENT_GROUPS, COMPONENT_PAGE_ORDER } from "../../lib/component-groups"
+import { COMPONENT_GROUPS, COMPONENT_PAGE_ORDER, NATIVE_ONLY_GROUPS } from "../../lib/component-groups"
 
 // Tests run from the repo root
 const fromRoot = (relative: string) => path.resolve(process.cwd(), relative)
@@ -60,5 +60,18 @@ describe("the component pages are in their groups (owner 16.11)", () => {
 
   test("a group lists its pages in alphabetical order", () => {
     for (const group of COMPONENT_GROUPS) expect([...group.slugs], group.label).toEqual([...group.slugs].sort())
+  })
+})
+
+describe("the React Native pages are in the sidebar's groups", () => {
+  test("a React Native page is in its React page's group, or in NATIVE_ONLY_GROUPS when it has no React page", () => {
+    const meta = JSON.parse(read("content/react-native/components/meta.json")) as { pages: string[] }
+    const groupIds = new Set(COMPONENT_GROUPS.map((group) => group.id))
+    const pages = meta.pages.filter((slug) => slug !== "index")
+    const ungrouped = pages.filter((slug) => !COMPONENT_PAGE_ORDER.includes(slug) && !NATIVE_ONLY_GROUPS[slug])
+    expect(ungrouped).toEqual([])
+    // A page with a React page keeps its group; the native-only list names real groups and pages
+    expect(Object.keys(NATIVE_ONLY_GROUPS).filter((slug) => COMPONENT_PAGE_ORDER.includes(slug) || !pages.includes(slug))).toEqual([])
+    expect(Object.values(NATIVE_ONLY_GROUPS).filter((id) => !groupIds.has(id))).toEqual([])
   })
 })

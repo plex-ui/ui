@@ -1,102 +1,72 @@
 ---
 title: Card
-description: A surface that groups a title, a description, content and actions, in outline, solid or ghost, with pictures to its edges and the whole card as a button; a grouped section on iOS, a Material 3 card on Android.
+description: A surface that groups a title, a description, content and actions, in outline, solid or ghost.
+metaDescription: A surface that groups a title, a description, content and actions, in outline, solid or ghost, with pictures to its edges and the whole card as a button; a grouped section on iOS, the section card of a settings screen on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `import { DotsHorizontal } from "@plexui/react-native/icons"
+export const overviewCode = `import { Button, Card, IconButton, Text } from "@plexui/react-native"
+import { DotsHorizontal } from "@plexui/react-native/icons"
 
-<Card>
+const [variant, setVariant] = useState<"outline" | "solid" | "ghost">("outline")
+const [size, setSize] = useState<"sm" | "md" | "lg">("md")
+const [description, setDescription] = useState(true)
+const [content, setContent] = useState(false)
+const [footer, setFooter] = useState<"none" | "one" | "two">("two")
+const [action, setAction] = useState(false) // without onPress
+const [pressable, setPressable] = useState(false)
+
+<Card variant={variant} size={size} onPress={pressable ? openReport : undefined} accessibilityLabel={pressable ? "Project activity" : undefined}>
   <Card.Header>
-    <Card.Title>Weekly summary</Card.Title>
-    <Card.Description>12 new places this week.</Card.Description>
-    <Card.Action>
-      <IconButton icon={<DotsHorizontal />} size="sm" accessibilityLabel="More" />
-    </Card.Action>
+    <Card.Title>Project activity</Card.Title>
+    {description && (
+      <Card.Description>Your team opened 12 issues and closed 8 pull requests over the last 7 days.</Card.Description>
+    )}
+    {action && !pressable && (
+      <Card.Action>
+        <IconButton icon={<DotsHorizontal />} color="secondary" variant="ghost" size="sm" accessibilityLabel="More" />
+      </Card.Action>
+    )}
   </Card.Header>
-  <Card.Content>
-    <Text variant="subheadline">You saved 4 of them and visited 2. Your favorite was the market on the river.</Text>
-  </Card.Content>
-  <Card.Footer>
-    <Button size="sm">Open</Button>
-    <Button size="sm" variant="soft">Later</Button>
-  </Card.Footer>
-</Card>`
-
-export const variantsCode = `<Card>
-  <Card.Header>
-    <Card.Title>Outline</Card.Title>
-    <Card.Description>The default: a grouped section on iOS, an outlined card on Android.</Card.Description>
-  </Card.Header>
-</Card>
-<Card variant="solid">…</Card>
-<Card variant="ghost">…</Card>`
-
-export const sizesCode = `<Card size="sm">…</Card>
-<Card size="md">…</Card>
-<Card size="lg">…</Card>`
-
-export const mediaCode = `<Card>
-  <Card.Media
-    source={{ uri: "https://picsum.photos/id/1018/800/600" }}
-    aspectRatio={4 / 3}
-    accessibilityLabel="A road winding through green hills"
-    title="A road through the hills"
-    description="A caption over the picture"
-  />
-</Card>
-
-<Card>
-  <Card.Media source={{ uri: "https://picsum.photos/id/1015/800/400" }} aspectRatio={2} />
-  <Card.Header>
-    <Card.Title>Picture on top</Card.Title>
-    <Card.Description>The picture reaches the card's edges.</Card.Description>
-  </Card.Header>
-</Card>`
-
-export const asButtonCode = `const [count, setCount] = useState(0)
-
-<Card onPress={() => setCount((n) => n + 1)} accessibilityLabel="Storage">
-  <Card.Header>
-    <Card.Title>Storage</Card.Title>
-    <Card.Description>The whole card is one button. Presses: {count}</Card.Description>
-  </Card.Header>
+  {content && (
+    <Card.Content>
+      <Text variant="subheadline">Most of the work landed on Tuesday, in the release branch.</Text>
+    </Card.Content>
+  )}
+  {footer !== "none" && !pressable && (
+    <Card.Footer>
+      <Button color="primary" variant="solid" size="sm">View report</Button>
+      {footer === "two" && <Button color="secondary" variant="outline" size="sm">Dismiss</Button>}
+    </Card.Footer>
+  )}
 </Card>`
 
 <UsageBlock>{`import { Card } from "@plexui/react-native"`}</UsageBlock>
 
-The parts follow `@plexui/ui`'s Card (`Card.Header`, `Card.Title`, `Card.Description`, `Card.Content`, `Card.Footer`, `Card.Action`), plus `Card.Media` for a picture. On iOS the phone layer's card: 26pt corners, 16pt padding, the title 17/22 semibold and the description 15/20 in the secondary label; an outline card is a section of an inset grouped list, so it stands on the grouped background. On Android Material 3's cards: 12dp corners, 16dp padding, the title in Title M and the description in Body M, an outlined card on `surface` with an `outlineVariant` border, a filled one on `surfaceContainerHighest`, the footer's buttons at the end.
-
 ## Examples
+
+<span id="variants" />
+<span id="sizes" />
+<span id="media" />
+<span id="as-a-button" />
 
 ### Overview
 
-<RNPreview demo="card/Overview" grouped code={overviewCode} />
+<ComponentPreview details={<>
+  <p>The parts follow <code>@plexui/ui</code>'s Card (<code>Card.Header</code>, <code>Card.Title</code>, <code>Card.Description</code>, <code>Card.Content</code>, <code>Card.Footer</code>, <code>Card.Action</code>), plus <code>Card.Media</code> for a picture. On iOS the phone layer's card: 26pt corners, 16pt padding, the title 17/22 semibold and the description 15/20 in the secondary label; an outline card is a section of an inset grouped list, so it stands on the grouped background. On Android a card is the section card of a settings screen: 16dp corners and no border, the card's color on the gray page, 16dp padding, the title in Title M and the description in Body M, the footer's buttons at the end.</p>
+  <p><code>variant</code> sets the frame: <code>outline</code> (the default), <code>solid</code> or <code>ghost</code> (no fill and no padding, its parts at its edges). On iOS an outline card is a section of an inset grouped list, as a List is, on the grouped background, and a solid card takes a gray fill to stand apart from those sections. On Android <code>outline</code> is that white section card, as a List&apos;s, and <code>solid</code> a gray fill (<code>surfaceContainerHigh</code>) with no border, to stand apart from it. <code>size</code> sets the padding: 12, 16 or 20 on iOS; 12, 16 or 24 on Android.</p>
+  <p>A card is its parts: <code>Card.Header</code> with <code>Card.Title</code>, <code>Card.Description</code> and <code>Card.Action</code> (a slot at the top end), <code>Card.Content</code> and <code>Card.Footer</code> for the actions, at the end on Android. With <code>onPress</code> the whole card is one button, with the platform's pressed layer (on Android a List row's); it then holds no buttons of its own. A card whose own parts take the presses can show the press with <code>interactive</code> instead. <code>Card.Media</code> adds a picture that reaches the card's edges where it stands first or last, with an optional caption over it.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="card/Overview" />
+</ComponentPreview>
 
-### Variants
+## Platforms
 
-`outline` is a grouped section on iOS and an outlined card on Android; `solid` takes a gray fill on iOS and Material's filled card on Android; `ghost` has no fill.
-
-<RNPreview demo="card/Variants" grouped code={variantsCode} />
-
-### Sizes
-
-`size` sets the padding: 12, 16 or 20 on iOS; 12, 16 or 24 on Android.
-
-<RNPreview demo="card/Sizes" grouped code={sizesCode} />
-
-### Media
-
-`Card.Media` shows a picture. Placed first or last, it reaches the card's edges. `title` and `description` set a white caption over a gradient that darkens the bottom of the picture.
-
-<RNPreview demo="card/Media" grouped code={mediaCode} />
-
-### As a button
-
-`onPress` makes the whole card one button, with the platform's pressed layer. A card whose own parts take the presses can show the press with `interactive` instead.
-
-<RNPreview demo="card/AsButton" grouped code={asButtonCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: a section on the grouped background | None: a section card of a settings screen |
+| Look | A white section with 26pt corners | A white section card with 16dp corners and no border, on the gray page |
 
 ## API
 

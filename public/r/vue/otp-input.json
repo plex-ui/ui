@@ -3,7 +3,7 @@
   "name": "otp-input",
   "type": "registry:ui",
   "title": "OTP Input",
-  "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
+  "description": "\"A field for one-time passwords and verification codes, entered one digit per cell, with autofill.\"",
   "dependencies": [
     "@plexui/vue"
   ],

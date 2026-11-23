@@ -3,7 +3,7 @@
   "name": "field",
   "type": "registry:ui",
   "title": "Field",
-  "description": "Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.",
+  "description": "Form field wrapper that links a label, helper text and an error message to its control.",
   "dependencies": [
     "@plexui/vue"
   ],

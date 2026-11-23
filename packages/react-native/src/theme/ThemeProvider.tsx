@@ -1,20 +1,33 @@
 import { createTokenResolver, tokenLayers, type TokenResolver, type TokenContext } from "@plexui/styles/tokens"
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { AccessibilityInfo, PixelRatio, Platform, useColorScheme, useWindowDimensions } from "react-native"
+import { AccessibilityInfo, PixelRatio, Platform, type TextStyle, useColorScheme, useWindowDimensions } from "react-native"
+import { normalizeCssColor } from "./cssColor"
 import { materialColors } from "./material"
-import type { BrandTheme, ColorScheme, FontFamilies, FontWeightName, PlatformStyle, Theme, ThemeColors } from "./types"
+import type { BrandTheme, ColorScheme, FontFamilies, FontWeightName, PlatformStyle, SelectionColor, Theme, ThemeColors } from "./types"
 
 export type ThemeProviderProps = {
-  /** `"system"` follows the device. @default "system" */
+  /** `"system"` follows the device. A nested ThemeProvider takes its parent's. @default "system" */
   scheme?: ColorScheme | "system"
   /**
-   * The interface the components draw: iOS 26 or Material 3. Defaults to the device (`Platform.OS`); a browser
-   * (react-native-web) draws iOS unless told otherwise, so a web demo of an app can switch between the two.
+   * The interface the components draw: iOS 26 or Material 3. Defaults to the parent ThemeProvider's, else to the
+   * device (`Platform.OS`); a browser (react-native-web) draws iOS unless told otherwise, so a web demo of an app can
+   * switch between the two.
    */
   platform?: PlatformStyle
-  /** The product's brand: colors, faces and radii over the Plex UI defaults. */
+  /**
+   * The on color of every Switch, Checkbox and RadioGroup (and a Select's choices) that sets none of its own.
+   * `"primary"` is the Plex primary, the ink, as on the web. `"accent"` is each platform's own: on iOS a switch turns
+   * the system green and a checkbox or a checkmark the accent, the iOS tint; on Android all of them take the accent.
+   * Pass `Platform.select` for a different one per platform. A nested ThemeProvider takes its parent's.
+   * @default "primary"
+   */
+  selectionColor?: SelectionColor
+  /**
+   * The product's brand: colors, faces and radii over the Plex UI defaults. A nested ThemeProvider keeps its
+   * parent's brand and lays its own over it.
+   */
   brand?: BrandTheme
-  /** Faces of the kit. Without them the platform's own face is used; see `interFonts`. */
+  /** Faces of the kit (a nested ThemeProvider takes its parent's). Without them the platform's own face is used; see `interFonts`. */
   fonts?: FontFamilies
   children?: ReactNode
 }
@@ -33,12 +46,20 @@ export const interFonts: FontFamilies = {
 
 const ThemeContext = createContext<Theme | null>(null)
 
-const WEIGHTS: Record<FontWeightName, "400" | "500" | "600" | "700"> = {
-  regular: "400",
-  medium: "500",
-  semibold: "600",
-  bold: "700",
-}
+/** What a ThemeProvider was given, for a ThemeProvider nested in it to start from. */
+type ThemeSettings = {
+  scheme: ColorScheme | "system"
+  platform: PlatformStyle
+  selectionColor: SelectionColor
+  overrides: Record<string, string> | undefined; fonts: FontFamilies | undefined }
+const ThemeSettingsContext = createContext<ThemeSettings | null>(null)
+
+// On the web (react-native-web) the type is Inter's variable font, which the Plex UI tokens set at SF's own Medium and
+// Semibold strokes, 510 and 590 (touch.css); a device's system font takes the named weights
+const WEIGHTS: Record<FontWeightName, TextStyle["fontWeight"]> =
+  Platform.OS === "web"
+    ? { regular: "400", medium: "510" as TextStyle["fontWeight"], semibold: "590" as TextStyle["fontWeight"], bold: "700" }
+    : { regular: "400", medium: "500", semibold: "600", bold: "700" }
 
 /** The platform a ThemeProvider draws by default. */
 export function defaultPlatform(): PlatformStyle {
@@ -64,15 +85,31 @@ function useReducedMotion() {
 function brandOverrides(brand: BrandTheme | undefined): Record<string, string> | undefined {
   if (!brand) return undefined
   const out: Record<string, string> = {}
+  // Colors in a syntax the resolver does not read (hsl(), oklch(), a name) are written as hex or rgba first
   for (const [name, value] of Object.entries(brand.colors ?? {})) {
     if (value === undefined) continue
-    out[name === "accent" ? "--color-accent" : name.startsWith("--") ? name : `--${name}`] = value
+    out[name === "accent" ? "--color-accent" : name.startsWith("--") ? name : `--${name}`] = normalizeCssColor(value)
   }
   for (const [name, value] of Object.entries(brand.radius ?? {})) {
     if (value !== undefined) out[`--radius-${name}`] = `${value}px`
   }
-  Object.assign(out, brand.tokens)
+  for (const [name, value] of Object.entries(brand.tokens ?? {})) out[name] = normalizeCssColor(value)
   return Object.keys(out).length ? out : undefined
+}
+
+const isDev = () => typeof __DEV__ !== "undefined" && __DEV__
+
+/** In development, a brand color that resolves to no color is named, rather than drawn as transparent. */
+function warnUnresolvedColors(brand: BrandTheme | undefined, resolver: TokenResolver) {
+  if (!brand?.colors || !isDev()) return
+  for (const [name, value] of Object.entries(brand.colors)) {
+    if (value === undefined) continue
+    const token = name === "accent" ? "--color-accent" : name.startsWith("--") ? name : `--${name}`
+    const resolved = [resolver.get(token, "light"), resolver.get(token, "dark")]
+    if (resolved.some((color) => typeof color !== "string" || !(color.startsWith("#") || color.startsWith("rgba")))) {
+      console.warn(`@plexui/react-native: the brand color ${name} (${JSON.stringify(value)}) does not resolve to a color; it draws as transparent.`)
+    }
+  }
 }
 
 function fontFor(fonts: FontFamilies | undefined, weight: FontWeightName) {
@@ -91,8 +128,9 @@ export function createTheme(options: {
   platform: PlatformStyle
   fonts?: FontFamilies
   reducedMotion?: boolean
+  selectionColor?: SelectionColor
 }): Theme {
-  const { resolver, scheme, platform, fonts, reducedMotion = false } = options
+  const { resolver, scheme, platform, fonts, reducedMotion = false, selectionColor = "primary" } = options
   const token = (name: string) => resolver.get(name, scheme)
   const color = (name: string, fallback = "transparent") => {
     const value = token(name)
@@ -108,6 +146,7 @@ export function createTheme(options: {
     platform,
     isIOS: platform === "ios",
     isAndroid: platform === "android",
+    selectionColor,
     reducedMotion,
     token,
     color,
@@ -164,27 +203,53 @@ export function createTheme(options: {
  * Gives its children the Plex UI theme: tokens resolved from @plexui/styles for the scheme, the brand and a phone,
  * and the platform the components draw. Nest one to theme a part of a screen (a dark sheet on a light page).
  */
-export function ThemeProvider({ scheme = "system", platform, brand, fonts, children }: ThemeProviderProps) {
+export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts, children }: ThemeProviderProps) {
+  // A nested provider starts from its parent: a dark sheet on a light page keeps the page's platform, brand and faces
+  const parent = useContext(ThemeSettingsContext)
   const system = useColorScheme()
-  const resolvedScheme: ColorScheme = scheme === "system" ? (system === "dark" ? "dark" : "light") : scheme
+  const wantedScheme = scheme ?? parent?.scheme ?? "system"
+  const resolvedScheme: ColorScheme = wantedScheme === "system" ? (system === "dark" ? "dark" : "light") : wantedScheme
   const { width } = useWindowDimensions()
   const reducedMotion = useReducedMotion()
   // The phone layers of the CSS apply up to 767px: a tablet keeps the touch sizes. Only the bands of the CSS matter.
   const band = width >= 414 ? 414 : 393
   const highDensity = PixelRatio.get() >= 1.5
-  const overridesKey = JSON.stringify(brandOverrides(brand) ?? null)
+  const own = brandOverrides(brand)
+  const overrides = parent?.overrides || own ? { ...parent?.overrides, ...own } : undefined
+  const overridesKey = JSON.stringify(overrides ?? null)
   const resolver = useMemo(() => {
     const context: TokenContext = { width: band, highDensity, reducedMotion }
     return createTokenResolver(tokenLayers, context, JSON.parse(overridesKey) ?? undefined)
   }, [band, highDensity, reducedMotion, overridesKey])
-  const faces = brand?.fonts ?? fonts
+  const brandKey = JSON.stringify(brand?.colors ?? null)
+  useEffect(() => {
+    warnUnresolvedColors(JSON.parse(brandKey) === null ? undefined : { colors: JSON.parse(brandKey) }, resolver)
+  }, [brandKey, resolver])
+  const faces = brand?.fonts ?? fonts ?? parent?.fonts
   const facesKey = JSON.stringify(faces ?? null)
-  const resolvedPlatform = platform ?? defaultPlatform()
+  const resolvedPlatform = platform ?? parent?.platform ?? defaultPlatform()
+  const selection = selectionColor ?? parent?.selectionColor ?? "primary"
   const theme = useMemo(
-    () => createTheme({ resolver, scheme: resolvedScheme, platform: resolvedPlatform, fonts: JSON.parse(facesKey) ?? undefined, reducedMotion }),
-    [resolver, resolvedScheme, resolvedPlatform, facesKey, reducedMotion],
+    () =>
+      createTheme({
+        resolver,
+        scheme: resolvedScheme,
+        platform: resolvedPlatform,
+        fonts: JSON.parse(facesKey) ?? undefined,
+        reducedMotion,
+        selectionColor: selection,
+      }),
+    [resolver, resolvedScheme, resolvedPlatform, facesKey, reducedMotion, selection],
   )
-  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+  const settings = useMemo<ThemeSettings>(
+    () => ({ scheme: wantedScheme, platform: resolvedPlatform, selectionColor: selection, overrides: JSON.parse(overridesKey) ?? undefined, fonts: JSON.parse(facesKey) ?? undefined }),
+    [wantedScheme, resolvedPlatform, selection, overridesKey, facesKey],
+  )
+  return (
+    <ThemeSettingsContext.Provider value={settings}>
+      <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+    </ThemeSettingsContext.Provider>
+  )
 }
 
 let fallbackTheme: Theme | undefined

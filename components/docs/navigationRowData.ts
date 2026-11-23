@@ -1,4 +1,4 @@
-/** The drill-in rows of the NavigationRow demos and the choices each one opens */
+/** The drill-in rows of the NavigationRow demos, a Calendar app's settings, and the choices each one opens */
 export type NavigationRowChoice = {
   id: string;
   label: string;
@@ -10,16 +10,16 @@ export type NavigationRowChoice = {
 
 export const NAVIGATION_ROW_GROUPS: NavigationRowChoice[][] = [
   [
-    { id: 'language', label: 'Language', choices: ['English', 'Deutsch', 'Español', 'Français', '日本語'] },
-    { id: 'region', label: 'Region', choices: ['Germany', 'Spain', 'United Kingdom', 'United States'] },
-    { id: 'calendar', label: 'Calendar', choices: ['Gregorian', 'Buddhist', 'Japanese'] },
+    { id: 'timeZone', label: 'Time zone', choices: ['Automatic', 'London', 'New York', 'Tokyo'] },
+    { id: 'weekStart', label: 'Start week on', choices: ['Monday', 'Sunday', 'Saturday'] },
+    { id: 'dayStart', label: 'Day starts at', choices: ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM'] },
   ],
   [
-    { id: 'fetch', label: 'Fetch New Data', description: 'How new mail arrives', choices: ['Push', 'Every 15 Minutes', 'Hourly', 'Manually'] },
-    { id: 'temperature', label: 'Temperature', choices: ['°C', '°F'], disabled: true },
+    { id: 'sync', label: 'Sync', description: 'How far back events are kept', choices: ['1 month back', '3 months back', '6 months back', 'All events'] },
+    { id: 'calendar', label: 'Default calendar', description: 'Managed by your organization', choices: ['Work', 'Home', 'Family'], disabled: true },
     {
       id: 'alerts',
-      label: 'Default Alerts',
+      label: 'Default alerts',
       choices: ['At time of event, 15 minutes before, 1 day before', '15 minutes before', 'None'],
       valuePlacement: 'auto',
     },

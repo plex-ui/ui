@@ -1,6 +1,6 @@
 ---
 title: Tooltip
-description: Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.
+description: "Brief text that explains a control, shown on hover or keyboard focus."
 metaDescription: React tooltip component for brief informative hover text, with any trigger element, conditional enabling, and a compact variant.
 ---
 
@@ -39,8 +39,6 @@ const [disabled, setDisabled] = useState(false)
 
 ## Examples
 
-Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered [Popover](/components/popover). The Overview uses pointer and keyboard interactions, so it has no separate Phone preview. For copying, [Copy Tooltip](#copy-tooltip) confirms the action after a successful tap.
-
 <span id="different-triggers" />
 <span id="conditionally-enabled" />
 <span id="compact-tooltips" />
@@ -48,6 +46,7 @@ Tooltips provide supplementary information on hover or keyboard focus. Touch-onl
 ### Overview
 
 <ComponentPreview phonePresentation="none" details={<>
+  <p>Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered <a href="/components/popover">Popover</a>. The Overview uses pointer and keyboard interactions, so it has no separate Phone preview. For copying, <a href="#copy-tooltip">Copy Tooltip</a> confirms the action after a successful tap.</p>
   <p>Any element can be the trigger: <code>trigger</code> shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in <code>Tooltip.TriggerDecorator</code>, which makes it one and marks it with a dotted underline; a plain <code>span</code> shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with <code>aria-label</code>, and its tooltip says the same in words.</p>
   <p><code>compact</code> is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. <code>side</code> is the side the tooltip prefers; it turns to the other side when there is no room.</p>
   <p>A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as <code>content</code> while it is disabled. To show a tooltip only under a condition, pass <code>null</code> otherwise.</p>

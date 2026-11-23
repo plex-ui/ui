@@ -3,7 +3,7 @@
   "name": "button",
   "type": "registry:ui",
   "title": "Button",
-  "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.",
+  "description": "Button for an action, in four variants and eight semantic colors, and ButtonLink, a link styled as a button.",
   "dependencies": [
     "@plexui/vue"
   ],

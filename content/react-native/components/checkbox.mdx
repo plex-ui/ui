@@ -1,93 +1,206 @@
 ---
 title: Checkbox
-description: Checkbox for on/off choices with a label, a description, an indeterminate state and an invalid state; a filled circle on iOS, Material 3's square box on Android.
+description: Checkbox for an on/off choice, alone next to its label or as the mark of each row of a list.
+metaDescription: Checkbox for binary on/off selection with solid and ghost variants, an indeterminate state, and labels with descriptions; a filled circle on iOS, an 18dp square box on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const [accepted, setAccepted] = useState(false)
+export const overviewCode = `import { Checkbox, ThemeProvider } from "@plexui/react-native"
 
-<Checkbox label="Accept the terms" checked={accepted} onCheckedChange={setAccepted} />
-<Checkbox label="Checked" defaultChecked />
-<Checkbox label="Indeterminate" checked="indeterminate" />
-<Checkbox label="Disabled" disabled />
-<Checkbox label="Disabled checked" disabled defaultChecked />`
+const [variant, setVariant] = useState<"solid" | "ghost">("solid")
+const [label, setLabel] = useState(true)
+const [description, setDescription] = useState(false) // with a label
+const [orientation, setOrientation] = useState<"left" | "right">("left") // with a label
+const [disabled, setDisabled] = useState(false)
+// The app's on color, set once on its ThemeProvider: "primary" (the default) or "accent"
+const [selectionColor, setSelectionColor] = useState<"primary" | "accent">("primary")
 
-export const selectAllCode = `const TOPICS = ["Product news", "Tips and tricks", "Events"]
-const [chosen, setChosen] = useState(["Tips and tricks"])
-const all = chosen.length === TOPICS.length ? true : chosen.length > 0 ? "indeterminate" : false
+const options = [
+  { label: "Photos", description: "Back up photos and videos over Wi-Fi.", defaultChecked: true },
+  { label: "Messages", description: "Include chats and attachments in each backup.", defaultChecked: false },
+  { label: "Folders", description: "3 of 5 folders are backed up.", defaultChecked: "indeterminate" },
+]
 
-<Checkbox label="All topics" checked={all} onCheckedChange={(next) => setChosen(next ? TOPICS : [])} />
-<View style={{ paddingStart: 32 }}>
-  {TOPICS.map((topic) => (
-    <Checkbox
-      key={topic}
-      label={topic}
-      checked={chosen.includes(topic)}
-      onCheckedChange={(next) => setChosen((list) => (next ? [...list, topic] : list.filter((item) => item !== topic)))}
-    />
-  ))}
+<ThemeProvider selectionColor={selectionColor}>
+  <View style={label ? { alignSelf: "center", maxWidth: 384, gap: description ? 16 : 12 } : { alignSelf: "center", flexDirection: "row", gap: 16 }}>
+    {options.map((option) => (
+      <Checkbox
+        key={option.label}
+        variant={variant}
+        disabled={disabled}
+        defaultChecked={option.defaultChecked}
+        {...(label
+          ? { label: option.label, description: description ? option.description : undefined, orientation }
+          : { accessibilityLabel: option.label })}
+      />
+    ))}
+  </View>
+</ThemeProvider>`
+
+export const selectAllCode = `const [items, setItems] = useState([
+  { id: "photos", label: "Photos", checked: true },
+  { id: "contacts", label: "Contacts", checked: true },
+  { id: "messages", label: "Messages", checked: false },
+])
+
+const allChecked = items.every((i) => i.checked)
+const noneChecked = items.every((i) => !i.checked)
+const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
+
+<View style={{ alignSelf: "center", gap: 12 }}>
+  <Checkbox
+    label="Back up"
+    checked={parentChecked}
+    onCheckedChange={() => {
+      const next = !allChecked
+      setItems((prev) => prev.map((i) => ({ ...i, checked: next })))
+    }}
+  />
+  <View style={{ paddingStart: 24, gap: 12 }}>
+    {items.map((item) => (
+      <Checkbox
+        key={item.id}
+        label={item.label}
+        checked={item.checked}
+        onCheckedChange={(next) => setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, checked: next } : i)))}
+      />
+    ))}
+  </View>
 </View>`
 
-export const descriptionsCode = `<Checkbox label="Email updates" description="Product news, once a month" defaultChecked />
-<Checkbox label="Usage data" description="Helps improve the app. Nothing personal is shared." />`
+export const groupCode = `import { Checkbox, List, ListItem } from "@plexui/react-native"
 
-export const invalidCode = `const [agreed, setAgreed] = useState(false)
+<List header="Download over cellular" description="Choose what can use mobile data.">
+  <ListItem label="Photos" trailing={<Checkbox accessibilityLabel="Photos" defaultChecked />} />
+  <ListItem label="Videos" trailing={<Checkbox accessibilityLabel="Videos" />} />
+  <ListItem label="Music" trailing={<Checkbox accessibilityLabel="Music" />} />
+  <ListItem label="Podcasts" trailing={<Checkbox accessibilityLabel="Podcasts" />} />
+</List>`
 
-<Checkbox label="I agree to the terms" invalid={!agreed} checked={agreed} onCheckedChange={setAgreed} />
-<Checkbox label="Invalid and checked" invalid defaultChecked />`
+export const fieldCode = `import { Checkbox, List, ListItem } from "@plexui/react-native"
 
-export const placementCode = `<Checkbox label="Box at the end" orientation="right" defaultChecked />
-<Checkbox label="Ghost" variant="ghost" defaultChecked />
-<Checkbox label="Ghost, unchecked" variant="ghost" />`
+const [agreed, setAgreed] = useState(false)
+const [showError, setShowError] = useState(true)
+
+<List
+  header="Terms"
+  description="Please review and accept the terms before continuing."
+  error={showError ? "You must accept the terms to continue." : undefined}
+>
+  <ListItem
+    label="I agree to the Terms of Service"
+    trailing={
+      <Checkbox
+        accessibilityLabel="I agree to the Terms of Service"
+        checked={agreed}
+        onCheckedChange={setAgreed}
+        invalid={showError}
+      />
+    }
+  />
+  <ListItem label="I agree to the Privacy Policy" trailing={<Checkbox accessibilityLabel="I agree to the Privacy Policy" />} />
+</List>`
+
+export const sectionsCode = `import { Checkbox, List, ListItem, NavigationButton, Toolbar } from "@plexui/react-native"
+
+const [settings, setSettings] = useState({
+  emailMarketing: true,
+  emailSecurity: true,
+  pushMessages: true,
+  pushMentions: true,
+  pushComments: false,
+})
+const box = (key: keyof typeof settings, name: string) => (
+  <Checkbox accessibilityLabel={name} checked={settings[key]} onCheckedChange={(next) => setSettings((prev) => ({ ...prev, [key]: next }))} />
+)
+
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" onPress={goBack} />
+  </Toolbar.Leading>
+  <Toolbar.Title>Notifications</Toolbar.Title>
+</Toolbar>
+<ScrollView contentContainerStyle={{ paddingTop: 10, paddingHorizontal: 16, paddingBottom: 16, gap: 16.33 }}>
+  <List header="Email notifications" description="Configure which emails you receive.">
+    <ListItem label="Marketing" description="Receive emails about new products and features." trailing={box("emailMarketing", "Marketing")} />
+    <ListItem label="Security" description="Receive emails about account activity and security." trailing={box("emailSecurity", "Security")} />
+  </List>
+  <List header="Push notifications" description="Configure which push notifications you receive.">
+    <ListItem label="Direct messages" trailing={box("pushMessages", "Direct messages")} />
+    <ListItem label="Mentions" trailing={box("pushMentions", "Mentions")} />
+    <ListItem label="Comments" trailing={box("pushComments", "Comments")} />
+  </List>
+</ScrollView>`
 
 <UsageBlock>{`import { Checkbox } from "@plexui/react-native"`}</UsageBlock>
 
-The props follow `@plexui/ui`'s Checkbox. On iOS the box is the phone layer's 22pt circle, a 1.5pt ring that fills in the Plex primary with a check, its label 11pt away in a 44pt row. On Android it is Material 3's 18dp box with 2dp corners and a 2dp outline, filled when checked, in a 48dp touch target with the press's state layer. Both fill with the Plex primary (the ink, or a brand's), as a selected Button does.
-
 ## Examples
 
-### States
+<span id="variants" />
+<span id="ghost" />
+<span id="with-description" />
+<span id="indeterminate" />
+<span id="label-orientation" />
+<span id="without-label" />
+<span id="disabled" />
 
-<RNPreview demo="checkbox/Overview" code={overviewCode} />
+### Overview
 
-### Select all
+<ComponentPreview details={<>
+  <p>On a phone a single checkbox stays next to its label, while a list of options goes in the rows of a <code>List</code>: each <code>ListItem</code> names an option and ends with the checkbox, as in an iOS settings list. Ending the row with it is the pattern of these docs on both platforms, and on Android the box then stands 21dp in from the card's edge.</p>
+  <p>A checkbox is checked, unchecked or indeterminate. Pass <code>checked="indeterminate"</code>, or <code>defaultChecked="indeterminate"</code>, for a partly selected state: a "select all" box whose items are only partly checked, as in <a href="#group-with-select-all">Group with select all</a>. A press on an indeterminate box checks it, so <code>onCheckedChange</code> receives <code>true</code>.</p>
+  <p>On iOS a <code>solid</code> box (the default) is the 22pt selection circle of a list, a 1.5pt ring that fills in the selection color with a check; <code>ghost</code> draws the checkmark alone, as an iOS list row marks its chosen rows, in the text color, or in the accent when the selection color is the accent. The selection color is the <code>ThemeProvider</code>&apos;s <code>selectionColor</code>: the Plex primary unless set to the accent, on both platforms. On Android a checkbox is a square box: 18dp with 4dp corners and a gray 1.33dp outline, filled in the selection color when checked, with a round-capped check in the fill&apos;s contrast color, in a 48dp touch target with its label 11dp after the box. Checking takes 300ms: the box shrinks 1dp while the outline closes in, then the check grows from its corner; unchecking runs it back. Android draws no ghost checkbox, so it keeps the box. <code>pill</code> is kept for <code>@plexui/ui</code>'s API: the box is a circle on iOS and a square on Android either way, so the example leaves it out.</p>
+  <p>Use <code>description</code> for a second line under the label, in the secondary color; VoiceOver and TalkBack read it after the label. By default the box is on the left of its label; <code>orientation="right"</code> places it after the label. Both act only next to a label, so they are offered only with one. Without a <code>label</code> the checkbox is a standalone control: pass <code>accessibilityLabel</code> to name it.</p>
+  <p><code>disabled</code> dims the box and its label (on Android both keep their colors at half), keeps the checked and indeterminate states, and takes no presses.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="checkbox/Overview" />
+</ComponentPreview>
 
-A parent box is `"indeterminate"` while only some of its children are checked. A press on an indeterminate box checks it, as on the web, so `onCheckedChange` receives `true`.
+### Group with select all
 
-<RNPreview demo="checkbox/SelectAll" code={selectAllCode} />
+<ComponentPreview details={<>Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an <code>indeterminate</code> state when only some children are checked, and a press on it checks or clears them all. Each child is controlled by its item in <code>items</code>.</>} code={selectAllCode} previewMinHeight={168}>
+  <RNExample demo="checkbox/SelectAll" />
+</ComponentPreview>
 
-### Descriptions
+### Group with description
 
-The description sits under the label in the secondary color and is read after it by VoiceOver and TalkBack.
+<ComponentPreview details={<>A group of checkboxes is a <code>List</code> whose <code>header</code> names it, with a <code>ListItem</code> for each option and the checkbox as its <code>trailing</code> control, as a preference list in an iOS settings screen; the row's end is the pattern of these docs on both platforms. Each checkbox takes the row's label as its <code>accessibilityLabel</code>.</>} code={groupCode} previewMinHeight={168}>
+  <RNExample demo="checkbox/GroupWithDescription" grouped headerFirst />
+</ComponentPreview>
 
-<RNPreview demo="checkbox/Descriptions" code={descriptionsCode} />
+### With Field
 
-### Invalid
+<ComponentPreview details={<>The terms are rows of a <code>List</code>, and its <code>error</code> shows the message in the danger color under them. <code>invalid</code> draws the box the message is about in the error color, as its ring and, once checked, its fill.</>} code={fieldCode} previewMinHeight={168}>
+  <RNExample demo="checkbox/WithField" />
+</ComponentPreview>
 
-An invalid box draws its ring in the error color, and keeps the red fill once checked.
+### Grouped sections
 
-<RNPreview demo="checkbox/Invalid" code={invalidCode} />
+<ComponentPreview details={<>Separate checkbox groups into sections of a settings screen: a <code>List</code> for each, with its own header, and a row <code>description</code> where an option needs one. The screen has a top bar with a back button, as a pushed settings page does.</>} code={sectionsCode} previewMinHeight={168}>
+  <RNExample demo="checkbox/GroupedSections" screen grouped />
+</ComponentPreview>
 
-### Placement and ghost
+## Platforms
 
-`orientation="right"` puts the box after the label. `variant="ghost"` draws the checkmark alone, as an iOS list row marks its chosen rows; Android has no such checkbox and keeps the box.
-
-<RNPreview demo="checkbox/Placement" code={placementCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: a checkmark row or a Toggle | Checkbox |
+| Look | A 22pt selection circle, filled with a check | An 18dp square box with 4dp corners, filled with a check |
 
 ## API
 
 <PropsTable data={[
   { prop: "checked", type: 'boolean | "indeterminate"', description: "Controlled state" },
   { prop: "defaultChecked", type: 'boolean | "indeterminate"', default: "false", description: "Initial state (uncontrolled)" },
-  { prop: "onCheckedChange", type: "(nextState: boolean) => void", description: "Called when toggled; an indeterminate box checks" },
+  { prop: "onCheckedChange", type: "(nextState: boolean) => void", description: "Called with the next state when toggled; an indeterminate box checks" },
   { prop: "label", type: "ReactNode", description: "The label beside the box" },
-  { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
+  { prop: "description", type: "ReactNode", description: "Secondary text under the label, read after it" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Where the box stands against the label" },
   { prop: "variant", type: '"solid" | "ghost"', default: '"solid"', description: "ghost: the checkmark alone, as an iOS list row draws it. Android keeps the box" },
   { prop: "invalid", type: "boolean", default: "false", description: "Draws the box in the error color" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the box and label and takes no presses" },
-  { prop: "pill", type: "boolean", description: "Kept for @plexui/ui's API: the box is a circle on iOS and Material's square on Android" },
+  { prop: "pill", type: "boolean", description: "Kept for @plexui/ui's API: the box is a circle on iOS and a square on Android" },
   { prop: "accessibilityLabel", type: "string", description: "Name of a checkbox without a text label" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the checkbox's row" },

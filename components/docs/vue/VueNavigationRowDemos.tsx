@@ -33,7 +33,7 @@ const template = (columns: boolean) => `<div class="${pageStyles.Frame}">
   </Page>
   <Page v-else surface="grouped">
     <Toolbar>
-      <ToolbarTitle>General</ToolbarTitle>
+      <ToolbarTitle>Calendar</ToolbarTitle>
     </Toolbar>
     <PageContent>
       <div class="${rowStyles.Groups}">

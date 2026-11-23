@@ -1,6 +1,6 @@
 ---
 title: Checkbox
-description: Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
+description: Checkbox for binary on/off selection, with solid, pill and ghost variants and an indeterminate state.
 metaDescription: React checkbox component for binary on/off selection with solid, pill, and ghost variants, indeterminate state, and inline descriptions
 ---
 
@@ -18,8 +18,6 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <UsageBlock>{`import { Checkbox } from "@plexui/ui/components/Checkbox";`}</UsageBlock>
 
-On Phone, a single checkbox stays next to its label, while a list of options goes in the rows of a `FieldGroup`: each `Field row` names an option and ends with the checkbox, as in an iOS settings list.
-
 ## Examples
 
 {/* Variants, Pill, Ghost, With description, Indeterminate, Label orientation and Without label are settings of the
@@ -36,6 +34,7 @@ On Phone, a single checkbox stays next to its label, while a list of options goe
 ### Overview
 
 <ComponentPreview details={<>
+  <p>On Phone, a single checkbox stays next to its label, while a list of options goes in the rows of a <code>FieldGroup</code>: each <code>Field row</code> names an option and ends with the checkbox, as in an iOS settings list.</p>
   <p>A checkbox is checked, unchecked or indeterminate. Pass <code>checked="indeterminate"</code>, or <code>defaultChecked="indeterminate"</code>, for a partly selected state: a "select all" box whose items are only partly checked, as in <a href="#group-with-select-all">Group with select all</a>.</p>
   <p><code>solid</code> (default) fills the box; <code>ghost</code> renders only the checkmark, in the text color, without a border or background, for subtle inline selections or task lists. <code>pill</code> rounds the box (<code>border-radius: full</code>): the solid fill, and on a ghost box its hover tint and focus ring.</p>
   <p>Use <code>description</code> for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through <code>aria-describedby</code>. By default the box is on the left of its label; <code>orientation="right"</code> places it after the label. Both act only next to a label, so they are offered only with one. Without a <code>label</code> the checkbox is a standalone control: pass <code>aria-label</code> to name it.</p>
@@ -49,9 +48,9 @@ const [orientation, setOrientation] = useState("left") // with a label
 const [disabled, setDisabled] = useState(false)
 
 const options = [
-  { label: "Share usage data", description: "Help improve the product with anonymous usage reports.", defaultChecked: true },
-  { label: "Enable notifications", description: "You can enable or disable notifications at any time from settings.", defaultChecked: false },
-  { label: "Sync all folders", description: "Some of its folders are synced.", defaultChecked: "indeterminate" },
+  { label: "Photos", description: "Back up photos and videos over Wi-Fi.", defaultChecked: true },
+  { label: "Messages", description: "Include chats and attachments in each backup.", defaultChecked: false },
+  { label: "Folders", description: "3 of 5 folders are backed up.", defaultChecked: "indeterminate" },
 ]
 
 <div className={label ? (description ? "flex flex-col gap-4 max-w-sm" : "flex flex-col gap-3") : "flex gap-4"}>
@@ -74,9 +73,9 @@ const options = [
 ### Group with select all
 
 <ComponentPreview details={<>Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an <code>indeterminate</code> state when only some children are checked. Each child is controlled by its item in <code>items</code>.</>} code={`const [items, setItems] = useState([
-  { id: "read", label: "Read", checked: true },
-  { id: "write", label: "Write", checked: false },
-  { id: "execute", label: "Execute", checked: false },
+  { id: "photos", label: "Photos", checked: true },
+  { id: "contacts", label: "Contacts", checked: true },
+  { id: "messages", label: "Messages", checked: false },
 ])
 
 const allChecked = items.every((i) => i.checked)
@@ -85,7 +84,7 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
 
 <div className="flex flex-col gap-3">
   <Checkbox
-    label="Permissions"
+    label="Back up"
     checked={parentChecked}
     onCheckedChange={() => {
       const next = !allChecked

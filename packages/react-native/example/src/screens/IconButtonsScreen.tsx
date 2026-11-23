@@ -1,12 +1,17 @@
-import { IconButton, useTheme, type ButtonColor, type ButtonVariant, type ControlSize } from "@plexui/react-native"
-import { Bell, DotsHorizontal, Heart, HeartFilled, Plus, Search, Share } from "@plexui/react-native/icons"
+import { IconButton, useTheme, type ButtonColor, type ButtonVariant, type ControlSize, type IconComponent } from "@plexui/react-native"
+import { Bell, EditPencil, Heart, HeartFilled, InfoCircle, Plus, RemoveTrash, Search, Share } from "@plexui/react-native/icons"
 import { useState } from "react"
-import { Backdrop, Labeled, Row, Section } from "../demo"
+import { Backdrop, Labeled, MoreIcon, Row, Section } from "../demo"
 
 const VARIANTS: ButtonVariant[] = ["ghost", "solid", "soft", "outline"]
-const MATERIAL_NAMES: Record<ButtonVariant, string> = { ghost: "standard", solid: "filled", soft: "tonal", outline: "outlined" }
 const SIZES: ControlSize[] = ["sm", "md", "xl"]
-const COLORS: ButtonColor[] = ["primary", "secondary", "danger", "info"]
+/** An action that suits each color: its symbol and its name. */
+const COLORS: { color: ButtonColor; Icon: IconComponent; label: string }[] = [
+  { color: "primary", Icon: Plus, label: "Add" },
+  { color: "secondary", Icon: EditPencil, label: "Edit" },
+  { color: "danger", Icon: RemoveTrash, label: "Delete" },
+  { color: "info", Icon: InfoCircle, label: "Details" },
+]
 
 export function IconButtonsScreen() {
   const theme = useTheme()
@@ -25,10 +30,10 @@ export function IconButtonsScreen() {
           />
         </Row>
       </Section>
-      <Section title="Variants" note={theme.isAndroid ? "Material 3 icon buttons: standard, filled, tonal, outlined" : "Circles of the phone layer"}>
+      <Section title="Variants" note={theme.isAndroid ? "Circles in the Android button colors" : "Circles of the phone layer"}>
         {VARIANTS.map((variant) => (
           <Row key={variant} gap={16}>
-            <Labeled label={theme.isAndroid ? MATERIAL_NAMES[variant] : variant}>
+            <Labeled label={variant}>
               <IconButton variant={variant} icon={<Search />} accessibilityLabel="Search" />
             </Labeled>
             <Labeled label="selected">
@@ -45,8 +50,10 @@ export function IconButtonsScreen() {
       </Section>
       <Section title="Colors">
         <Row gap={16}>
-          {COLORS.map((color) => (
-            <IconButton key={color} color={color} variant="soft" icon={<Plus />} accessibilityLabel={`Add ${color}`} />
+          {COLORS.map(({ color, Icon, label }) => (
+            <Labeled key={color} label={color}>
+              <IconButton color={color} variant="soft" icon={<Icon />} accessibilityLabel={label} />
+            </Labeled>
           ))}
         </Row>
       </Section>
@@ -54,7 +61,7 @@ export function IconButtonsScreen() {
         <Row gap={16}>
           {SIZES.map((size) => (
             <Labeled key={size} label={size}>
-              <IconButton size={size} variant="soft" icon={<DotsHorizontal />} accessibilityLabel="More" />
+              <IconButton size={size} variant="soft" icon={<MoreIcon />} accessibilityLabel="More" />
             </Labeled>
           ))}
         </Row>
@@ -64,7 +71,7 @@ export function IconButtonsScreen() {
           <Row gap={16}>
             <IconButton variant="soft" mobileMaterial="glass" icon={<Search />} accessibilityLabel="Search" />
             <IconButton variant="soft" mobileMaterial="glass" size="xl" icon={<Plus />} accessibilityLabel="Add" />
-            <IconButton variant="ghost" mobileMaterial="glass" icon={<DotsHorizontal />} accessibilityLabel="More" />
+            <IconButton variant="ghost" mobileMaterial="glass" icon={<MoreIcon />} accessibilityLabel="More" />
           </Row>
         </Backdrop>
       </Section>

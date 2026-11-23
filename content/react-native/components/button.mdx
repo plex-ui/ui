@@ -1,77 +1,148 @@
 ---
 title: Button
-description: Button with four variants (solid, soft, outline, ghost), eight semantic colors, icons, loading, toggle and block layout; an iOS 26 capsule on iOS, a Material 3 Expressive button on Android.
+description: "Starts an action: an iOS 26 capsule on iOS, a pill on Android."
+metaDescription: "React Native button with four variants (solid, soft, outline, ghost), eight semantic colors, icons, loading, toggle and block layout; an iOS 26 capsule on iOS, a pill button on Android."
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const [count, setCount] = useState(0)
+export const overviewCode = `import { Button } from "@plexui/react-native"
+import { ArrowRightSm, Email } from "@plexui/react-native/icons"
 
-<Button onPress={() => setCount((n) => n + 1)}>Pressed {count}</Button>
-<Button variant="soft">Soft</Button>
-<Button variant="outline">Outline</Button>
-<Button variant="ghost">Ghost</Button>`
+const [color, setColor] = useState<"primary" | "secondary" | "danger" | "info" | "discovery" | "success" | "caution" | "warning">("primary")
+const [variant, setVariant] = useState<"solid" | "soft" | "outline" | "ghost">("solid")
+const [size, setSize] = useState<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl">("md")
+const [shape, setShape] = useState<"round" | "square">("round") // Android
+const [mobileMaterial, setMobileMaterial] = useState<"flat" | "glass">("flat") // iOS
+const [icon, setIcon] = useState<"none" | "start" | "end" | "only">("none")
+const [uniform, setUniform] = useState(false)
+const [iconSize, setIconSize] = useState<"sm" | "md" | "lg" | "xl" | "2xl">()
+const [block, setBlock] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [loading, setLoading] = useState(false)
+const [selected, setSelected] = useState(false) // Android
 
-export const colorsCode = `<Button color="danger">danger</Button>
-<Button color="success" variant="soft">success</Button>`
+<Button
+  color={color}
+  variant={variant}
+  size={size}
+  shape={shape}
+  mobileMaterial={mobileMaterial}
+  uniform={uniform}
+  iconSize={iconSize}
+  block={block}
+  disabled={disabled}
+  loading={loading}
+  selected={selected}
+  onPress={() => setSelected((value) => !value)}
+  accessibilityLabel={icon === "only" ? "Send" : undefined}
+>
+  {(icon === "start" || icon === "only") && <Email />}
+  {icon !== "only" && "Send"}
+  {icon === "end" && <ArrowRightSm />}
+</Button>`
 
-export const sizesCode = `<Button size="sm">Small</Button>
-<Button size="md">Medium</Button>
-<Button size="xl">Large</Button>`
+export const opticalCode = `// The label starts where the text above it does, 40px from the screen's edge
+<View style={{ alignItems: "flex-start", gap: 16, paddingHorizontal: 40 }}>
+  <Text color="secondary">Sign in with your email or phone number to continue.</Text>
+  <Button color="secondary" variant="soft" size="xl" opticallyAlign="start">
+    Forgot your password?
+  </Button>
+</View>`
 
-export const iconsCode = `import { ArrowRightSm, Plus, Search } from "@plexui/react-native/icons"
+export const iconButtonCode = `import { IconButton } from "@plexui/react-native"
+import { Plus } from "@plexui/react-native/icons"
 
-<Button><Search />Search</Button>
-<Button variant="soft">Continue<ArrowRightSm /></Button>
-<IconButton icon={<Plus />} variant="soft" accessibilityLabel="Add" />`
+const [variant, setVariant] = useState<"solid" | "soft" | "outline" | "ghost">("soft")
+const [size, setSize] = useState<"sm" | "md" | "xl">("md")
+const [disabled, setDisabled] = useState(false)
+const [selected, setSelected] = useState(false) // Android
 
-export const statesCode = `const [selected, setSelected] = useState(true)
+<IconButton
+  icon={<Plus />}
+  variant={variant}
+  size={size}
+  disabled={disabled}
+  selected={selected}
+  onPress={() => setSelected((value) => !value)}
+  accessibilityLabel="Add"
+/>`
 
-<Button variant="soft" selected={selected} onPress={() => setSelected((value) => !value)}>
-  <Star />
-  {selected ? "Saved" : "Save"}
-</Button>
-<Button loading>Loading</Button>
-<Button disabled>Disabled</Button>`
+export const navigationCode = `import { NavigationButton, Toolbar } from "@plexui/react-native"
 
-export const blockCode = `<Button block size="xl">Continue</Button>
-<Button block size="xl" variant="soft">Not now</Button>`
+// A pushed screen
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" accessibilityLabel="Back to albums" onPress={goBack} />
+  </Toolbar.Leading>
+  <Toolbar.Title>Album</Toolbar.Title>
+</Toolbar>
 
-<UsageBlock>{`import { Button, IconButton } from "@plexui/react-native"`}</UsageBlock>
+// A sheet or a full-screen dialog
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="close" onPress={cancel} />
+  </Toolbar.Leading>
+  <Toolbar.Title>New album</Toolbar.Title>
+  <Toolbar.Trailing>
+    <NavigationButton action="confirm" accessibilityLabel="Save album" onPress={save} />
+  </Toolbar.Trailing>
+</Toolbar>`
 
-The props follow `@plexui/ui`'s Button. On iOS a button takes the native heights of the phone layer (small 28, medium 34, large 50); on Android Material 3's sizes (XS 32 up to `sm`, S 40 at `md` and `lg`, M 56 from `xl`), with a 48dp touch target, the press's state layer and a shape that squares while pressed.
+<UsageBlock>{`import { Button, IconButton, NavigationButton } from "@plexui/react-native"`}</UsageBlock>
 
 ## Examples
 
-### Variants
+<span id="variants" />
+<span id="colors" />
+<span id="sizes" />
+<span id="icons" />
+<span id="selected-loading-disabled" />
+<span id="block" />
 
-<RNPreview demo="button/Overview" code={overviewCode} />
+### Overview
 
-### Colors
+<ComponentPreview details={<>
+  <p>One button with every setting. <code>color</code> and <code>variant</code> style it: eight semantic colors, each <code>solid</code>, <code>soft</code>, <code>outline</code> or <code>ghost</code>. On iOS a button is an iOS 26 capsule: <code>solid</code> is Filled, <code>soft</code> Tinted, or Gray in <code>secondary</code>, and <code>ghost</code> Plain. On Android it is a pill with a 14sp Medium label at every size in the same Plex colors: <code>solid</code> is filled, <code>soft</code> tinted, <code>outline</code> outlined and <code>ghost</code> a text button. The example offers the colors of phone buttons: accent (<code>primary</code>), gray (<code>secondary</code>) and destructive (<code>danger</code>); the others are the semantic colors of the tokens.</p>
+  <p><code>size</code> is the Plex UI scale, mapped to the platform's heights. iOS takes the three heights of its buttons: small 28 (<code>3xs</code> to <code>sm</code>), medium 34 (<code>md</code>, <code>lg</code>) and large 50 (<code>xl</code> to <code>3xl</code>). Android takes three steps around its big 48dp button: 32 up to <code>sm</code>, 40 at <code>md</code> and <code>lg</code>, and the big 48 from <code>xl</code>, each with a 48dp touch target. So the example offers <code>sm</code>, <code>md</code> and <code>xl</code>. A screen's main action is the large button, <code>xl</code> with <code>block</code>.</p>
+  <p><code>shape</code> is Android's: <code>round</code> (the default), a pill, or <code>square</code>, 8dp corners (6dp at the small step); a press does not change it. On iOS <code>mobileMaterial="glass"</code> draws a soft or ghost button in the glass of iOS 26; in a Toolbar a neutral soft or ghost button is glass by default. Each setting shows only on the platform where it acts.</p>
+  <p>Icons are children: <code>icon</code> here puts one before the label, after it, or alone, when the button needs an <code>accessibilityLabel</code>. An icon takes the label's color and the size's icon size unless <code>iconSize</code> sets it. For an icon alone <code>uniform</code> makes the button as wide as it is tall; IconButton below is that button.</p>
+  <p><code>disabled</code> dims the button and takes no presses; on Android it keeps its fill and its label fades to half. <code>loading</code> shows the platform's spinner in place of the content and takes no presses through its default <code>inert</code>. <code>selected</code> is a toggle's on state: on Android a selected <code>soft</code> button fills in solid and a selected <code>outline</code> or <code>ghost</code> one keeps its pressed fill, while its shape stays; a press here toggles it. iOS buttons show no selected state, so the iOS example does not offer it.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="button/Overview" />
+</ComponentPreview>
 
-`primary` is the Plex ink (or a brand's primary); the others are the semantic colors of the tokens.
+### Optical alignment
 
-<RNPreview demo="button/Colors" code={colorsCode} />
+<ComponentPreview details={<>Use <code>opticallyAlign</code> with either <code>"start"</code> or <code>"end"</code> to offset the gutter of the button. A button under text starts its label where the text does, as Forgot your password? under a sign-in; a soft button shows its capsule reaching past the text. The button is as wide as its label: a full-width button centers its label, which leaves nothing to align.</>} code={opticalCode} previewMinHeight={168}>
+  <RNExample demo="button/OpticalAlignment" />
+</ComponentPreview>
 
-### Sizes
+### IconButton
 
-<RNPreview demo="button/Sizes" code={sizesCode} />
+<ComponentPreview details={<>
+  <p><code>IconButton</code> is a button with an icon alone, as wide as it is tall: a circle on iOS, and on Android a circle of the button steps (32, 40 or 48dp) in the colors of its variant, with the 48dp touch target; in a bar it is a 46dp glass circle, a press drawing a 40dp circle of the text color at 7%. Its variant defaults to <code>ghost</code>.</p>
+  <p>It takes Button's props but <code>children</code>, <code>uniform</code> and <code>block</code>, plus <code>icon</code>, the icon element, and a required <code>accessibilityLabel</code>: an icon alone says nothing to assistive technologies. On Android a <code>selected</code> icon button is a toggle, as a Button is: a <code>soft</code> one fills in solid, and an <code>outline</code> or <code>ghost</code> one keeps its pressed fill.</p>
+</>} code={iconButtonCode} previewMinHeight={168}>
+  <RNExample demo="button/IconButtons" />
+</ComponentPreview>
 
-### Icons
+## NavigationButton
 
-An icon element takes the label's color and the size's icon size. `IconButton` is a button with an icon alone: a circle on iOS, a Material icon button on Android.
+<ComponentPreview details={<>
+  <p><code>NavigationButton</code> supplies a Back, Close, or Confirm glyph inside the public Button, in the platform's own drawing: the chevron, the cross and the checkmark of iOS 26 in glass, or Material's arrow, close and check icons. The caller owns navigation, dismissal, and submission.</p>
+  <p><code>action</code> is required: <code>"back" | "close" | "confirm"</code>. Accessible names default to Back, Close, and Confirm; set <code>accessibilityLabel</code> for the destination or operation. On iOS Back and Close are the 44pt glass circles of a bar and Confirm is the accent's; on Android, in a bar, Back and Close take a 46dp glass circle and Confirm an accent one, and outside a bar Back and Close are plain icon buttons and Confirm a filled one. An explicit <code>color</code> or <code>variant</code> still overrides them. Its size defaults to <code>"lg"</code>, a bar's item.</p>
+</>} code={navigationCode} previewMinHeight={168}>
+  <RNExample demo="button/Navigation" />
+</ComponentPreview>
 
-<RNPreview demo="button/Icons" code={iconsCode} />
+## Platforms
 
-### Selected, loading, disabled
-
-A `selected` button is a toggle: on Android it morphs to its square shape, as Material 3 Expressive's toggle buttons.
-
-<RNPreview demo="button/States" code={statesCode} />
-
-### Block
-
-<RNPreview demo="button/Block" code={blockCode} />
+| Plex | iOS 26 | Android |
+| --- | --- | --- |
+| Button | Button: a capsule, filled, gray or glass | Button: a pill, filled, tinted, outlined or text |
+| IconButton | A circular button | A circular button; in a bar a 46dp glass circle |
+| NavigationButton | Bar button item: the back chevron, close cross and confirm checkmark in glass circles | The back arrow, close cross and check of a bar, in glass and accent 46dp circles |
 
 ## API
 
@@ -79,7 +150,7 @@ A `selected` button is a toggle: on Android it morphs to its square shape, as Ma
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Semantic color" },
   { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Fill style" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Height step of the Plex UI scale, mapped to the platform's native sizes" },
-  { prop: "shape", type: '"round" | "square"', default: '"round"', description: "Material 3 Expressive shape on Android" },
+  { prop: "shape", type: '"round" | "square"', default: '"round"', description: "The shape on Android: a pill, or 8dp corners" },
   { prop: "mobileMaterial", type: '"glass" | "flat"', description: "iOS 26 glass for a neutral soft or ghost button. Android has no glass" },
   { prop: "uniform", type: "boolean", default: "false", description: "As wide as tall: an icon alone" },
   { prop: "block", type: "boolean", default: "false", description: "Takes the whole width" },

@@ -10,14 +10,14 @@ for (const platform of ["ios", "android"] as const) {
     await expect(wifi).toHaveAttribute("aria-checked", "false")
     await expect(page.getByTestId("switch-value")).toHaveText("Wi-Fi: off")
     // A disabled switch does not move
-    const disabled = page.getByRole("switch", { name: "Disabled on" })
+    const disabled = page.getByRole("switch", { name: "VPN" })
     await disabled.click({ force: true })
     await expect(disabled).toHaveAttribute("aria-checked", "true")
 
-    const terms = page.getByRole("checkbox", { name: "Accept the terms" })
+    const terms = page.getByRole("checkbox", { name: "Subscribe to the newsletter" })
     await terms.click()
-    await expect(page.getByTestId("checkbox-value")).toHaveText("Terms: true")
-    await expect(page.getByRole("checkbox", { name: "Indeterminate" })).toHaveAttribute("aria-checked", "mixed")
+    await expect(page.getByTestId("checkbox-value")).toHaveText("Newsletter: true")
+    await expect(page.getByRole("checkbox", { name: "Select all" })).toHaveAttribute("aria-checked", "mixed")
 
     const yearly = page.getByRole("radio", { name: "Yearly" })
     await yearly.click()
@@ -43,12 +43,12 @@ for (const platform of ["ios", "android"] as const) {
     await email.fill("hello@plexui.com")
     await expect(page.getByText("Enter a full address")).toHaveCount(0)
 
-    await page.getByTestId("select-fruit").click()
-    const menu = page.getByTestId("select-fruit-menu")
-    await expect(menu.getByRole("menuitem", { name: "Banana" })).toBeVisible()
-    await menu.getByRole("menuitem", { name: "Cherry" }).click()
-    await expect(page.getByTestId("select-value")).toHaveText("Fruit: cherry")
-    await expect(page.getByTestId("select-fruit-menu")).toHaveCount(0)
+    await page.getByTestId("select-country").click()
+    const menu = page.getByTestId("select-country-menu")
+    await expect(menu.getByRole("menuitemradio", { name: "United Kingdom" })).toBeVisible()
+    await menu.getByRole("menuitemradio", { name: "Germany" }).click()
+    await expect(page.getByTestId("select-value")).toHaveText("Country or region: Germany")
+    await expect(page.getByTestId("select-country-menu")).toHaveCount(0)
   })
 }
 
@@ -58,9 +58,9 @@ test("the keyboard of the web: Space toggles a switch and a checkbox, the arrows
   await wifi.focus()
   await page.keyboard.press("Space")
   await expect(page.getByTestId("switch-value")).toHaveText("Wi-Fi: off")
-  await page.getByRole("checkbox", { name: "Accept the terms" }).focus()
+  await page.getByRole("checkbox", { name: "Subscribe to the newsletter" }).focus()
   await page.keyboard.press("Space")
-  await expect(page.getByTestId("checkbox-value")).toHaveText("Terms: true")
+  await expect(page.getByTestId("checkbox-value")).toHaveText("Newsletter: true")
   // One radio in the tab order, the chosen one; the arrows move and choose, past the disabled one
   await expect(page.getByRole("radio", { name: "Yearly" })).toHaveAttribute("tabindex", "-1")
   await page.getByRole("radio", { name: "Monthly" }).focus()
@@ -70,5 +70,5 @@ test("the keyboard of the web: Space toggles a switch and a checkbox, the arrows
   await page.keyboard.press("ArrowDown")
   await expect(page.getByTestId("radio-value")).toHaveText("Plan: monthly")
   // A description is read with its control
-  await expect(page.getByRole("radio", { name: "Monthly" })).toHaveAccessibleDescription("Billed every month")
+  await expect(page.getByRole("radio", { name: "Monthly" })).toHaveAccessibleDescription("$4.99 a month")
 })

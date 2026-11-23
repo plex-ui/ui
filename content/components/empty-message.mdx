@@ -1,6 +1,6 @@
 ---
 title: Empty Message
-description: Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
+description: Empty state that tells users there's nothing to show, for errors, warnings, no results and onboarding.
 metaDescription: React empty state component for telling users when there's nothing to show, with error, warning, no-results, and onboarding compositions.
 ---
 
@@ -28,7 +28,7 @@ const [actions, setActions] = useState("one") // or "two", "link", "none"
     )}
     {title && <EmptyMessage.Title color={titleColor}>No projects yet</EmptyMessage.Title>}
     {(description || !title) && (
-      <EmptyMessage.Description>Create your first project to get started</EmptyMessage.Description>
+      <EmptyMessage.Description>Create your first project to get started.</EmptyMessage.Description>
     )}
     {actions === "link" ? (
       <EmptyMessage.ActionRow className="text-sm">

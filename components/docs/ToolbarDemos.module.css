@@ -14,3 +14,20 @@
 .Value {
   color: var(--mobile-label-secondary, var(--color-text-secondary));
 }
+
+/* A row with a line under its label (an order's number and status), as iOS spaces a subtitle row */
+.TwoLines {
+  min-height: var(--field-row-description-min-height, var(--field-row-min-height));
+}
+
+.Text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.Detail {
+  font-size: var(--field-row-description-font-size, 13px);
+  line-height: var(--field-row-description-line-height, 18px);
+  color: var(--mobile-label-secondary, var(--color-text-secondary));
+}

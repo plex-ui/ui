@@ -1,5 +1,5 @@
 import { createContext, createElement, memo, useContext, type ComponentType, type ReactNode } from "react"
-import type { StyleProp, ViewStyle } from "react-native"
+import { StyleSheet, type StyleProp, type ViewStyle } from "react-native"
 import Svg, { Circle, Ellipse, G, Line, Path, Polygon, Polyline, Rect } from "react-native-svg"
 import { useTheme } from "../../theme/ThemeProvider"
 
@@ -19,13 +19,18 @@ export type IconComponent = ComponentType<IconProps> & { iconName: string }
 /** [tag, props, children]: a fill or stroke of 0 is the icon's color, 1 the theme's accent. */
 export type IconNode = [string, Record<string, string | number>, IconNode[]?]
 
-type IconDefaults = { size?: number; color?: string }
+type IconDefaults = {
+  size?: number
+  color?: string
+  /** `semibold` draws a stroked icon's lines a quarter heavier: Material's active icon when it has no filled form. */
+  weight?: "regular" | "semibold"
+}
 
 const IconContext = createContext<IconDefaults>({})
 
 /** Sets the size and color of the icons inside (a Button gives its label's color and its icon size). */
-export function IconDefaultsProvider({ size, color, children }: IconDefaults & { children?: ReactNode }) {
-  return <IconContext.Provider value={{ size, color }}>{children}</IconContext.Provider>
+export function IconDefaultsProvider({ size, color, weight, children }: IconDefaults & { children?: ReactNode }) {
+  return <IconContext.Provider value={{ size, color, weight }}>{children}</IconContext.Provider>
 }
 
 const ELEMENTS: Record<string, ComponentType<never>> = {
@@ -39,16 +44,23 @@ const ELEMENTS: Record<string, ComponentType<never>> = {
   polygon: Polygon as unknown as ComponentType<never>,
 }
 
-function renderNodes(nodes: IconNode[], color: string, accent: string, keyPrefix = ""): ReactNode[] {
+function renderNodes(nodes: IconNode[], color: string, accent: string, keyPrefix = "", strokeScale = 1): ReactNode[] {
   return nodes.map(([tag, props, children], index) => {
     const resolved: Record<string, string | number> = {}
     for (const [name, value] of Object.entries(props)) {
-      resolved[name] = (name === "fill" || name === "stroke") && typeof value === "number" ? (value === 0 ? color : accent) : value
+      resolved[name] =
+        (name === "fill" || name === "stroke") && typeof value === "number"
+          ? value === 0
+            ? color
+            : accent
+          : name === "strokeWidth" && strokeScale !== 1
+            ? Number(value) * strokeScale
+            : value
     }
     const element = ELEMENTS[tag]
     if (!element) return null
     const key = `${keyPrefix}${index}`
-    return createElement(element, { key, ...resolved } as never, children ? renderNodes(children, color, accent, `${key}.`) : undefined)
+    return createElement(element, { key, ...resolved } as never, children ? renderNodes(children, color, accent, `${key}.`, strokeScale) : undefined)
   })
 }
 
@@ -64,7 +76,9 @@ export function createIcon(name: string, viewBox: string, nodes: IconNode[]): Ic
         width={px}
         height={px}
         viewBox={viewBox}
-        style={style}
+        // Its own size and no margins, inline: a page's stylesheet (the docs' phone menu sizes `[role="menu"] svg`)
+        // does not reach a web icon then
+        style={StyleSheet.flatten([styles.reset, { width: px, height: px }, style])}
         testID={testID}
         accessible={!!accessibilityLabel}
         accessibilityLabel={accessibilityLabel}
@@ -72,7 +86,7 @@ export function createIcon(name: string, viewBox: string, nodes: IconNode[]): Ic
         importantForAccessibility={accessibilityLabel ? "yes" : "no-hide-descendants"}
         accessibilityElementsHidden={!accessibilityLabel}
       >
-        {renderNodes(nodes, fill, theme.colors.accent)}
+        {renderNodes(nodes, fill, theme.colors.accent, "", defaults.weight === "semibold" ? 1.25 : 1)}
       </Svg>
     )
   }) as unknown as IconComponent
@@ -80,3 +94,5 @@ export function createIcon(name: string, viewBox: string, nodes: IconNode[]): Ic
   Icon.iconName = name
   return Icon
 }
+
+const styles = StyleSheet.create({ reset: { margin: 0, flexShrink: 0 } })

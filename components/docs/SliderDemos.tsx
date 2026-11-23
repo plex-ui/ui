@@ -20,8 +20,16 @@ const ORIENTATIONS = ['horizontal', 'vertical'] as const;
 // its thumbs stand minStepsBetweenThumbs steps apart and a coarse step would leave them no room to move
 const STEPS = ['1', '5', '10', '25'] as const;
 const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }));
-// The colours the kit's own marks example gave the track and its fill
-const colorProps = { trackColor: '#61C454', rangeColor: '#EF4146' };
+// One hue: the fill in green and the track in a light tint of it
+const colorProps = { trackColor: '#61C45433', rangeColor: '#61C454' };
+// The slider is named after what it sets: a value in percent, in dollars or bare; a range or tiers of them
+const NAMES = {
+  one: { none: 'Brightness', unit: 'Volume', prefixUnit: 'Max price' },
+  two: { none: 'Age range', unit: 'Humidity range', prefixUnit: 'Price range' },
+  three: { none: 'Age groups', unit: 'Discount tiers', prefixUnit: 'Price tiers' },
+} satisfies Record<Thumbs, Record<(typeof UNITS)[number], string>>;
+// A hint on the label, the same for every slider
+const HINT = 'Drag to adjust, or type a value';
 // A small and a large letter at the ends of the track, as Settings draws a text size slider (iOS 26 Settings ›
 // Accessibility › Hover Text › Size, IMG_5940: 16 and 22pt); text, not a symbol font
 const adornmentProps = {
@@ -57,6 +65,8 @@ export function SliderOverviewDemo() {
   const [disabled, setDisabled] = useState(false);
 
   const vertical = !phone && orientation === 'vertical';
+  // A small and a large letter at the ends size text
+  const name = adornments && !vertical && thumbs === 'one' ? 'Text size' : NAMES[thumbs][unit];
   const shownMarks = marks && !vertical;
   const prefix = unit === 'prefixUnit' ? '$' : '';
   const suffix = unit === 'unit' ? '%' : '';
@@ -74,11 +84,11 @@ export function SliderOverviewDemo() {
   const desktop = {
     ...shared,
     label: tooltip ? (
-      <Tooltip content="More details about this field">
-        <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
+      <Tooltip content={HINT}>
+        <Tooltip.TriggerDecorator>{name}</Tooltip.TriggerDecorator>
       </Tooltip>
     ) : (
-      'Example field'
+      name
     ),
     unit: suffix || undefined,
     prefixUnit: prefix || undefined,
@@ -111,19 +121,19 @@ export function SliderOverviewDemo() {
       </div>
       {phone ? (
         <PhoneRowsStage>
-          <FieldGroup title="Example field">
+          <FieldGroup title={name}>
             {thumbs === 'one' && !shownMarks ? (
               <div data-row className={sliderCellClassName}>
-                <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
+                <Slider aria-label={name} {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
                 {/* The letters stand where the value would: Settings shows none beside them */}
-                {!adornments && <SliderCellValue label="Example field" value={values.one} onChange={setValue} min={0} max={100} prefix={prefix} suffix={suffix} disabled={disabled} />}
+                {!adornments && <SliderCellValue label={name} value={values.one} onChange={setValue} min={0} max={100} prefix={prefix} suffix={suffix} disabled={disabled} />}
               </div>
             ) : (
               <div data-row className={sliderCellStackedClassName}>
                 {thumbs === 'one' ? (
-                  <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} />
+                  <Slider aria-label={name} {...shared} value={values.one} onChange={setValue} />
                 ) : (
-                  <Slider range aria-label="Example field" {...shared} value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
+                  <Slider range aria-label={name} {...shared} value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
                 )}
                 {!shownMarks && (
                   <span className={`${sliderCellValueBelowClassName}${disabled ? ` ${sliderCellValueDisabledClassName}` : ''}`}>{values[thumbs as 'two' | 'three'].map(text).join(' – ')}</span>
@@ -134,7 +144,7 @@ export function SliderOverviewDemo() {
           {thumbs === 'one' && resetValue && (
             <FieldGroup>
               <div data-row data-align="center">
-                <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
+                <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to default</Button>
               </div>
             </FieldGroup>
           )}

@@ -3,7 +3,7 @@
   "name": "badge",
   "type": "registry:ui",
   "title": "Badge",
-  "description": "Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.",
+  "description": "Compact label for statuses and inline metadata, with semantic colors, variants, sizes and icons.",
   "dependencies": [
     "@plexui/vue"
   ],

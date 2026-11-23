@@ -3,7 +3,7 @@
   "name": "toast",
   "type": "registry:ui",
   "title": "Toast",
-  "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
+  "description": "\"A brief notification that gives feedback on an action, with an optional description and action button.\"",
   "dependencies": [
     "@plexui/vue"
   ],

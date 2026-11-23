@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { Calendar, Folder, Home, Images, Music, Play, SettingsCog, ShoppingBag, Skip } from '@plexui/ui/components/Icon';
+import { BarChart, Home, Mic, Music, Play, ShoppingBag, Skip, Sparkles, Stack } from '@plexui/ui/components/Icon';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { TabBar, type TabBarProps } from '@plexui/ui/components/TabBar';
@@ -14,25 +14,24 @@ import { BarBackgroundRow } from './ToolbarDemos';
 import s from './PageDemos.module.css';
 import t from './ToolbarDemos.module.css';
 import b from './TabBarDemos.module.css';
+import { NOW_PLAYING, TAB_BAR_BADGES, TAB_BAR_PROMINENT, TAB_BAR_ROWS, TAB_BAR_TABS } from './tabBarData';
 
-const TABS = [
-  { value: 'home', label: 'Home', icon: <Home /> },
-  { value: 'calendar', label: 'Calendar', icon: <Calendar /> },
-  { value: 'photos', label: 'Photos', icon: <Images /> },
-  { value: 'settings', label: 'Settings', icon: <SettingsCog /> },
-  { value: 'files', label: 'Files', icon: <Folder /> },
-];
+/** The sections of a music app (tabBarData), each with its symbol */
+const ICONS: Record<string, ReactNode> = { home: <Home />, new: <Sparkles />, radio: <Mic />, library: <Stack />, charts: <BarChart /> };
+const TABS: { value: string; label: string; icon: ReactNode }[] = TAB_BAR_TABS.map((tab) => ({ ...tab, icon: ICONS[tab.value] }));
 
 function Frame({ children }: { children: ReactNode }) {
   return <div data-demo-stage className={s.Stage}><div className={s.Frame}>{children}</div></div>;
 }
 
-function Rows({ label }: { label: string }) {
+/** What the selected section lists: a title and, at the row's end, a detail */
+function Rows({ section }: { section: string }) {
   return (
     <FieldGroup>
-      {Array.from({ length: 24 }, (_, index) => (
-        <div key={index} data-row className={t.Row}>
-          <span>{label} {index + 1}</span>
+      {TAB_BAR_ROWS[section].map(([title, detail]) => (
+        <div key={title} data-row className={t.Row}>
+          <span>{title}</span>
+          {detail && <span className={t.Value}>{detail}</span>}
         </div>
       ))}
     </FieldGroup>
@@ -41,27 +40,24 @@ function Rows({ label }: { label: string }) {
 
 type TabBarMinimizeBehavior = NonNullable<TabBarProps['minimizeBehavior']>;
 
-/** Badges as the native example sets them (ref-app tabs4-badge): a count on one tab and a word on another */
-const BADGES: Record<string, string | number> = { calendar: 3, photos: 'New' };
-
 /** The app's own content in the bottom accessory: a now playing row */
 function NowPlaying() {
   return (
     <div className={b.NowPlaying}>
       <span className={b.Artwork} aria-hidden="true"><Music /></span>
-      <span className={b.Title}>Now Playing</span>
+      <span className={b.Title}>{NOW_PLAYING}</span>
       <Button color="secondary" variant="ghost" uniform pill aria-label="Play"><Play /></Button>
       <Button color="secondary" variant="ghost" uniform pill aria-label="Next"><Skip /></Button>
     </div>
   );
 }
 
-const BAG = { value: 'bag', label: 'Bag', icon: <ShoppingBag /> };
+const STORE = { ...TAB_BAR_PROMINENT, icon: <ShoppingBag /> };
 
 function Screen({ tabs, search, prominent, badges, accessory, minimizeBehavior, toolbarBackground, background }: { tabs: typeof TABS; search: boolean; prominent: boolean; badges: boolean; accessory: boolean; minimizeBehavior: TabBarMinimizeBehavior; toolbarBackground: BarBackground; background: BarBackground }) {
   const [tab, setTab] = useState(tabs[0].value);
   // A tab the settings take away leaves the first one selected
-  const shown = [...tabs, ...(search ? [{ value: 'search', label: 'Search' }] : []), ...(prominent ? [BAG] : [])];
+  const shown = [...tabs, ...(search ? [{ value: 'search', label: 'Search' }] : []), ...(prominent ? [STORE] : [])];
   const current = shown.find((item) => item.value === tab) ?? tabs[0];
   return (
     <Frame>
@@ -70,18 +66,18 @@ function Screen({ tabs, search, prominent, badges, accessory, minimizeBehavior, 
           <Toolbar.Title>{current.label}</Toolbar.Title>
         </Toolbar>
         <Page.Content>
-          <Rows label={current.label} />
+          <Rows section={current.value} />
         </Page.Content>
         <TabBar
           value={current.value}
           onValueChange={setTab}
           search={search ? { value: 'search' } : undefined}
-          prominent={prominent ? BAG : undefined}
+          prominent={prominent ? STORE : undefined}
           minimizeBehavior={minimizeBehavior}
           background={background}
           accessory={accessory && <NowPlaying />}
         >
-          {tabs.map((item) => <TabBar.Item key={item.value} {...item} badge={badges ? BADGES[item.value] : undefined} />)}
+          {tabs.map((item) => <TabBar.Item key={item.value} {...item} badge={badges ? TAB_BAR_BADGES[item.value] : undefined} />)}
         </TabBar>
       </Page>
     </Frame>

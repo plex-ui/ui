@@ -1,97 +1,82 @@
 ---
 title: Badge
-description: Short label for a status or a count, in soft, solid and outline fills of seven semantic colors, four sizes, a pill shape, icons and a remove cross; the Plex badge on both iOS and Android.
+description: A short label for a status or a count, in semantic colors, with an icon or a remove cross.
+metaDescription: Short label for a status or a count, in soft, solid and outline fills of seven semantic colors, four sizes, a pill shape, an icon and a remove cross, or an unread counter; alike on iOS and Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `<Badge>Draft</Badge>
-<Badge color="success">Paid</Badge>
-<Badge color="warning">Pending</Badge>
-<Badge color="danger">Overdue</Badge>
-<Badge color="info" variant="solid">New</Badge>`
+export const overviewCode = `import { Badge, Button } from "@plexui/react-native"
+import { Flask } from "@plexui/react-native/icons"
 
-export const variantsCode = `const COLORS = ["secondary", "success", "warning", "danger", "info", "discovery", "caution"]
+const [color, setColor] = useState<"secondary" | "success" | "warning" | "danger" | "info" | "discovery" | "caution">("info")
+const [variant, setVariant] = useState<"soft" | "solid" | "outline" | "counter">("soft")
+const [size, setSize] = useState<"sm" | "md" | "lg" | "xl">("md")
+const [pill, setPill] = useState(false)
+const [leading, setLeading] = useState<"none" | "icon">("none")
+const [onRemove, setOnRemove] = useState(false)
+const [shown, setShown] = useState(true)
+// A counter shows a count; a badge with a cross is a tag the reader added
+const counter = variant === "counter"
+const label = counter ? "12" : (onRemove ? { none: "Design", icon: "Research" } : { none: "New", icon: "Beta" })[leading]
 
-{COLORS.map((color) => <Badge key={color} color={color}>{color}</Badge>)}
-{COLORS.map((color) => <Badge key={color} color={color} variant="solid">{color}</Badge>)}
-{COLORS.map((color) => <Badge key={color} color={color} variant="outline">{color}</Badge>)}`
-
-export const sizesCode = `<Badge size="sm">Small</Badge>
-<Badge size="md">Medium</Badge>
-<Badge size="lg">Large</Badge>
-<Badge size="xl">Extra large</Badge>
-
-<Badge size="sm" pill color="info">Small</Badge>
-<Badge size="md" pill color="info">Medium</Badge>
-<Badge size="lg" pill color="info">Large</Badge>
-<Badge size="xl" pill color="info">Extra large</Badge>`
-
-export const iconsCode = `import { CheckCircle, Sparkles, Star } from "@plexui/react-native/icons"
-
-<Badge color="success"><CheckCircle />Verified</Badge>
-<Badge color="discovery" pill><Sparkles />New feature</Badge>
-<Badge color="caution" variant="solid" size="md"><Star />4.9</Badge>`
-
-export const removableCode = `const TAGS = ["Design", "Mobile", "Plex"]
-const [tags, setTags] = useState(TAGS)
-
-{tags.map((tag) => (
+{shown ? (
   <Badge
-    key={tag}
-    size="lg"
-    pill
-    onRemove={() => setTags((list) => list.filter((item) => item !== tag))}
-    removeLabel={\`Remove \${tag}\`}
+    color={color}
+    variant={variant}
+    size={size}
+    pill={pill}
+    removeLabel={\`Remove \${label}\`}
+    onRemove={onRemove && !counter ? () => setShown(false) : undefined}
   >
-    {tag}
+    {leading === "icon" && !counter && <Flask />}
+    {label}
   </Badge>
-))}
-{tags.length === 0 ? <Button size="sm" variant="soft" onPress={() => setTags(TAGS)}>Reset</Button> : null}`
+) : (
+  <Button color="secondary" variant="outline" size="sm" onPress={() => setShown(true)}>
+    Show again
+  </Button>
+)}`
 
 <UsageBlock>{`import { Badge } from "@plexui/react-native"`}</UsageBlock>
 
-The props follow `@plexui/ui`'s Badge. iOS has no badge control for text, and Material 3's badge is a dot or a count on an icon (TabBar draws that one), so both platforms draw the Plex badge from the same tokens: the size, gutter, radius and semibold type of each size, and the semantic colors of the fills.
-
 ## Examples
+
+<span id="variants-and-colors" />
+<span id="sizes-and-pill" />
+<span id="icons" />
+<span id="removable" />
 
 ### Overview
 
-<RNPreview demo="badge/Overview" code={overviewCode} />
+<ComponentPreview details={<>
+  <p>The props follow <code>@plexui/ui</code>'s Badge. Both platforms draw the Plex badge from the same tokens: the height, gutter, radius and semibold type of each size, and the semantic colors of the fills.</p>
+  <p>Style a badge with <code>color</code> and <code>variant</code>, and set its <code>size</code>: 20, 22, 24 or 36 points tall, the last the height of a phone's control. <code>pill</code> rounds it fully (on a phone it keeps the gutter of its size). Its content can be composed: an icon before the text takes the badge's color, size and spacing. iOS and Android draw the same badge.</p>
+  <p><code>onRemove</code> adds a cross at the end, a button of its own named by <code>removeLabel</code>; here it removes the badge, and Show again brings it back. At <code>size="xl"</code> a badge has the height of a control, for a row of removable badges beside a button. Long text ends in an ellipsis and the cross stays. Inside a control that takes the press itself, <code>removable</code> draws the cross as a plain mark.</p>
+  <p><code>variant="counter"</code>, a React Native fill, draws the badge as an unread count: a solid capsule 20.666 tall, never narrower than it is tall, with a 13 Medium label. A <code>secondary</code> counter is the accent; the other colors fill it with their solid color. It has one size and one shape, so <code>size</code> and <code>pill</code> do not change it; the example shows a count there and hides them, with the icon and the cross. It draws the same on both platforms.</p>
+  <p>The React page also leads a badge with a <code>LoadingIndicator</code>. A React Native Badge gives an icon its color and size, but not a spinner: <code>ActivityIndicator</code> takes neither from the badge, and on iOS it has only its 20 and 36 point sizes, so this example offers an icon only.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="badge/Overview" />
+</ComponentPreview>
 
-### Variants and colors
+## Platforms
 
-`soft` (the default) tints the badge, `solid` fills it and `outline` draws a border.
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Badge | Badge |
+| Look | The Plex label: a soft, solid or outline fill, or a counter | The same label, in the same tokens |
 
-<RNPreview demo="badge/Variants" minHeight={200} code={variantsCode} />
-
-### Sizes and pill
-
-Four sizes, 20 to 36 points tall. `pill` rounds the ends into a capsule.
-
-<RNPreview demo="badge/Sizes" code={sizesCode} />
-
-### Icons
-
-An icon beside the text takes the badge's color and the size's icon size.
-
-<RNPreview demo="badge/Icons" code={iconsCode} />
-
-### Removable
-
-`onRemove` adds a cross at the end, a button named by `removeLabel`. Inside a control that takes the press itself, `removable` draws the cross as a plain mark.
-
-<RNPreview demo="badge/Removable" code={removableCode} />
+Both platforms' own badges are a count or a dot on a tab or an icon (TabBar draws those); this Badge is the text label, drawn alike on both.
 
 ## API
 
 <PropsTable data={[
-  { prop: "children", type: "ReactNode", description: "Text, and icons beside it" },
-  { prop: "variant", type: '"soft" | "solid" | "outline"', default: '"soft"', description: "Fill style" },
+  { prop: "children", type: "ReactNode", description: "Text, and an icon before it" },
   { prop: "color", type: '"secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"', default: '"secondary"', description: "Semantic color" },
-  { prop: "size", type: '"sm" | "md" | "lg" | "xl"', default: '"sm"', description: "Height step, from 20 to 36 points tall" },
-  { prop: "pill", type: "boolean", default: "false", description: "A capsule" },
-  { prop: "onRemove", type: "() => void", description: "Adds a cross at the end that calls this when pressed" },
+  { prop: "variant", type: '"soft" | "solid" | "outline" | "counter"', default: '"soft"', description: "Fill style: counter is a solid capsule of one size, as an unread count" },
+  { prop: "size", type: '"sm" | "md" | "lg" | "xl"', default: '"sm"', description: "Height: 20, 22, 24 or 36 points" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded, with a wider gutter" },
+  { prop: "onRemove", type: "() => void", description: "Adds a cross at the end of the badge that calls this when pressed" },
   { prop: "removeLabel", type: "string", default: '"Remove"', description: "Name of the cross for screen readers" },
   { prop: "removable", type: "boolean", default: "false", description: "Shows the cross as a mark, for a badge inside a control that takes the press" },
   { prop: "testID", type: "string", description: "Test id" },

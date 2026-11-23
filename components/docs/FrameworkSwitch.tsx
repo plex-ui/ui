@@ -1,8 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { PreviewViewportControl } from './PreviewViewport';
-import { RNPreviewControl } from './react-native/RNPreviewSettings';
+import { NativePlatformControl, PreviewViewportControl } from './PreviewViewport';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import styles from './FrameworkSwitch.module.css';
 
@@ -75,7 +74,7 @@ export function FrameworkSwitch({
 
   return (
     <div
-      className="mb-6 flex flex-wrap items-center justify-between gap-4"
+      className="mt-2 mb-4 flex flex-wrap items-center justify-between gap-4"
       onPointerEnter={prefetchOther}
       onFocusCapture={prefetchOther}
       onTouchStartCapture={prefetchOther}
@@ -98,7 +97,7 @@ export function FrameworkSwitch({
       ) : (
         <span />
       )}
-      {hrefs ? null : framework === 'react-native' ? <RNPreviewControl /> : <PreviewViewportControl />}
+      {hrefs ? null : framework === 'react-native' ? <NativePlatformControl /> : <PreviewViewportControl />}
     </div>
   );
 }

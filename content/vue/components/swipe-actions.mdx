@@ -1,6 +1,6 @@
 ---
 title: Swipe Actions
-description: "Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
+description: "Actions behind a row of a list, revealed by a swipe across the row, as the swipe actions of an iOS list."
 metaDescription: "Vue 3 swipe actions for list rows in the iOS style: leading and trailing actions behind a FieldGroup row, revealed by a swipe, a full swipe for the first action, labels hidden, inside or below, and keyboard reach."
 ---
 
@@ -47,18 +47,19 @@ export const overviewCode = `[[^labelPlacement=below]]
 
 <UsageBlock>{`import { SwipeActions } from "@plexui/vue/components/SwipeActions";`}</UsageBlock>
 
-Swipe actions keep the actions of a row out of sight until they are wanted, as the swipe actions of an iOS list do: a swipe toward the leading edge reveals the trailing actions, a swipe toward the trailing edge the leading ones, and a full swipe runs the first action of that side. Give a row the actions people take on it often, such as Delete or Archive, and keep the same actions in reach elsewhere too, as in a menu, for people who never swipe.
-
 ## Examples
-
-The examples show the phone view.
 
 <span id="labels-inside" />
 <span id="labels-below" />
 
 ### Overview
 
-<ComponentPreview language="vue" phoneOnly details={<>Wrap the content of a row of a <code>FieldGroup</code>: the swipe row is the <code>data-row</code> of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.<br /><br /><code>labelPlacement</code> sets where the actions show their labels. With <code>label-placement=&quot;inside&quot;</code> each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text. With <code>label-placement=&quot;below&quot;</code> the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as the two-line rows of an inbox here, and draws a 50px circle from a row of 78px.</>} code={overviewCode} codeValues={{ labelPlacement: "hidden" }}>
+<ComponentPreview language="vue" phoneOnly details={<>
+  <p>Swipe actions keep the actions of a row out of sight until they are wanted, as the swipe actions of an iOS list do: a swipe toward the leading edge reveals the trailing actions, a swipe toward the trailing edge the leading ones, and a full swipe runs the first action of that side. Give a row the actions people take on it often, such as Delete or Archive, and keep the same actions in reach elsewhere too, as in a menu, for people who never swipe.</p>
+  <p>The examples show the phone view.</p>
+  <p>Wrap the content of a row of a <code>FieldGroup</code>: the swipe row is the <code>data-row</code> of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.</p>
+  <p><code>labelPlacement</code> sets where the actions show their labels. With <code>label-placement=&quot;inside&quot;</code> each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text. With <code>label-placement=&quot;below&quot;</code> the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as the two-line rows of an inbox here, and draws a 50px circle from a row of 78px.</p>
+</>} code={overviewCode} codeValues={{ labelPlacement: "hidden" }}>
   <VueSwipeActionsOverviewDemo />
 </ComponentPreview>
 

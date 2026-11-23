@@ -1,6 +1,6 @@
 ---
 title: Date Range Picker
-description: Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
+description: Date range picker with a calendar, min and max limits, preset shortcuts and a month stepper.
 metaDescription: React date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
 ---
 
@@ -129,8 +129,6 @@ const period = value
 
 <UsageBlock>{`import { DateRangePicker } from "@plexui/ui/components/DateRangePicker";`}</UsageBlock>
 
-On Phone, put a date range picker in a row of a `FieldGroup`, as the [Forms: Settings](/components/settings-forms) do. In the row the range and its up-down chevrons end at the row's edge, as a pop-up, and open the calendar. The row is its frame and sets its height, insets and type, so the Phone preview leaves out the `variant`, `size`, `pill`, `block`, `clearable`, icon, date format and placement controls, sets `triggerShowIcon={false}`, shows short dates (`triggerDateFormat="MMM d"`) and None when there is no range. In a row the month of a month stepper keeps the width of the longest month, so its arrows stay put when the month changes.
-
 ## Examples
 
 <span id="limits" />
@@ -140,6 +138,7 @@ On Phone, put a date range picker in a row of a `FieldGroup`, as the [Forms: Set
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>On Phone, put a date range picker in a row of a <code>FieldGroup</code>, as the <a href="/components/settings-forms">Forms: Settings</a> do. In the row the range and its up-down chevrons end at the row's edge, as a pop-up, and open the calendar. The row is its frame and sets its height, insets and type, so the Phone preview leaves out the <code>variant</code>, <code>size</code>, <code>pill</code>, <code>block</code>, <code>clearable</code>, icon, date format and placement controls, sets <code>{'triggerShowIcon={false}'}</code>, shows short dates (<code>triggerDateFormat="MMM d"</code>) and None when there is no range. In a row the month of a month stepper keeps the width of the longest month, so its arrows stay put when the month changes.</p>
   <p>Pass the range (<code>[start, end]</code> luxon <code>DateTime</code>s, or <code>null</code>) as <code>value</code> and update it in <code>onChange</code>.</p>
   <p><code>triggerStepperUnit="month"</code> adds a month stepper to the trigger: when the range is a whole month, the trigger shows the month with arrows to the previous and the next one.</p>
   <p>The <code>shortcuts</code> array offers quick ranges. When a shortcut is selected, its label is shown in the trigger and <code>onChange</code> receives that shortcut as its second argument. Each shortcut has a <code>label</code> and a <code>getDateRange()</code> function; here Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside <code>min</code> and <code>max</code>, or is longer than <code>maxRangeDays</code>, is disabled. The calendar doesn't show shortcuts below the <code>md</code> breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: a Period row with a <code>Select</code> of the shortcut labels above the Dates row, which reads Custom when the dates match no shortcut.</p>

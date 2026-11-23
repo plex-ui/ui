@@ -3,7 +3,7 @@
   "name": "switch",
   "type": "registry:ui",
   "title": "Switch",
-  "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
+  "description": "\"A switch that turns a setting on or off, with an optional label and description.\"",
   "dependencies": [
     "@plexui/vue"
   ],

@@ -117,7 +117,7 @@ export default async function Page(props: {
         <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
         {showPageNav && <PageNav compact className="plex-docs-nav plex-docs-nav-top" />}
       </div>
-      <DocsDescription className="plex-docs-description">{page.data.description}</DocsDescription>
+      {/* The switch above the description, so it stays in place when you change framework */}
       {params.slug && (
         <FrameworkSwitch
           framework="vue"
@@ -129,6 +129,7 @@ export default async function Page(props: {
           ]}
         />
       )}
+      <DocsDescription className="plex-docs-description">{page.data.description}</DocsDescription>
       <DocsBody className="plex-docs-body">
         <MDX components={getMDXComponents()} />
         {params.slug?.[0] && <RelatedComponents slug={params.slug[0]} framework="vue" />}

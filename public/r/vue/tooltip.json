@@ -3,7 +3,7 @@
   "name": "tooltip",
   "type": "registry:ui",
   "title": "Tooltip",
-  "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.",
+  "description": "\"Brief text that explains a control, shown on hover or keyboard focus.\"",
   "dependencies": [
     "@plexui/vue"
   ],

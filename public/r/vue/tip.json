@@ -3,7 +3,7 @@
   "name": "tip",
   "type": "registry:ui",
   "title": "Tip",
-  "description": "A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.",
+  "description": "\"A short message that points out a feature people might miss, in the page or anchored to a control.\"",
   "dependencies": [
     "@plexui/vue"
   ],

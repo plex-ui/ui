@@ -3,7 +3,7 @@
   "name": "dialog",
   "type": "registry:ui",
   "title": "Dialog",
-  "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
+  "description": "Modal dialog for confirmations, forms and destructive alerts, with a focus trap and an overlay scrim.",
   "dependencies": [
     "@plexui/vue"
   ],

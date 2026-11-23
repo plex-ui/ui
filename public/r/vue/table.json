@@ -3,7 +3,7 @@
   "name": "table",
   "type": "registry:ui",
   "title": "Table",
-  "description": "\"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.\"",
+  "description": "\"Table parts for structured data on native table elements: header, body, footer, rows, cells and a caption.\"",
   "dependencies": [
     "@plexui/vue"
   ],

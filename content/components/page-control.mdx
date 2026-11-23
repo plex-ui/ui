@@ -1,15 +1,23 @@
 ---
 title: Page Control
-description: A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+description: "A row of dots, one per page, that shows where a person is in a flat list of pages and moves between them."
 metaDescription: React page control component with indicator dots for carousels and onboarding, tap, pointer and scrub navigation, shrinking dots for long lists, background styles, and slider keyboard support.
 ---
 
 import { PageControlOverviewDemo } from "@/components/docs/PageControlDemos"
 
-export const overviewCode = `const pagesId = useId()
+export const overviewCode = `// An onboarding: a symbol, a title and a line on each page
+const cards = [
+  { icon: <Images />, title: "All your photos", text: "Every photo from your devices, in one library." },
+  { icon: <Search />, title: "Find any photo", text: "Search by place, date or who is in the photo." },
+  { icon: <Folders />, title: "Albums", text: "Keep a trip or an event together in an album." },
+  // ...
+]
+
+const pagesId = useId()
 const scroller = useRef<HTMLDivElement>(null)
 const [page, setPage] = useState(0)
-const pages = Array.from({ length: [[pages]] }, (_, index) => index + 1)
+const pages = cards.slice(0, [[pages]])
 
 <div
   id={pagesId}
@@ -17,7 +25,13 @@ const pages = Array.from({ length: [[pages]] }, (_, index) => index + 1)
   className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
   onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
 >
-  {pages.map((number) => <div key={number} className="w-full shrink-0 snap-center">{number}</div>)}
+  {pages.map(({ icon, title, text }) => (
+    <div key={title} className="flex w-full shrink-0 snap-center flex-col items-center gap-1 text-center">
+      {icon}
+      <div className="font-semibold">{title}</div>
+      <div className="text-sm text-secondary">{text}</div>
+    </div>
+  ))}
 </div>
 <PageControl
   count={pages.length}
@@ -34,8 +48,6 @@ const pages = Array.from({ length: [[pages]] }, (_, index) => index + 1)
 
 <UsageBlock>{`import { PageControl } from "@plexui/ui/components/PageControl";`}</UsageBlock>
 
-A page control shows the position of the current page in an ordered list of peer pages, such as a carousel or onboarding, and moves between them. Center it below the pages. More than about ten dots are hard to count at a glance; for longer lists, prefer a grid. It follows the iOS 26 kit Page control on every screen: 8px dots 8px apart in a 24px capsule, with a 44px target on a phone.
-
 ## Examples
 
 {/* The examples Many pages and Background are settings of the Overview (owner 11.11); their anchors stay */}
@@ -45,6 +57,7 @@ A page control shows the position of the current page in an ordered list of peer
 ### Overview
 
 <ComponentPreview details={<>
+  <p>A page control shows the position of the current page in an ordered list of peer pages, such as a carousel or onboarding, and moves between them. Center it below the pages. More than about ten dots are hard to count at a glance; for longer lists, prefer a grid. It follows the iOS 26 kit Page control on every screen: 8px dots 8px apart in a 24px capsule, with a 44px target on a phone.</p>
   <p>Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells, and with reduced motion, as <code>motion-reduce:scroll-auto</code> does here.</p>
   <p>From seven <code>pages</code> the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show. The capsule behind the dots shows while a pointer presses or scrubs with the <code>automatic</code> <code>background</code>, always with <code>prominent</code>, for a page control that is the main navigation of the screen, and never with <code>minimal</code>, which also turns off scrubbing since it gives no feedback.</p>
 </>} code={overviewCode} codeValues={{ pages: 5, background: "automatic" }} codeExamples={[{ name: "Many pages", values: { pages: 12 }, details: "From seven pages the dots past a window around the current page shrink, suggesting more pages." }, { name: "Prominent", values: { background: "prominent" }, details: "The capsule always shows, for a page control that is the main navigation of the screen." }]} previewMinHeight={260}>

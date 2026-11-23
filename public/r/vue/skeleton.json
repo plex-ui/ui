@@ -3,7 +3,7 @@
   "name": "skeleton",
   "type": "registry:ui",
   "title": "Skeleton",
-  "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",
+  "description": "\"Loading placeholders in the shape of the content they stand in for, from avatars and text to cards and lists.\"",
   "dependencies": [
     "@plexui/vue"
   ],

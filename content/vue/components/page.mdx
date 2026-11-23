@@ -1,21 +1,25 @@
 ---
 title: Page
-description: "The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+description: "The frame of an app page: a header and its content in one column, the header a glass bar on a phone."
 metaDescription: "Vue 3 app page layout: header and content in one column at a full, wide or column width, a line that follows scrolling, and an iOS style glass bar on phones."
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
 import pageStyles from "@/components/docs/PageDemos.module.css"
 import toolbarStyles from "@/components/docs/ToolbarDemos.module.css"
+import { ORDERS } from "@/components/docs/toolbarOrders"
 
 export const STAGE = pageStyles.Stage
 
-export const rows = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`)
+export const rows = ORDERS
 
 export const list = `<FieldGroup>
-        <div v-for="row in rows" :key="row" data-row class="${toolbarStyles.Row}">
-          <span>{{ row }}</span>
-          <span class="${toolbarStyles.Value}">Paid</span>
+        <div v-for="row in rows" :key="row.number" data-row class="${toolbarStyles.Row} ${toolbarStyles.TwoLines}">
+          <span class="${toolbarStyles.Text}">
+            <span>{{ row.customer }}</span>
+            <span class="${toolbarStyles.Detail}">{{ row.number }} · {{ row.status }}</span>
+          </span>
+          <span class="${toolbarStyles.Value}">{{ row.total }}</span>
         </div>
       </FieldGroup>`
 

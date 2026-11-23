@@ -17,7 +17,7 @@
     {
       "name": "button",
       "type": "registry:ui",
-      "description": "Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.",
+      "description": "Button for an action, in four variants and eight semantic colors, and ButtonLink, a link styled as a button.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -33,7 +33,7 @@
     {
       "name": "context-menu",
       "type": "registry:ui",
-      "description": "\"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu.\"",
+      "description": "\"A menu of actions for an element, opened by a secondary click or, on a touch screen, a touch and hold.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -41,7 +41,7 @@
     {
       "name": "menu",
       "type": "registry:ui",
-      "description": "Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.",
+      "description": "Dropdown menu for structured actions, with grouped items, submenus, and checkbox and radio items.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -49,7 +49,7 @@
     {
       "name": "swipe-actions",
       "type": "registry:ui",
-      "description": "\"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys.\"",
+      "description": "\"Actions behind a row of a list, revealed by a swipe across the row, as the swipe actions of an iOS list.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -57,7 +57,7 @@
     {
       "name": "text-link",
       "type": "registry:ui",
-      "description": "Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.",
+      "description": "\"A link in running text, to a page of the app or another site, that takes the color of the text around it.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -65,7 +65,7 @@
     {
       "name": "field",
       "type": "registry:ui",
-      "description": "Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.",
+      "description": "Form field wrapper that links a label, helper text and an error message to its control.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -73,7 +73,7 @@
     {
       "name": "file-upload",
       "type": "registry:ui",
-      "description": "Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.",
+      "description": "Mobile-first file upload with type and size validation, several files, error states and file cards.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -81,7 +81,7 @@
     {
       "name": "floating-label-input",
       "type": "registry:ui",
-      "description": "Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.",
+      "description": "Text input whose label floats above its value, with helper and error text and a multi-line variant.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -89,7 +89,7 @@
     {
       "name": "input",
       "type": "registry:ui",
-      "description": "Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.",
+      "description": "Text input with start and end adornments, a clear button and a password visibility toggle.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -97,7 +97,7 @@
     {
       "name": "input-group",
       "type": "registry:ui",
-      "description": "Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.",
+      "description": "Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as rows.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -105,7 +105,7 @@
     {
       "name": "markdown-editor",
       "type": "registry:ui",
-      "description": "Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.",
+      "description": "Compact rich text editor powered by Tiptap, for a form field, with a markdown formatting toolbar.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -113,7 +113,7 @@
     {
       "name": "otp-input",
       "type": "registry:ui",
-      "description": "Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.",
+      "description": "\"A field for one-time passwords and verification codes, entered one digit per cell, with autofill.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -129,7 +129,7 @@
     {
       "name": "textarea",
       "type": "registry:ui",
-      "description": "Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.",
+      "description": "\"A text field of several lines for longer input, which can grow with its content.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -137,7 +137,7 @@
     {
       "name": "checkbox",
       "type": "registry:ui",
-      "description": "Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.",
+      "description": "Checkbox for binary on/off selection, with solid, pill and ghost variants and an indeterminate state.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -145,7 +145,7 @@
     {
       "name": "color-picker",
       "type": "registry:ui",
-      "description": "\"The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet.\"",
+      "description": "\"A color well and the iOS color picker it opens, for choosing a color from a grid, a spectrum or sliders.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -161,7 +161,7 @@
     {
       "name": "date-picker",
       "type": "registry:ui",
-      "description": "Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.",
+      "description": "Date picker with a calendar, a time picker, month and year dropdowns, and min and max limits.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -169,7 +169,7 @@
     {
       "name": "date-range-picker",
       "type": "registry:ui",
-      "description": "Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.",
+      "description": "Date range picker with a calendar, min and max limits, preset shortcuts and a month stepper.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -177,7 +177,7 @@
     {
       "name": "radio-group",
       "type": "registry:ui",
-      "description": "Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.",
+      "description": "\"A group of options from which a person chooses exactly one, as a list, a row, cards or settings rows.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -185,7 +185,7 @@
     {
       "name": "segmented-control",
       "type": "registry:ui",
-      "description": "Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.",
+      "description": "\"One control that switches between related views, as a segmented track or as underline tabs.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -193,7 +193,7 @@
     {
       "name": "select",
       "type": "registry:ui",
-      "description": "Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.",
+      "description": "\"A dropdown for choosing one or more options from a list; on a phone, an iOS pop-up menu.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -201,7 +201,7 @@
     {
       "name": "slider",
       "type": "registry:ui",
-      "description": "Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.",
+      "description": "\"A slider for choosing a number or a range on a scale, with marks and a value that can be typed.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -209,7 +209,7 @@
     {
       "name": "stepper",
       "type": "registry:ui",
-      "description": "Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.",
+      "description": "\"Two segments that decrease and increase a number in steps, as the iOS 26 stepper does.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -217,7 +217,7 @@
     {
       "name": "switch",
       "type": "registry:ui",
-      "description": "Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.",
+      "description": "\"A switch that turns a setting on or off, with an optional label and description.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -225,7 +225,7 @@
     {
       "name": "toggle-group",
       "type": "registry:ui",
-      "description": "A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.",
+      "description": "\"A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -233,7 +233,7 @@
     {
       "name": "breadcrumb",
       "type": "registry:ui",
-      "description": "The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.",
+      "description": "The trail of pages that leads to the current one, above a page title, with links and the current page.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -241,7 +241,7 @@
     {
       "name": "index-bar",
       "type": "registry:ui",
-      "description": "\"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up.\"",
+      "description": "\"The section index of a phone list: a column of letters at its trailing edge that jumps to a section.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -249,7 +249,7 @@
     {
       "name": "navigation-row",
       "type": "registry:ui",
-      "description": "\"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press.\"",
+      "description": "\"A list row that opens a page of its own, with a label, the current value and a chevron, as in iOS Settings.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -257,7 +257,7 @@
     {
       "name": "page",
       "type": "registry:ui",
-      "description": "\"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar.\"",
+      "description": "\"The frame of an app page: a header and its content in one column, the header a glass bar on a phone.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -265,7 +265,7 @@
     {
       "name": "page-control",
       "type": "registry:ui",
-      "description": "A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.",
+      "description": "\"A row of dots, one per page, that shows where a person is in a flat list of pages and moves between them.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -273,7 +273,7 @@
     {
       "name": "sidebar",
       "type": "registry:ui",
-      "description": "Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu",
+      "description": "\"A navigation sidebar for an app shell that folds to an icon rail and becomes a drawer on a phone.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -281,7 +281,7 @@
     {
       "name": "tab-bar",
       "type": "registry:ui",
-      "description": "\"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up.\"",
+      "description": "\"The tab bar of a phone screen: the top-level sections of an app in a glass capsule at the bottom.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -289,7 +289,7 @@
     {
       "name": "toolbar",
       "type": "registry:ui",
-      "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up.\"",
+      "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -297,7 +297,7 @@
     {
       "name": "dialog",
       "type": "registry:ui",
-      "description": "Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.",
+      "description": "Modal dialog for confirmations, forms and destructive alerts, with a focus trap and an overlay scrim.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -313,7 +313,7 @@
     {
       "name": "tip",
       "type": "registry:ui",
-      "description": "A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.",
+      "description": "\"A short message that points out a feature people might miss, in the page or anchored to a control.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -321,7 +321,7 @@
     {
       "name": "toast",
       "type": "registry:ui",
-      "description": "Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.",
+      "description": "\"A brief notification that gives feedback on an action, with an optional description and action button.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -329,7 +329,7 @@
     {
       "name": "tooltip",
       "type": "registry:ui",
-      "description": "Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.",
+      "description": "\"Brief text that explains a control, shown on hover or keyboard focus.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -337,7 +337,7 @@
     {
       "name": "alert",
       "type": "registry:ui",
-      "description": "Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.",
+      "description": "Inline message for notices and warnings, with semantic colors, a title, a description and actions.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -345,7 +345,7 @@
     {
       "name": "empty-message",
       "type": "registry:ui",
-      "description": "Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.",
+      "description": "Empty state that tells users there's nothing to show, for errors, warnings, no results and onboarding.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -353,7 +353,7 @@
     {
       "name": "indicators",
       "type": "registry:ui",
-      "description": "Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.",
+      "description": "\"Loading and progress indicators: spinners, determinate progress rings and animated dots.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -361,7 +361,7 @@
     {
       "name": "progress",
       "type": "registry:ui",
-      "description": "A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.",
+      "description": "\"A horizontal bar that shows how far a task has come, or a sweep while its length is unknown.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -369,7 +369,7 @@
     {
       "name": "progress-steps",
       "type": "registry:ui",
-      "description": "Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.",
+      "description": "\"A stepper that shows the steps of a multi-step flow, such as a checkout or onboarding, and the current one.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -385,7 +385,7 @@
     {
       "name": "skeleton",
       "type": "registry:ui",
-      "description": "Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.",
+      "description": "\"Loading placeholders in the shape of the content they stand in for, from avatars and text to cards and lists.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -393,7 +393,7 @@
     {
       "name": "accordion",
       "type": "registry:ui",
-      "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.",
+      "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -401,7 +401,7 @@
     {
       "name": "avatar",
       "type": "registry:ui",
-      "description": "An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.",
+      "description": "An avatar for a user identity that shows an initial, a photo, an icon or an overflow count.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -409,7 +409,7 @@
     {
       "name": "avatar-group",
       "type": "registry:ui",
-      "description": "Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.",
+      "description": "Stacks user avatars into a single overlapping cluster, with one size for the whole group.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -417,7 +417,7 @@
     {
       "name": "badge",
       "type": "registry:ui",
-      "description": "Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.",
+      "description": "Compact label for statuses and inline metadata, with semantic colors, variants, sizes and icons.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -425,7 +425,7 @@
     {
       "name": "card",
       "type": "registry:ui",
-      "description": "A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.",
+      "description": "A surface that groups a title, a description, content and actions, in an outline, solid or ghost style.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -433,7 +433,7 @@
     {
       "name": "code-block",
       "type": "registry:ui",
-      "description": "Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.",
+      "description": "Code block with syntax highlighting, a copy button, and collapsible long snippets.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -441,7 +441,7 @@
     {
       "name": "data-table",
       "type": "registry:ui",
-      "description": "\"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers.\"",
+      "description": "\"Table of your data on TanStack Table v8, with sorting, pagination, filtering and row selection.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -457,7 +457,7 @@
     {
       "name": "markdown",
       "type": "registry:ui",
-      "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.",
+      "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks and KaTeX math.",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -465,7 +465,7 @@
     {
       "name": "rolling-number",
       "type": "registry:ui",
-      "description": "A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.",
+      "description": "\"A number whose digits roll to a new value, as an odometer's do, for a count that changes while it is watched.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -473,7 +473,7 @@
     {
       "name": "separator",
       "type": "registry:ui",
-      "description": "A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.",
+      "description": "\"A thin line that divides content: the rows of a list or, standing vertically, inline items.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -481,7 +481,7 @@
     {
       "name": "stats-card",
       "type": "registry:ui",
-      "description": "Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.",
+      "description": "\"A dashboard card that shows one figure, such as a KPI, with its trend, an icon or a progress bar.\"",
       "dependencies": [
         "@plexui/vue"
       ]
@@ -489,7 +489,7 @@
     {
       "name": "table",
       "type": "registry:ui",
-      "description": "\"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements.\"",
+      "description": "\"Table parts for structured data on native table elements: header, body, footer, rows, cells and a caption.\"",
       "dependencies": [
         "@plexui/vue"
       ]

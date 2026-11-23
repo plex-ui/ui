@@ -1,7 +1,7 @@
 ---
 title: Skeleton
-description: Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
-metaDescription: React skeleton component for showing animated placeholders while content loads, with ready-made compositions for cards, text, forms, and tables
+description: "Loading placeholders in the shape of the content they stand in for, from avatars and text to cards and lists."
+metaDescription: React skeleton component for showing animated placeholders while content loads, with ready-made compositions for cards, text, lists, and feeds
 ---
 
 import { SkeletonOverviewDemo } from "@/components/docs/SkeletonDemos"
@@ -17,7 +17,7 @@ import { SkeletonOverviewDemo } from "@/components/docs/SkeletonDemos"
 
 ### Overview
 
-<ComponentPreview phonePresentation="none" details={<>A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with <code>className</code>. <code>content</code> shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), a form (inputs and buttons at the control height, 32px) and a table (its header and rows).<br /><br /><code>circle</code> rounds a skeleton, for the avatar of a profile; without it a skeleton keeps its own radius, as for a square picture.</>} code={`[[#content=profile]]
+<ComponentPreview phonePresentation="none" details={<>A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with <code>className</code>. <code>content</code> shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), the rows of a list (an avatar and two lines each) and a post in a feed (its author, its text and a picture).<br /><br /><code>circle</code> rounds a skeleton, for the avatar of a profile, a list row or a post; without it a skeleton keeps its own radius, as for a square picture.</>} code={`[[#content=profile]]
 <div className="flex items-center gap-4">
   <Skeleton[[#circle]] circle[[/circle]] className="size-12" />
   <div className="flex flex-col gap-2">
@@ -40,32 +40,35 @@ import { SkeletonOverviewDemo } from "@/components/docs/SkeletonDemos"
   <Skeleton className="h-4 w-4/5" />
 </div>
 [[/content=text]]
-[[#content=form]]
-{/* Inputs and a button at the control height */}
-<div className="flex flex-col gap-4 w-[300px]">
-  <div className="flex flex-col gap-2">
-    <Skeleton className="h-4 w-[80px]" />
-    <Skeleton className="h-8 w-full rounded-lg" />
-  </div>
-  <div className="flex flex-col gap-2">
-    <Skeleton className="h-4 w-[100px]" />
-    <Skeleton className="h-8 w-full rounded-lg" />
-  </div>
-  <Skeleton className="h-8 w-[120px] rounded-lg" />
-</div>
-[[/content=form]]
-[[#content=table]]
-{/* A header and rows */}
-<div className="flex flex-col gap-2 w-full max-w-[400px]">
-  {Array.from({ length: 5 }, (_, i) => (
-    <div key={i} className={i === 0 ? "flex gap-4 pb-2 border-b border-default" : "flex gap-4 py-2"}>
-      <Skeleton className="h-4 w-[100px]" />
-      <Skeleton className="h-4 w-[150px]" />
-      <Skeleton className="h-4 w-[80px]" />
+[[#content=list]]
+{/* Rows of a list, as a chat list loads: an avatar and two lines */}
+<div className="flex flex-col w-[300px]">
+  {Array.from({ length: 3 }, (_, i) => (
+    <div key={i} className="flex items-center gap-3 py-3">
+      <Skeleton circle className="size-10" />
+      <div className="flex flex-1 flex-col gap-2">
+        <Skeleton className="h-4 w-3/5" />
+        <Skeleton className="h-3 w-4/5" />
+      </div>
     </div>
   ))}
 </div>
-[[/content=table]]`} codeValues={{ content: "profile", circle: true }} previewMinHeight={168}>
+[[/content=list]]
+[[#content=feed]]
+{/* A post in a feed: its author, its text and a picture */}
+<div className="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
+  <div className="flex items-center gap-3">
+    <Skeleton circle className="size-8" />
+    <div className="flex flex-col gap-1.5">
+      <Skeleton className="h-3.5 w-[120px]" />
+      <Skeleton className="h-3 w-[72px]" />
+    </div>
+  </div>
+  <Skeleton className="h-4 w-full" />
+  <Skeleton className="h-4 w-4/5" />
+  <Skeleton className="h-[150px] w-full rounded-lg" />
+</div>
+[[/content=feed]]`} codeValues={{ content: "profile", circle: true }} previewMinHeight={168}>
   <SkeletonOverviewDemo />
 </ComponentPreview>
 

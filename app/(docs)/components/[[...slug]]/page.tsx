@@ -135,10 +135,12 @@ export default async function Page(props: {
         <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
         {showPageNav && <PageNav compact className="plex-docs-nav plex-docs-nav-top" />}
       </div>
+      {/* The switch under the title, above the description: the title is the same in every framework, so the switch
+          stays in place when you change framework, whatever each description's length */}
+      {frameworkSlug && <FrameworkSwitch framework="react" slug={frameworkSlug} available={['react', ...otherFrameworks]} />}
       <DocsDescription className="plex-docs-description">
         {page.data.description}
       </DocsDescription>
-      {frameworkSlug && <FrameworkSwitch framework="react" slug={frameworkSlug} available={['react', ...otherFrameworks]} />}
       <DocsBody className="plex-docs-body">
         <MDX components={getMDXComponents()} />
         {/* `Related components` card row at the bottom of every

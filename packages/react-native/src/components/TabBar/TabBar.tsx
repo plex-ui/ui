@@ -1,8 +1,11 @@
-import { createContext, useCallback, useContext, useRef, useState, type ReactElement, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
 import {
+  Animated,
+  Easing,
   Pressable,
   StyleSheet,
   View,
+  type LayoutChangeEvent,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
@@ -11,14 +14,14 @@ import {
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Search from "../../icons/plex/Search"
-import { BarBackdrop } from "../../internal/BarBackdrop"
-import { childrenOfType } from "../../internal/children"
+import { BarBackdrop, SoftBottomEdge, ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, glassBarBlur, useAndroidGlass } from "../../internal/BarBackdrop"
+import { childrenOfType, textOf } from "../../internal/children"
+import { physicalPadding } from "../../internal/direction"
 import { Glass } from "../../internal/Glass"
 import { useTabKeys } from "../../internal/tabKeys"
-import { stateLayer, withAlpha } from "../../theme/material"
+import { barSurface, mix, stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
-import { materialType } from "../../theme/typography"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text } from "../Text/Text"
 
@@ -53,7 +56,7 @@ export type TabBarProps = Omit<ViewProps, "children"> & {
   prominent?: TabBarProminent
   /**
    * The bar shows the selected tab alone, in a 48pt circle (iOS 26 `tabBarMinimizeBehavior`); a tap on it expands the
-   * bar. Drive it from the scroll of the screen with `useTabBarMinimize`. Android's navigation bar does not minimize.
+   * bar. Drive it from the scroll of the screen with `useTabBarMinimize`. Android's bar does not minimize.
    */
   minimized?: boolean
   /** The minimized state when it is first rendered. @default false */
@@ -61,13 +64,19 @@ export type TabBarProps = Omit<ViewProps, "children"> & {
   /** Called when the bar minimizes or expands. */
   onMinimizedChange?: (minimized: boolean) => void
   /**
-   * How the bar meets content under it on iOS: `soft` and `none` let content run under the capsule, `hard` an opaque
-   * bar, `glass` a translucent blurred one; the lines and the glass show once `scrolled` says content is under it.
+   * How the bar meets content under it: `soft` and `none` let content run under the capsule (on Android `soft` fades
+   * the screen's color in under it, as the Android bar does), `hard` an opaque bar, `glass` a translucent blurred one; the
+   * lines and the glass show once `scrolled` says content is under it.
    * @default "soft"
    */
   background?: TabBarBackground
   /** Content is under the bar. */
   scrolled?: boolean
+  /**
+   * The color of the screen under the bar, which its scroll edge takes (a grouped screen's canvas).
+   * @default the theme's background
+   */
+  canvasColor?: string
   /** Content in a glass capsule above the tabs (iOS 26 bottom accessory); minimized, between the two circles. */
   accessory?: ReactNode
   /** Pads the bar for the home indicator. @default true */
@@ -87,8 +96,8 @@ export type TabBarItemProps = {
   /** The symbol, a Plex UI icon. */
   icon: ReactNode
   /**
-   * A count or a short word in a red capsule over the symbol, read after the label. A count of 0 shows none, as on
-   * iOS. `true` draws Material's small dot on Android and an empty capsule on iOS.
+   * A count or a short word in a capsule over the symbol, read after the label: red on iOS, the accent on Android. A
+   * count of 0 shows none, as on iOS. `true` draws a small dot on Android and an empty capsule on iOS.
    */
   badge?: ReactNode
   /** When `true`, the tab cannot be selected. */
@@ -125,8 +134,7 @@ TabBarItem.displayName = "TabBar.Item"
 type TabProps = TabBarItemProps & { context: TabBarContextValue; kind?: "tab" | "circle"; hideLabel?: boolean }
 
 function Tab(props: TabProps) {
-  const theme = useTheme()
-  return theme.isAndroid ? <AndroidTab {...props} /> : <IOSTab {...props} />
+  return <IOSTab {...props} />
 }
 
 function press(context: TabBarContextValue, { value, disabled, onPress }: TabBarItemProps, collapsed: boolean) {
@@ -175,6 +183,11 @@ function IOSTab({ value, label, icon, badge, disabled = false, onPress, testID, 
       disabled={disabled}
       onPress={() => press(context, { value, label, icon, disabled, onPress }, collapsed)}
       testID={testID}
+      // A minimized tab takes the touches of its whole 48pt circle, not only its 40pt face
+      hitSlop={collapsed ? capsulePadding : undefined}
+      // A tab bar's labels keep their size, as UIKit's: a large text size shows the tab in the large content viewer
+      accessibilityShowsLargeContentViewer
+      accessibilityLargeContentTitle={textOf(label) || undefined}
       style={[styles.iosItem, size, circle ? null : { flexShrink: 1, minWidth: 0 }]}
     >
       {selected && !collapsed ? <View pointerEvents="none" style={[styles.pill, pill, { backgroundColor: theme.color("--tab-bar-item-background-selected") }]} /> : null}
@@ -186,6 +199,7 @@ function IOSTab({ value, label, icon, badge, disabled = false, onPress, testID, 
       {showLabel ? (
         <Text
           numberOfLines={1}
+          allowFontScaling={false}
           weight="semibold"
           color={color}
           style={{ fontSize: theme.length("--tab-bar-label-font-size", 10), lineHeight: theme.length("--tab-bar-label-line-height", 12), maxWidth: "100%" }}
@@ -196,7 +210,7 @@ function IOSTab({ value, label, icon, badge, disabled = false, onPress, testID, 
       {hasBadge(badge) && !circle ? (
         <View pointerEvents="none" style={[styles.iosBadge, iosBadgeStyle(theme), { top: badgeTop, marginLeft: badgeStart }]}>
           {badge === true ? null : (
-            <Text color={theme.color("--tab-bar-badge-color")} style={iosBadgeText(theme)} numberOfLines={1}>
+            <Text color={theme.color("--tab-bar-badge-color")} style={iosBadgeText(theme)} numberOfLines={1} allowFontScaling={false}>
               {badge}
             </Text>
           )}
@@ -225,19 +239,61 @@ const iosBadgeText = (theme: Theme) => ({
 })
 
 /**
- * A destination of Material 3's navigation bar (Expressive short bar, vertical item): the symbol in a 56x32 pill
- * indicator over a Label M label; Compose places a badge from the symbol's trailing top corner.
+ * Android's counter on a tab: a 16dp capsule in the accent, at least 16 wide and 8 wider than its
+ * count, its text 10 Medium in white, centered 11 past the tab's middle and 10 under its top (a wider one keeps that
+ * start and grows toward the end, off the symbol), cut out of the symbol by a 1.33dp ring (here the ring takes the color
+ * behind it). `true` draws a dot of the accent there.
  */
-function AndroidTab({ value, label, icon, badge, disabled = false, onPress, testID, context }: TabProps) {
+function AndroidBadge({ badge, ring }: { badge: ReactNode; ring: string }) {
+  const theme = useTheme()
+  const m = theme.material
+  if (!hasBadge(badge)) return null
+  const dot = badge === true
+  return (
+    <View pointerEvents="none" style={styles.androidBadgeFrame}>
+      <View style={[dot ? styles.androidDot : styles.androidBadge, { backgroundColor: m.primary, borderColor: ring }]}>
+        {dot ? null : (
+          <Text color={m.onPrimary} numberOfLines={1} allowFontScaling={false} style={{ fontSize: 10, lineHeight: 13, ...theme.font("medium") }}>
+            {badge}
+          </Text>
+        )}
+      </View>
+    </View>
+  )
+}
+
+/** Android's decelerate ease, 1 - (1 - t)² (DecelerateInterpolator). */
+const DECELERATE = Easing.out(Easing.quad)
+
+/**
+ * A destination of the Android tab bar: its 24dp symbol over its label (Medium 12, ExtraBold
+ * when selected) in a 48dp pill of the width the bar gives it. Selected, the symbol takes the accent and the label its
+ * darker text, and the tab's own pill of the accent at 9% fades in and grows from 0.6 over 320ms, decelerating. No
+ * ripple on a press, as the Android tab bar draws none.
+ */
+function AndroidTab({
+  value,
+  label,
+  icon,
+  badge,
+  disabled = false,
+  onPress,
+  testID,
+  context,
+  width,
+  fontSize,
+}: TabProps & { width: number | undefined; fontSize: number }) {
   const theme = useTheme()
   const m = theme.material
   const selected = context.value === value
-  const [pressed, setPressed] = useState(false)
-  const iconColor = disabled ? withAlpha(m.onSurface, 0.38) : selected ? m.onSecondaryContainer : m.onSurfaceVariant
-  // Compose ShortNavigationBar: the active label is `secondary`, a role the Plex mapping folds into onSurface (0022)
-  const labelColor = disabled ? withAlpha(m.onSurface, 0.38) : selected ? m.onSurface : m.onSurfaceVariant
-  const type = materialType.labelMedium
-  const dot = badge === true
+  const [shown] = useState(() => new Animated.Value(selected ? 1 : 0))
+  useEffect(() => {
+    Animated.timing(shown, { toValue: selected ? 1 : 0, duration: theme.reducedMotion ? 0 : 320, easing: DECELERATE, useNativeDriver: false }).start()
+  }, [selected, shown, theme.reducedMotion])
+  const color = disabled ? withAlpha(m.onSurface, 0.38) : selected ? m.primary : m.onSurface
+  // The selected label is a little darker than its symbol in light (#0D7FCF under #1A91E6), the same in dark mode
+  const text = disabled || !selected || theme.scheme === "dark" ? color : theme.colors.textAccent
+  const card = barSurface(m, theme.scheme)
   return (
     <Pressable
       {...context.keys({ value, disabled })}
@@ -247,48 +303,189 @@ function AndroidTab({ value, label, icon, badge, disabled = false, onPress, test
       aria-selected={selected}
       disabled={disabled}
       onPress={() => press(context, { value, label, icon, disabled, onPress }, false)}
+      testID={testID}
+      // The 48dp pill takes the touches of the capsule's 56dp height
+      hitSlop={{ top: 4, bottom: 4 }}
+      style={[styles.androidTab, width != null ? { width } : { paddingHorizontal: 16 }]}
+    >
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.androidPill,
+          {
+            backgroundColor: withAlpha(m.primary, 0.09),
+            opacity: shown.interpolate({ inputRange: [0, 1], outputRange: [0, 1], easing: DECELERATE }),
+            transform: [{ scale: shown.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
+          },
+        ]}
+      />
+      <View style={styles.androidIconBox}>
+        <IconDefaultsProvider size={24} color={color} weight={selected ? "semibold" : undefined}>
+          {icon}
+        </IconDefaultsProvider>
+      </View>
+      <Text numberOfLines={1} color={text} weight={selected ? "bold" : "medium"} style={{ fontSize, lineHeight: 16, maxWidth: "100%" }}>
+        {label}
+      </Text>
+      <AndroidBadge badge={badge} ring={selected ? mix(m.primary, card, 0.09) : card} />
+    </Pressable>
+  )
+}
+
+/**
+ * The search or prominent tab of the bar, a 56dp circle of its own beside the capsule (ours: the Android bar has
+ * none): in the capsule's glass for search, in the accent for the prominent one.
+ */
+function AndroidCircle({ value, label, icon, disabled = false, onPress, testID, context, accent, glass }: TabProps & { accent: boolean; glass: ViewStyle }) {
+  const theme = useTheme()
+  const m = theme.material
+  const selected = context.value === value
+  const [pressed, setPressed] = useState(false)
+  const color = disabled ? withAlpha(m.onSurface, 0.38) : accent ? m.onPrimary : selected ? m.primary : m.onSurface
+  return (
+    <Pressable
+      {...context.keys({ value, disabled })}
+      accessibilityRole="tab"
+      accessibilityLabel={label}
+      accessibilityState={{ selected, disabled }}
+      aria-selected={selected}
+      disabled={disabled}
+      onPress={() => press(context, { value, label, icon, disabled, onPress }, false)}
       onPressIn={() => setPressed(true)}
       onPressOut={() => setPressed(false)}
       testID={testID}
-      style={styles.androidItem}
+      style={[styles.androidCircle, accent && !disabled ? { backgroundColor: m.primary, boxShadow: glass.boxShadow } : glass]}
     >
-      <View
-        style={[
-          styles.androidIndicator,
-          { backgroundColor: selected ? m.secondaryContainer : "transparent" },
-        ]}
-      >
-        {/* The state layer of a press fills the indicator's shape, as Compose's indicator ripple; the badge stands
-            outside it, unclipped. An inactive destination's layer is onSurface (NavigationBarTokens'
-            InactivePressedStateLayerColor), not its onSurfaceVariant symbol */}
-        {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidLayer, { backgroundColor: withAlpha(selected ? m.onSecondaryContainer : m.onSurface, stateLayer.pressed) }]} /> : null}
-        <View style={styles.androidIconBox}>
-          <IconDefaultsProvider size={24} color={iconColor}>
-            {icon}
-          </IconDefaultsProvider>
-          {hasBadge(badge) ? (
-            <View
-              pointerEvents="none"
-              style={[
-                dot ? styles.androidDot : styles.androidBadge,
-                { backgroundColor: m.error },
-                // BadgedBox: a large badge 12 in from the symbol's trailing edge and 2 over its top; the dot 6 in, on top
-                dot ? { left: 24 - 6, top: 0 } : { left: 24 - 12, top: 14 - 16 },
-              ]}
-            >
-              {dot ? null : (
-                <Text color={m.onError} numberOfLines={1} style={{ fontSize: materialType.labelSmall.fontSize, lineHeight: 16, ...theme.font("medium") }}>
-                  {badge}
-                </Text>
-              )}
+      {pressed && !disabled ? <View pointerEvents="none" style={[styles.androidCircleLayer, { backgroundColor: withAlpha(color, stateLayer.pressed) }]} /> : null}
+      <IconDefaultsProvider size={24} color={color} weight={selected ? "semibold" : undefined}>
+        {icon}
+      </IconDefaultsProvider>
+    </Pressable>
+  )
+}
+
+/**
+ * Android's widths of its tabs: each its label and room on either side, 16 a side at 12sp, else 8,
+ * else 4 at 10sp, the first that fits the room; then the tabs grow together to fill 320dp (or the room, if less), the
+ * tabs wider than an even share keeping their width, or shrink together to fit. `labels` are the widths at 12sp.
+ */
+function androidTabWidths(labels: number[], room: number): { fontSize: number; widths: number[] } {
+  const passes = [
+    { fontSize: 12, pad: 16 },
+    { fontSize: 12, pad: 8 },
+    { fontSize: 10, pad: 4 },
+  ]
+  const sized = (pass: (typeof passes)[number]) => labels.map((width) => (width * pass.fontSize) / 12 + 2 * pass.pad)
+  const pass = passes.find((each) => sized(each).reduce((sum, width) => sum + width, 0) <= room) ?? passes[passes.length - 1]
+  const widths = sized(pass)
+  const share = room / Math.max(1, labels.length)
+  const grows = widths.some((width) => width <= share) ? widths.map((width) => (width > share ? 0 : 1)) : widths.map(() => 1)
+  const total = widths.reduce((sum, width) => sum + width, 0)
+  const least = Math.min(320, room)
+  const weight = grows.reduce((sum, each) => sum + each, 0)
+  const out =
+    total > room ? widths.map((width) => (width * room) / total) : total < least ? widths.map((width, index) => width + ((least - total) / weight) * grows[index]) : widths
+  return { fontSize: pass.fontSize, widths: out.map(Math.round) }
+}
+
+/** The room on either side of the Android capsule and the gap to the circle beside it. */
+const ANDROID_SIDE = 12
+const ANDROID_GAP = 8
+
+/**
+ * The Android tab bar: the tabs in a 56dp capsule of see-through glass centered 8dp over
+ * the gesture bar, at least 320dp of tabs wide, the selected one on its own pill of the accent at 9%; our search or
+ * prominent tab in a 56dp circle beside it, an accessory in a capsule above. Its background as the Toolbar's: `soft`
+ * the screen's color fading in over the content under the bar.
+ */
+function AndroidBar({
+  context,
+  tabs,
+  circle,
+  accent,
+  accessory,
+  background,
+  scrolled,
+  canvasColor,
+  safeArea,
+  ariaLabel,
+  rest,
+  style,
+}: {
+  context: TabBarContextValue
+  tabs: TabBarItemProps[]
+  circle: TabBarItemProps | undefined
+  accent: boolean
+  accessory: ReactNode
+  background: TabBarBackground
+  scrolled: boolean
+  canvasColor: string | undefined
+  safeArea: boolean
+  ariaLabel: string
+  rest: ViewProps
+  style: StyleProp<ViewStyle>
+}) {
+  const theme = useTheme()
+  const insets = useSafeAreaInsets()
+  const m = theme.material
+  const [width, setWidth] = useState(0)
+  const [labels, setLabels] = useState<Record<string, number>>({})
+  // The room for the tabs: the bar less its sides, the circle beside the capsule and the capsule's 4dp padding
+  const sideInsets = safeArea ? insets.left + insets.right : 0
+  const room = width - 2 * ANDROID_SIDE - sideInsets - (circle ? 56 + ANDROID_GAP : 0) - 8
+  const measured = width > 0 && tabs.every((tab) => labels[tab.value] != null)
+  const layout = measured ? androidTabWidths(tabs.map((tab) => labels[tab.value] ?? 0), room) : null
+  const onLabel = useCallback((value: string, next: number) => setLabels((prev) => (prev[value] === next ? prev : { ...prev, [value]: next })), [])
+  const canvas = canvasColor ?? theme.colors.background
+  const glass = useAndroidGlass("tabs", canvas)
+  const veil = withAlpha(canvas, parseFloat(String(theme.token("--page-bar-veil-opacity") ?? "55")) / 100)
+  // Android's fade under its tabs, from the bar's top (8 above the capsule): the
+  // screen's color fading in over 60dp in four even steps, then at 81% down to the edge; the other backgrounds show
+  // once content is under the bar
+  const backdrop =
+    background === "soft" ? (
+      <SoftBottomEdge fill={withAlpha(canvas, ANDROID_FADE_ALPHA)} top={60} tail={60} blur={0} stops={ANDROID_FADE_STOPS} />
+    ) : background === "hard" ? (
+      <BarBackdrop fill={canvas} line={scrolled ? m.outlineVariant : undefined} edge="top" />
+    ) : background === "glass" && scrolled ? (
+      <BarBackdrop fill={veil} blur={glassBarBlur(theme)} line={m.outlineVariant} edge="top" />
+    ) : null
+  return (
+    <View
+      {...rest}
+      // Around the capsule the content shows and takes touches
+      pointerEvents="box-none"
+      onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)}
+      style={[
+        styles.androidBar,
+        { paddingBottom: 8 + (safeArea ? insets.bottom : 0) },
+        physicalPadding(ANDROID_SIDE + (safeArea ? insets.left : 0), ANDROID_SIDE + (safeArea ? insets.right : 0)),
+        style,
+      ]}
+    >
+      {backdrop}
+      {/* The labels' own widths at 12sp, out of sight, for the widths of the tabs */}
+      <View pointerEvents="none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.measureBox}>
+        <View style={styles.measureRow}>
+          {tabs.map((tab) => (
+            <View key={tab.value} onLayout={(event: LayoutChangeEvent) => onLabel(tab.value, event.nativeEvent.layout.width)}>
+              <Text numberOfLines={1} weight="medium" style={{ fontSize: 12, lineHeight: 16 }}>
+                {tab.label}
+              </Text>
             </View>
-          ) : null}
+          ))}
         </View>
       </View>
-      <Text numberOfLines={1} color={labelColor} style={{ fontSize: type.fontSize, lineHeight: type.lineHeight, marginTop: 4, ...theme.font("medium") }}>
-        {label}
-      </Text>
-    </Pressable>
+      {accessory ? <View style={[styles.androidAccessory, glass]}>{accessory}</View> : null}
+      <View accessibilityRole="tablist" aria-label={ariaLabel} pointerEvents="box-none" style={styles.androidRow}>
+        <View style={[styles.androidCapsule, glass]}>
+          {tabs.map((tab, index) => (
+            <AndroidTab key={tab.value} {...tab} context={context} width={layout?.widths[index]} fontSize={layout?.fontSize ?? 12} />
+          ))}
+        </View>
+        {circle ? <AndroidCircle {...circle} context={context} accent={accent} glass={glass} /> : null}
+      </View>
+    </View>
   )
 }
 
@@ -298,7 +495,10 @@ const items = (children: ReactNode) => childrenOfType<TabBarItemProps>(children,
 /**
  * The tab bar of a phone screen: on iOS 26 two to five tabs, each a symbol over a label, in a floating glass capsule,
  * the selected one on a pill, with an optional search or prominent tab in a circle of its own and a bottom accessory,
- * after the Plex UI phone layer (`--tab-bar-*`); on Android Material 3's navigation bar. Props follow @plexui/ui.
+ * after the Plex UI phone layer (`--tab-bar-*`). On Android the tabs stand in a capsule of see-through glass,
+ * each a symbol over a label, the selected one on its own pill of the accent, the search or prominent tab in a circle
+ * beside it.
+ * Props follow @plexui/ui.
  */
 function TabBarRoot({
   value: valueProp,
@@ -311,6 +511,7 @@ function TabBarRoot({
   onMinimizedChange,
   background = "soft",
   scrolled = false,
+  canvasColor,
   accessory,
   safeArea = true,
   "aria-label": ariaLabel = "Tabs",
@@ -324,7 +525,7 @@ function TabBarRoot({
   const [ownValue, setOwnValue] = useState(defaultValue ?? tabs[0]?.props.value)
   const value = valueProp ?? ownValue
   const [ownMinimized, setOwnMinimized] = useState(defaultMinimized)
-  // Android's navigation bar has no minimized state
+  // The Android bar has no minimized state
   const minimized = theme.isIOS && (minimizedProp ?? ownMinimized)
   const select = (next: string) => {
     if (valueProp === undefined) setOwnValue(next)
@@ -335,27 +536,33 @@ function TabBarRoot({
     onMinimizedChange?.(false)
   }
   const searchTab: TabBarItemProps | undefined = search ? { value: search.value, label: search.label ?? "Search", icon: <Search /> } : undefined
+  const prominentTab: TabBarItemProps | undefined = prominent ? { value: prominent.value, label: prominent.label, icon: prominent.icon } : undefined
   // The prominent tab takes the circle of the search tab, and search joins the capsule as its last tab
-  const circle: TabBarItemProps | undefined = prominent ? { value: prominent.value, label: prominent.label, icon: prominent.icon } : searchTab
-  const capsuleTabs: TabBarItemProps[] = [...tabs.map((tab) => tab.props), ...(prominent && searchTab ? [searchTab] : [])]
+  const circle = prominentTab ?? searchTab
+  const capsuleTabs: TabBarItemProps[] = [...tabs.map((tab) => tab.props), ...(prominentTab && searchTab ? [searchTab] : [])]
   const shown = minimized ? capsuleTabs.filter((tab) => tab.value === value).slice(0, 1) : capsuleTabs
   const visible = shown.length ? shown : capsuleTabs.slice(0, 1)
-  const reachable = [...(theme.isAndroid ? capsuleTabs : visible), ...(circle ? [circle] : [])]
+  const reachable = [...visible, ...(circle ? [circle] : [])]
   const keys = useTabKeys(reachable, value, select)
   const context: TabBarContextValue = { value, minimized, select, expand, keys }
 
   if (theme.isAndroid) {
-    const all = circle ? [...capsuleTabs, circle] : capsuleTabs
     return (
       <TabBarContext.Provider value={context}>
-        <View {...rest} accessibilityRole="tablist" aria-label={ariaLabel} style={[{ backgroundColor: theme.material.surfaceContainer, paddingBottom: safeArea ? insets.bottom : 0 }, style]}>
-          {accessory ? <View style={styles.androidAccessory}>{accessory}</View> : null}
-          <View style={styles.androidRow}>
-            {all.map((tab) => (
-              <Tab key={tab.value} {...tab} context={context} />
-            ))}
-          </View>
-        </View>
+        <AndroidBar
+          context={context}
+          tabs={capsuleTabs}
+          circle={circle}
+          accent={!!prominentTab}
+          accessory={accessory}
+          background={background}
+          scrolled={scrolled}
+          canvasColor={canvasColor}
+          safeArea={safeArea}
+          ariaLabel={ariaLabel}
+          rest={rest}
+          style={style}
+        />
       </TabBarContext.Provider>
     )
   }
@@ -370,26 +577,32 @@ function TabBarRoot({
   const capsulePadding = theme.length("--tab-bar-capsule-padding-block", 4)
   const accessoryGap = theme.length("--tab-bar-accessory-gap", 8)
   const minimizedGap = theme.length("--tab-bar-minimized-accessory-gap", 13.33)
-  const canvas = theme.colors.background
+  const canvas = canvasColor ?? theme.colors.background
   const veil = withAlpha(canvas, parseFloat(String(theme.token("--page-bar-veil-opacity") ?? "55")) / 100)
   const backdrop =
     background === "hard" ? (
       <BarBackdrop fill={canvas} line={scrolled ? theme.color("--page-bar-hard-line") : undefined} edge="top" />
     ) : background === "glass" && scrolled ? (
-      <BarBackdrop fill={veil} blur={6} line={theme.color("--page-bar-line")} edge="top" />
+      <BarBackdrop fill={veil} blur={glassBarBlur(theme)} line={theme.color("--page-bar-line")} edge="top" />
     ) : null
   // The accessory keeps one place in the tree, so its state lives through a minimize: above the capsule, or between
   // the two circles as tall as they are. The bar keeps its height either way, as TabBar.module.css
+  const sideLeft = gutter + (safeArea ? insets.left : 0)
+  const sideRight = gutter + (safeArea ? insets.right : 0)
   const accessoryPlace: ViewStyle = minimized
-    ? { bottom: paddingBottom, height: circleSize, left: gutter + circleSize + minimizedGap, right: gutter + (circle ? circleSize + minimizedGap : 0) }
-    : { top: padTop, height: accessoryHeight, left: gutter, right: gutter }
+    ? { bottom: paddingBottom, height: circleSize, left: sideLeft + circleSize + minimizedGap, right: sideRight + (circle ? circleSize + minimizedGap : 0) }
+    : { top: padTop, height: accessoryHeight, left: sideLeft, right: sideRight }
   return (
     <TabBarContext.Provider value={context}>
       <View
         {...rest}
         accessibilityRole="tablist"
         aria-label={ariaLabel}
-        style={[{ paddingTop: padTop + (accessory ? accessoryHeight + accessoryGap : 0), paddingBottom, paddingHorizontal: gutter }, style]}
+        style={[
+          { paddingTop: padTop + (accessory ? accessoryHeight + accessoryGap : 0), paddingBottom },
+          physicalPadding(sideLeft, sideRight),
+          style,
+        ]}
       >
         {backdrop}
         {accessory ? (
@@ -470,12 +683,32 @@ const styles = StyleSheet.create({
   pill: { position: "absolute", borderRadius: 999 },
   iosIcon: { alignItems: "center", justifyContent: "center" },
   iosBadge: { position: "absolute", left: "50%", alignItems: "center", justifyContent: "center" },
-  androidRow: { height: 64, flexDirection: "row" },
-  androidAccessory: { height: 48, paddingHorizontal: 16, flexDirection: "row", alignItems: "center" },
-  androidItem: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 6 },
-  androidIndicator: { width: 56, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center" },
-  androidLayer: { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, borderRadius: 16 },
   androidIconBox: { width: 24, height: 24 },
-  androidBadge: { position: "absolute", minWidth: 16, height: 16, paddingHorizontal: 4, borderRadius: 8, alignItems: "center", justifyContent: "center" },
-  androidDot: { position: "absolute", width: 6, height: 6, borderRadius: 3 },
+  // A frame 0 wide 11dp past the tab's middle and 10 under its top: a dot or a one-digit badge centers on it, a wider
+  // one keeps its start there (2dp past the icon's end) and grows toward the end, so its label never covers the
+  // symbol, as Material's large badge
+  androidBadgeFrame: { position: "absolute", top: 10, left: "50%", marginLeft: 11, width: 0, height: 0, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  androidBadge: {
+    position: "absolute",
+    // Its start half its least width before the frame: the least badge centers on it, a wider one grows to the end
+    start: -(16 + 2 * 1.33) / 2,
+    minWidth: 16 + 2 * 1.33,
+    height: 16 + 2 * 1.33,
+    paddingHorizontal: 4 + 1.33,
+    borderRadius: 8 + 1.33,
+    borderWidth: 1.33,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  androidDot: { position: "absolute", width: 6 + 2 * 1.33, height: 6 + 2 * 1.33, borderRadius: 3 + 1.33, borderWidth: 1.33 },
+  measureBox: { position: "absolute", top: 0, left: 0, width: 0, height: 0, overflow: "hidden", opacity: 0 },
+  measureRow: { position: "absolute", top: 0, left: 0, width: 2000, flexDirection: "row", alignItems: "flex-start" },
+  androidBar: { paddingTop: 8, gap: 8 },
+  androidRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: ANDROID_GAP },
+  androidCapsule: { height: 56, borderRadius: 28, padding: 4, flexDirection: "row", alignItems: "center" },
+  androidPill: { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, borderRadius: 24 },
+  androidTab: { height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center", gap: 0 },
+  androidCircle: { width: 56, height: 56, borderRadius: 28, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  androidCircleLayer: { position: "absolute", top: 0, bottom: 0, left: 0, right: 0 },
+  androidAccessory: { minHeight: 56, borderRadius: 28, paddingStart: 8, paddingEnd: 4, flexDirection: "row", alignItems: "center" },
 })

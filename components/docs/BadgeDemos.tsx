@@ -13,11 +13,13 @@ const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
 // What leads the text: nothing, an icon, or a loading indicator (a badge of a task in progress)
 const LEADING_OPTIONS = ['none', 'icon', 'loading'] as const;
 const LABELS = { none: 'New', icon: 'Beta', loading: 'In progress' } as const;
+// A badge with a cross is a tag the reader added and can take back: a topic, or a file on its way up
+const TAG_LABELS = { none: 'Design', icon: 'Research', loading: 'Uploading' } as const;
 
 /** The Overview, with every setting of a badge: what the page's examples once showed one by one (Colors &
  * variants, Size & roundness, Icon, Remove, Loading) are its settings (owner 11.11: «в первом примере можно сразу
- * показать все со всеми настройками»). `onRemove` adds the cross; pressing it removes the badge, and Show again
- * brings it back. */
+ * показать все со всеми настройками»). `onRemove` adds the cross and makes the badge a tag; pressing it removes the
+ * badge, and Show again brings it back. */
 export function BadgeOverviewDemo() {
   const [color, setColor] = useState<(typeof COLORS)[number]>('info');
   const [variant, setVariant] = useState<(typeof VARIANTS)[number]>('soft');
@@ -26,7 +28,7 @@ export function BadgeOverviewDemo() {
   const [leading, setLeading] = useState<(typeof LEADING_OPTIONS)[number]>('none');
   const [onRemove, setOnRemove] = useState(false);
   const [shown, setShown] = useState(true);
-  const label = LABELS[leading];
+  const label = (onRemove ? TAG_LABELS : LABELS)[leading];
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>

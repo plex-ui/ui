@@ -1,53 +1,116 @@
 ---
 title: Switch
-description: Toggle switch for turning settings on or off; the iOS 26 switch on iOS, Material 3 Expressive's switch on Android, usually as the trailing control of a list row.
+description: Toggle switch for turning a setting on or off at once, as the trailing control of a list row.
+metaDescription: Toggle switch for turning settings on or off, as the trailing control of a list row with its label and description; the iOS 26 switch on iOS, a 31x14dp track under a 20dp thumb on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const [on, setOn] = useState(true)
+export const overviewCode = `import { List, ListItem, Switch, ThemeProvider } from "@plexui/react-native"
 
-<Switch checked={on} onCheckedChange={setOn} accessibilityLabel="Notifications" />
-<Switch accessibilityLabel="Weekly summary" />
-<Switch defaultChecked disabled accessibilityLabel="Locked on" />
-<Switch disabled accessibilityLabel="Locked off" />`
+// The app's on color, set once on its ThemeProvider: "primary" (the default) or "accent"
+const [selectionColor, setSelectionColor] = useState<"primary" | "accent">("accent")
+const [description, setDescription] = useState(false)
+const [disabled, setDisabled] = useState(false)
 
-export const settingsCode = `<List>
-  <ListItem label="Wi-Fi" trailing={<Switch checked={wifi} onCheckedChange={setWifi} accessibilityLabel="Wi-Fi" />} />
+<ThemeProvider selectionColor={selectionColor}>
+  {/* Each switch is the trailing control of a row, which holds its label and description; a disabled row dims them */}
+  <List>
+    <ListItem
+      label="Notifications"
+      description={description ? "Messages and mentions." : undefined}
+      disabled={disabled}
+      trailing={<Switch accessibilityLabel="Notifications" defaultChecked disabled={disabled} />}
+    />
+    <ListItem
+      label="Weekly summary"
+      description={description ? "Sent on Mondays." : undefined}
+      disabled={disabled}
+      trailing={<Switch accessibilityLabel="Weekly summary" disabled={disabled} />}
+    />
+  </List>
+</ThemeProvider>`
+
+export const controlledCode = `const [checked, setChecked] = useState(false)
+
+<List>
   <ListItem
-    label="Bluetooth"
-    description="Find nearby devices"
-    trailing={<Switch checked={bluetooth} onCheckedChange={setBluetooth} accessibilityLabel="Bluetooth" />}
+    label="Airplane mode"
+    trailing={<Switch color="accent" accessibilityLabel="Airplane mode" checked={checked} onCheckedChange={setChecked} />}
   />
 </List>`
 
-<UsageBlock>{`import { Switch } from "@plexui/react-native"`}</UsageBlock>
+export const settingsCode = `import { List, ListItem, NavigationButton, Switch, Toolbar } from "@plexui/react-native"
 
-On iOS the phone layer's 63x28 track with a 37x24 capsule thumb. On Android the switch of Android 16's Settings: Material 3's 52x32 track with a 24dp thumb that shows a check when on and an X when off, 28 while held.
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" onPress={goBack} />
+  </Toolbar.Leading>
+  <Toolbar.Title>Preferences</Toolbar.Title>
+</Toolbar>
+<ScrollView contentContainerStyle={{ paddingTop: 10, paddingHorizontal: 16, paddingBottom: 16, gap: 16.33 }}>
+  <List header="Notifications">
+    <ListItem label="Push notifications" trailing={<Switch color="accent" accessibilityLabel="Push notifications" defaultChecked />} />
+    <ListItem label="Product updates" description="A few emails a month." trailing={<Switch color="accent" accessibilityLabel="Product updates" />} />
+  </List>
+  <List header="Privacy" footer="You can change your data sharing preference at any time.">
+    <ListItem label="Share usage data" trailing={<Switch color="accent" accessibilityLabel="Share usage data" />} />
+    <ListItem
+      label="Security alerts"
+      description="Required for your account."
+      disabled
+      trailing={<Switch color="accent" accessibilityLabel="Security alerts" defaultChecked disabled />}
+    />
+  </List>
+</ScrollView>`
+
+<UsageBlock>{`import { Switch } from "@plexui/react-native"`}</UsageBlock>
 
 ## Examples
 
-### States
+<span id="label-and-description" />
 
-<RNPreview demo="switch/Overview" code={overviewCode} />
+### Overview
 
-### In settings rows
+<ComponentPreview details={<>
+  <p>On a phone, put switches in labelled rows with a trailing control: a <code>ListItem</code> holds the label and description, and the <code>Switch</code> ends the row. The overview and the controlled example compare one row or two; the settings screen shows them in context.</p>
+  <p>One setting on and one off, each the <code>trailing</code> control of a <code>ListItem</code>; give the switch the row's label as its <code>accessibilityLabel</code>. On iOS it is the 63x28 track of the iOS 26 switch with a 37x24 capsule thumb; on Android a 31x14dp track under a 20dp thumb, a ring of the track's color around a knob of the card's color, the track turning from gray to the on color as the thumb slides in 200ms. There it stands 22dp in from the row's end and draws no press of its own: the row shows the press.</p>
+  <p>Without <code>color</code> a switch takes the <code>selectionColor</code> of its <code>ThemeProvider</code>, set once for the app: <code>"primary"</code> (the default) is the Plex primary, the ink, as on the web (on iOS at night the switch turns the web's blue, <code>--switch-track-color-checked</code>), and <code>"accent"</code> is each platform&apos;s own on color, the system green on iOS and the accent on Android. <code>color</code> on one switch overrides it. A row's <code>description</code> puts a second line under its label. A switch with a <code>label</code> of its own takes <code>labelPosition</code>; in a row the label stays at the start and the switch trails it, so the example does not offer it. <code>disabled</code> keeps a switch as it is: on retains a muted color, off the neutral track (on Android the switch fades to half), and it takes no presses; pass it to the row as well, so its label and description dim with it.</p>
+  <p>Use <code>defaultChecked</code> for an initial value.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="switch/Overview" />
+</ComponentPreview>
 
-A phone puts a switch at the end of a list row, its label at the start.
+### Controlled state
 
-<RNPreview demo="switch/Settings" grouped code={settingsCode} />
+<ComponentPreview details={<>Change <code>checked</code> above or toggle the setting. Both update the same state, through <code>checked</code> and <code>onCheckedChange</code>. Use this pattern when your application owns the value.</>} code={controlledCode} previewMinHeight={168}>
+  <RNExample demo="switch/Controlled" />
+</ComponentPreview>
+
+### Grouped settings
+
+<ComponentPreview details={<>Group related settings in a <code>List</code> each. Use a row <code>description</code> to explain a locked setting, and <code>disabled</code> on the row to dim its label with the switch; a <code>footer</code> holds help that applies to the group. The screen has a top bar with a back button, as a pushed settings page does.</>} code={settingsCode} previewMinHeight={168}>
+  <RNExample demo="switch/Settings" screen grouped />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Toggle (switch style) | Switch |
+| Look | The iOS 26 switch, a capsule with a sliding knob | A 31x14dp track under a 20dp thumb that slides across it |
 
 ## API
 
 <PropsTable data={[
   { prop: "checked", type: "boolean", description: "Controlled state" },
-  { prop: "defaultChecked", type: "boolean", description: "Initial state (uncontrolled)" },
-  { prop: "onCheckedChange", type: "(next: boolean) => void", description: "Called when toggled" },
-  { prop: "color", type: '"primary" | "accent"', default: '"primary"', description: "On track: the Plex primary (the ink, or a brand's) or the accent" },
+  { prop: "defaultChecked", type: "boolean", default: "false", description: "Initial state (uncontrolled)" },
+  { prop: "onCheckedChange", type: "(nextState: boolean) => void", description: "Called when toggled" },
+  { prop: "color", type: '"primary" | "accent"', default: "ThemeProvider's selectionColor", description: "On track: the Plex primary (the ink, or a brand's) or the accent" },
   { prop: "label", type: "ReactNode", description: "A label beside the switch" },
   { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
   { prop: "labelPosition", type: '"start" | "end"', default: '"end"', description: "Where the label stands" },
-  { prop: "disabled", type: "boolean", default: "false", description: "Takes no presses" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Keeps its state, mutes it and takes no presses" },
   { prop: "accessibilityLabel", type: "string", description: "Name of a switch without a label" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the switch's row" },

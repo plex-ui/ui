@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+description: Modal dialog for confirmations, forms and destructive alerts, with a focus trap and an overlay scrim.
 metaDescription: Accessible React modal dialog component for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 ---
 
@@ -78,10 +78,6 @@ export function DetailsDialogExample() {
 
 <UsageBlock>{`import { Dialog } from "@plexui/ui/components/Dialog";`}</UsageBlock>
 
-At 767px and below a dialog is one of the two modal views of iOS. `mobileVariant="alert"` (or `mobilePlacement="center"`) presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Any other dialog is a Sheet, the default, for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance.
-
-Two alert actions stand side by side and wrap onto separate rows when their labels need more space; three or more stack, as on iOS. Set `<Dialog.Footer mobileLayout="stacked">` when two actions should stack too. A title without a message stands centered. Put long sheet content in `Dialog.Body` to keep the header and actions visible while the body scrolls.
-
 ## Examples
 
 ### Overview
@@ -90,7 +86,11 @@ Two alert actions stand side by side and wrap onto separate rows when their labe
 <span id="three-actions" />
 <span id="text-field" />
 
-<ComponentPreview phonePresentation="screen" phoneDialog details={<>On a phone a dialog is one of the two modal views of iOS: an Alert (<code>mobileVariant="alert"</code>), a short question with its answers, or a Sheet, which it is by default (see <a href="#placement">Placement</a>). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. <code>Dialog.Footer mobileLayout="stacked"</code> stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (<code>color="danger"</code>: a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.</>} code={`const [open, setOpen] = useState(false)
+<ComponentPreview phonePresentation="screen" phoneDialog details={<>
+  <p>At 767px and below a dialog is one of the two modal views of iOS. <code>mobileVariant="alert"</code> (or <code>mobilePlacement="center"</code>) presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Any other dialog is a Sheet, the default, for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance.</p>
+  <p>Two alert actions stand side by side and wrap onto separate rows when their labels need more space; three or more stack, as on iOS. Put long sheet content in <code>Dialog.Body</code> to keep the header and actions visible while the body scrolls.</p>
+  <p>On a phone a dialog is one of the two modal views of iOS: an Alert (<code>mobileVariant="alert"</code>), a short question with its answers, or a Sheet, which it is by default (see <a href="#placement">Placement</a>). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. <code>Dialog.Footer mobileLayout="stacked"</code> stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (<code>color="danger"</code>: a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.</p>
+</>} code={`const [open, setOpen] = useState(false)
 const [actions, setActions] = useState('2') // or '1', '3'
 const [destructive, setDestructive] = useState(false) // with two actions
 const [preferred, setPreferred] = useState(true) // the main action is filled
@@ -147,7 +147,7 @@ const cancel = (
       {actions === '3' && (
         <>
           {main}
-          <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t Save</Button>
+          <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t save</Button>
           {cancel}
         </>
       )}
@@ -277,7 +277,7 @@ const go = (next, to) => { setDirection(to); setStep(next) }
       <Dialog.Steps step={step} direction={direction}>
         {step === 'email' ? (
           <div className="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
-            <p>We send a code to this address.</p>
+            <p>We’ll send a code to this address.</p>
             <Input aria-label="Email" type="email" autoComplete="email" placeholder="Email address" variant="soft" size="3xl" pill />
           </div>
         ) : (
@@ -364,7 +364,7 @@ const dirty = note.trim() !== ''
     confirmClose={dirty && { message: 'Are you sure you want to discard this new note?' }}
   >
     <Dialog.Header>
-      <Dialog.Title>New Note</Dialog.Title>
+      <Dialog.Title>New note</Dialog.Title>
       {phone && (
         <Dialog.HeaderAction>
           <NavigationButton action="confirm" aria-label="Save" disabled={!dirty} onClick={() => setOpen(false)} />

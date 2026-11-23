@@ -77,6 +77,18 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
   },
 ];
 
+/**
+ * The groups of the React Native pages that have no React page (the others are in their React page's group): the
+ * sheets with the overlays, the chip with the selection controls, the list and the text with the content.
+ */
+export const NATIVE_ONLY_GROUPS: Readonly<Record<string, ComponentGroup['id']>> = {
+  'action-sheet': 'overlays',
+  'bottom-sheet': 'overlays',
+  chip: 'selection',
+  list: 'content',
+  text: 'content',
+};
+
 /** The page order: the groups, one after another */
 export const COMPONENT_PAGE_ORDER: readonly string[] = COMPONENT_GROUPS.flatMap((group) => group.slugs);
 

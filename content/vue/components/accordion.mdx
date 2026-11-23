@@ -1,6 +1,6 @@
 ---
 title: Accordion
-description: Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
+description: Vertically stacked panels that expand to reveal content, with one or several items open at a time.
 metaDescription: Vue 3 accordion component built on Reka UI with vertically stacked panels that expand to reveal content, single or multiple open items, and keyboard navigation.
 ---
 
@@ -88,10 +88,6 @@ ${overview}
   AccordionTrigger,
 } from "@plexui/vue/components/Accordion";`}</UsageBlock>
 
-Compose with `AccordionItem`, `AccordionTrigger`, and `AccordionContent`. Built on Reka UI Accordion, with the same keyboard navigation, focus management, and WAI-ARIA semantics as the React version.
-
-On a phone an item reads as an iOS 27.2 DisclosureGroup in an inset grouped list: a 52px row with its title at 17/22 regular and a chevron in the label color that points to the end and turns down when the item opens. The chevron is 21px and ends 1px past the title's margin, where iOS draws it. The content is a row under the title, 17/22 in the label color, 20px in from it, with a separator above it across the row; under an open item the separator starts where the content does, as under the last row a group holds.
-
 ## Examples
 
 {/* The examples Single, Multiple, Card and Disabled are settings of the Overview now (owner 11.11) */}
@@ -102,7 +98,11 @@ On a phone an item reads as an iOS 27.2 DisclosureGroup in an inset grouped list
 
 ### Overview
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>Set <code>type</code> to <code>multiple</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A <code>single</code> accordion with <code>collapsible</code> lets readers close the open item; without it one item is always open. <code>card</code> composes the accordion inside <code>Card</code>, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</>} code={overviewCode} codeValues={{ type: "single", collapsible: true, card: false, returnsDisabled: false }} codeExamples={[{ name: "Multiple", values: { type: "multiple" }, details: "Use type=\"multiple\" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references." }, { name: "Card", values: { card: true }, details: "Composed inside Card, the most common landing-page FAQ pattern." }]}>
+<ComponentPreview phonePresentation="screen" language="vue" details={<>
+  <p>Compose with <code>AccordionItem</code>, <code>AccordionTrigger</code>, and <code>AccordionContent</code>. Built on Reka UI Accordion, with the same keyboard navigation, focus management, and WAI-ARIA semantics as the React version.</p>
+  <p>On a phone an item reads as an iOS 27.2 DisclosureGroup in an inset grouped list: a 52px row with its title at 17/22 regular and a chevron in the label color that points to the end and turns down when the item opens. The chevron is 21px and ends 1px past the title's margin, where iOS draws it. The content is a row under the title, 17/22 in the label color, 20px in from it, with a separator above it across the row; under an open item the separator starts where the content does, as under the last row a group holds.</p>
+  <p>Set <code>type</code> to <code>multiple</code> when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A <code>single</code> accordion with <code>collapsible</code> lets readers close the open item; without it one item is always open. <code>card</code> composes the accordion inside <code>Card</code>, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The <code>returnsDisabled</code> control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.</p>
+</>} code={overviewCode} codeValues={{ type: "single", collapsible: true, card: false, returnsDisabled: false }} codeExamples={[{ name: "Multiple", values: { type: "multiple" }, details: "Use type=\"multiple\" when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references." }, { name: "Card", values: { card: true }, details: "Composed inside Card, the most common landing-page FAQ pattern." }]}>
   <VueDemo template={overview} phoneTemplate={overviewPhone} controls={overviewControls} stageClassName="py-10 w-full flex justify-center" />
 </ComponentPreview>
 

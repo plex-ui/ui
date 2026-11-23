@@ -9,6 +9,7 @@ export type {
   MaterialColors,
   PlatformStyle,
   RadiusName,
+  SelectionColor,
   Theme,
   ThemeColors,
   TokenValue,
@@ -61,15 +62,15 @@ export {
 export { Switch, type SwitchProps } from "./components/Switch/Switch"
 export { Checkbox, type CheckboxProps } from "./components/Checkbox/Checkbox"
 export { RadioGroup, type RadioGroupItemProps, type RadioGroupProps } from "./components/RadioGroup/RadioGroup"
-export { Input, TextField, type InputProps, type InputVariant, type TextFieldProps } from "./components/Input/Input"
+export { Input, InputAdornmentButton, TextField, type InputAdornmentButtonProps, type InputProps, type InputVariant, type TextFieldProps } from "./components/Input/Input"
 export { Select, type SelectOption, type SelectProps } from "./components/Select/Select"
 export { Menu, type MenuContentProps, type MenuItemProps, type MenuProps } from "./components/Menu/Menu"
 export { ActionSheet, type ActionSheetAction, type ActionSheetProps } from "./components/ActionSheet/ActionSheet"
-export { BottomSheet, type BottomSheetProps } from "./components/BottomSheet/BottomSheet"
+export { BottomSheet, type BottomSheetFooterProps, type BottomSheetProps } from "./components/BottomSheet/BottomSheet"
 export { Dialog, type DialogAction, type DialogProps } from "./components/Dialog/Dialog"
 export { Toaster, toast, type ToasterProps, type ToastId, type ToastOptions, type ToastT, type ToastType } from "./components/Toast/Toast"
 
-export { Avatar, AvatarGroup, type AvatarColor, type AvatarGroupProps, type AvatarProps } from "./components/Avatar/Avatar"
+export { Avatar, AvatarGroup, type AvatarColor, type AvatarGroupProps, type AvatarProps, type AvatarVariant } from "./components/Avatar/Avatar"
 export { Badge, type BadgeColor, type BadgeProps, type BadgeSize, type BadgeVariant } from "./components/Badge/Badge"
 export { Card, type CardMediaProps, type CardProps, type CardSize, type CardVariant } from "./components/Card/Card"
 export { List, ListItem, type ListItemProps, type ListProps } from "./components/List/List"

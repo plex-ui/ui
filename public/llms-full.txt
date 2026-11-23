@@ -26,7 +26,7 @@ Variants: solid, soft, outline, ghost
 ---
 
 ## Accordion
-Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.
+Vertically stacked panels that expand to reveal content, with one or several items open at a time.
 Import: import { Accordion } from "@plexui/ui/components/Accordion"
 Docs: https://plexui.com/components/accordion
 Props:
@@ -45,7 +45,7 @@ Props:
     - className (string) default: — — Applied to the item wrapper
 
 ### Overview
-Set type to multiple when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A single accordion with collapsible lets readers close the open item; without it one item is always open. card composes the accordion inside Card, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.
+Compose with Accordion.Item, Accordion.Trigger, and Accordion.Content. Built on Radix Accordion, so the primitive handles keyboard navigation, focus management, and WAI-ARIA semantics. On a phone an item reads as an iOS 27.2 DisclosureGroup in an inset grouped list: a 52px row with its title at 17/22 regular and a chevron in the label color that points to the end and turns down when the item opens. The chevron is 21px and ends 1px past the title's margin, where iOS draws it. The content is a row under the title, 17/22 in the label color, 20px in from it, with a separator above it across the row; under an open item the separator starts where the content does, as under the last row a group holds. Set type to multiple when readers can keep several sections open at once: settings pages, long FAQs, step-by-step references. A single accordion with collapsible lets readers close the open item; without it one item is always open. card composes the accordion inside Card, the most common landing-page FAQ pattern; on a phone the card is a section of the grouped list. The returnsDisabled control disables only the return-policy item. It remains visible and keeps its open state, while keyboard navigation skips its trigger.
 ```tsx
 const [returnsDisabled, setReturnsDisabled] = useState(false)
 
@@ -122,7 +122,7 @@ const [returnsDisabled, setReturnsDisabled] = useState(false)
 ```
 
 ## Alert
-Inline message for notices and warnings with semantic colors, variants, a title, a description, action slots, and a dismiss control.
+Inline message for notices and warnings, with semantic colors, a title, a description and actions.
 Import: import { Alert } from "@plexui/ui/components/Alert"
 Docs: https://plexui.com/components/alert
 Props:
@@ -173,7 +173,7 @@ const [banner, setBanner] = useState(false)
 ```
 
 ## Avatar Group
-Stacks user avatars into a single overlapping cluster, with a configurable stacking direction and one size for the whole group.
+Stacks user avatars into a single overlapping cluster, with one size for the whole group.
 Import: import { Avatar, AvatarGroup } from "@plexui/ui/components/Avatar"
 Docs: https://plexui.com/components/avatar-group
 Props:
@@ -204,7 +204,7 @@ export function Example() {
 ```
 
 ## Avatar
-An avatar for user identities that shows an initial, a photo or an icon, with overflow counts, semantic colors and roundness options.
+An avatar for a user identity that shows an initial, a photo, an icon or an overflow count.
 Import: import { Avatar } from "@plexui/ui/components/Avatar"
 Docs: https://plexui.com/components/avatar
 Props:
@@ -247,7 +247,7 @@ const rounded = { full: "rounded-full", xl: "rounded-xl", lg: "rounded-lg", md: 
 ```
 
 ## Badge
-Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
+Compact label for statuses and inline metadata, with semantic colors, variants, sizes and icons.
 Import: import { Badge } from "@plexui/ui/components/Badge"
 Docs: https://plexui.com/components/badge
 Props:
@@ -271,7 +271,8 @@ const [pill, setPill] = useState(false)
 const [leading, setLeading] = useState("none") // or "icon", "loading"
 const [onRemove, setOnRemove] = useState(false)
 const [shown, setShown] = useState(true)
-const label = { none: "New", icon: "Beta", loading: "In progress" }[leading]
+// A badge with a cross is a tag the reader added
+const label = (onRemove ? { none: "Design", icon: "Research", loading: "Uploading" } : { none: "New", icon: "Beta", loading: "In progress" })[leading]
 
 {shown ? (
 <Badge
@@ -295,7 +296,7 @@ const label = { none: "New", icon: "Beta", loading: "In progress" }[leading]
 ```
 
 ## Breadcrumb
-The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.
+The trail of pages that leads to the current one, above a page title, with links and the current page.
 Import: import { Breadcrumb } from "@plexui/ui/components/Breadcrumb"
 Docs: https://plexui.com/components/breadcrumb
 Props:
@@ -365,7 +366,7 @@ Props:
     - className (string) default: — — Applied to the wrapper
 
 ### Overview
-Set size on every Button inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (uniform) with text buttons; each child keeps its own padding. Place a ButtonGroup inside a ButtonGroup to make sub-groups, as Back, Pin and Tag, Bookmark and More here, or a pager's pages beside its arrows: the outer group sets a gap between them (--button-group-nested-gap, 8px) and each sub-group stays joined. On a phone with touch.css a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own. On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.
+Wraps any row of controls (Button, Input, Popover.Trigger, etc.) and removes the shared border so they read as one unit. On a phone with touch.css a group of buttons in a Toolbar is the Button Group of iOS: one glass capsule holding its buttons, the same as Toolbar.Group. mobileMaterial="glass" asks for the capsule outside a toolbar, for controls that float over the content. iOS has no joined buttons in the content, so a group there keeps its joined look at the touch sizes. A field among glass buttons comes apart from them, each a glass shape of its own, as the composer of iOS Messages. The Phone view of each example shows the group where iOS puts it, in a bar or floating at the bottom of the screen, or the screen iOS builds where it has no such group. Set size on every Button inside the group so corner radii match; the size setting here sets all of them. Mix icon-only (uniform) with text buttons; each child keeps its own padding. Place a ButtonGroup inside a ButtonGroup to make sub-groups, as Back, Pin and Tag, Bookmark and More here, or a pager's pages beside its arrows: the outer group sets a gap between them (--button-group-nested-gap, 8px) and each sub-group stays joined. On a phone with touch.css a group in the content keeps one height. Beside text buttons its icon-only buttons take the heights of the iOS small (28px, sm) and medium (34px, md and lg) buttons; a group of icon-only buttons keeps their 44px, and beside a text field or a select every button takes the field's 44px. Joined segments have no iOS control of their own. On a phone the example is the bars of a note, as in iOS Notes: Back alone, the note's actions in one glass capsule on top, the editing tools in one at the bottom beside New Note. A ButtonGroup in a Toolbar is that capsule, as iOS 27.2 sets it: 44px buttons 10px apart in a 154px capsule on top, 48px ones 8px apart in a 164px capsule at the bottom, the symbols in the primary label color. Groups side by side stand apart as the bar's items do. The bar sets its buttons' size, so the phone view leaves out the size control.
 ```tsx
 const [size, setSize] = useState("sm")
 
@@ -641,7 +642,7 @@ const heading = useRef<HTMLDivElement>(null)
 ```
 
 ## Button
-Button with four variants (solid, soft, outline, ghost), eight semantic colors, icon slots, loading, and block layout, and ButtonLink, a link styled as a button.
+Button for an action, in four variants and eight semantic colors, and ButtonLink, a link styled as a button.
 Import: import { Button, ButtonLink } from "@plexui/ui/components/Button"
 Docs: https://plexui.com/components/button
 Props:
@@ -752,7 +753,7 @@ Use opticallyAlign with either "start" or "end" to offset the gutter of the butt
 ```
 
 ## Card
-A surface that groups a title, a description, content and actions, in an outline, solid or ghost style, and as a link.
+A surface that groups a title, a description, content and actions, in an outline, solid or ghost style.
 Import: import { Card } from "@plexui/ui/components/Card"
 Docs: https://plexui.com/components/card
 Props:
@@ -800,7 +801,7 @@ const [link, setLink] = useState(false)
 ```
 
 ## Checkbox
-Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
+Checkbox for binary on/off selection, with solid, pill and ghost variants and an indeterminate state.
 Import: import { Checkbox } from "@plexui/ui/components/Checkbox"
 Docs: https://plexui.com/components/checkbox
 Props:
@@ -822,7 +823,7 @@ Props:
   - onBlur ((event: FocusEvent) => void) — Called when the checkbox loses focus
 
 ### Overview
-A checkbox is checked, unchecked or indeterminate. Pass checked="indeterminate", or defaultChecked="indeterminate", for a partly selected state: a "select all" box whose items are only partly checked, as in Group with select all. solid (default) fills the box; ghost renders only the checkmark, in the text color, without a border or background, for subtle inline selections or task lists. pill rounds the box (border-radius: full): the solid fill, and on a ghost box its hover tint and focus ring. Use description for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. By default the box is on the left of its label; orientation="right" places it after the label. Both act only next to a label, so they are offered only with one. Without a label the checkbox is a standalone control: pass aria-label to name it. disabled keeps the checked and indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view has no pill setting. A ghost checkbox is the checkmark of an iOS list row.
+On Phone, a single checkbox stays next to its label, while a list of options goes in the rows of a FieldGroup: each Field row names an option and ends with the checkbox, as in an iOS settings list. A checkbox is checked, unchecked or indeterminate. Pass checked="indeterminate", or defaultChecked="indeterminate", for a partly selected state: a "select all" box whose items are only partly checked, as in Group with select all. solid (default) fills the box; ghost renders only the checkmark, in the text color, without a border or background, for subtle inline selections or task lists. pill rounds the box (border-radius: full): the solid fill, and on a ghost box its hover tint and focus ring. Use description for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through aria-describedby. By default the box is on the left of its label; orientation="right" places it after the label. Both act only next to a label, so they are offered only with one. Without a label the checkbox is a standalone control: pass aria-label to name it. disabled keeps the checked and indeterminate states. On a phone with touch.css a solid checkbox is the 22px selection circle of iOS with or without pill, so the phone view has no pill setting. A ghost checkbox is the checkmark of an iOS list row.
 ```tsx
 const [variant, setVariant] = useState("solid")
 const [pill, setPill] = useState(false)
@@ -832,9 +833,9 @@ const [orientation, setOrientation] = useState("left") // with a label
 const [disabled, setDisabled] = useState(false)
 
 const options = [
-{ label: "Share usage data", description: "Help improve the product with anonymous usage reports.", defaultChecked: true },
-{ label: "Enable notifications", description: "You can enable or disable notifications at any time from settings.", defaultChecked: false },
-{ label: "Sync all folders", description: "Some of its folders are synced.", defaultChecked: "indeterminate" },
+{ label: "Photos", description: "Back up photos and videos over Wi-Fi.", defaultChecked: true },
+{ label: "Messages", description: "Include chats and attachments in each backup.", defaultChecked: false },
+{ label: "Folders", description: "3 of 5 folders are backed up.", defaultChecked: "indeterminate" },
 ]
 
 <div className={label ? (description ? "flex flex-col gap-4 max-w-sm" : "flex flex-col gap-3") : "flex gap-4"}>
@@ -857,9 +858,9 @@ const options = [
 Combine a parent checkbox with child checkboxes to create a "select all" pattern. The parent shows an indeterminate state when only some children are checked. Each child is controlled by its item in items.
 ```tsx
 const [items, setItems] = useState([
-{ id: "read", label: "Read", checked: true },
-{ id: "write", label: "Write", checked: false },
-{ id: "execute", label: "Execute", checked: false },
+{ id: "photos", label: "Photos", checked: true },
+{ id: "contacts", label: "Contacts", checked: true },
+{ id: "messages", label: "Messages", checked: false },
 ])
 
 const allChecked = items.every((i) => i.checked)
@@ -868,7 +869,7 @@ const parentChecked = allChecked ? true : noneChecked ? false : "indeterminate"
 
 <div className="flex flex-col gap-3">
 <Checkbox
-  label="Permissions"
+  label="Back up"
   checked={parentChecked}
   onCheckedChange={() => {
     const next = !allChecked
@@ -1095,7 +1096,7 @@ setSettings((prev) => ({ ...prev, [key]: !prev[key] }))
 ```
 
 ## Code Block
-Code block with syntax highlighting, a copy button, and collapsible long snippets with configurable expanded height limits.
+Code block with syntax highlighting, a copy button, and collapsible long snippets.
 Import: import { CodeBlock } from "@plexui/ui/components/CodeBlock"
 Docs: https://plexui.com/components/code-block
 Props:
@@ -1135,7 +1136,7 @@ const [copyable, setCopyable] = useState(true)
 ```
 
 ## Color Picker
-"The iOS 27.2 system color picker: Grid, Spectrum and Sliders, an Opacity slider and saved colors, and the color well that opens it in a popover or, on a phone, a sheet."
+"A color well and the iOS color picker it opens, for choosing a color from a grid, a spectrum or sliders."
 Import: import { ColorPicker, ColorWell } from "@plexui/ui/components/ColorPicker"
 Docs: https://plexui.com/components/color-picker
 Props:
@@ -1163,7 +1164,7 @@ Props:
     - aria-labelledby (string) — The `id` of the visible label of the well
 
 ### Color well
-The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null), as Highlight here. It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar. size takes the kit's two sizes, sm 28px (the default) and lg 36px, and xs 24px for the start of a 32px field. A disabled well can't be opened.
+A color well shows a color and opens the system color picker, where people choose a color from a grid, a spectrum or sliders, set its opacity and save colors they use again, as in iOS 27.2. Use ColorWell for a setting that is a color; use ColorPicker on its own to put the picker in a surface of your own. The well shows the chosen color inside a rainbow ring, or the full rainbow when there is no color yet (null), as Highlight here. It opens the picker in a popover from the well, and on a phone in a sheet. The eyedropper appears where the browser can pick a color from the screen; on a phone the sheet's bar has Close first and the eyedropper last, as iOS 27.2 sets them. Both wells here share their saved colors. On a phone the rows sit in an iOS settings screen under its toolbar. size takes the kit's two sizes, sm 28px (the default) and lg 36px, and xs 24px for the start of a 32px field. A disabled well can't be opened.
 ```tsx
 const [tint, setTint] = useState('#af52de')
 const [swatches, setSwatches] = useState(['#000000', '#007aff', '#34c759'])
@@ -1221,7 +1222,7 @@ const [color, setColor] = useState('#be38f3')
 ```
 
 ## Context Menu
-"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
+"A menu of actions for an element, opened by a secondary click or, on a touch screen, a touch and hold."
 Import: import { ContextMenu } from "@plexui/ui/components/ContextMenu"
 Docs: https://plexui.com/components/context-menu
 Props:
@@ -1235,7 +1236,7 @@ Props:
     - aria-label (string) — Names the menu for assistive technology, in place of the name of its element
 
 ### Overview
-Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, on the side where the element stands, as iOS 27.2 places it: at the element's start edge in the first third of the screen, at its end edge in the last third, and centred under it in the middle. The press that opened the menu does not activate the element. An element in the lower half of the screen opens its menu 16px above it where it fits, and stays where it is. When the menu fits on neither side, it opens below and the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.
+A context menu gathers the actions for one element, such as a row, a file or a photo, without a button of its own: a secondary click (a right click or a Control click) opens it at the pointer, and on a touch screen a touch and hold opens it beside the element, as in iOS 26. Keep the actions an element already shows elsewhere too, because a context menu is easy to miss, and put the most used ones first. Wrap the element in ContextMenu.Trigger: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, on the side where the element stands, as iOS 27.2 places it: at the element's start edge in the first third of the screen, at its end edge in the last third, and centred under it in the middle. The press that opened the menu does not activate the element. An element in the lower half of the screen opens its menu 16px above it where it fits, and stays where it is. When the menu fits on neither side, it opens below and the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.
 ```tsx
 <ContextMenu>
 <ContextMenu.Trigger>
@@ -1287,7 +1288,7 @@ const [notes, setNotes] = useState(["Groceries", "Trip to Lisbon", "Book club"])
 ```
 
 ## Data Table
-"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers."
+"Table of your data on TanStack Table v8, with sorting, pagination, filtering and row selection."
 Import: import { DataTable, DataTableColumnHeader } from "@plexui/ui/components/DataTable"
 Docs: https://plexui.com/components/data-table
 Props:
@@ -1319,7 +1320,7 @@ Props:
     - tooltipHeader(label, description) (HeaderComponent) — Header with dashed underline and info tooltip
 
 ### Overview
-Use variant="bordered" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately.
+The examples import users (15 rows) and its User type from a local ./data file. Header and cell renderers are functions that return JSX, rendered with TanStack Table's flexRender. Use variant="bordered" for a card-like table with a rounded border and tinted header background. Toggle empty to supply no rows without resetting sorting or changing columns. emptyMessage selects the default message, custom text, or rich content. Filtering and its no-results state are shown separately.
 ```tsx
 import { useState } from "react"
 import { DataTable, DataTableColumnHeader, statusCell, type ColumnDef } from "@plexui/ui/components/DataTable"
@@ -1619,7 +1620,7 @@ Props:
   - placeholder (string) — Generated from the format if not set
 
 ### Overview
-Pass a Luxon DateTime (or null) as value with onChange. onChange fires once a complete, valid date is typed, and with null when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again. mode orders the day, month and year ("mm/dd/yyyy" in the US, "yyyy/mm/dd" for ISO 8601 with separator="-"), and separator is the character between them. timeMode adds a time to the date in one field, "HH:MM", "HH:MM:SS" for seconds or "HH:MM AA" for a 12-hour time, whose AM or PM completes the date; with a time, dateTimeSeparator stands between the date and the time, and timeStep lets the arrow keys step the time segment under the caret. min and max restrict the dates: a date typed past one becomes that limit (here 30 days around today, DateTime.local()). The placeholder follows the format unless you set placeholder.
+On Phone, put a date input in a row of a FieldGroup, as the Input examples and the Forms: Settings do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the variant, size, pill and invalid controls (a row shows its error as Validation does). To pick a date rather than type it, use the compact date of a Date Picker in the row. Pass a Luxon DateTime (or null) as value with onChange. onChange fires once a complete, valid date is typed, and with null when the field is emptied or cleared. Leaving the field with a partly typed date shows the value again. mode orders the day, month and year ("mm/dd/yyyy" in the US, "yyyy/mm/dd" for ISO 8601 with separator="-"), and separator is the character between them. timeMode adds a time to the date in one field, "HH:MM", "HH:MM:SS" for seconds or "HH:MM AA" for a 12-hour time, whose AM or PM completes the date; with a time, dateTimeSeparator stands between the date and the time, and timeStep lets the arrow keys step the time segment under the caret. min and max restrict the dates: a date typed past one becomes that limit (here 30 days around today, DateTime.local()). The placeholder follows the format unless you set placeholder.
 ```tsx
 const today = DateTime.local()
 const [date, setDate] = useState<DateTime | null>(null)
@@ -1714,7 +1715,7 @@ Pass errorMessage to Field to display a validation error.
 ```
 
 ## Date Picker
-Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.
+Date picker with a calendar, a time picker, month and year dropdowns, and min and max limits.
 Import: import { DatePicker } from "@plexui/ui/components/DatePicker"
 Docs: https://plexui.com/components/date-picker
 Props:
@@ -1744,7 +1745,7 @@ Props:
   - alignOffset (number) default: 0 (center), -5 (start, end) — Offset from start/end alignment in pixels
 
 ### Overview
-Pass the date (a luxon DateTime, or null) as value and update it in onChange. showTime adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. triggerTimeFormat writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a showTime trigger writes "MM/dd/yy HH:mm" unless you set triggerDateFormat. captionLayout="dropdown" adds month and year dropdowns beside the arrows, for a date of birth or a date years away; yearRange sets their years (the last 120 by default); with min or max the years are those they allow, so here it is offered without limits. min and max limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day.
+On Phone, put a date picker in a row of a FieldGroup, as the Forms: Settings do. In the row its trigger is the compact date of iOS: a capsule with the date that opens the calendar, 8px under it and, on a screen 392px wide or wider, 32px from its edge, as iOS 27.2 opens it; with a time format the date and the time are two capsules 8px apart, as Calendar shows an event's start. The row's capsule is its frame and sets its height, insets and type, and iOS opens the calendar under the row, so the Phone previews leave out the variant, size, pill, block, icon, date format and placement controls, and set {'triggerShowIcon={false}'} and the date as iOS writes it, "MMM d, yyyy". To type a date instead, put a Date Input in the row. Pass the date (a luxon DateTime, or null) as value and update it in onChange. showTime adds hour and minute fields under the calendar, which then stays open after a date is picked so the time can be set; the arrow keys step the field they are in. triggerTimeFormat writes the time after the date as a part of its own: on Phone, in a row, the date and the time are two capsules, as iOS shows an event's start. Without it, a showTime trigger writes "MM/dd/yy HH:mm" unless you set triggerDateFormat. captionLayout="dropdown" adds month and year dropdowns beside the arrows, for a date of birth or a date years away; yearRange sets their years (the last 120 by default); with min or max the years are those they allow, so here it is offered without limits. min and max limit the dates that can be picked: here 30 days either side of today, or up to today for a date of birth. Equal bounds leave one day.
 ```tsx
 const today = DateTime.local()
 const [value, setValue] = useState<DateTime | null>(null)
@@ -1927,7 +1928,7 @@ For typing a date directly instead of picking it, use DateInput, a masked input 
 ```
 
 ## Date Range Picker
-Date range picker with an interactive calendar, min/max limits, preset shortcuts, and a month stepper for selecting start and end dates.
+Date range picker with a calendar, min and max limits, preset shortcuts and a month stepper.
 Import: import { DateRangePicker } from "@plexui/ui/components/DateRangePicker"
 Docs: https://plexui.com/components/date-range-picker
 Props:
@@ -1956,7 +1957,7 @@ Props:
   - block (boolean) default: false — Stretch trigger to full available width
 
 ### Overview
-Pass the range ([start, end] luxon DateTimes, or null) as value and update it in onChange. triggerStepperUnit="month" adds a month stepper to the trigger: when the range is a whole month, the trigger shows the month with arrows to the previous and the next one. The shortcuts array offers quick ranges. When a shortcut is selected, its label is shown in the trigger and onChange receives that shortcut as its second argument. Each shortcut has a label and a getDateRange() function; here Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: a Period row with a Select of the shortcut labels above the Dates row, which reads Custom when the dates match no shortcut. min and max limit the dates that can be picked: here the last 30 days up to today. maxRangeDays limits the length of the range. weekStartsOn sets the day each week of the calendar starts on, from 0 (Sunday) to 6 (Saturday).
+On Phone, put a date range picker in a row of a FieldGroup, as the Forms: Settings do. In the row the range and its up-down chevrons end at the row's edge, as a pop-up, and open the calendar. The row is its frame and sets its height, insets and type, so the Phone preview leaves out the variant, size, pill, block, clearable, icon, date format and placement controls, sets {'triggerShowIcon={false}'}, shows short dates (triggerDateFormat="MMM d") and None when there is no range. In a row the month of a month stepper keeps the width of the longest month, so its arrows stay put when the month changes. Pass the range ([start, end] luxon DateTimes, or null) as value and update it in onChange. triggerStepperUnit="month" adds a month stepper to the trigger: when the range is a whole month, the trigger shows the month with arrows to the previous and the next one. The shortcuts array offers quick ranges. When a shortcut is selected, its label is shown in the trigger and onChange receives that shortcut as its second argument. Each shortcut has a label and a getDateRange() function; here Today, Yesterday, Last 7 days and Last 30 days. A shortcut whose range falls outside min and max, or is longer than maxRangeDays, is disabled. The calendar doesn't show shortcuts below the md breakpoint. On a phone, offer them in a row of their own, as iOS settings offer presets: a Period row with a Select of the shortcut labels above the Dates row, which reads Custom when the dates match no shortcut. min and max limit the dates that can be picked: here the last 30 days up to today. maxRangeDays limits the length of the range. weekStartsOn sets the day each week of the calendar starts on, from 0 (Sunday) to 6 (Saturday).
 ```tsx
 const today = DateTime.local()
 const dayShortcuts: DateRangeShortcut[] = [
@@ -2080,7 +2081,7 @@ const period = value
 ```
 
 ## Dialog
-Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+Modal dialog for confirmations, forms and destructive alerts, with a focus trap and an overlay scrim.
 Import: import { Dialog } from "@plexui/ui/components/Dialog"
 Docs: https://plexui.com/components/dialog
 Props:
@@ -2116,7 +2117,7 @@ Props:
     - className (string) — Additional CSS class on the steps
 
 ### Overview
-On a phone a dialog is one of the two modal views of iOS: an Alert (mobileVariant="alert"), a short question with its answers, or a Sheet, which it is by default (see Placement). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. Dialog.Footer mobileLayout="stacked" stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (color="danger": a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.
+At 767px and below a dialog is one of the two modal views of iOS. mobileVariant="alert" (or mobilePlacement="center") presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Any other dialog is a Sheet, the default, for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance. Two alert actions stand side by side and wrap onto separate rows when their labels need more space; three or more stack, as on iOS. Put long sheet content in Dialog.Body to keep the header and actions visible while the body scrolls. On a phone a dialog is one of the two modal views of iOS: an Alert (mobileVariant="alert"), a short question with its answers, or a Sheet, which it is by default (see Placement). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. Dialog.Footer mobileLayout="stacked" stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (color="danger": a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.
 ```tsx
 const [open, setOpen] = useState(false)
 const [actions, setActions] = useState('2') // or '1', '3'
@@ -2175,7 +2176,7 @@ const cancel = (
     {actions === '3' && (
       <>
         {main}
-        <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t Save</Button>
+        <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t save</Button>
         {cancel}
       </>
     )}
@@ -2344,7 +2345,7 @@ const go = (next, to) => { setDirection(to); setStep(next) }
     <Dialog.Steps step={step} direction={direction}>
       {step === 'email' ? (
         <div className="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
-          <p>We send a code to this address.</p>
+          <p>We’ll send a code to this address.</p>
           <Input aria-label="Email" type="email" autoComplete="email" placeholder="Email address" variant="soft" size="3xl" pill />
         </div>
       ) : (
@@ -2431,7 +2432,7 @@ const dirty = note.trim() !== ''
   confirmClose={dirty && { message: 'Are you sure you want to discard this new note?' }}
 >
   <Dialog.Header>
-    <Dialog.Title>New Note</Dialog.Title>
+    <Dialog.Title>New note</Dialog.Title>
     {phone && (
       <Dialog.HeaderAction>
         <NavigationButton action="confirm" aria-label="Save" disabled={!dirty} onClick={() => setOpen(false)} />
@@ -2458,7 +2459,7 @@ const dirty = note.trim() !== ''
 ```
 
 ## Empty Message
-Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.
+Empty state that tells users there's nothing to show, for errors, warnings, no results and onboarding.
 Import: import { EmptyMessage } from "@plexui/ui/components/EmptyMessage"
 Docs: https://plexui.com/components/empty-message
 Props:
@@ -2497,7 +2498,7 @@ const [actions, setActions] = useState("one") // or "two", "link", "none"
     )}
     {title && <EmptyMessage.Title color={titleColor}>No projects yet</EmptyMessage.Title>}
     {(description || !title) && (
-      <EmptyMessage.Description>Create your first project to get started</EmptyMessage.Description>
+      <EmptyMessage.Description>Create your first project to get started.</EmptyMessage.Description>
     )}
     {actions === "link" ? (
       <EmptyMessage.ActionRow className="text-sm">
@@ -2523,7 +2524,7 @@ const [actions, setActions] = useState("one") // or "two", "link", "none"
 ```
 
 ## Field
-Form field wrapper with a label, helper text, an error message, and automatic accessibility linking to its control.
+Form field wrapper that links a label, helper text and an error message to its control.
 Import: import { Field } from "@plexui/ui/components/Field"
 Import: import { FieldGroup } from "@plexui/ui/components/FieldGroup"
 Import: import { Label } from "@plexui/ui/components/Label"
@@ -2719,7 +2720,7 @@ For more than one control, or a control that needs its props placed by hand, pas
 ```
 
 ## File Upload
-Mobile-first file upload with MIME-type and size validation, multi-file selection, error states, and read-only file cards.
+Mobile-first file upload with type and size validation, several files, error states and file cards.
 Import: import { FileUpload, FileCard, FileCardGroup } from "@plexui/ui/components/FileUpload"
 Docs: https://plexui.com/components/file-upload
 Props:
@@ -2812,7 +2813,7 @@ return (
 ```
 
 ## Float Input
-Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.
+Text input whose label floats above its value, with helper and error text and a multi-line variant.
 Import: import { FloatingLabelInput } from "@plexui/ui/components/FloatingLabelInput"
 Docs: https://plexui.com/components/floating-label-input
   FloatingLabelInput:
@@ -2849,7 +2850,7 @@ Docs: https://plexui.com/components/floating-label-input
     - onInteract (() => void) — Called on pointer down and on the keys that open the field. Without it those keys click the field, so a wrapping trigger opens
 
 ### Overview
-Two things set the type: where the label rests (labelPlacement: on the border, or inside the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. pill={'{false}'} takes the rounded box of Input and Select with the label on the border; inside always takes the rounded box, so pill is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so invalid is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. onClear shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field. On Phone the field is a cell named by its placeholder: the label does not float and the cell is the frame, so labelPlacement and pill are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so invalid alone is desktop only.
+On Phone a label does not float: iOS has no floating label. Each field is a cell of a FieldGroup on the grouped background, and its placeholder names it: an Input, a Textarea or a Select in a Field row hideLabel, as the Forms: Settings do. The label stays for screen readers, a description goes in the group's footer, and an error stands inside the cell. The Phone previews show those cells; where the label rests and the shape of the field are desktop settings, and the Label inside example has no Phone view. Two things set the type: where the label rests (labelPlacement: on the border, or inside the box with the value under it), and the shape of the field. An empty field shows the label as a placeholder, so the difference appears once it has a value or the focus. pill={'{false}'} takes the rounded box of Input and Select with the label on the border; inside always takes the rounded box, so pill is offered only with the label on the border. Text fields, textareas and selects take both settings the same way. Both floating fields follow the same two tokens, so a form can set its radius and gutter in one place. Choose Empty or Filled to replace the value with a preset. The other controls preserve your text. Invalid and errorMessage demonstrate visual states, not email validation. An error message also marks the field invalid, so invalid is offered only without one; when both messages are enabled, the error appears before the description. Read-only text can still be selected and copied. onClear shows a built-in clear button: it appears when the field has a value and is not disabled or read-only, and focus returns to the field. On Phone the field is a cell named by its placeholder: the label does not float and the cell is the frame, so labelPlacement and pill are desktop settings. The description goes in the group's footer and the error stands inside the cell. A cell has no frame to color, so invalid alone is desktop only.
 ```tsx
 const [value, setValue] = useState("")
 const [labelPlacement, setLabelPlacement] = useState("border")
@@ -3127,7 +3128,7 @@ const trigger = useCallback(
 ```
 
 ## Index Bar
-"The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
+"The section index of a phone list: a column of letters at its trailing edge that jumps to a section."
 Import: import { IndexBar } from "@plexui/ui/components/IndexBar"
 Docs: https://plexui.com/components/index-bar
 Props:
@@ -3141,7 +3142,7 @@ Props:
   - className (string) — CSS classes applied to the strip of the index bar
 
 ### Overview
-Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as iOS centres its index, its letters semibold, 13.79px apart and centred about 7.4px from the edge, where iOS 27.2 centres its own, in the info color, as iOS 27.2 draws its index and its tint. A drag highlights nothing, as on iOS. The rows keep the margins of the list, and the letters sit in the trailing one, as in Contacts. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; onSelect receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.
+An index bar takes people through a long list that is sorted by its titles, such as countries or contacts, as the iOS section index does: a letter for each section down the trailing edge, and a press or a drag on a letter shows its section. Give a list one only when it is long and its sections are its letters. A desktop list has no index, so the bar renders under 768px only. The example shows the phone view. Put the bar in a Page, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as iOS centres its index, its letters semibold, 13.79px apart and centred about 7.4px from the edge, where iOS 27.2 centres its own, in the info color, as iOS 27.2 draws its index and its tint. A drag highlights nothing, as on iOS. The rows keep the margins of the list, and the letters sit in the trailing one, as in Contacts. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; onSelect receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.
 ```tsx
 const content = useRef<HTMLDivElement>(null)
 
@@ -3162,7 +3163,7 @@ const content = useRef<HTMLDivElement>(null)
 ```
 
 ## Indicators
-Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.
+"Loading and progress indicators: spinners, determinate progress rings and animated dots."
 Import: import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/ui/components/Indicator"
 Docs: https://plexui.com/components/indicators
   LoadingIndicator:
@@ -3212,7 +3213,7 @@ const [trackActiveColor, setTrackActiveColor] = useState(undefined) // or "var(-
 ```
 
 ## Input Group
-Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.
+Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as rows.
 Import: import { InputGroup } from "@plexui/ui/components/InputGroup"
 Docs: https://plexui.com/components/input-group
 Props:
@@ -3227,7 +3228,7 @@ Props:
     - className (string) — Applied to the addon <div>
 
 ### Overview
-Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons. Use variant to stylize it, like Input. size takes every Input size from 3xs to 3xl; icons, text and InputGroup.Button scale with the group, and buttons in inline addons fit the control height and keep a 4px inset. Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it; here it places the caption of the amount. A block addon turns the group into rows, so keep the other content of such a group inside its block addons, as the Textarea example does. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. loading shows a LoadingIndicator in an addon while a value is searched, checked or saved. On Phone the row is the frame: a group in a row keeps the default outline, which the row draws without a border, and the row sets its height (with touch.css 3xs to xl are all 44px; the iOS 26 field is one 52px row), so size, variant, pill and align stay on the desktop. The row places the value at its end, or, with columns, at one column shared by the group's rows; inline addons stay in the row, a block-start text becomes the row's label and a block-end text the group's footer. An indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.
+Reach for InputGroup when the field needs text prefixes and suffixes, buttons with labels, menus, or a header and footer row. On Phone, an input group is the value of a row in a FieldGroup, as the Weight row of the Forms: Settings: the row's label names it, its prefix, unit, menu or button sits in the row, and the row is its frame. With a prefix the group takes columns, so the value starts at the column; without one the value ends at the row's edge with its unit or menu after it, as iOS writes "72 kg". A row keeps a prefix or a unit, not both: in a column the unit would stand at the far edge, away from its value. A header becomes the row's label, a counter or status line the group's footer, and a main action the full-width button under the group. Put an InputGroup.Input and one or more InputGroup.Addons inside an InputGroup. The group draws the frame and passes size, pill, disabled and invalid down to the control and the buttons. Use variant to stylize it, like Input. size takes every Input size from 3xs to 3xl; icons, text and InputGroup.Button scale with the group, and buttons in inline addons fit the control height and keep a 4px inset. Use align on InputGroup.Addon to place it before (inline-start, the default) or after (inline-end) the control, or as a row above (block-start) or below (block-end) it; here it places the caption of the amount. A block addon turns the group into rows, so keep the other content of such a group inside its block addons, as the Textarea example does. Place addons after the control in the markup so the tab order starts with the field; align handles the visual position. loading shows a LoadingIndicator in an addon while a value is searched, checked or saved. On Phone the row is the frame: a group in a row keeps the default outline, which the row draws without a border, and the row sets its height (with touch.css 3xs to xl are all 44px; the iOS 26 field is one 52px row), so size, variant, pill and align stay on the desktop. The row places the value at its end, or, with columns, at one column shared by the group's rows; inline addons stay in the row, a block-start text becomes the row's label and a block-end text the group's footer. An indicator in a field is 20px, the iOS 27 Regular spinner, as a standalone one is.
 ```tsx
 const [size, setSize] = useState<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl">("md")
 const [variant, setVariant] = useState<"outline" | "soft">("outline")
@@ -3544,7 +3545,7 @@ With InputGroup.Textarea, use block-start and block-end addons for a header and 
 ```
 
 ## Input
-Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
+Text input with start and end adornments, a clear button and a password visibility toggle.
 Import: import { Input } from "@plexui/ui/components/Input"
 Docs: https://plexui.com/components/input
 Props:
@@ -3567,7 +3568,7 @@ Props:
     - type (string) default: "button" — Button type
 
 ### Overview
-Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. size sets the control height and gives a gutterSize (the horizontal padding) and a font-size, each of which can be overridden; Input shares the 9-step size scale with Button, Select, SelectControl and SegmentedControl, so adjacent controls of one size line up. pill rounds it fully. startAdornment puts content before the value, such as a prefix or a search icon, and endAdornment after it, such as a character counter. gutterSize sets the space at the edges (a negative margin on the adornment, such as -ml-2, fine-tunes it), and gap on the container the space between the adornment and the value. onClear shows a built-in clear button while the input has a value and is not disabled or read-only; clicking it keeps focus in the input. opticallyAlign ("start" or "end") offsets the gutter so the text lines up with the content around it, here the label; on a Field it is forwarded to its control. autoSelect selects all the text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allowAutofillExtensions lets them in, and a name or type="password" turns it on by default. readOnly keeps the value and hides the clear button. disabled greys the input out and blocks interaction. invalid marks it invalid, with [data-invalid] on the container; you decide how the state is removed (onFocus, onChange, an onSubmit handler). On Phone the row is the frame and sets the height, insets and type, so the input takes no variant, size, gutterSize, pill or opticallyAlign; with touch.css the 3xs to xl sizes are all 44px. The value stands at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical", where it is ghost. A start adornment is a prefix of the value and trailing text-secondary text takes the row's accessory color; the clear button is the filled circle of an iOS text field, shown only while the value is being edited, and a long value stops 6px before it. An error is the row's errorMessage under it. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard. An Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the same glass field under a large title.
+On Phone, put an input in a row of a FieldGroup, as the Forms: Settings do. Use variant to stylize the input. ghost has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when invalid. size sets the control height and gives a gutterSize (the horizontal padding) and a font-size, each of which can be overridden; Input shares the 9-step size scale with Button, Select, SelectControl and SegmentedControl, so adjacent controls of one size line up. pill rounds it fully. startAdornment puts content before the value, such as a prefix or a search icon, and endAdornment after it, such as a character counter. gutterSize sets the space at the edges (a negative margin on the adornment, such as -ml-2, fine-tunes it), and gap on the container the space between the adornment and the value. onClear shows a built-in clear button while the input has a value and is not disabled or read-only; clicking it keeps focus in the input. opticallyAlign ("start" or "end") offsets the gutter so the text lines up with the content around it, here the label; on a Field it is forwarded to its control. autoSelect selects all the text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allowAutofillExtensions lets them in, and a name or type="password" turns it on by default. readOnly keeps the value and hides the clear button. disabled greys the input out and blocks interaction. invalid marks it invalid, with [data-invalid] on the container; you decide how the state is removed (onFocus, onChange, an onSubmit handler). On Phone the row is the frame and sets the height, insets and type, so the input takes no variant, size, gutterSize, pill or opticallyAlign; with touch.css the 3xs to xl sizes are all 44px. The value stands at the end of the row, at one column for the whole group with FieldGroup columns, or under the label with orientation="vertical", where it is ghost. A start adornment is a prefix of the value and trailing text-secondary text takes the row's accessory color; the clear button is the filled circle of an iOS text field, shown only while the value is being edited, and a long value stops 6px before it. An error is the row's errorMessage under it. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard. An Input in a Toolbar takes the bar's search field, and one with type="search" at the top of the content is the same glass field under a large title.
 ```tsx
 const [value, setValue] = useState("janeappleseed")
 const [variant, setVariant] = useState<"outline" | "soft" | "ghost">("outline")
@@ -3745,14 +3746,14 @@ You can pair Input and Button components together by using the same size value. 
 ```tsx
 // Desktop
 <div className="flex gap-2">
-<Input placeholder="jane.doe@gmail.com" size="lg" variant="outline" />
+<Input placeholder="name@example.com" size="lg" variant="outline" />
 <Button color="primary" size="lg" variant="outline" pill={false}>Subscribe</Button>
 </div>
 
 // Phone
 <FieldGroup>
 <Field row label="Email">
-  <Input type="email" placeholder="jane.doe@gmail.com" />
+  <Input type="email" placeholder="name@example.com" />
 </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Subscribe</Button>
@@ -3811,7 +3812,7 @@ content={
 ```
 
 ## Markdown Editor
-Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.
+Compact rich text editor powered by Tiptap, for a form field, with a markdown formatting toolbar.
 Import: import { MarkdownEditor } from "@plexui/ui/components/MarkdownEditor"
 Docs: https://plexui.com/components/markdown-editor
 Props:
@@ -3876,7 +3877,7 @@ return (
 ```
 
 ## Markdown
-Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.
+Markdown renderer for rich formatted content, with headings, lists, tables, code blocks and KaTeX math.
 Import: import { Markdown } from "@plexui/ui/components/Markdown"
 Docs: https://plexui.com/components/markdown
 Props:
@@ -3908,7 +3909,7 @@ Use includeMath to enable LaTeX rendering. The KaTeX styles and fonts come with 
 ```
 
 ## Menu
-Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
+Dropdown menu for structured actions, with grouped items, submenus, and checkbox and radio items.
 Import: import { Menu } from "@plexui/ui/components/Menu"
 Docs: https://plexui.com/components/menu
 Props:
@@ -3956,7 +3957,7 @@ Props:
     - disabled (boolean) — Disable the item
 
 ### Overview
-A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group By in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on Menu.Content makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out width, minWidth and size. A pill menu is the same panel there, so the phone view leaves out pill.
+A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group by in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on Menu.Content makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out width, minWidth and size. A pill menu is the same panel there, so the phone view leaves out pill.
 ```tsx
 // Desktop
 const [icons] = useState(true)
@@ -3972,9 +3973,9 @@ const [group, setGroup] = useState("date")
 </Menu.Trigger>
 <Menu.Content minWidth={220} pill={pill}>
   <Menu.Item onSelect={() => {}}>{icons && <CheckCircle />} Select</Menu.Item>
-  <Menu.Item onSelect={() => {}}>{icons && <FolderPlus />} New Folder</Menu.Item>
-  <Menu.Item onSelect={() => {}}>{icons && <FileDocument />} Scan Documents</Menu.Item>
-  <Menu.Item onSelect={() => {}}>{icons && <Desktop />} Connect to Server</Menu.Item>
+  <Menu.Item onSelect={() => {}}>{icons && <FolderPlus />} New folder</Menu.Item>
+  <Menu.Item onSelect={() => {}}>{icons && <FileDocument />} Scan documents</Menu.Item>
+  <Menu.Item onSelect={() => {}}>{icons && <Desktop />} Connect to server</Menu.Item>
   <Menu.Separator />
   {checkmarks && (
     <>
@@ -3986,13 +3987,13 @@ const [group, setGroup] = useState("date")
       <Menu.RadioGroup value={sort} onChange={setSort}>
         <Menu.RadioItem value="name">Name</Menu.RadioItem>
         <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
-        <Menu.RadioItem value="date" description={sort === "date" ? "Newest to Oldest" : undefined}>Date</Menu.RadioItem>
+        <Menu.RadioItem value="date" description={sort === "date" ? "Newest to oldest" : undefined}>Date</Menu.RadioItem>
         <Menu.RadioItem value="size">Size</Menu.RadioItem>
         <Menu.RadioItem value="tags">Tags</Menu.RadioItem>
       </Menu.RadioGroup>
       <Menu.Separator />
       <Menu.Sub>
-        <Menu.SubTrigger>Group By</Menu.SubTrigger>
+        <Menu.SubTrigger>Group by</Menu.SubTrigger>
         <Menu.SubContent>
           <Menu.RadioGroup value={group} onChange={setGroup}>
             <Menu.RadioItem value="none">None</Menu.RadioItem>
@@ -4005,7 +4006,7 @@ const [group, setGroup] = useState("date")
       </Menu.Sub>
     </>
   )}
-  <Menu.Item onSelect={() => {}}>View Options</Menu.Item>
+  <Menu.Item onSelect={() => {}}>View options</Menu.Item>
 </Menu.Content>
 </Menu>
 
@@ -4019,9 +4020,9 @@ const [group, setGroup] = useState("date")
       </Menu.Trigger>
     <Menu.Content align="end">
       <Menu.Item onSelect={() => {}}>{icons && <CheckCircle />} Select</Menu.Item>
-      <Menu.Item onSelect={() => {}}>{icons && <FolderPlus />} New Folder</Menu.Item>
-      <Menu.Item onSelect={() => {}}>{icons && <FileDocument />} Scan Documents</Menu.Item>
-      <Menu.Item onSelect={() => {}}>{icons && <Desktop />} Connect to Server</Menu.Item>
+      <Menu.Item onSelect={() => {}}>{icons && <FolderPlus />} New folder</Menu.Item>
+      <Menu.Item onSelect={() => {}}>{icons && <FileDocument />} Scan documents</Menu.Item>
+      <Menu.Item onSelect={() => {}}>{icons && <Desktop />} Connect to server</Menu.Item>
       <Menu.Separator />
       {checkmarks && (
         <>
@@ -4033,13 +4034,13 @@ const [group, setGroup] = useState("date")
           <Menu.RadioGroup value={sort} onChange={setSort}>
             <Menu.RadioItem value="name">Name</Menu.RadioItem>
             <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
-            <Menu.RadioItem value="date" description={sort === "date" ? "Newest to Oldest" : undefined}>Date</Menu.RadioItem>
+            <Menu.RadioItem value="date" description={sort === "date" ? "Newest to oldest" : undefined}>Date</Menu.RadioItem>
             <Menu.RadioItem value="size">Size</Menu.RadioItem>
             <Menu.RadioItem value="tags">Tags</Menu.RadioItem>
           </Menu.RadioGroup>
           <Menu.Separator />
           <Menu.Sub>
-            <Menu.SubTrigger>Group By</Menu.SubTrigger>
+            <Menu.SubTrigger>Group by</Menu.SubTrigger>
             <Menu.SubContent>
               <Menu.RadioGroup value={group} onChange={setGroup}>
                 <Menu.RadioItem value="none">None</Menu.RadioItem>
@@ -4052,7 +4053,7 @@ const [group, setGroup] = useState("date")
           </Menu.Sub>
         </>
       )}
-      <Menu.Item onSelect={() => {}}>View Options</Menu.Item>
+      <Menu.Item onSelect={() => {}}>View options</Menu.Item>
     </Menu.Content>
     </Menu>
   </Toolbar.Trailing>
@@ -4120,7 +4121,7 @@ Put a Menu.Header first to name what the menu acts on: a picture, the name and a
 ```
 
 ### Grouped items
-Use Menu.Group and Menu.Label to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter By, and Manage Filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown. On a phone a section label and a row without an icon start after the checkmark column, where the icons of the other rows start, as in iOS menus.
+Use Menu.Group and Menu.Label to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter by, and Manage filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown. On a phone a section label and a row without an icon start after the checkmark column, where the icons of the other rows start, as in iOS menus.
 ```tsx
 // Desktop
 const [filter, setFilter] = useState("messages")
@@ -4133,18 +4134,18 @@ const [filter, setFilter] = useState("messages")
   <Menu.RadioGroup value={filter} onChange={setFilter}>
     <Menu.RadioItem value="messages"><Chats /> Messages</Menu.RadioItem>
     <Menu.RadioItem value="spam"><XSquare /> Spam</Menu.RadioItem>
-    <Menu.RadioItem value="deleted"><Trash /> Recently Deleted</Menu.RadioItem>
+    <Menu.RadioItem value="deleted"><Trash /> Recently deleted</Menu.RadioItem>
   </Menu.RadioGroup>
   <Menu.Separator />
   <Menu.Group>
-    <Menu.Label>Filter By</Menu.Label>
+    <Menu.Label>Filter by</Menu.Label>
     <Menu.RadioGroup value={filter} onChange={setFilter}>
       <Menu.RadioItem value="unread"><Chat /> Unread</Menu.RadioItem>
       <Menu.RadioItem value="drafts"><ChatTripleDots /> Drafts</Menu.RadioItem>
     </Menu.RadioGroup>
   </Menu.Group>
   <Menu.Separator />
-  <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
+  <Menu.Item onSelect={() => {}}>Manage filtering</Menu.Item>
 </Menu.Content>
 </Menu>
 
@@ -4160,18 +4161,18 @@ const [filter, setFilter] = useState("messages")
       <Menu.RadioGroup value={filter} onChange={setFilter}>
         <Menu.RadioItem value="messages"><Chats /> Messages</Menu.RadioItem>
         <Menu.RadioItem value="spam"><XSquare /> Spam</Menu.RadioItem>
-        <Menu.RadioItem value="deleted"><Trash /> Recently Deleted</Menu.RadioItem>
+        <Menu.RadioItem value="deleted"><Trash /> Recently deleted</Menu.RadioItem>
       </Menu.RadioGroup>
       <Menu.Separator />
       <Menu.Group>
-        <Menu.Label>Filter By</Menu.Label>
+        <Menu.Label>Filter by</Menu.Label>
         <Menu.RadioGroup value={filter} onChange={setFilter}>
           <Menu.RadioItem value="unread"><Chat /> Unread</Menu.RadioItem>
           <Menu.RadioItem value="drafts"><ChatTripleDots /> Drafts</Menu.RadioItem>
         </Menu.RadioGroup>
       </Menu.Group>
       <Menu.Separator />
-      <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
+      <Menu.Item onSelect={() => {}}>Manage filtering</Menu.Item>
     </Menu.Content>
     </Menu>
   </Toolbar.Trailing>
@@ -4179,7 +4180,7 @@ const [filter, setFilter] = useState("messages")
 ```
 
 ### Submenus
-A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (description on Menu.SubTrigger). Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again. The menu behind is out of reach while the submenu stands over it: a press on it closes the submenu and chooses nothing, and screen readers skip it, with focus in the submenu. The heading row stays in place and only the items under it scroll in a submenu taller than the screen, so the row that closes it is always in reach.
+A list's menu, as Reminders opens it on iOS: Manage sections and Sort by open submenus, and Sort by shows the order it has chosen under its label (description on Menu.SubTrigger). Use Menu.Sub, Menu.SubTrigger, and Menu.SubContent for nested menus. On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again. The menu behind is out of reach while the submenu stands over it: a press on it closes the submenu and chooses nothing, and screen readers skip it, with focus in the submenu. The heading row stays in place and only the items under it scroll in a submenu taller than the screen, so the row that closes it is always in reach.
 ```tsx
 // Desktop
 const [sort, setSort] = useState("Manual")
@@ -4191,32 +4192,32 @@ const [sort, setSort] = useState("Manual")
   </Button>
 </Menu.Trigger>
 <Menu.Content align="end" minWidth={220}>
-  <Menu.Item onSelect={() => {}}><Storyboard /> View as Columns</Menu.Item>
+  <Menu.Item onSelect={() => {}}><Storyboard /> View as columns</Menu.Item>
   <Menu.Separator />
-  <Menu.Item onSelect={() => {}}><InfoCircle /> Show List Info</Menu.Item>
-  <Menu.Item onSelect={() => {}}><CheckCircle /> Select Items</Menu.Item>
+  <Menu.Item onSelect={() => {}}><InfoCircle /> Show list info</Menu.Item>
+  <Menu.Item onSelect={() => {}}><CheckCircle /> Select items</Menu.Item>
   <Menu.Sub>
-    <Menu.SubTrigger><List /> Manage Sections</Menu.SubTrigger>
+    <Menu.SubTrigger><List /> Manage sections</Menu.SubTrigger>
     <Menu.SubContent>
-      <Menu.Item onSelect={() => {}}><Plus /> New Section</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Plus /> New section</Menu.Item>
     </Menu.SubContent>
   </Menu.Sub>
   <Menu.Sub>
-    <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
+    <Menu.SubTrigger description={sort}><Sort /> Sort by</Menu.SubTrigger>
     <Menu.SubContent>
       <Menu.RadioGroup value={sort} onChange={setSort}>
         <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
-        <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
-        <Menu.RadioItem value="Creation Date">Creation Date</Menu.RadioItem>
+        <Menu.RadioItem value="Due date">Due date</Menu.RadioItem>
+        <Menu.RadioItem value="Creation date">Creation date</Menu.RadioItem>
         <Menu.RadioItem value="Priority">Priority</Menu.RadioItem>
         <Menu.RadioItem value="Title">Title</Menu.RadioItem>
       </Menu.RadioGroup>
     </Menu.SubContent>
   </Menu.Sub>
-  <Menu.Item onSelect={() => {}}><EyeOff /> Hide Completed</Menu.Item>
-  <Menu.Item onSelect={() => {}}><UploadDocuments /> Save as Template</Menu.Item>
+  <Menu.Item onSelect={() => {}}><EyeOff /> Hide completed</Menu.Item>
+  <Menu.Item onSelect={() => {}}><UploadDocuments /> Save as template</Menu.Item>
   <Menu.Item onSelect={() => {}}><FileDocument /> Print</Menu.Item>
-  <Menu.Item onSelect={() => {}} danger><Trash /> Delete List</Menu.Item>
+  <Menu.Item onSelect={() => {}} danger><Trash /> Delete list</Menu.Item>
 </Menu.Content>
 </Menu>
 
@@ -4229,32 +4230,32 @@ const [sort, setSort] = useState("Manual")
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </Menu.Trigger>
     <Menu.Content align="end">
-      <Menu.Item onSelect={() => {}}><Storyboard /> View as Columns</Menu.Item>
+      <Menu.Item onSelect={() => {}}><Storyboard /> View as columns</Menu.Item>
       <Menu.Separator />
-      <Menu.Item onSelect={() => {}}><InfoCircle /> Show List Info</Menu.Item>
-      <Menu.Item onSelect={() => {}}><CheckCircle /> Select Items</Menu.Item>
+      <Menu.Item onSelect={() => {}}><InfoCircle /> Show list info</Menu.Item>
+      <Menu.Item onSelect={() => {}}><CheckCircle /> Select items</Menu.Item>
       <Menu.Sub>
-        <Menu.SubTrigger><List /> Manage Sections</Menu.SubTrigger>
+        <Menu.SubTrigger><List /> Manage sections</Menu.SubTrigger>
         <Menu.SubContent>
-          <Menu.Item onSelect={() => {}}><Plus /> New Section</Menu.Item>
+          <Menu.Item onSelect={() => {}}><Plus /> New section</Menu.Item>
         </Menu.SubContent>
       </Menu.Sub>
       <Menu.Sub>
-        <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
+        <Menu.SubTrigger description={sort}><Sort /> Sort by</Menu.SubTrigger>
         <Menu.SubContent>
           <Menu.RadioGroup value={sort} onChange={setSort}>
             <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
-            <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
-            <Menu.RadioItem value="Creation Date">Creation Date</Menu.RadioItem>
+            <Menu.RadioItem value="Due date">Due date</Menu.RadioItem>
+            <Menu.RadioItem value="Creation date">Creation date</Menu.RadioItem>
             <Menu.RadioItem value="Priority">Priority</Menu.RadioItem>
             <Menu.RadioItem value="Title">Title</Menu.RadioItem>
           </Menu.RadioGroup>
         </Menu.SubContent>
       </Menu.Sub>
-      <Menu.Item onSelect={() => {}}><EyeOff /> Hide Completed</Menu.Item>
-      <Menu.Item onSelect={() => {}}><UploadDocuments /> Save as Template</Menu.Item>
+      <Menu.Item onSelect={() => {}}><EyeOff /> Hide completed</Menu.Item>
+      <Menu.Item onSelect={() => {}}><UploadDocuments /> Save as template</Menu.Item>
       <Menu.Item onSelect={() => {}}><FileDocument /> Print</Menu.Item>
-      <Menu.Item onSelect={() => {}} danger><Trash /> Delete List</Menu.Item>
+      <Menu.Item onSelect={() => {}} danger><Trash /> Delete list</Menu.Item>
     </Menu.Content>
     </Menu>
   </Toolbar.Trailing>
@@ -4262,7 +4263,7 @@ const [sort, setSort] = useState("Manual")
 ```
 
 ### Checkbox items
-Use Menu.CheckboxItem with checked, onCheckedChange, and {"onSelect={(evt) => evt.preventDefault()}"} to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About Categories under a separator. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls. A row without a checkmark keeps its column, so every icon and label lines up, and a long label wraps under itself.
+Use Menu.CheckboxItem with checked, onCheckedChange, and {"onSelect={(evt) => evt.preventDefault()}"} to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About categories under a separator. On a phone with touch.css the checkmark leads the row, as in iOS menus, whatever indicatorPosition and indicatorVariant say, so the phone view leaves out those controls. A row without a checkmark keeps its column, so every icon and label lines up, and a long label wraps under itself.
 ```tsx
 // Desktop
 const [view, setView] = useState({
@@ -4279,7 +4280,7 @@ return (
     </Button>
   </Menu.Trigger>
   <Menu.Content minWidth={220}>
-    <Menu.Label>View Options</Menu.Label>
+    <Menu.Label>View options</Menu.Label>
     <Menu.CheckboxItem
       checked={view.categories}
       onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
@@ -4287,7 +4288,7 @@ return (
       indicatorPosition="end"
       indicatorVariant="solid"
     >
-      <Storyboard /> Show Categories
+      <Storyboard /> Show categories
     </Menu.CheckboxItem>
     <Menu.CheckboxItem
       checked={view.priority}
@@ -4296,7 +4297,7 @@ return (
       indicatorPosition="end"
       indicatorVariant="solid"
     >
-      <Atom /> Show Priority
+      <Atom /> Show priority
     </Menu.CheckboxItem>
     <Menu.CheckboxItem
       checked={view.contactPhotos}
@@ -4305,10 +4306,10 @@ return (
       indicatorPosition="end"
       indicatorVariant="solid"
     >
-      <AvatarProfile /> Show Contact Photos
+      <AvatarProfile /> Show contact photos
     </Menu.CheckboxItem>
     <Menu.Separator />
-    <Menu.Item onSelect={() => {}}><InfoCircle /> About Categories</Menu.Item>
+    <Menu.Item onSelect={() => {}}><InfoCircle /> About categories</Menu.Item>
   </Menu.Content>
 </Menu>
 )
@@ -4322,7 +4323,7 @@ return (
         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
       </Menu.Trigger>
       <Menu.Content align="end">
-        <Menu.Label>View Options</Menu.Label>
+        <Menu.Label>View options</Menu.Label>
         <Menu.CheckboxItem
           checked={view.categories}
           onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
@@ -4330,7 +4331,7 @@ return (
           indicatorPosition="end"
           indicatorVariant="solid"
         >
-          <Storyboard /> Show Categories
+          <Storyboard /> Show categories
         </Menu.CheckboxItem>
         <Menu.CheckboxItem
           checked={view.priority}
@@ -4339,7 +4340,7 @@ return (
           indicatorPosition="end"
           indicatorVariant="solid"
         >
-          <Atom /> Show Priority
+          <Atom /> Show priority
         </Menu.CheckboxItem>
         <Menu.CheckboxItem
           checked={view.contactPhotos}
@@ -4348,10 +4349,10 @@ return (
           indicatorPosition="end"
           indicatorVariant="solid"
         >
-          <AvatarProfile /> Show Contact Photos
+          <AvatarProfile /> Show contact photos
         </Menu.CheckboxItem>
         <Menu.Separator />
-        <Menu.Item onSelect={() => {}}><InfoCircle /> About Categories</Menu.Item>
+        <Menu.Item onSelect={() => {}}><InfoCircle /> About categories</Menu.Item>
       </Menu.Content>
     </Menu>
   </Toolbar.Trailing>
@@ -4367,7 +4368,7 @@ const [value, setValue] = useState("any")
 <Menu>
 <Menu.Trigger>
   <Button color="primary" variant="ghost">
-    Radio menu <ChevronDownMd />
+    Date modified <ChevronDownMd />
   </Button>
 </Menu.Trigger>
 <Menu.Content align="start" minWidth="auto" width="auto">
@@ -4457,10 +4458,10 @@ Menu supports several sizing strategies:Natural sizing: use minWidth="auto" to h
 </Menu.Trigger>
 <Menu.Content minWidth="auto">
   <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>
-  <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
-  <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
+  <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File search</Menu.Item>
+  <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web search</Menu.Item>
+  <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code interpreter</Menu.Item>
+  <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image generation</Menu.Item>
 </Menu.Content>
 </Menu>
 ```
@@ -4490,19 +4491,19 @@ Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an i
 </Menu.Trigger>
 <Menu.Content width={270}>
   <Menu.Item onSelect={() => {}}>
-    <span className="flex-1 truncate">Sample thread title</span>
+    <span className="flex-1 truncate">Trip to Lisbon</span>
     <Menu.ItemActions>
       <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
     </Menu.ItemActions>
   </Menu.Item>
   <Menu.Item onSelect={() => {}}>
-    <span className="flex-1 truncate">Another sample thread title</span>
+    <span className="flex-1 truncate">Q3 roadmap review</span>
     <Menu.ItemActions>
       <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
     </Menu.ItemActions>
   </Menu.Item>
   <Menu.Item onSelect={() => {}}>
-    <span className="flex-1 truncate">Long thread title that is going to be clipped off</span>
+    <span className="flex-1 truncate">Ideas for the onboarding emails we send to new workspace members</span>
     <Menu.ItemActions>
       <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
     </Menu.ItemActions>
@@ -4512,7 +4513,7 @@ Use Menu.ItemActions and Menu.ItemAction for hover actions (e.g. delete) on an i
 ```
 
 ## Navigation Row
-"A row of a list that opens what it holds, as an iOS Settings row: its label, the current value at the end, a chevron, and the whole row one press."
+"A list row that opens a page of its own, with a label, the current value and a chevron, as in iOS Settings."
 Import: import { NavigationRow } from "@plexui/ui/components/NavigationRow"
 Docs: https://plexui.com/components/navigation-row
 Props:
@@ -4532,23 +4533,23 @@ Props:
   - className (string) — CSS classes applied to the pressable
 
 ### Overview
-Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with valuePlacement="auto", at the full width of the text, and a description under the value, as Calendar sets a long value (below puts it there always). With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
+A navigation row leads into what it holds, as a row of iOS Settings does: General › Language shows the language in use and opens the list to change it. Use it for a setting whose choices or details need a page of their own; for a choice made in place, use a Select in a Field row, and for a row that does something at once, an action row (a ghost Button with block in a data-row). Put the rows in a FieldGroup: each is a row of the group, so its separators, corners and hover follow the card, and its height is the row&apos;s 52px, its words where a row&apos;s label starts (20px on a phone). The value stands at the end in the secondary label color, the chevron after it in the tertiary one, and the whole row is one press: here it opens the page of its choices. A description adds a line under the label and the row grows to hold it, as a subtitle cell spaces two lines over 70px on a phone. A disabled row greys all of it and can&apos;t be pressed. A value too long to stand beside the label on one line goes under it with valuePlacement="auto", at the full width of the text, and a description under the value, as Calendar sets a long value (below puts it there always). With href the row is a link through the linkComponent of PlexUIProvider (or as), for a router&apos;s page.
 ```tsx
 <FieldGroup>
-<NavigationRow label="Language" value={language} onClick={() => open("language")} />
-<NavigationRow label="Region" value={region} onClick={() => open("region")} />
-<NavigationRow label="Calendar" value={calendar} onClick={() => open("calendar")} />
+<NavigationRow label="Time zone" value={timeZone} onClick={() => open("timeZone")} />
+<NavigationRow label="Start week on" value={weekStart} onClick={() => open("weekStart")} />
+<NavigationRow label="Day starts at" value={dayStart} onClick={() => open("dayStart")} />
 </FieldGroup>
 <FieldGroup>
 <NavigationRow
-  label="Fetch New Data"
-  description="How new mail arrives"
-  value={fetch}
-  onClick={() => open("fetch")}
+  label="Sync"
+  description="How far back events are kept"
+  value={sync}
+  onClick={() => open("sync")}
 />
-<NavigationRow label="Temperature" value="°C" disabled />
+<NavigationRow label="Default calendar" description="Managed by your organization" value="Work" disabled />
 <NavigationRow
-  label="Default Alerts"
+  label="Default alerts"
   value={alerts}
   valuePlacement="auto"
   onClick={() => open("alerts")}
@@ -4580,13 +4581,13 @@ Pass leading to lead the row with an Avatar or a picture, as the People list of 
 In a FieldGroup with columns the value takes the control column of the group, in the text color, as the value of a Field row does, and the chevron stays at the end.
 ```tsx
 <FieldGroup columns>
-<NavigationRow label="Language" value={language} onClick={() => open("language")} />
-<NavigationRow label="Region" value={region} onClick={() => open("region")} />
+<NavigationRow label="Time zone" value={timeZone} onClick={() => open("timeZone")} />
+<NavigationRow label="Start week on" value={weekStart} onClick={() => open("weekStart")} />
 </FieldGroup>
 ```
 
 ## OTP Input
-Input for one-time passwords and verification codes, with split digit cells, grouped layouts, error states, and autofill.
+"A field for one-time passwords and verification codes, entered one digit per cell, with autofill."
 Import: import { OTPInput } from "@plexui/ui/components/OTPInput"
 Docs: https://plexui.com/components/otp-input
 Props:
@@ -4602,6 +4603,7 @@ Props:
   - className (string) — Applied to the root element
 
 ### Overview
+A code is entered in a verification step, so the field stands under the step's title and the recipient the code went to. For the whole screen, with Resend and its countdown, on the web and on a phone, see Forms: Auth › Verify email or phone. Choose Empty or Filled to replace the current code with a preset. grouping splits the cells, here into two groups of three. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.
 ```tsx
 const [value, setValue] = useState("")
 const [error, setError] = useState(false)
@@ -4621,7 +4623,7 @@ disabled={disabled}
 ```
 
 ## Page Control
-A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.
+"A row of dots, one per page, that shows where a person is in a flat list of pages and moves between them."
 Import: import { PageControl } from "@plexui/ui/components/PageControl"
 Docs: https://plexui.com/components/page-control
 Props:
@@ -4640,12 +4642,20 @@ Props:
   - className (string) — CSS classes applied to the page control
 
 ### Overview
-Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here. From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show. The capsule behind the dots shows while a pointer presses or scrubs with the automatic background, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback.
+A page control shows the position of the current page in an ordered list of peer pages, such as a carousel or onboarding, and moves between them. Center it below the pages. More than about ten dots are hard to count at a glance; for longer lists, prefer a grid. It follows the iOS 26 kit Page control on every screen: 8px dots 8px apart in a 24px capsule, with a 44px target on a phone. Tap the leading or trailing side of the current dot for the previous or next page; with a mouse, click a dot. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as details.scrubbing tells, and with reduced motion, as motion-reduce:scroll-auto does here. From seven pages the dots past a window around the current page shrink to 6px and 4px, suggesting more pages, and the rest hide, as the kit variants show. The capsule behind the dots shows while a pointer presses or scrubs with the automatic background, always with prominent, for a page control that is the main navigation of the screen, and never with minimal, which also turns off scrubbing since it gives no feedback.
 ```tsx
+// An onboarding: a symbol, a title and a line on each page
+const cards = [
+  { icon: <Images />, title: "All your photos", text: "Every photo from your devices, in one library." },
+  { icon: <Search />, title: "Find any photo", text: "Search by place, date or who is in the photo." },
+  { icon: <Folders />, title: "Albums", text: "Keep a trip or an event together in an album." },
+  // ...
+]
+
 const pagesId = useId()
 const scroller = useRef<HTMLDivElement>(null)
 const [page, setPage] = useState(0)
-const pages = Array.from({ length: 5 }, (_, index) => index + 1)
+const pages = cards.slice(0, 5)
 
 <div
   id={pagesId}
@@ -4653,7 +4663,13 @@ const pages = Array.from({ length: 5 }, (_, index) => index + 1)
   className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
   onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
 >
-  {pages.map((number) => <div key={number} className="w-full shrink-0 snap-center">{number}</div>)}
+  {pages.map(({ icon, title, text }) => (
+    <div key={title} className="flex w-full shrink-0 snap-center flex-col items-center gap-1 text-center">
+      {icon}
+      <div className="font-semibold">{title}</div>
+      <div className="text-sm text-secondary">{text}</div>
+    </div>
+  ))}
 </div>
 <PageControl
   count={pages.length}
@@ -4669,10 +4685,18 @@ const pages = Array.from({ length: 5 }, (_, index) => index + 1)
 ### Many pages
 From seven pages the dots past a window around the current page shrink, suggesting more pages.
 ```tsx
+// An onboarding: a symbol, a title and a line on each page
+const cards = [
+  { icon: <Images />, title: "All your photos", text: "Every photo from your devices, in one library." },
+  { icon: <Search />, title: "Find any photo", text: "Search by place, date or who is in the photo." },
+  { icon: <Folders />, title: "Albums", text: "Keep a trip or an event together in an album." },
+  // ...
+]
+
 const pagesId = useId()
 const scroller = useRef<HTMLDivElement>(null)
 const [page, setPage] = useState(0)
-const pages = Array.from({ length: 12 }, (_, index) => index + 1)
+const pages = cards.slice(0, 12)
 
 <div
   id={pagesId}
@@ -4680,7 +4704,13 @@ const pages = Array.from({ length: 12 }, (_, index) => index + 1)
   className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
   onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
 >
-  {pages.map((number) => <div key={number} className="w-full shrink-0 snap-center">{number}</div>)}
+  {pages.map(({ icon, title, text }) => (
+    <div key={title} className="flex w-full shrink-0 snap-center flex-col items-center gap-1 text-center">
+      {icon}
+      <div className="font-semibold">{title}</div>
+      <div className="text-sm text-secondary">{text}</div>
+    </div>
+  ))}
 </div>
 <PageControl
   count={pages.length}
@@ -4696,10 +4726,18 @@ const pages = Array.from({ length: 12 }, (_, index) => index + 1)
 ### Prominent
 The capsule always shows, for a page control that is the main navigation of the screen.
 ```tsx
+// An onboarding: a symbol, a title and a line on each page
+const cards = [
+  { icon: <Images />, title: "All your photos", text: "Every photo from your devices, in one library." },
+  { icon: <Search />, title: "Find any photo", text: "Search by place, date or who is in the photo." },
+  { icon: <Folders />, title: "Albums", text: "Keep a trip or an event together in an album." },
+  // ...
+]
+
 const pagesId = useId()
 const scroller = useRef<HTMLDivElement>(null)
 const [page, setPage] = useState(0)
-const pages = Array.from({ length: 5 }, (_, index) => index + 1)
+const pages = cards.slice(0, 5)
 
 <div
   id={pagesId}
@@ -4707,7 +4745,13 @@ const pages = Array.from({ length: 5 }, (_, index) => index + 1)
   className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth motion-reduce:scroll-auto"
   onScroll={(event) => setPage(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth))}
 >
-  {pages.map((number) => <div key={number} className="w-full shrink-0 snap-center">{number}</div>)}
+  {pages.map(({ icon, title, text }) => (
+    <div key={title} className="flex w-full shrink-0 snap-center flex-col items-center gap-1 text-center">
+      {icon}
+      <div className="font-semibold">{title}</div>
+      <div className="text-sm text-secondary">{text}</div>
+    </div>
+  ))}
 </div>
 <PageControl
   count={pages.length}
@@ -4722,7 +4766,7 @@ const pages = Array.from({ length: 5 }, (_, index) => index + 1)
 ```
 
 ## Page
-"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar."
+"The frame of an app page: a header and its content in one column, the header a glass bar on a phone."
 Import: import { Page } from "@plexui/ui/components/Page"
 Docs: https://plexui.com/components/page
 Props:
@@ -5090,7 +5134,7 @@ const hiddenColumns = allColumns.filter((c) => !shown.includes(c.id))
 ```
 
 ## Progress Steps
-Stepper for multi-step flows like checkouts and onboarding, with horizontal or vertical layout, icons, navigation, and color tokens.
+"A stepper that shows the steps of a multi-step flow, such as a checkout or onboarding, and the current one."
 Import: import { ProgressSteps } from "@plexui/ui/components/ProgressSteps"
 Docs: https://plexui.com/components/progress-steps
 Props:
@@ -5178,7 +5222,7 @@ return (
 ```
 
 ## Progress
-A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.
+"A horizontal bar that shows how far a task has come, or a sweep while its length is unknown."
 Import: import { Progress } from "@plexui/ui/components/Progress"
 Docs: https://plexui.com/components/progress
 Props:
@@ -5218,7 +5262,7 @@ size="lg"
 ```
 
 ## Radio Group
-Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.
+"A group of options from which a person chooses exactly one, as a list, a row, cards or settings rows."
 Import: import { RadioGroup } from "@plexui/ui/components/RadioGroup"
 Docs: https://plexui.com/components/radio-group
 Props:
@@ -5241,7 +5285,7 @@ Props:
     - className (string) — Extra classes on the label element
 
 ### Overview
-direction sets whether the items flow in a column or a row; the gap follows it. orientation="right" on RadioGroup.Item places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set block on the items so they fill the group and the indicators line up. Use description on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option. disabled on RadioGroup disables every option; on a single RadioGroup.Item it disables only that one, here Monthly, so that setting is offered only while the group is enabled. On a phone each option is a row and the selected row ends with a checkmark. A phone list is always a column and the checkmark always ends the row, so direction and orientation are desktop settings. The row's description takes the item's place, and the label of a disabled option is dimmed with it.
+On Phone, put the options in the rows of a FieldGroup inside the RadioGroup: each Field row names an option, and its RadioGroup.Item without children is the checkmark at the end of the row, as in an iOS settings list. The group title names the choice. The cards and the alignment check are desktop-only examples. direction sets whether the items flow in a column or a row; the gap follows it. orientation="right" on RadioGroup.Item places the indicator after the label, for settings lists and card-style selections where the content should lead; in a column, also set block on the items so they fill the group and the indicators line up. Use description on an item for a second line under its label. It sits outside the label, so the radio keeps the label as its name and gets the description through aria-describedby; clicking it does not select the option. disabled on RadioGroup disables every option; on a single RadioGroup.Item it disables only that one, here Monthly, so that setting is offered only while the group is enabled. On a phone each option is a row and the selected row ends with a checkmark. A phone list is always a column and the checkmark always ends the row, so direction and orientation are desktop settings. The row's description takes the item's place, and the label of a disabled option is dimmed with it.
 ```tsx
 const [frequency, setFrequency] = useState("daily")
 const [direction, setDirection] = useState("col")
@@ -5355,9 +5399,9 @@ errorMessage={showError ? "Please select a subscription plan." : undefined}
 >
 {(fieldProps) => (
   <RadioGroup direction="col" aria-label="Subscription plan" {...fieldProps}>
-    <RadioGroup.Item value="monthly">Monthly ($9.99/month)</RadioGroup.Item>
-    <RadioGroup.Item value="yearly">Yearly ($99.99/year)</RadioGroup.Item>
-    <RadioGroup.Item value="lifetime">Lifetime ($299.99)</RadioGroup.Item>
+    <RadioGroup.Item value="monthly" description="$9.99/month">Pay monthly</RadioGroup.Item>
+    <RadioGroup.Item value="yearly" description="$99.99/year">Pay yearly</RadioGroup.Item>
+    <RadioGroup.Item value="lifetime" description="$299.99 for lifetime access">Pay once</RadioGroup.Item>
   </RadioGroup>
 )}
 </Field>
@@ -5377,9 +5421,9 @@ aria-describedby={showError ? errorId : undefined}
   description="Select a plan to continue."
   footer={showError ? <FieldError id={errorId}>Please select a subscription plan.</FieldError> : undefined}
 >
-  <Field row label="Monthly ($9.99/month)"><RadioGroup.Item value="monthly" /></Field>
-  <Field row label="Yearly ($99.99/year)"><RadioGroup.Item value="yearly" /></Field>
-  <Field row label="Lifetime ($299.99)"><RadioGroup.Item value="lifetime" /></Field>
+  <Field row label="Pay monthly" description="$9.99/month"><RadioGroup.Item value="monthly" /></Field>
+  <Field row label="Pay yearly" description="$99.99/year"><RadioGroup.Item value="yearly" /></Field>
+  <Field row label="Pay once" description="$299.99 for lifetime access"><RadioGroup.Item value="lifetime" /></Field>
 </FieldGroup>
 </RadioGroup>
 ```
@@ -5509,14 +5553,14 @@ Leverage component composition and className overrides to build card-style radio
 ```tsx
 <RadioGroup className="flex-col w-full min-w-0 max-w-[390px] gap-4">
 <RadioGroup.Item className="gap-2.5" value="basic">
-  <div><h4>Basic Plan</h4><p className="text-secondary text-sm">5 GB storage</p></div>
+  <div><h4>Basic plan</h4><p className="text-secondary text-sm">5 GB storage</p></div>
 </RadioGroup.Item>
 ...
 </RadioGroup>
 ```
 
 ## Rolling Number
-A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.
+"A number whose digits roll to a new value, as an odometer's do, for a count that changes while it is watched."
 Import: import { RollingNumber } from "@plexui/ui/components/RollingNumber"
 Docs: https://plexui.com/components/rolling-number
 Props:
@@ -5526,7 +5570,7 @@ Props:
   - className (string) — Applied to the root span; set the size and weight here
 
 ### Overview
-Pass the number as value; a new value rolls each digit that changes, and the digits that stay still do not move. format and locales write it as Intl.NumberFormat does: here as a currency, a percent or a plain number, with its grouping. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. It is read out as the written number, and with reduced motion the digits change at once.
+A rolling number turns each changed digit to its new value, as the wheels of an odometer do, so a total or a count that changes in front of the reader shows the change. Use it where a number moves while it is watched, such as a total as items are added; a number that only loads once needs none. Pass the number as value; a new value rolls each digit that changes, and the digits that stay still do not move. format and locales write it as Intl.NumberFormat does: here as a currency, a percent or a plain number, with its grouping. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. It is read out as the written number, and with reduced motion the digits change at once.
 ```tsx
 const [value, setValue] = useState(1284)
 
@@ -5548,7 +5592,7 @@ It keeps the text&apos;s size, weight and baseline, so it stands in a sentence o
 ```
 
 ## Segmented Control
-Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.
+"One control that switches between related views, as a segmented track or as underline tabs."
 Import: import { SegmentedControl } from "@plexui/ui/components/SegmentedControl"
 Docs: https://plexui.com/components/segmented-control
 Props:
@@ -5579,7 +5623,7 @@ Props:
     - children (ReactNode) — Tab label
 
 ### Overview
-SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator under the active tab and no background container. flush makes the underline indicator match the text width exactly, with gap between tabs instead of padding, and block stretches the tabs evenly across the container. orientation="vertical" stacks the tabs: the thumb slides up and down, and the underline becomes a line on the left side, for sidebar-style navigation. Both variants take the full 9-step size scale of Button, Input, Select and SelectControl, which sets the height, font size, icon size and spacing of the tabs. icon on a tab puts an icon before its label, sized to the size; leave out the label for icon-only tabs of a horizontal control and give each an aria-label. Vertical tabs keep their labels, so the example offers no icon only there: they are a list, a sidebar or on a phone an inset grouped list, and a list row always has a title. badge takes a number or an object with content, color, variant and pill, shown after the label inside the control; a count names what it counts, so it sits on a labelled tab and icon-only tabs carry none. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; monthDisabled disables only Month, whose label in a horizontal control on a phone takes the disabled label of iOS, 20% of the label color, while its row in a vertical one shows at half opacity. Arrow-key navigation skips disabled tabs without resetting the selected value.On a phone horizontal tabs of either variant are the iOS 27 segmented control, filling the row of a phone screen, in its two sizes. The default md and larger are the large control of iOS 27 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48px glass capsule, a 40px gray selection 4px inside it, 8px between segments, every label 15px Medium and primary. sm and smaller are the small one, the plain control of SwiftUI's Picker in content and of Safari's bookmarks: a 32px capsule of the tertiary fill, a white selection 2px inside it, labels 13px, Semibold when selected. mobileMaterial switches the look, as for Button: flat makes the large one plain, 49px as SwiftUI's .controlSize(.large), and glass puts the small one under the Liquid Glass of .glassEffect(). Inside a phone Toolbar every control is the large glass one. The phone example puts the control in a top bar between Close and Confirm, as a sheet's toolbar holds a segmented Picker in iOS 27.2 and Calendar its new event, in a bottom bar, or above the content, as Safari's bookmarks do, over a day that scrolls under the glass of the bars; placement picks one. Vertical tabs of either variant are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb. A segment with an icon and a label shows the icon alone, at the 20px symbol size, as UISegmentedControl draws an action with a title and an image; the label stays the segment&apos;s accessible name, since iOS segments carry a title or a symbol, not both. They carry no badges either: on a phone (below 768px with touch.css, or in a phone layout) a badge is not drawn and its count stays in the segment&apos;s accessible name, so write a count into the label to show it. A page that is only narrow, without touch.css, keeps its badges. mobileSegmentWidth sets the segments&apos; widths, as UISegmentedControl does: equal, the default, gives every segment the widest one&apos;s width, and content gives each its label and the same air around it, a compact control. At the control&apos;s own width the widest label stands 4px inside its segment in the large control and 9px in the small one, as iOS 27.2 sets them. Underline tabs draw the same segmented control on a phone and every control there is a capsule filling its row, so the phone view has no variant, flush, block, pill and badge controls, and its size offers sm and md.
+SegmentedControl provides two visual variants: segmented (default) with a sliding background highlight, and underline with an animated line indicator under the active tab and no background container. flush makes the underline indicator match the text width exactly, with gap between tabs instead of padding, and block stretches the tabs evenly across the container. orientation="vertical" stacks the tabs: the thumb slides up and down, and the underline becomes a line on the left side, for sidebar-style navigation. Both variants take the full 9-step size scale of Button, Input, Select and SelectControl, which sets the height, font size, icon size and spacing of the tabs. icon on a tab puts an icon before its label, sized to the size; leave out the label for icon-only tabs of a horizontal control and give each an aria-label. Vertical tabs keep their labels, so the example offers no icon only there: they are a list, a sidebar or on a phone an inset grouped list, and a list row always has a title. badge takes a number or an object with content, color, variant and pill, shown after the label inside the control; a count names what it counts, so it sits on a labelled tab and icon-only tabs carry none. disabled affects the whole group, which on a phone shows at half opacity when horizontal, as a disabled iOS segmented control does; monthDisabled disables only Month, whose label in a horizontal control on a phone takes the disabled label of iOS, 20% of the label color, while its row in a vertical one shows at half opacity. Arrow-key navigation skips disabled tabs without resetting the selected value.On a phone horizontal tabs of either variant are the iOS 27 segmented control, filling the row of a phone screen, in its two sizes. The default md and larger are the large control of iOS 27 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48px glass capsule, a 40px gray selection 4px inside it, 8px between segments, every label 15px Medium and primary. sm and smaller are the small one, the plain control of SwiftUI's Picker in content and of Safari's bookmarks: a 32px capsule of the tertiary fill, a white selection 2px inside it, labels 13px, Semibold when selected. mobileMaterial switches the look, as for Button: flat makes the large one plain, 49px as SwiftUI's .controlSize(.large), and glass puts the small one under the Liquid Glass of .glassEffect(). Inside a phone Toolbar every control is the large glass one. The phone example puts the control in a top bar, where it holds the bar alone, in a bottom bar, or above the content, as Safari's bookmarks do, over a day of events under the glass of the bars; placement picks one. Vertical tabs of either variant are an inset grouped list, as iOS lists a choice: 52px rows with the 17px label and a checkmark on the selected row instead of the thumb. A segment with an icon and a label shows the icon alone, at the 20px symbol size, as UISegmentedControl draws an action with a title and an image; the label stays the segment&apos;s accessible name, since iOS segments carry a title or a symbol, not both. They carry no badges either: on a phone (below 768px with touch.css, or in a phone layout) a badge is not drawn and its count stays in the segment&apos;s accessible name, so write a count into the label to show it. A page that is only narrow, without touch.css, keeps its badges. mobileSegmentWidth sets the segments&apos; widths, as UISegmentedControl does: equal, the default, gives every segment the widest one&apos;s width, and content gives each its label and the same air around it, a compact control. At the control&apos;s own width the widest label stands 4px inside its segment in the large control and 9px in the small one, as iOS 27.2 sets them. Underline tabs draw the same segmented control on a phone and every control there is a capsule filling its row, so the phone view has no variant, flush, block, pill and badge controls, and its size offers sm and md.
 ```tsx
 const [tab, setTab] = useState("day")
 const [variant, setVariant] = useState("segmented")
@@ -5646,8 +5690,8 @@ return (
     disabled={disabled}
     aria-label="Calendar view"
   >
-    <SegmentedControl.Option value="day" icon={<CalendarToday />}>Day</SegmentedControl.Option>
-    <SegmentedControl.Option value="week" icon={<List />}>Week</SegmentedControl.Option>
+    <SegmentedControl.Option value="day" icon={<Clock />}>Day</SegmentedControl.Option>
+    <SegmentedControl.Option value="week" icon={<CalendarToday />}>Week</SegmentedControl.Option>
     <SegmentedControl.Option value="month" disabled={monthDisabled} icon={<Calendar />}>Month</SegmentedControl.Option>
     <SegmentedControl.Option value="year" icon={<Grid />}>Year</SegmentedControl.Option>
   </SegmentedControl>
@@ -5684,8 +5728,8 @@ return (
     disabled={disabled}
     aria-label="Calendar view"
   >
-    <SegmentedControl.Option value="day" icon={<CalendarToday />} aria-label="Day" />
-    <SegmentedControl.Option value="week" icon={<List />} aria-label="Week" />
+    <SegmentedControl.Option value="day" icon={<Clock />} aria-label="Day" />
+    <SegmentedControl.Option value="week" icon={<CalendarToday />} aria-label="Week" />
     <SegmentedControl.Option value="month" disabled={monthDisabled} icon={<Calendar />} aria-label="Month" />
     <SegmentedControl.Option value="year" icon={<Grid />} aria-label="Year" />
   </SegmentedControl>
@@ -5753,7 +5797,7 @@ return (
 ```
 
 ## Select
-Select dropdown with grouped options, per-item descriptions, multiple selection and action items; on a phone, an iOS pop-up menu.
+"A dropdown for choosing one or more options from a list; on a phone, an iOS pop-up menu."
 Import: import { Select } from "@plexui/ui/components/Select"
 Import: import { SelectControl } from "@plexui/ui/components/SelectControl"
 Docs: https://plexui.com/components/select
@@ -5813,10 +5857,10 @@ Props:
     - className (string) — Applied to the control
 
 ### Overview
-Pass the selection as value: a string, or an array of strings with multiple. multiple also changes how onChange and TriggerView are typed: onChange receives the selected option, or every selected option, and TriggerView receives {"{ values, selectedAll }"}. The trigger is a SelectControl: variant, size (the 9-step scale of Button, Input, SelectControl and SegmentedControl), pill and dropdownIconType style it. block stretches it across its container, here the 290px field, and the list takes its width. Without block the trigger fits its value and the list is at least listMinWidth, here 240px, wider than the trigger, so align places it against the trigger. side is the side the list prefers. checkPosition puts the checkmark at the start or the end of a row; "none" leaves the column out. clearable adds a clear action. loading shows loadingPlaceholder and keeps the list closed. disabled disables the select, and a disabled select is not submitted with its form. opticallyAlign offsets the trigger by its gutter: "start" puts the text of a ghost trigger on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower trigger does not reach the field's end.On Phone the select is the value of a row in a FieldGroup, with {"block={false}"} and align="end". The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no variant, size, pill, block, dropdownIconType, side, align and opticallyAlign controls, and its checkPosition is "start" or "none": the checkmark leads every row, and "none" leaves it out. A clearable select leads its list with a None row instead of a clear button.
+On Phone, put a select in a Field row of a FieldGroup, as the Forms: Settings do: the value and its up-down chevrons sit at the row's end, like an iOS pop-up button, and its list opens over the value, as the pop-up menu of an iOS picker does: 250px wide, its end at the chevron's end, 9px below the row's top, and toward the larger part of the screen. The value is hidden under the list while it is open. The list is an iOS menu, so its rows are the rows of Menu › On a phone: a description is the row's subtitle, and so is a tooltip; the checkmark leads every row whatever checkPosition says, and "none" still leaves it out, so the Overview's Phone view offers "start" and "none" and the other Phone previews leave out that control. It has no search, as an iOS menu has none: a long list scrolls. A clearable select with its default trigger has no clear button there, as an iOS pop-up button has none (a custom trigger owns its clearing): its list leads with a None row in a section of its own, checked while nothing is chosen, and choosing it unsets the value and closes the list, a multiple one too, as Reminders does. noneLabel names the row. Pass the selection as value: a string, or an array of strings with multiple. multiple also changes how onChange and TriggerView are typed: onChange receives the selected option, or every selected option, and TriggerView receives {"{ values, selectedAll }"}. The trigger is a SelectControl: variant, size (the 9-step scale of Button, Input, SelectControl and SegmentedControl), pill and dropdownIconType style it. block stretches it across its container, here the 290px field, and the list takes its width. Without block the trigger fits its value and the list is at least listMinWidth, here 240px, wider than the trigger, so align places it against the trigger. side is the side the list prefers. checkPosition puts the checkmark at the start or the end of a row; "none" leaves the column out. clearable adds a clear action. loading shows loadingPlaceholder and keeps the list closed. disabled disables the select, and a disabled select is not submitted with its form. opticallyAlign offsets the trigger by its gutter: "start" puts the text of a ghost trigger on the label's edge, and "end" puts the end of a block one, its indicator, on the field's end. A framed trigger keeps its gutter, so the example offers the setting for ghost only, and "end" only with block: a narrower trigger does not reach the field's end. On Phone the select is the value of a row in a FieldGroup, with {"block={false}"} and align="end". The row sets its height, insets, type and colors, and the list opens over the value with the checkmark leading. So the Phone preview has no variant, size, pill, block, dropdownIconType, side, align and opticallyAlign controls, and its checkPosition is "start" or "none": the checkmark leads every row, and "none" leaves it out. A clearable select leads its list with a None row instead of a clear button.
 ```tsx
-const [fruit, setFruit] = useState("")
-const [fruits, setFruits] = useState([])
+const [currency, setCurrency] = useState("")
+const [currencies, setCurrencies] = useState([])
 const [variant, setVariant] = useState("outline")
 const [size, setSize] = useState("md")
 const [pill, setPill] = useState(false)
@@ -5831,23 +5875,23 @@ const [multiple, setMultiple] = useState(false)
 const [loading, setLoading] = useState(false)
 const [disabled, setDisabled] = useState(false)
 
-const FruitsView = ({ values, selectedAll }) => (
-  <>{selectedAll ? "All fruits" : values.length === 1 ? values[0].label : `${values.length} fruits`}</>
+const CurrenciesView = ({ values, selectedAll }) => (
+  <>{selectedAll ? "All currencies" : values.length === 1 ? values[0].label : `${values.length} currencies`}</>
 )
 
 // With multiple, value is an array and onChange receives every selected option
 const selection = multiple
-  ? { multiple: true, value: fruits, onChange: (options) => setFruits(options.map(({ value }) => value)), TriggerView: FruitsView }
-  : { multiple: false, value: fruit, onChange: ({ value }) => setFruit(value) }
+  ? { multiple: true, value: currencies, onChange: (options) => setCurrencies(options.map(({ value }) => value)), TriggerView: CurrenciesView }
+  : { multiple: false, value: currency, onChange: ({ value }) => setCurrency(value) }
 
 // Desktop
 <div className="w-[290px]">
-  <Field label={multiple ? "Fruits" : "Fruit"}>
+  <Field label={multiple ? "Currencies" : "Currency"}>
     <Select
       {...selection}
-      options={fruitOptions}
-      name="fruits"
-      placeholder={multiple ? "Select fruits..." : "Select a fruit..."}
+      options={currencyOptions}
+      name="currencies"
+      placeholder={multiple ? "Select currencies..." : "Select a currency..."}
       variant={variant}
       size={size}
       pill={pill}
@@ -5867,11 +5911,11 @@ const selection = multiple
 
 // Phone: the select is the value of a row; a clearable one leads its list with None.
 <FieldGroup>
-  <Field row label={multiple ? "Fruits" : "Fruit"}>
+  <Field row label={multiple ? "Currencies" : "Currency"}>
     <Select
       {...selection}
-      options={fruitOptions}
-      name="fruits"
+      options={currencyOptions}
+      name="currencies"
       placeholder="None"
       block={false}
       align="end"
@@ -5899,16 +5943,25 @@ const roles = [
   label: "Owner",
   description: (
     <RoleOptionDescription>
-      Can modify project information and manage project members
+      Can manage members, billing and settings
     </RoleOptionDescription>
   ),
 },
 {
-  value: "reader",
-  label: "Reader",
+  value: "editor",
+  label: "Editor",
   description: (
     <RoleOptionDescription>
-      Can make API requests that read or modify data
+      Can edit and comment
+    </RoleOptionDescription>
+  ),
+},
+{
+  value: "viewer",
+  label: "Viewer",
+  description: (
+    <RoleOptionDescription>
+      Can view only
     </RoleOptionDescription>
   ),
 },
@@ -5928,8 +5981,9 @@ TriggerStartIcon={role === "owner" ? UserLock : User}
 
 // Phone: plain descriptions, which the list sets as iOS menu subtitles
 const phoneRoles = [
-{ value: "owner", label: "Owner", description: "Can modify project information and manage project members" },
-{ value: "reader", label: "Reader", description: "Can make API requests that read or modify data" },
+{ value: "owner", label: "Owner", description: "Can manage members, billing and settings" },
+{ value: "editor", label: "Editor", description: "Can edit and comment" },
+{ value: "viewer", label: "Viewer", description: "Can view only" },
 ];
 
 <FieldGroup>
@@ -5952,7 +6006,7 @@ Custom, arbitrary actions can be displayed below the options list via the action
 <Select
 value={value}
 onChange={handleChange}
-options={items}
+options={projects}
 placeholder="Select..."
 align="start"
 listMinWidth={240}
@@ -5968,7 +6022,7 @@ actions={[
   <Select
     value={value}
     onChange={handleChange}
-    options={items}
+    options={projects}
     placeholder="None"
     block={false}
     align="end"
@@ -5991,7 +6045,7 @@ variant="outline"
 size="lg"
 side="bottom"
 listMinWidth={300}
-searchPlaceholder="Select an option..."
+searchPlaceholder="Search plans..."
 clearable
 />
 
@@ -6004,7 +6058,7 @@ clearable
     onChange={(v) => setValue(v.value)}
     block={false}
     align="end"
-    searchPlaceholder="Select an option..."
+    searchPlaceholder="Search plans..."
   />
 </Field>
 </FieldGroup>
@@ -6195,7 +6249,7 @@ const [opticallyAlign, setOpticallyAlign] = useState("none") // ghost only: "sta
 ```
 
 ## Separator
-A thin divider between content, horizontal or vertical, decorative by default or exposed to assistive technology when it marks a real grouping.
+"A thin line that divides content: the rows of a list or, standing vertically, inline items."
 Import: import { Separator } from "@plexui/ui/components/Separator"
 Docs: https://plexui.com/components/separator
 Props:
@@ -6247,7 +6301,7 @@ Generating response...
 ```
 
 ## Sidebar
-Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
+"A navigation sidebar for an app shell that folds to an icon rail and becomes a drawer on a phone."
 Import: import { SidebarProvider, SidebarLayout, Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from "@plexui/ui/components/Sidebar"
 Docs: https://plexui.com/components/sidebar
 Props:
@@ -6292,7 +6346,7 @@ Props:
     - onDismiss (() => void) — Callback when dismissed
 
 ### Overview
-Use variant for the look of the whole shell: "app" is the sidebar of a product, 260px, pill rows on a grey ground and a page with no inset. collapsible sets how the sidebar folds, to an icon rail or off the canvas, and open folds it (or press ⌘B). Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. labelSize sets the group labels, icons the icons of the rows (a sidebar without them does not fold to a rail).badges puts a Badge in SidebarMenuBadge: it sits as far from the row's edge as from its top and bottom, its digits end where plain counts and the chevron end, and in the folded rail it becomes a dot of its color above the icon. submenus turns Settings into a row with a submenu: a SidebarMenuItem whose SidebarMenuSub holds the next level; expanded on the item turns its SidebarMenuChevron and open on the submenu shows it. Set --sidebar-menu-sub-max-height to a submenu's real height for an even fold. search adds a SidebarInput, an Input with a search icon that takes every Input prop, and narrows the rows to the ones that match. footer holds a dismissible SidebarCard or a person row whose Menu opens above it; the person row is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. bordered sets the inset page of the default variant against a flat one.On a phone the toolbar opens the same navigation tree in a full-screen drawer, so the Phone view leaves out collapsible, open and labelSize.
+The examples use local ResponsiveSidebarProvider, ResponsiveSidebar and SidebarDemoPage helpers from Responsive composition. They keep the desktop rail and use the existing SidebarMobile drawer with a Page toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone. Use variant for the look of the whole shell: "app" is the sidebar of a product, 260px, pill rows on a grey ground and a page with no inset. collapsible sets how the sidebar folds, to an icon rail or off the canvas, and open folds it (or press ⌘B). Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. labelSize sets the group labels, icons the icons of the rows (a sidebar without them does not fold to a rail). badges puts a Badge in SidebarMenuBadge: it sits as far from the row's edge as from its top and bottom, its digits end where plain counts and the chevron end, and in the folded rail it becomes a dot of its color above the icon. submenus turns Settings into a row with a submenu: a SidebarMenuItem whose SidebarMenuSub holds the next level; expanded on the item turns its SidebarMenuChevron and open on the submenu shows it. Set --sidebar-menu-sub-max-height to a submenu's real height for an even fold. search adds a SidebarInput, an Input with a search icon that takes every Input prop, and narrows the rows to the ones that match. footer holds a dismissible SidebarCard or a person row whose Menu opens above it; the person row is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. bordered sets the inset page of the default variant against a flat one. On a phone the toolbar opens the same navigation tree in a full-screen drawer, so the Phone view leaves out collapsible, open and labelSize.
 ```tsx
 // Inside the provider: a folded icon rail shows no submenu (its rows would be clipped and still focusable)
 function SettingsItem({ icons, shown, onToggle, children }) {
@@ -6426,7 +6480,7 @@ Use Phone preview, then open the menu in the page toolbar. The same navigation t
 ```
 
 ## Skeleton
-Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
+"Loading placeholders in the shape of the content they stand in for, from avatars and text to cards and lists."
 Import: import { Skeleton } from "@plexui/ui/components/Skeleton"
 Docs: https://plexui.com/components/skeleton
 Props:
@@ -6434,7 +6488,7 @@ Props:
   - className (string) — Set dimensions and custom styling
 
 ### Overview
-A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with className. content shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), a form (inputs and buttons at the control height, 32px) and a table (its header and rows).circle rounds a skeleton, for the avatar of a profile; without it a skeleton keeps its own radius, as for a square picture.
+A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with className. content shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), the rows of a list (an avatar and two lines each) and a post in a feed (its author, its text and a picture).circle rounds a skeleton, for the avatar of a profile, a list row or a post; without it a skeleton keeps its own radius, as for a square picture.
 ```tsx
 <div className="flex items-center gap-4">
 <Skeleton circle className="size-12" />
@@ -6446,7 +6500,7 @@ A skeleton stands in for content while it loads, in its shape: compose skeletons
 ```
 
 ## Slider
-Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
+"A slider for choosing a number or a range on a scale, with marks and a value that can be typed."
 Import: import { Slider } from "@plexui/ui/components/Slider"
 Docs: https://plexui.com/components/slider
 Props:
@@ -6476,9 +6530,15 @@ Props:
   - onBlur ((event: FocusEvent) => void) — Called when the value input or a thumb loses focus
 
 ### Overview
-Set range and give value two numbers for a range, or three or more for several thumbs; onChange then receives an array. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. minStepsBetweenThumbs keeps the thumbs that many steps apart. resetValue, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefixUnit comes before it. marks label points of the scale under the track, horizontal only. trackColor and rangeColor color the track and its fill. startAdornment and endAdornment stand at the ends of a horizontal track, as Settings puts a small and a large letter at the ends of a text size slider; on a phone they take the place of the value. They are decoration, so the slider's name has to say what it sets. A label given as JSX can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
+On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a field the number can be typed in, a range goes under the track, and with marks the cell shows the scale instead of a value. Set range and give value two numbers for a range, or three or more for several thumbs; onChange then receives an array. step is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. minStepsBetweenThumbs keeps the thumbs that many steps apart. resetValue, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out. unit follows the value and prefixUnit comes before it. marks label points of the scale under the track, horizontal only. trackColor and rangeColor color the track and its fill. startAdornment and endAdornment stand at the ends of a horizontal track, as Settings puts a small and a large letter at the ends of a text size slider; on a phone they take the place of the value. They are decoration, so the slider's name has to say what it sets. A label given as JSX can carry a tooltip, and orientation="vertical" stands the slider up. On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.
 ```tsx
 const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
+// The slider is named after what it sets: a value in percent, in dollars or bare; a range or tiers of them
+const names = {
+  one: { none: "Brightness", unit: "Volume", prefixUnit: "Max price" },
+  two: { none: "Age range", unit: "Humidity range", prefixUnit: "Price range" },
+  three: { none: "Age groups", unit: "Discount tiers", prefixUnit: "Price tiers" },
+}
 
 const [thumbs, setThumbs] = useState("one") // or "two", "three"
 const [values, setValues] = useState({ one: 50, two: [25, 75], three: [10, 40, 70] })
@@ -6494,14 +6554,17 @@ const [orientation, setOrientation] = useState("horizontal") // or "vertical"
 const [disabled, setDisabled] = useState(false)
 
 const setValue = (value) => setValues({ ...values, [thumbs]: value })
+// A small and a large letter at the ends size text
+const name = adornments && thumbs === "one" ? "Text size" : names[thumbs][unit]
 const text = (value) => (unit === "prefixUnit" ? "$" : "") + value + (unit === "unit" ? "%" : "")
 const shared = {
   min: 0,
   max: 100,
   step: thumbs === "one" ? Number(step) : 1,
   marks: marks ? scaleMarks : undefined, // a vertical slider draws none
-  trackColor: colors ? "#61C454" : undefined,
-  rangeColor: colors ? "#EF4146" : undefined,
+  // One hue: the fill in green and the track in a light tint of it
+  trackColor: colors ? "#61C45433" : undefined,
+  rangeColor: colors ? "#61C454" : undefined,
   // A small and a large letter at the ends, as Settings draws a text size slider; a vertical slider draws none
   startAdornment: adornments ? <span className="text-[15px]">A</span> : undefined,
   endAdornment: adornments ? <span className="text-[22px]">A</span> : undefined,
@@ -6511,10 +6574,10 @@ const shared = {
 const desktop = {
   ...shared,
   label: tooltip ? (
-    <Tooltip content="More details about this field">
-      <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
+    <Tooltip content="Drag to adjust, or type a value">
+      <Tooltip.TriggerDecorator>{name}</Tooltip.TriggerDecorator>
     </Tooltip>
-  ) : "Example field",
+  ) : name,
   unit: unit === "unit" ? "%" : undefined,
   prefixUnit: unit === "prefixUnit" ? "$" : undefined,
   orientation,
@@ -6541,15 +6604,15 @@ const commitTyped = () => {
   setTyped(null)
 }
 
-<FieldGroup title="Example field">
+<FieldGroup title={name}>
   {thumbs === "one" && !marks ? (
     <div data-row className="flex min-h-[var(--field-row-min-height)] items-center gap-3 px-[var(--field-row-padding-inline)]">
-      <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
+      <Slider aria-label={name} {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
       {/* The letters stand where the value would: Settings shows none beside them */}
       {!adornments && <label className={`min-w-[4ch] shrink-0 text-end text-[length:var(--field-row-label-font-size)] leading-[var(--field-row-label-line-height)] tabular-nums inline-flex items-center justify-end cursor-text ${disabled ? "text-[var(--mobile-label-tertiary,var(--color-text-disabled))]" : "text-secondary"}`}>
         {unit === "prefixUnit" && "$"}
         <input
-          aria-label="Example field value"
+          aria-label={`${name} value`}
           inputMode="numeric"
           enterKeyHint="done"
           className="min-w-[1ch] border-0 bg-transparent p-0 text-end tabular-nums [color:inherit] [font:inherit] outline-none disabled:cursor-default"
@@ -6570,9 +6633,9 @@ const commitTyped = () => {
   ) : (
     <div data-row className="flex flex-col px-[var(--field-row-padding-inline)] pb-1 [--slider-control-height:44px]">
       {thumbs === "one" ? (
-        <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} />
+        <Slider aria-label={name} {...shared} value={values.one} onChange={setValue} />
       ) : (
-        <Slider range aria-label="Example field" {...shared} value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
+        <Slider range aria-label={name} {...shared} value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
       )}
       {!marks && (
         <span className={`text-center text-[length:var(--field-row-description-font-size)] leading-[var(--field-row-description-line-height)] tabular-nums${disabled ? " text-[var(--mobile-label-tertiary,var(--color-text-disabled))]" : ""}`}>{values[thumbs].map(text).join(" – ")}</span>
@@ -6583,7 +6646,7 @@ const commitTyped = () => {
 {thumbs === "one" && resetValue && (
   <FieldGroup>
     <div data-row data-align="center">
-      <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
+      <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to default</Button>
     </div>
   </FieldGroup>
 )}
@@ -6646,7 +6709,7 @@ const commitTyped = () => {
 ```
 
 ## Sortable
-"Reorders a list by dragging: rows of a group, table rows, images, tags and cards. The order changes on the drop."
+"Reorders a list by dragging: rows of a group, table rows, images, tags and cards."
 Docs: https://plexui.com/components/sortable
 Props:
   - value (T[]) — The list, in the order of the children
@@ -6822,7 +6885,7 @@ setFolders((current) => {
 ```
 
 ## Stats Card
-Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
+"A dashboard card that shows one figure, such as a KPI, with its trend, an icon or a progress bar."
 Import: import { StatsCard } from "@plexui/ui/components/StatsCard"
 Docs: https://plexui.com/components/stats-card
 Props:
@@ -6844,7 +6907,7 @@ Props:
   - className (string) — Extra classes on the card element
 
 ### Overview
-Dashboard-ready stats cards with trends, icons, and progress bars. Use size="sm" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trendPosition), as plain text or in a badge (trendVariant). Use invertTrend for metrics where a rise is bad, such as error rate or response time. An icon stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accentColor).
+Formerly StatCard. The old name and its import path @plexui/ui/components/StatCard still work but are deprecated. Dashboard-ready stats cards with trends, icons, and progress bars. Use size="sm" for compact analytics rows with denser spacing and smaller typography; it pairs well with tooltip, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (trendPosition), as plain text or in a badge (trendVariant). Use invertTrend for metrics where a rise is bad, such as error rate or response time. An icon stands in a small soft tile at the end of the header, and progress draws a bar of completion or usage across the card. The accent variant adds a colored bar before the content in one of eight semantic colors (accentColor).
 ```tsx
 import { DollarCircle } from "@plexui/ui/components/Icon"
 
@@ -6878,7 +6941,7 @@ description={showProgress ? "of $62,800 goal" : undefined}
 ```
 
 ## Stepper
-Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
+"Two segments that decrease and increase a number in steps, as the iOS 26 stepper does."
 Import: import { Stepper } from "@plexui/ui/components/Stepper"
 Docs: https://plexui.com/components/stepper
 Props:
@@ -6907,7 +6970,7 @@ Props:
   - className (string) — CSS classes applied to the stepper
 
 ### Overview
-Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. With showValue the value stands between the minus and the plus on one fill, as a cart's quantity does, and the row's label only names it, such as Copies; on a phone it is a 96 × 36 capsule with round 36px segments and the value at 15px medium. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
+A stepper changes a value by small amounts and shows no value of its own. For values that vary widely, pair it with an input. On a phone it is the 93 × 32 capsule of a native iOS 27.2 stepper with a 44px target; on a desktop it follows the PlexUI control size. Put a stepper in a Field row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. With showValue the value stands between the minus and the plus on one fill, as a cart's quantity does, and the row's label only names it, such as Copies; on a phone it is a 96 × 36 capsule with round 36px segments and the value at 15px medium. On a desktop set pill to false for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.
 ```tsx
 const [disabled, setDisabled] = useState(false)
 const [showValue, setShowValue] = useState(false)
@@ -6961,7 +7024,7 @@ A cart shows the quantity in the stepper with showValue, all its states at once:
 ```
 
 ## Swipe Actions
-"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys."
+"Actions behind a row of a list, revealed by a swipe across the row, as the swipe actions of an iOS list."
 Import: import { SwipeActions } from "@plexui/ui/components/SwipeActions"
 Docs: https://plexui.com/components/swipe-actions
 Props:
@@ -6980,7 +7043,7 @@ Props:
     - role ("destructive") — The action removes the row: the row slides out and collapses, as iOS deletes a row, and `onSelect` comes at the end of that for the list to drop it. A row the list keeps comes back.
 
 ### Overview
-Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it.labelPlacement sets where the actions show their labels. With inside each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text. With below the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as the two-line rows of an inbox here, and draws a 50px circle from a row of 78px.
+Swipe actions keep the actions of a row out of sight until they are wanted, as the swipe actions of an iOS list do: a swipe toward the leading edge reveals the trailing actions, a swipe toward the trailing edge the leading ones, and a full swipe runs the first action of that side. Give a row the actions people take on it often, such as Delete or Archive, and keep the same actions in reach elsewhere too, as in a menu, for people who never swipe. The examples show the phone view. Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the group, so its separators and corners follow the card. The actions are solid capsules behind the content, 10px apart, 10px from the edge and 4px inside the top and bottom of the row, as iOS 27.2 sets them; the first action of a side stands at its edge. A symbol alone is a capsule of 60px that grows with the row and is a 50px circle from a row of 58px. Swiped aside, the content rounds its corners by 26px and, on a phone, turns soft gray on the background of the list, as iOS fills it. A swipe past half of the actions opens them, a press on an action runs it and closes the row, and a press on the content or anywhere outside closes it too; one row is open at a time. A swipe past the middle between the open actions and the far edge stretches the first action across the row, and letting go runs it. labelPlacement sets where the actions show their labels. With inside each capsule holds a smaller symbol and its label, and every action of a side takes the width of the widest, as iOS 27.2 sets them. An action without an icon shows its label alone, in a rounded rectangle: beside labels inside it takes the width of the widest too, and elsewhere it is as wide as its text. With below the label stands under the capsule, which takes the rest of the row: iOS 27.2 sets its labels this way from a row of 60px, such as the two-line rows of an inbox here, and draws a 50px circle from a row of 78px.
 ```tsx
 <FieldGroup>
 {lists.map((name) => (
@@ -6999,7 +7062,7 @@ Wrap the content of a row of a FieldGroup: the swipe row is the data-row of the 
 ```
 
 ## Switch
-Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
+"A switch that turns a setting on or off, with an optional label and description."
 Import: import { Switch } from "@plexui/ui/components/Switch"
 Docs: https://plexui.com/components/switch
 Props:
@@ -7020,7 +7083,7 @@ Props:
   - onBlur (FocusEventHandler<HTMLButtonElement>) — Called when the switch loses focus
 
 ### Overview
-One setting on and one off. Click either the label or the control. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. A description is linked with aria-describedby. On a desktop labelPosition sets the label before or after the switch; on a phone the label stays at the start of its row and the switch trails it, so the Phone preview does not offer it. disabled keeps a switch as it is: on retains a muted accent, off uses the neutral track. Use defaultChecked for an initial value and name for form submission.
+On Phone, put switches in labelled rows with a trailing control. Use compact previews to compare controls, and the settings screen to see them in context. One setting on and one off. Click either the label or the control. Choose accent for the configured application accent (platform green by default), or primary for the default Switch style. A description is linked with aria-describedby. On a desktop labelPosition sets the label before or after the switch; on a phone the label stays at the start of its row and the switch trails it, so the Phone preview does not offer it. disabled keeps a switch as it is: on retains a muted accent, off uses the neutral track. Use defaultChecked for an initial value and name for form submission.
 ```tsx
 const [color, setColor] = useState<"primary" | "accent">("accent")
 const [description, setDescription] = useState(false)
@@ -7073,7 +7136,7 @@ Group related settings with FieldGroup. Use a row description to explain a locke
 ```
 
 ## Tab Bar
-"The tab bar of a phone screen: two to five sections at the bottom in a floating glass capsule, an optional search or prominent tab, minimizing while the content scrolls. Desktop layouts navigate with a Sidebar or Tabs, so a tab bar never renders from 768px up."
+"The tab bar of a phone screen: the top-level sections of an app in a glass capsule at the bottom."
 Import: import { TabBar } from "@plexui/ui/components/TabBar"
 Docs: https://plexui.com/components/tab-bar
 Props:
@@ -7101,7 +7164,7 @@ Props:
     - className (string) — CSS classes applied to the tab
 
 ### Overview
-Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 85px apart, as iOS 27 sets them; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With prominent one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows its symbol only and label names it, and with both the search tab joins the capsule as its last tab. The bar holds five tabs at most, the search and prominent tabs counted, as in the kit's Tab Bar - iPhone: next to a circle the capsule keeps four, so the example disables the counts that would not fit. With minimizeBehavior="onScrollDown" the bar shrinks while the content scrolls down to a circle of the selected tab at the leading end, the search or prominent circle staying at the trailing end, as the minimized tab bar of the kit; it comes back when the content scrolls up, and a tap on the minimized tab brings the others back. A tab's badge shows a count or a short word in a red capsule over its symbol, as an iOS tab badge, and the minimized circle keeps it; a count of 0 shows none. accessory puts the app's own content, a now playing row or a status, in a glass capsule above the tabs, as the bottom accessory of iOS 27: minimized, it moves between the two circles, and the bar keeps its height so the content does not move. background sets how the bar meets the content scrolled under it, as on a Toolbar: soft (the default) leaves the content clear around the capsule, as native iOS 26 does, glass lays a translucent, blurred band with a hairline under it, hard an opaque band with a hairline on top, and blur blurs the list under the bar, the more toward the screen's bottom edge, with no fill and no line. The top bar sets its own background, glass by default, so the example sets the two apart.
+A tab bar moves between the top-level sections of an app on a phone, as the iOS 26 tab bar does: a symbol over a short label for each section, in a glass capsule that floats over the bottom of the content. Keep it to five tabs, the search and prominent tabs counted, and keep it visible in every section. Put actions that change the content of a section in a Toolbar instead. A desktop layout navigates with a Sidebar or Tabs, so the bar renders under 768px only. The example shows the phone view. Its settings change the bar in place. Put the bar last in a Page: it reserves its height there. Up to three tabs sit in the middle, 85px apart, as iOS 27 sets them; four and five share the width. The selected tab sits on a pill in the primary text, the others in a lighter gray, as Sidebar items are. With search the search tab takes a glass circle of its own at the trailing end, as the iOS 26 search tab does, and the capsule keeps to the leading end at the width of its tabs; show the search screen when its value is selected. With prominent one key destination, such as a cart or a library, takes that circle instead, as the prominent tab of iOS 27: it is still a tab, the circle shows its symbol only and label names it, and with both the search tab joins the capsule as its last tab. The bar holds five tabs at most, the search and prominent tabs counted, as in the kit's Tab Bar - iPhone: next to a circle the capsule keeps four, so the example disables the counts that would not fit. With minimizeBehavior="onScrollDown" the bar shrinks while the content scrolls down to a circle of the selected tab at the leading end, the search or prominent circle staying at the trailing end, as the minimized tab bar of the kit; it comes back when the content scrolls up, and a tap on the minimized tab brings the others back. A tab's badge shows a count or a short word in a red capsule over its symbol, as an iOS tab badge, and the minimized circle keeps it; a count of 0 shows none. accessory puts the app's own content, a now playing row or a status, in a glass capsule above the tabs, as the bottom accessory of iOS 27: minimized, it moves between the two circles, and the bar keeps its height so the content does not move. background sets how the bar meets the content scrolled under it, as on a Toolbar: soft (the default) leaves the content clear around the capsule, as native iOS 26 does, glass lays a translucent, blurred band with a hairline under it, hard an opaque band with a hairline on top, and blur blurs the list under the bar, the more toward the screen's bottom edge, with no fill and no line. The top bar sets its own background, glass by default, so the example sets the two apart.
 ```tsx
 const [tab, setTab] = useState('home')
 
@@ -7114,20 +7177,20 @@ const [tab, setTab] = useState('home')
   value={tab}
   onValueChange={setTab}
   search={{ value: 'search' }}
-  prominent={{ value: 'bag', label: 'Bag', icon: <ShoppingBag /> }}
+  prominent={{ value: 'store', label: 'Store', icon: <ShoppingBag /> }}
   minimizeBehavior="onScrollDown"
   background="soft"
   accessory={<NowPlaying />}
 >
   <TabBar.Item value="home" label="Home" icon={<Home />} />
-  <TabBar.Item value="calendar" label="Calendar" icon={<Calendar />} badge={3} />
-  <TabBar.Item value="photos" label="Photos" icon={<Images />} />
+  <TabBar.Item value="new" label="New" icon={<Sparkles />} badge={3} />
+  <TabBar.Item value="radio" label="Radio" icon={<Mic />} badge="Live" />
 </TabBar>
 </Page>
 ```
 
 ## Table
-"Styled table primitives for structured data, with header, body, footer, row, cell and caption parts on native table elements."
+"Table parts for structured data on native table elements: header, body, footer, rows, cells and a caption."
 Import: import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@plexui/ui/components/Table"
 Docs: https://plexui.com/components/table
 Props:
@@ -7268,6 +7331,7 @@ Props:
   - autoFocus (boolean) default: false — Focus on mount
 
 ### Overview
+On Phone, put a tag input under the label of a row in a FieldGroup (Field row orientation="vertical") with variant="ghost", as the Forms: Settings put a textarea. The row is its frame and sets its insets and type, so the Phone previews show rows without the size and pill controls. To pick tags from a fixed list, use the tag row of the Form Examples, which opens a sheet.
 ```tsx
 // Desktop
 <div className="w-full min-w-0 max-w-[480px]">
@@ -7410,7 +7474,7 @@ return (
 ```
 
 ## Text Link
-Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.
+"A link in running text, to a page of the app or another site, that takes the color of the text around it."
 Import: import { TextLink } from "@plexui/ui/components/TextLink"
 Docs: https://plexui.com/components/text-link
 Props:
@@ -7449,7 +7513,7 @@ const [weight, setWeight] = useState(undefined) // or "font-medium", "font-semib
 ```
 
 ## Textarea
-Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.
+"A text field of several lines for longer input, which can grow with its content."
 Import: import { Textarea } from "@plexui/ui/components/Textarea"
 Docs: https://plexui.com/components/textarea
 Props:
@@ -7472,7 +7536,7 @@ Props:
   - ref (Ref<HTMLTextAreaElement>) — Ref to the <textarea>
 
 ### Overview
-Use variant to stylize the textarea; ghost has no border and no fill, for a field its container already frames. size sets the control height for a single-line equivalent, with its own gutterSize (horizontal padding), font-size and border-radius; gutterSize overrides the padding. rows sets the initial height; with autoResize the textarea grows and shrinks as the user types, up to maxRows, never fewer than rows (10 when unset). autoSelect selects all its text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allowAutofillExtensions lets them in, and a name turns it on by default. disabled greys the textarea out and blocks interaction. invalid marks it invalid, with styles for each variant and [data-invalid] on the container; you decide how the state is removed (onFocus, onChange, onSubmit).On Phone the row is the frame and sets the type and insets: the textarea is ghost under the row's label, takes no size or gutterSize, grows the row with it, and the error is the row's errorMessage line. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so that setting is desktop only.
+On Phone, put a textarea under the label of a row in a FieldGroup (Field row orientation="vertical") with variant="ghost", as the Forms: Settings do. The row is its frame and sets its insets and type, so the Phone preview shows the row without the size, gutterSize and variant controls, nor allowAutofillExtensions, a desktop matter; rows sets its height. Use variant to stylize the textarea; ghost has no border and no fill, for a field its container already frames. size sets the control height for a single-line equivalent, with its own gutterSize (horizontal padding), font-size and border-radius; gutterSize overrides the padding. rows sets the initial height; with autoResize the textarea grows and shrinks as the user types, up to maxRows, never fewer than rows (10 when unset). autoSelect selects all its text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; allowAutofillExtensions lets them in, and a name turns it on by default. disabled greys the textarea out and blocks interaction. invalid marks it invalid, with styles for each variant and [data-invalid] on the container; you decide how the state is removed (onFocus, onChange, onSubmit). On Phone the row is the frame and sets the type and insets: the textarea is ghost under the row's label, takes no size or gutterSize, grows the row with it, and the error is the row's errorMessage line. Browser autofill extensions are a desktop matter: on iOS autofill comes from the system above the keyboard, so that setting is desktop only.
 ```tsx
 const [value, setValue] = useState("Gate code 4512\nThird floor, door on the left\nCall when you arrive")
 const [variant, setVariant] = useState("outline")
@@ -7528,7 +7592,7 @@ const [invalid, setInvalid] = useState(false)
 ```
 
 ## Tip
-A short message that points out a feature people might miss, inside the page or anchored to a control, as TipKit tips do.
+"A short message that points out a feature people might miss, in the page or anchored to a control."
 Import: import { Tip } from "@plexui/ui/components/Tip"
 Docs: https://plexui.com/components/tip
 Props:
@@ -7552,7 +7616,7 @@ Props:
     - className (string) — CSS classes applied to the popover around the tip and its arrow
 
 ### Overview
-An inline tip takes its place in the layout. A symbol in icon leads the message in the secondary color; onClose shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background. actions sit side by side below the message, each as wide as the others; use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them. With mobileActions="buttons" they keep their buttons there: each is a capsule as wide as the tip, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button. It changes nothing on a desktop, so only the Phone preview offers it, and only with actions. With arrowEdge the tip points at what it explains with the kit's arrow, centered on that edge, and leaves room for the arrow on that side. On a phone the tip stands over or under its control, as TipKit's inline tip does: no iOS screen sets a control beside a card of a grouped list, so the Phone preview offers no sideways arrow.
+A tip teaches a feature people might not find on their own: a title that names it and a sentence or two on how to use it. Show one tip at a time, close to what it explains, and stop showing it once the feature is used or the tip is closed. A tip is not for errors or for news about a task: use an Alert or a Toast. It follows the TipKit kit, the macOS Mini Tip on a desktop and on a phone the shape TipKit's tip and most of Apple's own cards share, on the card of a grouped list or, for a popover tip, in the iOS 27 alert's glass. Apple's apps also draw cards of their own, with a large image, a centered layout or capsule buttons; build those from a Card and Buttons. An inline tip takes its place in the layout. A symbol in icon leads the message in the secondary color; onClose shows Close in the trailing corner. On a phone the tip is the opaque card of a grouped list, so place it on a grouped background. actions sit side by side below the message, each as wide as the others; use small pill buttons, as the kit does. On a phone each action is a row of text in its color under a separator, one under another, starting under the text, as iOS cards show them. With mobileActions="buttons" they keep their buttons there: each is a capsule as wide as the tip, 48px tall with a 17px label, in its own color and variant, as the iOS card in Settings that opens the Support app shows. Use it for a card that asks for a permission, with one soft primary button. It changes nothing on a desktop, so only the Phone preview offers it, and only with actions. With arrowEdge the tip points at what it explains with the kit's arrow, centered on that edge, and leaves room for the arrow on that side. On a phone the tip stands over or under its control, as TipKit's inline tip does: no iOS screen sets a control beside a card of a grouped list, so the Phone preview offers no sideways arrow.
 ```tsx
 const [shown, setShown] = useState(true)
 const [icon, setIcon] = useState(true)
@@ -7612,7 +7676,7 @@ description="Show only the items from the last week, month or year."
 ```
 
 ## Toast
-Toast notifications for transient feedback, with semantic variants, descriptions, action buttons, promise integration, and persistent toasts.
+"A brief notification that gives feedback on an action, with an optional description and action button."
 Import: import { Toaster, toast } from "@plexui/ui/components/Toast"
 Docs: https://plexui.com/components/toast
   Toaster:
@@ -7623,19 +7687,18 @@ Docs: https://plexui.com/components/toast
     - gap (number) — Gap between stacked toasts in px
 
 ### Overview
-Call toast with a message, or toast.success, .error, .warning and .info for the semantic types, which map to PlexUI's success, danger, warning and info tokens. Each of them shows its icon; icon: null leaves it out, and icon takes an element of your own instead. No richColors is passed, so the types retheme with data-theme. The options add a description under the message, an action button and a cancel one (either closes the toast after its onClick), and closeButton. toast.promise ties one toast to an async operation: it shows a loading state, then swaps to success or error, and takes the same options; here saveProfile() resolves with {"{ name: \"Profile\" }"} after 1.5 seconds. Spread compact into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content. duration: Infinity keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers). On a desktop the message and its controls share a row: the buttons stand 16px after the message and 8px apart, small 28px buttons with 6px corners (the action solid, the cancel soft), and the close button is the same 28px button, plain, at the end. With a description the buttons go under the message, at the end, and the close button stays on the title's line. On a phone a toast is as wide as its message and stands in the middle, a glass capsule as the system's own message at the top of an iPhone, 24px corners once it has a description, with 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than 8em. Under 600px a long message wraps at 14px gutters past the safe area. A toast with rich colors keeps its color.
+Render &lt;Toaster /&gt; once near the root of your app, then call toast(...) from any handler. PlexUI renders toasts and manages their interaction while sonner supplies the toast store. Its full API (toast.promise, toast.loading, toast.dismiss, toast.custom) is re-exported as-is. Call toast with a message, or toast.success, .error, .warning and .info for the semantic types, which map to PlexUI's success, danger, warning and info tokens. Each of them shows its icon; icon: null leaves it out, and icon takes an element of your own instead. No richColors is passed, so the types retheme with data-theme. The options add a description under the message, an action button and a cancel one (either closes the toast after its onClick), and closeButton. toast.promise ties one toast to an async operation: it shows a loading state, then swaps to success or error, and takes the same options; here saveProfile() resolves with {"{ name: \"Profile\" }"} after 1.5 seconds. Spread compact into the options for a centered toast: on a desktop a toast shrinks to its content anyway, and on a phone, where a toast fills the width, a compact one keeps the width of its content. duration: Infinity keeps a toast open until the user closes it, so give it a labelled action or a close button: a way to close it from the keyboard. An error that waits like this is an alert (see Screen readers). On a desktop the message and its controls share a row: the buttons stand 16px after the message and 8px apart, small 28px buttons with 6px corners (the action solid, the cancel soft), and the close button is the same 28px button, plain, at the end. With a description the buttons go under the message, at the end, and the close button stays on the title's line. On a phone a toast is as wide as its message and stands in the middle, a glass capsule as the system's own message at the top of an iPhone, 24px corners once it has a description, with 15pt text, with its buttons drawn as a medium phone Button, a 34px capsule in a 44px target. One button stands at the end of the message's row, where a banner shows its time, and the message wraps in its own column; a cancel and an action together stand under the message, and so does a button that would leave the message less than 8em. Under 600px a long message wraps at 14px gutters past the safe area. A toast with rich colors keeps its color.
 ```tsx
 import { toast, compact as compactOptions } from "@plexui/ui/components/Toast"
 
-// Each type's title, its short description and its action's label
+// Each type's title, its short description, a long one that wraps to two lines, and its action's label
 const messages = {
-default: { title: "Changes saved", description: "Your profile is live for everyone on the team.", action: "Undo" },
-success: { title: "Inquiry ID copied", description: "Paste it into the support form.", action: "Open" },
-error: { title: "Failed to assign owner", description: "The owner has left the workspace.", action: "Retry" },
-warning: { title: "Session expires in 2 minutes", description: "Unsaved changes will be lost.", action: "Stay" },
-info: { title: "New version available", description: "Reload to get the latest features.", action: "Reload" },
+default: { title: "Changes saved", description: "Your profile is live for everyone on the team.", long: "Your profile is live for everyone on the team. Anna Kim and 3 others will see your new photo and title.", action: "Undo" },
+success: { title: "Inquiry ID copied", description: "Paste it into the support form.", long: "Paste it into the support form so we can find your case. We usually reply within one business day.", action: "Open" },
+error: { title: "Failed to assign owner", description: "The owner has left the workspace.", long: "Anna Kim has left the workspace. Choose another owner for “Q3 roadmap” or invite her back first.", action: "Retry" },
+warning: { title: "Session expires in 2 minutes", description: "Unsaved changes will be lost.", long: "Unsaved changes to “Q3 roadmap” will be lost. Stay signed in to keep editing.", action: "Stay" },
+info: { title: "New version available", description: "Reload to get the latest features.", long: "Version 2.4 adds shared folders and faster search. Reload to get the latest features.", action: "Reload" },
 }
-const longDescription = "This is a long message to show how the toast handles multi-line content without clipping or awkward wrapping. The title and description should both wrap cleanly."
 
 const [type, setType] = useState("default") // or "success", "error", "warning", "info", "promise"
 const [icon, setIcon] = useState(true) // the type's icon; false passes icon: null
@@ -7653,7 +7716,7 @@ const message = messages[type === "promise" ? "default" : type]
 
 const show = () => {
 const options = {
-  description: description === "none" ? undefined : description === "short" ? message.description : longDescription,
+  description: description === "none" ? undefined : description === "short" ? message.description : message.long,
   action: action === "none" ? undefined : { label: message.action, onClick: () => {} },
   cancel: action === "cancel" ? { label: "Cancel", onClick: () => {} } : undefined,
   closeButton,
@@ -7675,7 +7738,7 @@ Show toast
 ```
 
 ## Toggle Group
-A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on, as the round weekday buttons of the iOS Clock app.
+"A row of buttons that each stay pressed or not, any number at a time, such as the days an alarm repeats on."
 Import: import { ToggleGroup } from "@plexui/ui/components/ToggleGroup"
 Docs: https://plexui.com/components/toggle-group
 Props:
@@ -7702,7 +7765,7 @@ Props:
     - children (ReactNode) — Content of the item: a label, a letter or an icon
 
 ### Overview
-Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; here it reads as the Clock app's does. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px). pill rounds the items fully, circles here, as uniform makes them as wide as they are tall, for a letter or an icon. block spreads them across the width of their container; without it the group is as wide as its items, 8px apart. disabled disables the whole group. On a phone with touch.css every item is fully rounded, as iOS draws its buttons, and a letter is the Clock app's 35pt circle at every size, so the Phone preview offers neither pill nor size. Items of text there take the three iOS button heights.
+A toggle group sets several on or off choices that belong together, where any number may be on, such as the days an alarm repeats on. For one choice out of several, use a SegmentedControl or a RadioGroup; for a single setting, a Switch or a Checkbox. Round items spread across their row are the weekday buttons of the iOS Clock app's Repeat row, as in Add Alarm. On a phone with touch.css each is a 35pt circle with its letter at 17pt Semibold, as the native ones are. A narrow letter alone does not name a day: give each item the day's full name with aria-label. The summary beside the label is the app's to write; here it reads as the Clock app's does. The group's color fills a pressed item, a solid button; an item that is not pressed stays a soft secondary button whatever the color. size sizes every item as it sizes a Button, from 3xs (22px) to 3xl (48px). pill rounds the items fully, circles here, as uniform makes them as wide as they are tall, for a letter or an icon. block spreads them across the width of their container; without it the group is as wide as its items, 8px apart. disabled disables the whole group. On a phone with touch.css every item is fully rounded, as iOS draws its buttons, and a letter is the Clock app's 35pt circle at every size, so the Phone preview offers neither pill nor size. Items of text there take the three iOS button heights.
 ```tsx
 const week = [1, 2, 3, 4, 5, 6, 7].map((day) => {
   // 1 January 2024 is a Monday
@@ -7762,7 +7825,7 @@ disabled on an item keeps it as it is: Email stays pressed, as account emails ca
 ```
 
 ## Toolbar
-"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up."
+"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content."
 Import: import { Toolbar } from "@plexui/ui/components/Toolbar"
 Docs: https://plexui.com/components/toolbar
 Props:
@@ -7776,7 +7839,7 @@ Props:
     - as ("h1" | "h2" | "h3") default: "h1" — Heading level of the title
 
 ### Overview
-Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (search row) or behind a Search button in the bar (search button), and Close puts it back, as iOS 27.2 raises the field of the bar's drawer into the bar and hides the title and the buttons; a segmented row stays under the open field. A Search button can open its field at the bottom instead (field bottom), as SwiftUI's search button opens it over the keyboard: the field and Close take a bottom bar of their own, the top bar's title and buttons go, and a segmented row moves up in their place. Toolbar.Row adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is glass at its default size, as a chat list draws its folders under its bar in iOS 27: a 40px capsule, the gray selection 34px and 3px inside it, 15px labels 12px from their segments' ends. It fills the row: its segments share the width and scroll when they do not fit, and a badge is not drawn, its count staying in the segment's accessible name. size="sm" gives the small plain one (32px, as iOS 27.2 draws a segmented Picker under a bar) and size="lg" the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (glass or hard) only starts 10px above them. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a hairline. blur has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
+Toolbar is a phone component: under 768px it renders, from 768px up it takes no space. Each example shows the phone view. Leading and trailing items take 44px targets; an inline title is centered across the whole width. titleStyle sets the size and place of the title: inline in the row of controls, large on a row of its own below them (on a page it stands at the top of the content and scrolls with it, overscroll included; once it has gone under the controls, they show it inline), and compact-large or compact-medium at the leading edge of the row, on a screen with no Back button. subtitle adds a second line under an inline or large title. titleAlign="start" puts an inline title after the leading items. Scroll the content: the bar's background meets the rows under it, and the glass starts to cast a shadow. Toolbar.Group puts related actions in one capsule; a single action, as Back or Close, keeps a capsule of its own. Without Toolbar.Title the bar holds its controls alone. A ButtonGroup in a toolbar is the same capsule. Name each icon button with aria-label. Toolbar.Content fill stretches a search field across the row in the place of the title, up to the trailing items; the field takes the row height and the material of the bar buttons. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (search row) or behind a Search button in the bar (search button), and Close puts it back, as iOS 27.2 raises the field of the bar's drawer into the bar and hides the title and the buttons; a segmented row stays under the open field. A Search button can open its field at the bottom instead (field bottom), as SwiftUI's search button opens it over the keyboard: the field and Close take a bottom bar of their own, the top bar's title and buttons go, and a segmented row moves up in their place. Toolbar.Row adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, as a chat list shows its folders under its bar, or a search field. It spans the bar between its gutters, 10px under the controls, and the bar's background and line take it in. Several rows stand in their order, 10px apart: a search field over a segmented control, as iOS 27.2 sets them under the search field of a bar's drawer. A segmented control in it is glass at its default size, as a chat list draws its folders under its bar in iOS 27: a 40px capsule, the gray selection 34px and 3px inside it, 15px labels 12px from their segments' ends. It fills the row: its segments share the width and scroll when they do not fit, and a badge is not drawn, its count staying in the segment's accessible name. size="sm" gives the small plain one (32px, as iOS 27.2 draws a segmented Picker under a bar) and size="lg" the large glass one (48px). A search field in it is the bar's: 44px of glass. Under a large title on a page the rows stand under the title at the top of the content, 16px under its baseline; scrolled up to the bar they stay pinned under its controls, and the bar's background, edge and line reach under them, as iOS 27.2 pins them. placement="bottom" sets the bar at the bottom of the page with 48px targets and the device's bottom safe area. Toolbar.Content centers a main action; with fill a search field or a single action takes the whole row. The 48px items stand 28px from the sides and above the home indicator, 12px apart, whatever the background: iOS 27.2 keeps them in place over every scroll edge, and a band (glass or hard) only starts 10px above them. A search field holds SearchSm, set in Regular; a plus next to it takes iconSize="sm", as Contacts draws it smaller than the other symbols. The page content scrolls under both bars. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button. background sets how a bar meets the content scrolled under it. glass, the default of a top bar, is a translucent, blurred bar with a hairline. soft, the default of a bottom bar, is the scroll edge effect of iOS 26 and draws no line: once content is under a top bar with a title, a blur hides it under the controls and lets go of it past the bar, under a thin veil of the canvas color (iOS 27.2: 55% at the top, 20% at the bar's bottom, none 24px below), while a top bar of controls alone on a page covers only the status bar, and once content runs on under a bottom bar on a page, a blur hides it under the controls behind a veil of the canvas color that grows toward the screen's edge, with no band and no line (iOS 27.2: none 34px above the items, 15% at their top, 46% from 43px into them); each glass control stands out over it. A Sheet's bottom bar fades its content into the panel. hard is an opaque bar of the canvas color with a hairline. blur has no fill and no line: the content under the bar is blurred a little over the bar and past it, and heavily toward the screen's edge. Glass, hard and blur show themselves once content is under the bar: under the top bar after the content has scrolled, over the bottom bar while it continues below. Page.Header, Page.Footer, the bars of a Sheet and TabBar take the same values. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.
 ```tsx
 const [search, setSearch] = useState("none") // where the search waits: "row" (a field under the controls) or "button" (in the bar)
 const [searching, setSearching] = useState(false) // a tap opens it: its field in place of the title, with Close
@@ -7788,7 +7851,7 @@ const [subtitle, setSubtitle] = useState(false) // not with a compact title
 const [group, setGroup] = useState(false)
 const [segmented, setSegmented] = useState(false) // a row of the bar with the views, under the search field
 const [rowSize, setRowSize] = useState("md") // "sm": the small plain control, "lg": the large glass one
-const [view, setView] = useState("all")
+const [view, setView] = useState("all") // the segmented row shows the orders of its view
 const [topBackground, setTopBackground] = useState("glass") // or "soft", "hard", "blur"
 const [bottom, setBottom] = useState("none") // or "buttons", "search" (one search field to a screen), "action"
 const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "glass", "blur"
@@ -7839,11 +7902,11 @@ const closeSearch = () => {
             )}
             {group ? (
               <Toolbar.Group aria-label="Order actions">
-                <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="Share"><Share /></Button>
                 <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
               </Toolbar.Group>
             ) : (
-              <NavigationButton action={named && titleStyle === "large" ? "confirm" : "close"} />
+              <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
             )}
           </>
         )}
@@ -7860,7 +7923,7 @@ const closeSearch = () => {
           <SegmentedControl.Option value="all">All</SegmentedControl.Option>
           <SegmentedControl.Option value="paid">Paid</SegmentedControl.Option>
           <SegmentedControl.Option value="unpaid" badge={{ content: 3, pill: true }}>Unpaid</SegmentedControl.Option>
-          <SegmentedControl.Option value="refunds">Refunds</SegmentedControl.Option>
+          <SegmentedControl.Option value="refunded">Refunds</SegmentedControl.Option>
         </SegmentedControl>
       </Toolbar.Row>
     )}
@@ -7954,14 +8017,14 @@ A disabled bar button keeps its glass capsule and draws its symbol or label in t
 <Page.Content>...</Page.Content>
 <Toolbar placement="bottom">
   <Toolbar.Leading>
-    <Button color="secondary" variant="soft" uniform pill aria-label="Filter" disabled><Filter /></Button>
+    <Button color="secondary" variant="soft" uniform pill aria-label="Add discount" disabled><Tag /></Button>
   </Toolbar.Leading>
   <Toolbar.Content>
     <Button color="primary" pill disabled>Place order</Button>
   </Toolbar.Content>
   <Toolbar.Trailing>
     <Toolbar.Group aria-label="Order actions">
-      <Button color="secondary" variant="soft" uniform pill aria-label="Translate" disabled><Translate /></Button>
+      <Button color="secondary" variant="soft" uniform pill aria-label="Share" disabled><Share /></Button>
       <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
     </Toolbar.Group>
   </Toolbar.Trailing>
@@ -7989,7 +8052,7 @@ In a Sheet the toolbar sits at the top edge and takes the place of the Sheet's o
 ```
 
 ## Tooltip
-Brief informative text shown on hover or focus, for any trigger element, with conditional enabling, a compact variant and a copy-to-clipboard tooltip.
+"Brief text that explains a control, shown on hover or keyboard focus."
 Import: import { CopyTooltip, Tooltip } from "@plexui/ui/components/Tooltip"
 Docs: https://plexui.com/components/tooltip
 Props:
@@ -8018,7 +8081,7 @@ Props:
     - onCopy ((copied: boolean) => void) — Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write
 
 ### Overview
-Any element can be the trigger: trigger shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in Tooltip.TriggerDecorator, which makes it one and marks it with a dotted underline; a plain span shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with aria-label, and its tooltip says the same in words. compact is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. side is the side the tooltip prefers; it turns to the other side when there is no room. A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as content while it is disabled. To show a tooltip only under a condition, pass null otherwise.
+Tooltips provide supplementary information on hover or keyboard focus. Touch-only users need visible helper text or a tap-triggered Popover. The Overview uses pointer and keyboard interactions, so it has no separate Phone preview. For copying, Copy Tooltip confirms the action after a successful tap. Any element can be the trigger: trigger shows text, a button and an icon button. Text is no tab stop of its own, so wrap it in Tooltip.TriggerDecorator, which makes it one and marks it with a dotted underline; a plain span shows its tooltip on hover only, and a keyboard never reaches it. An icon button names itself with aria-label, and its tooltip says the same in words. compact is for short tooltips of one to three words: little padding (2px by 8px) and inverted colors, a dark fill with light text in the light theme and the other way round in the dark one. side is the side the tooltip prefers; it turns to the other side when there is no room. A disabled button can tell why in its tooltip on hover (a disabled button is no tab stop): pass the reason as content while it is disabled. To show a tooltip only under a condition, pass null otherwise.
 ```tsx
 const [trigger, setTrigger] = useState<"text" | "button" | "icon">("text")
 const [compact, setCompact] = useState(false)

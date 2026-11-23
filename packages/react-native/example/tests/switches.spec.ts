@@ -4,7 +4,7 @@ import { openGallery } from "./gallery"
 test("the platform switch draws Material 3 and back", async ({ page }) => {
   await openGallery(page, { platform: "ios", scheme: "light", screen: "buttons" })
   await expect(page.getByText("PRESSABLE")).toBeVisible()
-  const solid = page.getByRole("button", { name: "primary" }).first()
+  const solid = page.getByRole("button", { name: "Continue", exact: true }).first()
   const iosHeight = (await solid.boundingBox())!.height
   await page.getByTestId("platform-android").click()
   await expect(page.getByText("Pressable", { exact: true })).toBeVisible()
@@ -39,11 +39,11 @@ test("buttons press, toggle and announce their state", async ({ page }) => {
   await openGallery(page, { platform: "ios", scheme: "light", screen: "buttons" })
   await page.getByTestId("button-count").click()
   await page.getByTestId("button-count").click()
-  await expect(page.getByTestId("button-count")).toHaveText("Pressed 2")
+  await expect(page.getByTestId("button-count")).toHaveText("In cart: 2")
   await expect(page.getByTestId("button-toggle")).toHaveAttribute("aria-selected", "true")
   await page.getByTestId("button-toggle").click()
-  await expect(page.getByTestId("button-toggle")).toHaveText("Not selected")
-  await expect(page.getByRole("button", { name: "Disabled" }).first()).toBeDisabled()
+  await expect(page.getByTestId("button-toggle")).toHaveText("Follow")
+  await expect(page.getByRole("button", { name: "Send" }).first()).toBeDisabled()
 })
 
 test("an icon button has a name and toggles", async ({ page }) => {

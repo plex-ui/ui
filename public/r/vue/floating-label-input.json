@@ -3,7 +3,7 @@
   "name": "floating-label-input",
   "type": "registry:ui",
   "title": "Float Input",
-  "description": "Text input whose label floats above the value, with error and helper text, a clear button, a password reveal toggle, and a multi-line variant.",
+  "description": "Text input whose label floats above its value, with helper and error text and a multi-line variant.",
   "dependencies": [
     "@plexui/vue"
   ],

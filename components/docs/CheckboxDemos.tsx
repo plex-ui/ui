@@ -17,9 +17,9 @@ const ORIENTATION_OPTIONS = ['left', 'right'] as const;
 
 /** The three states of the Overview: a checked option, an unchecked one, and a parent whose items are partly on */
 const OVERVIEW_OPTIONS = [
-  { label: 'Share usage data', description: 'Help improve the product with anonymous usage reports.', defaultChecked: true },
-  { label: 'Enable notifications', description: 'You can enable or disable notifications at any time from settings.', defaultChecked: false },
-  { label: 'Sync all folders', description: 'Some of its folders are synced.', defaultChecked: 'indeterminate' as const },
+  { label: 'Photos', description: 'Back up photos and videos over Wi-Fi.', defaultChecked: true },
+  { label: 'Messages', description: 'Include chats and attachments in each backup.', defaultChecked: false },
+  { label: 'Folders', description: '3 of 5 folders are backed up.', defaultChecked: 'indeterminate' as const },
 ];
 
 function Segments<T extends string>({ name, options, value, onChange }: { name: string; options: readonly T[]; value: T; onChange: (value: T) => void }) {
@@ -82,9 +82,9 @@ export function CheckboxOverviewDemo() {
 
 export function CheckboxGroupDemo() {
   const [items, setItems] = useState([
-    { id: 'read', label: 'Read', checked: true },
-    { id: 'write', label: 'Write', checked: false },
-    { id: 'execute', label: 'Execute', checked: false },
+    { id: 'photos', label: 'Photos', checked: true },
+    { id: 'contacts', label: 'Contacts', checked: true },
+    { id: 'messages', label: 'Messages', checked: false },
   ]);
 
   const allChecked = items.every((i) => i.checked);
@@ -95,7 +95,7 @@ export function CheckboxGroupDemo() {
     <div data-demo-stage className="flex-1 flex items-center justify-center py-12 w-full">
       <div className="flex flex-col gap-3">
         <Checkbox
-          label="Permissions"
+          label="Back up"
           checked={parentChecked}
           onCheckedChange={() => {
             const next = !allChecked;

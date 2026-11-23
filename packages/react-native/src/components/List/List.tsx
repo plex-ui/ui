@@ -1,26 +1,38 @@
-import { createContext, isValidElement, useContext, type ReactNode } from "react"
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { cloneElement, createContext, isValidElement, useCallback, useContext, useMemo, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
+import { Platform, Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
 import Disclosure from "../../icons/plex/Disclosure"
-import { useDescription } from "../../internal/a11y"
+import ExclamationMarkCircle from "../../icons/plex/ExclamationMarkCircle"
+import { spaceToggles, useDescription } from "../../internal/a11y"
 import { flattenChildren, textOf } from "../../internal/children"
-import { stateLayer, withAlpha } from "../../theme/material"
+import { cssBox } from "../../internal/cssBox"
+import { mirrored, useRTL } from "../../internal/direction"
+import { RowEndContext, RowHoldContext, type RowEnd } from "../../internal/row"
+import { accentText, controlHighlight, dangerText, divider, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
-import { materialType } from "../../theme/typography"
+import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox"
 import { IconDefaultsProvider } from "../Icon/createIcon"
+import { RadioContext, RadioGroup, type RadioGroupContext, type RadioGroupItemProps } from "../RadioGroup/RadioGroup"
+import { Switch, SwitchTrack, type SwitchProps } from "../Switch/Switch"
 import { Text } from "../Text/Text"
 
 export type ListProps = {
   children: ReactNode
   /** The title over the section. */
   header?: ReactNode
+  /** A line under the title, as the web's FieldGroup `description`: 15/20 in the secondary label on iOS. */
+  description?: ReactNode
   /** A note under the section. */
   footer?: ReactNode
   /**
+   * An error under the rows, as the web's FieldError in a group's footer: the danger color, 15/20, 4 lower than a
+   * footer on iOS. It stands in place of the footer while it is set, and is announced when it appears.
+   */
+  error?: ReactNode
+  /**
    * The canvas the section stands on. `grouped`: the gray grouped canvas of a settings screen, the section in the
-   * grouped secondary surface (white in light); on Android the Settings page (surfaceContainer), its rows in
-   * surfaceBright. `plain`: a plain canvas, the section in the plain secondary gray (`--field-group-background`); on
-   * Android a surface page, its rows in surfaceContainer. @default "grouped"
+   * grouped secondary surface (white in light). `plain`: a plain canvas, the section in the plain secondary gray
+   * (`--field-group-background`). The same on both platforms. @default "grouped"
    */
   surface?: "grouped" | "plain"
   "aria-label"?: string
@@ -28,41 +40,53 @@ export type ListProps = {
   style?: StyleProp<ViewStyle>
 }
 
-type RowPlace = { first: boolean; last: boolean; fill?: string }
+type RowPlace = { first: boolean; last: boolean }
 const PlaceContext = createContext<RowPlace>({ first: true, last: true })
 
 /**
  * A section of rows. iOS 26: a section of an inset grouped list, as @plexui/ui's FieldGroup on a phone
- * (`--field-group-radius` 26, the grouped secondary surface, rows 20 in from its edges, hairlines between rows
- * from the text's start; the header 17/22 at 590 in the secondary label, the footer 13/16). Android: a group of
- * Android 16's Settings (SettingsLib's expressive preference groups): every row its own card, 2dp apart, the group's
- * outer corners 20dp and its inner corners 4dp, a 14sp medium header in `primary` and the footer 24dp from the
- * screen's edge (8 in from the cards, which the screen insets 16).
+ * (`--field-group-radius` 26, the grouped secondary surface, rows 20 in from its edges, hairlines between rows from
+ * the text's start; the header 17/22 at 590 in the secondary label over its description 15/20, the footer 13/16, an
+ * error 15/20 in the danger color). Android: a section of a settings screen: one card of the section's rows,
+ * 16dp round, a 1px divider between rows from the text's start; the header inside the card, a 40dp row of 14sp Medium
+ * in the accent 20 in, its description 14sp in the secondary label under it; the footer under the card, 14sp in the
+ * secondary label 12 in (24 from the screen's edge, as the screen insets the card 12), 10 above and 17 below, an
+ * error the same in the error color. The screen sets the cards 12 from its edges and 12 apart.
  */
-export function List({ children, header, footer, surface = "grouped", "aria-label": ariaLabel, testID, style }: ListProps) {
+export function List({ children, header, description, footer, error, surface = "grouped", "aria-label": ariaLabel, testID, style }: ListProps) {
   const theme = useTheme()
   const rows = flattenChildren(children).filter(isValidElement)
-  const fill = theme.isAndroid ? (surface === "plain" ? theme.material.surfaceContainer : theme.material.surfaceBright) : undefined
+  const fill = surface === "plain" ? theme.color("--field-group-background", theme.colors.surfaceSecondary) : theme.colors.groupedSurface
   const body = rows.map((row, index) => (
-    <PlaceContext.Provider key={row.key ?? index} value={{ first: index === 0, last: index === rows.length - 1, fill }}>
+    <PlaceContext.Provider key={row.key ?? index} value={{ first: index === 0, last: index === rows.length - 1 }}>
       {row}
     </PlaceContext.Provider>
   ))
   const label = ariaLabel ?? (textOf(header) || undefined)
   if (theme.isAndroid) {
-    const m = theme.material
     return (
       <View testID={testID} style={style}>
-        {header != null ? (
-          <Text accessibilityRole="header" color={m.primary} style={[styles.androidHeader, { fontSize: materialType.titleSmall.fontSize, lineHeight: materialType.titleSmall.lineHeight, ...theme.font("medium") }]}>
-            {header}
-          </Text>
-        ) : null}
-        <View accessibilityRole="list" aria-label={label} style={styles.androidGroup}>
-          {body}
+        <View style={[styles.androidCard, { backgroundColor: fill }]}>
+          {header != null ? (
+            <Text accessibilityRole="header" color={accentText(theme)} weight="medium" style={styles.androidHeader}>
+              {header}
+            </Text>
+          ) : null}
+          {description != null ? (
+            <Text color={theme.colors.labelSecondary} style={[styles.androidDescriptionLine, header == null ? styles.androidDescriptionAlone : null]}>
+              {description}
+            </Text>
+          ) : null}
+          <View accessibilityRole="list" aria-label={label}>
+            {body}
+          </View>
         </View>
-        {footer != null ? (
-          <Text color={m.onSurfaceVariant} style={[styles.androidFooter, { fontSize: materialType.bodyMedium.fontSize, lineHeight: materialType.bodyMedium.lineHeight }]}>
+        {error != null ? (
+          <Text color={dangerText(theme)} accessibilityLiveRegion="polite" style={styles.androidFooter}>
+            {error}
+          </Text>
+        ) : footer != null ? (
+          <Text color={theme.colors.labelSecondary} style={styles.androidFooter}>
             {footer}
           </Text>
         ) : null}
@@ -70,13 +94,37 @@ export function List({ children, header, footer, surface = "grouped", "aria-labe
     )
   }
   const inset = theme.length("--list-row-inset", 20)
+  const footerBox = cssBox(theme, "--field-group-footer-padding", [8, inset, 6, inset])
   return (
     <View testID={testID} style={style}>
-      {header != null ? (
-        <View style={{ minHeight: theme.length("--field-group-header-min-height", 39), justifyContent: "flex-end", paddingTop: 11, paddingBottom: 6, paddingHorizontal: inset }}>
-          <Text accessibilityRole="header" weight="semibold" color={theme.color("--field-group-title-color", theme.colors.textSecondary)} style={styles.iosHeader}>
-            {header}
-          </Text>
+      {header != null || description != null ? (
+        <View
+          style={{
+            minHeight: theme.length("--field-group-header-min-height", 39),
+            justifyContent: "flex-end",
+            paddingTop: theme.length("--field-group-header-padding-top", 11),
+            paddingBottom: theme.length("--field-group-header-padding-bottom", 6),
+            paddingHorizontal: theme.length("--field-group-title-padding-inline", inset),
+          }}
+        >
+          {header != null ? (
+            <Text
+              accessibilityRole="header"
+              weight="semibold"
+              color={theme.colors.labelSecondary}
+              style={{ fontSize: theme.length("--field-group-title-font-size", 17), lineHeight: theme.length("--field-group-title-line-height", 22) }}
+            >
+              {header}
+            </Text>
+          ) : null}
+          {description != null ? (
+            <Text
+              color={theme.colors.labelSecondary}
+              style={{ fontSize: theme.length("--field-group-description-font-size", 15), lineHeight: theme.length("--field-group-description-line-height", 20) }}
+            >
+              {description}
+            </Text>
+          ) : null}
         </View>
       ) : null}
       <View
@@ -86,8 +134,34 @@ export function List({ children, header, footer, surface = "grouped", "aria-labe
       >
         {body}
       </View>
-      {footer != null ? (
-        <Text color={theme.colors.textSecondary} style={[styles.iosFooter, { paddingHorizontal: inset }]}>
+      {error != null ? (
+        // The web's FieldError in the footer: its 4 offset over the footer's padding
+        <Text
+          color={errorColor(theme)}
+          accessibilityLiveRegion="polite"
+          style={{
+            fontSize: theme.length("--mobile-field-error-font-size", 15),
+            lineHeight: theme.length("--mobile-field-error-line-height", 20),
+            paddingTop: footerBox.top + theme.length("--mobile-field-error-offset", 4),
+            paddingEnd: footerBox.right,
+            paddingBottom: footerBox.bottom,
+            paddingStart: footerBox.left,
+          }}
+        >
+          {error}
+        </Text>
+      ) : footer != null ? (
+        <Text
+          color={theme.colors.labelSecondary}
+          style={{
+            fontSize: theme.length("--field-group-footer-font-size", 13),
+            lineHeight: theme.length("--field-group-footer-line-height", 16),
+            paddingTop: footerBox.top,
+            paddingEnd: footerBox.right,
+            paddingBottom: footerBox.bottom,
+            paddingStart: footerBox.left,
+          }}
+        >
           {footer}
         </Text>
       ) : null}
@@ -99,14 +173,40 @@ export type ListItemProps = {
   /** The row's text, as @plexui/ui's NavigationRow `label`. */
   label: ReactNode
   description?: ReactNode
-  /** A symbol at the start: in a tile of `leadingColor` on iOS (the Settings look), plain on Android. */
+  /** A symbol at the start, plain or in a tile of `leadingColor` (the Settings look). */
   leading?: ReactNode
-  /** The fill of the leading tile on iOS; the symbol turns white on it. */
+  /** The fill of the leading tile; the symbol turns white on it. */
   leadingColor?: string
-  /** A value at the end, in the secondary label (`Wi-Fi … Home`). */
+  /** A value at the end, in the secondary label on iOS (`Wi-Fi … Home`) and the accent on Android. */
   value?: ReactNode
-  /** A control at the end: a Switch, a Badge. */
+  /**
+   * Where the value stands: at the `end` of the row, `below` the label at the full width of the text, or `auto`: at
+   * the end while the label and the value fit beside each other on one line, otherwise below (as Calendar sets a long
+   * value; the web's NavigationRow). Below the label it is in the secondary label, before the description; on Android
+   * it is the 13sp gray second line of a detail row. @default "end"
+   */
+  valuePlacement?: "end" | "below" | "auto"
+  /**
+   * A control at the end: a Badge, a Checkbox, an Input (on iOS a field fills the room after the label, its text at the
+   * row's end, as the web's form row). For a switch give `checked` and `onCheckedChange` instead. A Switch or a
+   * Checkbox here, in a row without `onPress`, toggles on a press anywhere on the row, as the web's phone rows; the
+   * control stays the one element for a screen reader, named by the label when it has no name of its own.
+   */
   trailing?: ReactNode
+  /**
+   * An error under the row, as the web's FieldError in a form row: on iOS a line of its own across the row, 4 under the
+   * label, 15/20 in the danger color after a 16pt exclamation mark; on Android under the label, 13sp in the error color.
+   * It is announced when it appears.
+   */
+  error?: ReactNode
+  /**
+   * Makes the row a switch row: a switch at its end, and the whole row the switch, one stop for a screen reader that
+   * toggles on a press anywhere (Settings' SwitchPreference; the web's label of a Switch).
+   */
+  checked?: boolean
+  /** The switch row's state when it holds its own. */
+  defaultChecked?: boolean
+  onCheckedChange?: (checked: boolean) => void
   /** The chevron of a row that opens a page. @default true when the row has `onPress`, no `trailing` and is not `destructive` */
   disclosure?: boolean
   onPress?: () => void
@@ -118,53 +218,185 @@ export type ListItemProps = {
 }
 
 /**
- * A row of a List: the label (17/22, `--field-row-*`: 52 tall, 12 above and below the text) with a description,
- * a leading symbol, a value or a control, and the chevron of a drill-in (`Disclosure`, in the tertiary label). On
- * Android a preference of Android 16's Settings: 72dp tall at least, the title in Title M, the value and the
- * description under it in Body M (Settings shows a value as the summary, and a drill-in has no chevron), a 24dp
- * icon in a 40dp frame 12 from the text, a control 16 after it.
+ * A row of a List: the label (17/22, `--field-row-*`: 52 tall, 70 with a description, 12 above and below the text at
+ * least) with a description, a leading symbol, a value (wrapping within 60% of the row, or under the label: `valuePlacement`) or a control, and the chevron
+ * of a drill-in (`Disclosure`, in the tertiary label, turned over right to left). A row with `checked` is a switch
+ * row. On Android a row of a settings screen: 50dp tall at least (60 with a description), the label 16sp, the
+ * description 13sp in the secondary label under it, the value 16sp in the accent at the end, 17 from it (20 in a row
+ * with a tile), no chevron; the text 20 in, or 71 after a 24dp symbol at 21, or 64 after a 28dp tile of
+ * `leadingColor` at 18 with a 24dp symbol (the tile's corners 10); a 1px divider from the text's start to the next
+ * row, none under a row with a tile (a tiled row draws none).
  */
-export function ListItem({ label, description, leading, leadingColor, value, trailing, disclosure, onPress, disabled = false, destructive = false, accessibilityLabel, testID }: ListItemProps) {
+export function ListItem({
+  label,
+  description,
+  leading,
+  leadingColor,
+  value,
+  valuePlacement = "end",
+  trailing,
+  error,
+  checked: checkedProp,
+  defaultChecked,
+  onCheckedChange,
+  disclosure,
+  onPress,
+  disabled = false,
+  destructive = false,
+  accessibilityLabel,
+  testID,
+}: ListItemProps) {
   const theme = useTheme()
-  const { first, last, fill } = useContext(PlaceContext)
+  const { last } = useContext(PlaceContext)
+  const switchRow = checkedProp !== undefined || defaultChecked !== undefined || onCheckedChange !== undefined
+  const [own, setOwn] = useState(defaultChecked ?? false)
+  const checked = checkedProp ?? own
+  const toggle = () => {
+    if (disabled) return
+    if (checkedProp === undefined) setOwn(!checked)
+    onCheckedChange?.(!checked)
+  }
+  // A Switch, a Checkbox or a RadioGroup option at the end of a row with no press of its own: a press anywhere on the
+  // row toggles or chooses it, as Android's switch, checkbox and radio rows and the web's phone rows. The
+  // row holds the state of a control that would hold its own, so the row's press and the control's change the same
+  // state; an option's state is its group's
+  const radios = useContext(RadioContext)
+  const found = !switchRow && !onPress ? rowControl(trailing, radios != null) : null
+  const [controlOwn, setControlOwn] = useState<boolean | "indeterminate">(() => (found && found.kind !== "radio" ? (found.element.props.defaultChecked ?? false) : false))
+  const rowName = textOf(label) || undefined
+  const control = !found ? null : found.kind === "radio" ? radioControl(found.element, radios!, disabled, rowName) : endControl(found, controlOwn, setControlOwn, disabled, rowName)
+  // A control at the end that opens from the row (`RowEnd.press`) gets the row's press, as it gets a toggle's; it stays
+  // the one element for a screen reader and the keyboard
+  const [endPress, setEndPress] = useState<(() => void) | null>(null)
+  const handPress = useCallback((open: (() => void) | null) => setEndPress(() => open), [])
+  const handed = !switchRow && !onPress && !control && !disabled ? endPress : null
+  const press = switchRow ? toggle : (onPress ?? control?.toggle ?? handed ?? undefined)
+  const endOwnsFocus = control != null || handed != null
   // A destructive row is an action, not a page (Settings' Sign Out has no chevron)
-  const chevron = disclosure ?? (!!onPress && trailing == null && !destructive)
+  const chevron = disclosure ?? (!!onPress && !switchRow && trailing == null && !destructive)
   const name = accessibilityLabel ?? ([textOf(label), textOf(value)].filter(Boolean).join(", ") || undefined)
-  // A pressable row reads its description after its name, as a hint
-  const described = useDescription(onPress ? description : undefined)
-  const row = (pressed: boolean) => (theme.isAndroid ? androidRow(fill ?? theme.material.surfaceBright, first, last) : iosRow(theme, pressed, last))
-  const content = theme.isAndroid ? (
-    <AndroidContent theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} value={value} trailing={trailing} disabled={disabled} destructive={destructive} />
-  ) : (
-    <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} leadingColor={leadingColor} value={value} trailing={trailing} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
-  )
-  if (onPress) {
+  // A pressable row reads its description after its name, as a hint (a row that toggles its control is no element)
+  const described = useDescription(press && !endOwnsFocus ? description : undefined)
+  const nativeRipple = theme.isAndroid && Platform.OS === "android"
+  // iOS lights a held choice row, not a switch row, as the web's phone rows
+  const lit = !switchRow && control?.kind !== "switch"
+  const row = (pressed: boolean) =>
+    theme.isAndroid ? styles.androidRow : iosRow(theme, pressed && lit, last, description != null || error != null)
+  // A finger on the control at the end holds the row, as one on the row's text does
+  const [held, setHeld] = useState(false)
+  const content = (pressed: boolean) => {
+    // The row's switch is drawn only: the row is the control
+    const track = <SwitchTrack checked={checked} disabled={disabled} pressed={pressed} />
+    const end = !switchRow ? (
+      (control?.node ?? trailing)
+    ) : trailing != null ? (
+      <View style={[styles.pair, { gap: theme.isAndroid ? 16 : theme.length("--field-row-disclosure-gap", 8) }]}>
+        {trailing}
+        {track}
+      </View>
+    ) : (
+      track
+    )
+    return theme.isAndroid ? (
+      <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} leadingColor={leadingColor} value={value} valuePlacement={valuePlacement} trailing={end} error={error} disabled={disabled} destructive={destructive} last={last} />
+    ) : (
+      <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} leadingColor={leadingColor} value={value} valuePlacement={valuePlacement} trailing={end} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
+    )
+  }
+  if (press) {
+    // Android's rows press in the list selector: the native ripple on a device, a layer on the web
+    const highlight = controlHighlight(theme.scheme)
     return (
-      <Pressable {...described.props} accessibilityRole="button" accessibilityLabel={name} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} testID={testID} style={({ pressed }) => row(pressed)}>
+      <Pressable
+        {...described.props}
+        {...(switchRow ? spaceToggles(toggle) : null)}
+        // A row that toggles its control is not a second element for a screen reader or a Tab stop: the control is
+        accessible={endOwnsFocus ? false : undefined}
+        focusable={endOwnsFocus ? false : undefined}
+        tabIndex={endOwnsFocus ? -1 : undefined}
+        accessibilityRole={endOwnsFocus ? undefined : switchRow ? "switch" : "button"}
+        accessibilityLabel={endOwnsFocus ? undefined : name}
+        accessibilityState={endOwnsFocus ? undefined : switchRow ? { checked, disabled } : { disabled }}
+        aria-checked={switchRow ? checked : undefined}
+        disabled={disabled}
+        onPress={press}
+        android_ripple={nativeRipple ? { color: highlight, foreground: true } : undefined}
+        testID={testID}
+        style={({ pressed }) => row(pressed || held)}
+      >
         {({ pressed }) => (
-          <>
-            {/* Android's press is a layer over the card's fill, clipped to its corners */}
-            {theme.isAndroid && pressed ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(theme.material.onSurface, stateLayer.pressed) }]} /> : null}
-            {content}
-          </>
+          <RowHoldContext.Provider value={disabled ? null : setHeld}>
+            {theme.isAndroid && ((!nativeRipple && pressed) || held) ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: highlight }]} /> : null}
+            {content(pressed || held)}
+          </RowHoldContext.Provider>
         )}
       </Pressable>
     )
   }
   return (
     <View testID={testID} style={row(false)}>
-      {content}
+      {content(false)}
     </View>
   )
 }
 
-function iosRow(theme: Theme, pressed: boolean, last: boolean): ViewStyle {
+type FoundControl =
+  | { kind: "switch"; element: ReactElement<SwitchProps> }
+  | { kind: "checkbox"; element: ReactElement<CheckboxProps> }
+  | { kind: "radio"; element: ReactElement<RadioGroupItemProps> }
+
+/** A Switch, a Checkbox or (inside its RadioGroup) an option given as a row's `trailing`, which the row's press toggles. */
+function rowControl(trailing: ReactNode, inGroup: boolean): FoundControl | null {
+  if (!isValidElement(trailing)) return null
+  if (trailing.type === Switch) return { kind: "switch", element: trailing as ReactElement<SwitchProps> }
+  if (trailing.type === Checkbox) return { kind: "checkbox", element: trailing as ReactElement<CheckboxProps> }
+  if (inGroup && trailing.type === RadioGroup.Item) return { kind: "radio", element: trailing as ReactElement<RadioGroupItemProps> }
+  return null
+}
+
+/**
+ * An option at a row's end: the row's press chooses it, as the option's own press does (a chosen option stays
+ * chosen), and the row's label names it when it has no name. No press while the row, the option or its group is
+ * disabled.
+ */
+function radioControl(element: ReactElement<RadioGroupItemProps>, group: RadioGroupContext, rowDisabled: boolean, name: string | undefined) {
+  const props = element.props
+  const node = props["aria-label"] == null && name != null ? cloneElement(element, { "aria-label": name }) : element
+  const off = rowDisabled || props.disabled || group.disabled
+  return { kind: "radio" as const, node, toggle: off ? undefined : () => group.value !== props.value && group.select(props.value) }
+}
+
+/**
+ * The control at a row's end, with the row's copy of its state: `checked` and `onCheckedChange` keep the state of a
+ * control that would hold its own, the row's label names it when it has no name, and the row's press flips it as the
+ * control's own press does (a mixed checkbox checks). No press while the row or the control is disabled.
+ */
+function endControl(found: Exclude<FoundControl, { kind: "radio" }>, own: boolean | "indeterminate", setOwn: (next: boolean) => void, rowDisabled: boolean, name: string | undefined) {
+  const props = found.element.props
+  const state = props.checked ?? own
+  const change = (next: boolean) => {
+    if (props.checked === undefined) setOwn(next)
+    props.onCheckedChange?.(next)
+  }
+  const accessibilityLabel = props.accessibilityLabel ?? (props.label == null ? name : undefined)
+  const node =
+    found.kind === "switch"
+      ? cloneElement(found.element, { checked: state === true, onCheckedChange: change, accessibilityLabel })
+      : cloneElement(found.element, { checked: state, onCheckedChange: change, accessibilityLabel })
+  return { kind: found.kind, node, toggle: rowDisabled || props.disabled ? undefined : () => change(state !== true) }
+}
+
+/** A row's least height: 52, 70 with a description (`--field-row-description-min-height`), as the web's NavigationRow. */
+const iosMinHeight = (theme: Theme, described: boolean) =>
+  described ? theme.length("--field-row-description-min-height", 70) : theme.length("--field-row-min-height", 52)
+
+function iosRow(theme: Theme, pressed: boolean, last: boolean, described: boolean): ViewStyle {
   const inset = theme.length("--list-row-inset", 20)
   return {
     flexDirection: "row",
     alignItems: "center",
-    minHeight: theme.length("--field-row-min-height", 52),
-    paddingLeft: inset,
+    minHeight: iosMinHeight(theme, described),
+    paddingStart: inset,
     backgroundColor: pressed ? theme.color("--field-row-press-background") : undefined,
     // The press fills the row to the group's rounded ends
     borderBottomLeftRadius: last ? theme.length("--field-group-radius", 26) : 0,
@@ -172,71 +404,170 @@ function iosRow(theme: Theme, pressed: boolean, last: boolean): ViewStyle {
   }
 }
 
-/**
- * A row of a Settings group (settingslib_expressive_preference, settingslib_round_background_*): its own card in the
- * group's fill, 72dp tall at least, the content 16 in from the card's sides; 20dp at the group's outer corners, 4dp
- * where it meets the next row.
- */
-function androidRow(fill: string, first: boolean, last: boolean): ViewStyle {
-  const outer = 20
-  const inner = 4
-  return {
-    flexDirection: "row",
-    alignItems: "center",
-    minHeight: 72,
-    paddingHorizontal: 16,
-    overflow: "hidden",
-    backgroundColor: fill,
-    borderTopLeftRadius: first ? outer : inner,
-    borderTopRightRadius: first ? outer : inner,
-    borderBottomLeftRadius: last ? outer : inner,
-    borderBottomRightRadius: last ? outer : inner,
-  }
+type ContentProps = Pick<ListItemProps, "label" | "description" | "leading" | "value" | "trailing" | "error"> & {
+  theme: Theme
+  disabled: boolean
+  destructive: boolean
+  descriptionId?: string
+  valuePlacement: NonNullable<ListItemProps["valuePlacement"]>
 }
 
-type ContentProps = Pick<ListItemProps, "label" | "description" | "leading" | "value" | "trailing"> & { theme: Theme; disabled: boolean; destructive: boolean; descriptionId?: string }
+type Widths = { row: number; label: number; value: number; trailing: number }
 
-function IOSContent({ theme, label, description, descriptionId, leading, leadingColor, value, trailing, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean }) {
+/**
+ * Whether a row's value goes under its label: `below`, or `auto` when the label and the value do not fit beside each
+ * other on one line. As the web's NavigationRow measures them unwrapped in the end layout's limits, a hidden probe
+ * lays the two out on one line each; `fits` judges those widths against the row's.
+ */
+function useValueBelow(
+  placement: ContentProps["valuePlacement"],
+  label: ReactNode,
+  value: ReactNode,
+  type: { label: StyleProp<TextStyle>; value: StyleProp<TextStyle> },
+  fits: (widths: Widths) => boolean,
+) {
+  const [widths, setWidths] = useState<Widths>({ row: 0, label: 0, value: 0, trailing: 0 })
+  const measure = (key: keyof Widths) => (event: LayoutChangeEvent) => {
+    const width = event.nativeEvent.layout.width
+    setWidths((old) => (old[key] === width ? old : { ...old, [key]: width }))
+  }
+  const auto = placement === "auto" && value != null
+  const below = value != null && (placement === "below" || (auto && widths.row > 0 && !fits(widths)))
+  const probe = auto ? (
+    <View pointerEvents="none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.probe}>
+      <Text numberOfLines={1} style={type.label} onLayout={measure("label")}>
+        {label}
+      </Text>
+      <Text numberOfLines={1} style={type.value} onLayout={measure("value")}>
+        {value}
+      </Text>
+    </View>
+  ) : null
+  return { below, probe, onRowLayout: auto ? measure("row") : undefined, onTrailingLayout: auto ? measure("trailing") : undefined }
+}
+
+function IOSContent({ theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, error, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean }) {
   const inset = theme.length("--list-row-inset", 20)
   const tile = theme.length("--field-row-icon-size", 28)
-  const labelColor = disabled ? theme.colors.textDisabled : destructive ? theme.color("--color-text-danger") : theme.colors.text
-  const secondary = disabled ? theme.colors.textDisabled : theme.colors.labelSecondary
+  const gap = theme.length("--field-row-gap", 16)
+  const disclosureGap = theme.length("--field-row-disclosure-gap", 8)
+  // A disabled row greys all of it in the tertiary label, as the web's phone row (its button's disabled ink)
+  const labelColor = disabled ? theme.colors.labelTertiary : destructive ? theme.color("--color-text-danger") : theme.colors.text
+  const secondary = disabled ? theme.colors.labelTertiary : theme.colors.labelSecondary
+  // The disclosure points the way the row reads: it turns over in a right-to-left row, as the web's
+  const { ref, rtl } = useRTL<ComponentRef<typeof View>>()
+  const labelType = { fontSize: theme.length("--field-row-label-font-size", 17), lineHeight: theme.length("--field-row-label-line-height", 22) }
+  const descriptionLine = theme.length("--field-row-description-line-height", 20)
+  // The text's padding centres one line (or a label and its description) in the row's least height, 12 at least, as the
+  // web's: a row of more lines (a wrapped label, a value below) keeps those 15 (14) above and below
+  // A row with a control at its end is the web's form row (`Field row`): its text keeps the control's 44pt line, 4 above
+  // and below it, or 12 around a description, so a wrapped label or description grows the row by its own lines only
+  const target = theme.length("--control-size-lg", 44)
+  const formRow = trailing != null
+  const textPadding = formRow
+    ? description != null
+      ? theme.length("--field-row-text-padding-block", 12)
+      : (iosMinHeight(theme, false) - target) / 2
+    : Math.max(
+        theme.length("--field-row-text-padding-block", 12),
+        (iosMinHeight(theme, description != null) - labelType.lineHeight - (description != null ? descriptionLine : 0)) / 2,
+      )
+  // A field at the end fills the room after the label (`RowEnd.fill`)
+  const [fill, setFill] = useState(false)
+  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill }), [])
+  const errorOffset = theme.length("--mobile-field-error-offset", 4)
+  const errorLine = theme.length("--mobile-field-error-line-height", 20)
+  // With an error the label and the control stand on a line of their own over it
+  const line = (parts: ReactNode) => (error != null ? <View style={[styles.iosLine, { gap: below ? disclosureGap : gap }]}>{parts}</View> : parts)
+  // The end holds the value, the control and the chevron (its 20pt glyph 5 into each side), within 60% of the row
+  const { below, probe, onRowLayout, onTrailingLayout } = useValueBelow(valuePlacement, label, value, { label: labelType, value: labelType }, (widths) => {
+    const room = widths.row - inset
+    const end = widths.value + (trailing != null ? disclosureGap + widths.trailing : 0) + (chevron ? disclosureGap + 10 : 0)
+    return end <= room * 0.6 + 0.5 && widths.label + gap + end <= room + 0.5
+  })
   return (
     <>
       {leading != null ? (
         <View
           style={[
             styles.tile,
-            { width: tile, height: tile, marginLeft: theme.length("--field-row-icon-offset", -2), marginRight: theme.length("--field-row-icon-gap", 14) },
+            { width: tile, height: tile, marginStart: theme.length("--field-row-icon-offset", -2), marginEnd: theme.length("--field-row-icon-gap", 14) },
             leadingColor ? { backgroundColor: leadingColor, borderRadius: theme.length("--field-row-icon-radius", 7) } : null,
           ]}
         >
-          <IconDefaultsProvider size={leadingColor ? 20 : theme.length("--field-row-icon-symbol-size", 24)} color={leadingColor ? "#ffffff" : disabled ? theme.colors.textDisabled : theme.colors.accent}>
+          <IconDefaultsProvider size={leadingColor ? 20 : theme.length("--field-row-icon-symbol-size", 24)} color={leadingColor ? "#ffffff" : disabled ? theme.colors.labelTertiary : theme.colors.accent}>
             {leading}
           </IconDefaultsProvider>
         </View>
       ) : null}
-      {/* The text and what ends the row share the hairline: it starts at the text, as UIKit's separator inset */}
-      <View style={[styles.iosMain, { paddingRight: inset, gap: theme.length("--field-row-gap", 16) }, last ? null : { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.colors.separator }]}>
-        <View style={styles.iosText}>
-          <Text color={labelColor} style={styles.iosLabel}>
+      {/* The text and what ends the row share the hairline: it starts at the text, as UIKit's separator inset. With an
+          error the row is a column: the line of the label and the control, then the error across the row (the web's
+          row grid: 12 above and below, the error 4 under the line) */}
+      <View
+        ref={ref}
+        onLayout={onRowLayout}
+        style={[
+          error != null ? styles.iosColumn : styles.iosMain,
+          { minHeight: iosMinHeight(theme, description != null || error != null), paddingEnd: inset },
+          error != null
+            ? { paddingVertical: Math.max(theme.length("--field-row-text-padding-block", 12), (iosMinHeight(theme, true) - labelType.lineHeight - errorOffset - errorLine) / 2) }
+            : { gap: below ? disclosureGap : gap },
+        ]}
+      >
+        {/* Over the row's bottom edge, not under it: the row keeps its height, as the web's separator */}
+        {last ? null : <View pointerEvents="none" style={[styles.iosSeparator, { backgroundColor: theme.colors.separator }]} />}
+        {probe}
+        {line(
+          <>
+        <View style={[fill ? styles.iosTextHug : styles.iosText, { paddingVertical: error != null ? 0 : textPadding }, formRow && description == null && error == null ? { minHeight: target, justifyContent: "center" } : null]}>
+          <Text color={labelColor} style={labelType}>
             {label}
           </Text>
+          {below ? (
+            // Under the label, the lines touching as a subtitle cell's, at the text's start
+            <Text color={secondary} style={labelType}>
+              {value}
+            </Text>
+          ) : null}
           {description != null ? (
-            <Text nativeID={descriptionId} color={secondary} style={styles.iosDescription}>
+            <Text
+              nativeID={descriptionId}
+              color={secondary}
+              style={{ fontSize: theme.length("--field-row-description-font-size", 15), lineHeight: descriptionLine }}
+            >
               {description}
             </Text>
           ) : null}
         </View>
-        {value != null || trailing != null || chevron ? (
-          <View style={[styles.end, { gap: theme.length("--field-row-disclosure-gap", 8) }]}>
-            {value != null ? (
-              <Text color={secondary} numberOfLines={1} style={[styles.iosLabel, styles.shrink]}>
+        {(value != null && !below) || trailing != null || chevron ? (
+          <View style={[fill ? styles.endFill : styles.end, { gap: disclosureGap }]}>
+            {value != null && !below ? (
+              // A long value wraps within the 60% the end takes, as the web's, rather than losing its end; set at the
+              // row's end (a phone turns "right" over in a right-to-left layout itself, the web does not)
+              <Text color={secondary} style={[labelType, styles.shrink, { textAlign: Platform.OS === "web" && rtl ? "left" : "right" }]}>
                 {value}
               </Text>
             ) : null}
-            {trailing != null ? <View style={styles.keep}>{trailing}</View> : null}
-            {chevron ? <Disclosure size={20} color={disabled ? theme.colors.labelQuaternary : theme.colors.labelTertiary} style={styles.disclosure} /> : null}
+            {trailing != null ? (
+              <View style={fill ? styles.grow : styles.keep} onLayout={onTrailingLayout}>
+                <RowEndContext.Provider value={rowEnd}>{trailing}</RowEndContext.Provider>
+              </View>
+            ) : null}
+            {chevron ? <Disclosure size={20} color={theme.colors.labelTertiary} style={[styles.disclosure, mirrored(rtl)]} /> : null}
+          </View>
+        ) : null}
+          </>,
+        )}
+        {error != null ? (
+          <View accessibilityLiveRegion="polite" style={[styles.iosError, { marginTop: errorOffset, gap: theme.length("--mobile-field-error-icon-gap", 4) }]}>
+            <ExclamationMarkCircle
+              size={theme.length("--mobile-field-error-icon-size", 16)}
+              color={errorColor(theme)}
+              style={{ marginTop: (errorLine - theme.length("--mobile-field-error-icon-size", 16)) / 2 }}
+            />
+            <Text color={errorColor(theme)} style={[styles.shrink, { fontSize: theme.length("--mobile-field-error-font-size", 15), lineHeight: errorLine }]}>
+              {error}
+            </Text>
           </View>
         ) : null}
       </View>
@@ -244,60 +575,128 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
   )
 }
 
-function AndroidContent({ theme, label, description, descriptionId, leading, value, trailing, disabled, destructive }: ContentProps) {
-  const m = theme.material
-  // A disabled row fades to onSurface at 38%, as Settings' main switch bar
-  const off = withAlpha(m.onSurface, 0.38)
-  const title = materialType.titleMedium
-  const summary = materialType.bodyMedium
-  const secondary = disabled ? off : m.onSurfaceVariant
-  return (
+/** The danger ink of a form's error, as the web's FieldError (`--field-error-color`). */
+const errorColor = (theme: Theme) => theme.color("--field-error-color", theme.color("--color-text-danger-outline", theme.color("--color-text-danger")))
+
+function AndroidContent({ handPress, theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, error, disabled, destructive, last }: ContentProps & { leadingColor?: string; last: boolean; handPress: RowEnd["press"] }) {
+  // A disabled row fades to half, as Android's rows do
+  const dim = (color: string) => (disabled ? withAlpha(color, 0.5) : color)
+  const danger = dangerText(theme)
+  const ink = dim(destructive ? danger : theme.colors.text)
+  // Android's row symbols are the text's ink over a light card and a gray over a dark one
+  const symbol = dim(destructive ? danger : theme.scheme === "dark" ? theme.colors.labelSecondary : theme.colors.text)
+  const tile = leading != null && !!leadingColor
+  const textStart = leading == null ? 20 : tile ? 64 : 71
+  // A value that ends the row stands 17 from the end (a value row), 20 in a row with a tile (a tiled row)
+  const valueEnd = trailing == null && !tile ? 17 : 20
+  // At the end the value takes half the row at most, 16 from the label and from a control
+  const { below, probe, onRowLayout, onTrailingLayout } = useValueBelow(valuePlacement, label, value, { label: styles.androidLabel, value: styles.androidLabel }, (widths) => {
+    const end = 16 + widths.value + (trailing != null ? 16 + widths.trailing : 0)
+    return widths.value <= (widths.row - 40) * 0.5 + 0.5 && widths.label + end <= widths.row - textStart - valueEnd + 0.5
+  })
+  // A field at the end fills the room after the label, as on iOS; a select opens from the whole row
+  const [fill, setFill] = useState(false)
+  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, press: handPress }), [handPress])
+  const parts = (
     <>
       {leading != null ? (
-        <View style={styles.androidIcon}>
-          <IconDefaultsProvider size={24} color={disabled ? off : destructive ? m.error : m.onSurfaceVariant}>
+        <View style={tile ? [styles.androidTile, { backgroundColor: leadingColor, opacity: disabled ? 0.5 : 1 }] : styles.androidIcon}>
+          <IconDefaultsProvider size={24} color={tile ? "#ffffff" : symbol}>
             {leading}
           </IconDefaultsProvider>
         </View>
       ) : null}
-      <View style={styles.androidText}>
-        <Text color={disabled ? off : destructive ? m.error : m.onSurface} numberOfLines={2} style={{ fontSize: title.fontSize, lineHeight: title.lineHeight, ...theme.font("medium") }}>
+      <View style={[fill ? styles.androidTextHug : styles.androidText, { paddingVertical: error != null ? 0 : description != null || below ? 10 : 15 }]}>
+        <Text color={ink} style={styles.androidLabel}>
           {label}
         </Text>
-        {value != null ? (
-          <Text color={secondary} numberOfLines={1} style={{ fontSize: summary.fontSize, lineHeight: summary.lineHeight }}>
+        {below ? (
+          // A detail row: the value a 13sp gray line under the label
+          <Text color={dim(theme.colors.labelSecondary)} style={styles.androidDescription}>
             {value}
           </Text>
         ) : null}
         {description != null ? (
-          <Text nativeID={descriptionId} color={secondary} style={{ fontSize: summary.fontSize, lineHeight: summary.lineHeight }}>
+          <Text nativeID={descriptionId} color={dim(theme.colors.labelSecondary)} style={styles.androidDescription}>
             {description}
           </Text>
         ) : null}
       </View>
-      {trailing != null ? <View style={styles.androidEnd}>{trailing}</View> : null}
+      {value != null && !below ? (
+        <Text color={dim(accentText(theme))} numberOfLines={1} style={[styles.androidLabel, styles.androidValue, { marginEnd: valueEnd - 20 }]}>
+          {value}
+        </Text>
+      ) : null}
+      {trailing != null ? (
+        <View style={fill ? styles.androidEndFill : styles.androidEnd} onLayout={onTrailingLayout}>
+          <RowEndContext.Provider value={rowEnd}>{trailing}</RowEndContext.Provider>
+        </View>
+      ) : null}
+    </>
+  )
+  return (
+    <>
+      {onRowLayout ? <View pointerEvents="none" onLayout={onRowLayout} style={styles.androidSpan} /> : null}
+      {probe}
+      {error != null ? (
+        // The error a 13sp line of its own across the row, under the label and the field
+        <View style={styles.androidColumn}>
+          <View style={styles.androidLine}>{parts}</View>
+          <Text color={danger} accessibilityLiveRegion="polite" style={[styles.androidDescription, { marginTop: 4 }]}>
+            {error}
+          </Text>
+        </View>
+      ) : (
+        parts
+      )}
+      {/* Android's divider color; Settings' rows with a tile draw none */}
+      {last || tile ? null : <View pointerEvents="none" style={[styles.androidDivider, { start: textStart, backgroundColor: divider(theme) }]} />}
     </>
   )
 }
 
 const styles = StyleSheet.create({
-  iosHeader: { fontSize: 17, lineHeight: 22 },
-  iosFooter: { fontSize: 13, lineHeight: 16, paddingTop: 8, paddingBottom: 6 },
   iosGroup: { overflow: "hidden", borderCurve: "continuous" },
-  iosMain: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", alignSelf: "stretch", minHeight: 52 },
-  iosText: { flex: 1, minWidth: 0, paddingVertical: 12 },
-  iosLabel: { fontSize: 17, lineHeight: 22 },
-  iosDescription: { fontSize: 15, lineHeight: 20 },
+  iosMain: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
+  iosText: { flex: 1, minWidth: 0 },
+  // Beside a field that fills the end the label keeps its own width
+  iosTextHug: { flexShrink: 1, minWidth: 0 },
+  iosColumn: { flex: 1, minWidth: 0, alignSelf: "stretch", justifyContent: "center" },
+  iosLine: { flexDirection: "row", alignItems: "center" },
+  iosError: { flexDirection: "row", alignItems: "flex-start" },
+  iosSeparator: { position: "absolute", start: 0, end: 0, bottom: 0, height: StyleSheet.hairlineWidth },
   tile: { alignItems: "center", justifyContent: "center" },
   end: { flexDirection: "row", alignItems: "center", flexShrink: 1, maxWidth: "60%" },
+  endFill: { flexDirection: "row", alignItems: "center", flex: 1, minWidth: 0 },
   disclosure: { marginHorizontal: -5 },
-  // Settings' category: 8 around the text inside the 16 the screen insets, 2 more to the first card
-  androidHeader: { paddingHorizontal: 8, paddingTop: 8, paddingBottom: 8, marginBottom: 2 },
-  androidGroup: { gap: 2 },
-  androidFooter: { paddingHorizontal: 8, paddingTop: 10, paddingBottom: 8 },
-  androidIcon: { width: 40, height: 40, alignItems: "center", justifyContent: "center", marginRight: 12 },
-  androidText: { flex: 1, minWidth: 0, paddingVertical: 16 },
-  androidEnd: { flexDirection: "row", alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: 40, marginLeft: 16 },
+  // Android's section: one card, 16 round; the header a 40dp row inside it (a header row), the footer under it
+  // (a footer: 24 from the screen's edge, 10 above, 17 below)
+  androidCard: { borderRadius: 16, overflow: "hidden" },
+  androidHeader: { height: 40, paddingHorizontal: 20, paddingTop: 15, fontSize: 14, lineHeight: 18 },
+  androidDescriptionLine: { paddingHorizontal: 20, paddingBottom: 6, fontSize: 14, lineHeight: 18 },
+  androidDescriptionAlone: { paddingTop: 15 },
+  androidFooter: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 17, fontSize: 14, lineHeight: 18 },
+  androidRow: { flexDirection: "row", alignItems: "center", minHeight: 50, paddingStart: 20, paddingEnd: 20 },
+  // A symbol at 21 and the text at 71; a 28dp tile at 18 with a 24dp symbol and the text at 64 (a tiled row)
+  androidIcon: { width: 24, height: 24, alignItems: "center", justifyContent: "center", marginStart: 1, marginEnd: 26 },
+  androidTile: { width: 28, height: 28, borderRadius: 10, alignItems: "center", justifyContent: "center", marginStart: -2, marginEnd: 18 },
+  androidText: { flex: 1, minWidth: 0, gap: 4 },
+  androidTextHug: { flexShrink: 1, minWidth: 0, gap: 4 },
+  androidColumn: { flex: 1, minWidth: 0, paddingVertical: 10 },
+  androidLine: { flexDirection: "row", alignItems: "center" },
+  androidLabel: { fontSize: 16, lineHeight: 20 },
+  androidDescription: { fontSize: 13, lineHeight: 16 },
+  androidValue: { flexShrink: 1, maxWidth: "50%", marginStart: 16, textAlign: "right" },
+  androidEnd: { flexDirection: "row", alignItems: "center", justifyContent: "center", flexShrink: 0, marginStart: 16 },
+  // A field that fills the end stretches across it
+  androidEndFill: { flex: 1, minWidth: 0, justifyContent: "center", marginStart: 16 },
+  androidDivider: { position: "absolute", end: 0, bottom: 0, height: StyleSheet.hairlineWidth },
+  // The row's full width, for `auto` to measure against (an absolute child spans the padding box)
+  androidSpan: { position: "absolute", start: 0, end: 0, top: 0, height: 0 },
+  // Off to the side and unseen: the label and the value on one line each, at their own widths
+  probe: { position: "absolute", top: 0, start: 0, width: 10000, alignItems: "flex-start", opacity: 0 },
+  pair: { flexDirection: "row", alignItems: "center" },
   shrink: { flexShrink: 1 },
   keep: { flexShrink: 0 },
+  grow: { flex: 1, minWidth: 0 },
 })

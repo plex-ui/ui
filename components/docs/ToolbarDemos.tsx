@@ -5,7 +5,7 @@ import { flushSync } from 'react-dom';
 import { Button, NavigationButton } from '@plexui/ui/components/Button';
 import { Dialog } from '@plexui/ui/components/Dialog';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
-import { DotsHorizontal, Filter, Plus, PlusLg, Search, SearchSm, Translate } from '@plexui/ui/components/Icon';
+import { DotsHorizontal, Filter, Plus, PlusLg, Search, SearchSm, Share, Tag } from '@plexui/ui/components/Icon';
 import { Input } from '@plexui/ui/components/Input';
 import { Page } from '@plexui/ui/components/Page';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -14,21 +14,40 @@ import { DemoControlBoolean, DemoControlRow, DemoControlSelect, Segments, contro
 import { DemoControlsBottom, usePreviewEmbed } from './PreviewEmbed';
 import s from './PageDemos.module.css';
 import t from './ToolbarDemos.module.css';
-
-const ROWS = Array.from({ length: 24 }, (_, index) => `Order ${1024 + index}`);
+import { ORDER_FORM, orderDetail, ordersIn, type OrderView } from './toolbarOrders';
 
 function Frame({ children }: { children: ReactNode }) {
   return <div data-demo-stage className={s.Stage}><div className={s.Frame}>{children}</div></div>;
 }
 
-/** Orders in the rows of a FieldGroup: an iOS list on a phone, a bordered list on a desktop. */
-export function Rows() {
+/**
+ * Orders in the rows of a FieldGroup: an iOS list on a phone, a bordered list on a desktop. `view` shows the orders of
+ * one status, as the segmented row of the Overview switches them.
+ */
+export function Rows({ view = 'all' }: { view?: OrderView }) {
   return (
     <FieldGroup>
-      {ROWS.map((row) => (
-        <div key={row} data-row className={t.Row}>
-          <span>{row}</span>
-          <span className={t.Value}>Paid</span>
+      {ordersIn(view).map((order) => (
+        <div key={order.number} data-row className={`${t.Row} ${t.TwoLines}`}>
+          <span className={t.Text}>
+            <span>{order.customer}</span>
+            <span className={t.Detail}>{orderDetail(order)}</span>
+          </span>
+          <span className={t.Value}>{order.total}</span>
+        </div>
+      ))}
+    </FieldGroup>
+  );
+}
+
+/** The rows of the New order form: its customer, items and delivery */
+function FormRows() {
+  return (
+    <FieldGroup>
+      {ORDER_FORM.map((row) => (
+        <div key={row.label} data-row className={t.Row}>
+          <span>{row.label}</span>
+          <span className={t.Value}>{row.value}</span>
         </div>
       ))}
     </FieldGroup>
@@ -43,9 +62,6 @@ const SEARCH = ['none', 'row', 'button'] as const;
 // Where a Search button in the bar opens its field (owner 13.11 «нужно поддержать оба варианта настройкой»): in the
 // bar, as the drawer's field rises into it, or at the bottom, as SwiftUI's search button opens it over the keyboard
 const FIELDS = ['top', 'bottom'] as const;
-// A row of the bar: the views of the orders, as a chat list shows its folders under its bar; under the search field,
-// as iOS 27.2 sets a safeAreaBar under the field of the bar's drawer (owner 13.11)
-const VIEWS = ['all', 'paid', 'unpaid', 'refunds'] as const;
 // The row's three controls: the small plain one, the glass one of a row (owner 13.11 «Да, стекло») and the large glass one
 const ROW_SIZES = ['sm', 'md', 'lg'] as const;
 // What the bottom bar holds: buttons round a main action, a search field and a plus, one action across the row
@@ -69,7 +85,9 @@ export function ToolbarOverviewDemo() {
   const [group, setGroup] = useState(false);
   const [segmented, setSegmented] = useState(false);
   const [rowSize, setRowSize] = useState<(typeof ROW_SIZES)[number]>('md');
-  const [view, setView] = useState<(typeof VIEWS)[number]>('all');
+  // A row of the bar: the views of the orders, as a chat list shows its folders under its bar; under the search field,
+  // as iOS 27.2 sets a safeAreaBar under the field of the bar's drawer (owner 13.11)
+  const [view, setView] = useState<OrderView>('all');
   const [topBackground, setTopBackground] = useState<BarBackground>('glass');
   const [bottom, setBottom] = useState<(typeof BOTTOM)[number]>('none');
   const [bottomBackground, setBottomBackground] = useState<BarBackground>('soft');
@@ -152,11 +170,11 @@ export function ToolbarOverviewDemo() {
                     )}
                     {group ? (
                       <Toolbar.Group aria-label="Order actions">
-                        <Button color="secondary" variant="soft" uniform pill aria-label="Translate"><Translate /></Button>
+                        <Button color="secondary" variant="soft" uniform pill aria-label="Share"><Share /></Button>
                         <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
                       </Toolbar.Group>
                     ) : (
-                      <NavigationButton action={named && titleStyle === 'large' ? 'confirm' : 'close'} />
+                      <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
                     )}
                   </>
                 )}
@@ -174,13 +192,14 @@ export function ToolbarOverviewDemo() {
                   <SegmentedControl.Option value="all">All</SegmentedControl.Option>
                   <SegmentedControl.Option value="paid">Paid</SegmentedControl.Option>
                   <SegmentedControl.Option value="unpaid" badge={{ content: 3, pill: true }}>Unpaid</SegmentedControl.Option>
-                  <SegmentedControl.Option value="refunds">Refunds</SegmentedControl.Option>
+                  <SegmentedControl.Option value="refunded">Refunds</SegmentedControl.Option>
                 </SegmentedControl>
               </Toolbar.Row>
             )}
           </Toolbar>
           <Page.Content>
-            <Rows />
+            {/* The segmented row shows the orders of its view */}
+            <Rows view={segmented ? view : 'all'} />
           </Page.Content>
           {below ? (
             // The bottom bar's background, or the soft edge when the screen has no bottom bar (Codex #13)
@@ -333,18 +352,18 @@ export function ToolbarDisabledDemo() {
             </Toolbar.Trailing>
           </Toolbar>
           <Page.Content>
-            <Rows />
+            <FormRows />
           </Page.Content>
           <Toolbar placement="bottom">
             <Toolbar.Leading>
-              <Button color="secondary" variant="soft" uniform pill aria-label="Filter" disabled={disabled}><Filter /></Button>
+              <Button color="secondary" variant="soft" uniform pill aria-label="Add discount" disabled={disabled}><Tag /></Button>
             </Toolbar.Leading>
             <Toolbar.Content>
               <Button color="primary" pill disabled={disabled}>Place order</Button>
             </Toolbar.Content>
             <Toolbar.Trailing>
               <Toolbar.Group aria-label="Order actions">
-                <Button color="secondary" variant="soft" uniform pill aria-label="Translate" disabled={disabled}><Translate /></Button>
+                <Button color="secondary" variant="soft" uniform pill aria-label="Share" disabled={disabled}><Share /></Button>
                 <Button color="secondary" variant="soft" uniform pill aria-label="More"><DotsHorizontal /></Button>
               </Toolbar.Group>
             </Toolbar.Trailing>

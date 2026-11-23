@@ -3,7 +3,7 @@
   "name": "progress",
   "type": "registry:ui",
   "title": "Progress",
-  "description": "A horizontal bar that shows task completion, with determinate and indeterminate modes, labelled layouts, and smooth value transitions.",
+  "description": "\"A horizontal bar that shows how far a task has come, or a sweep while its length is unknown.\"",
   "dependencies": [
     "@plexui/vue"
   ],

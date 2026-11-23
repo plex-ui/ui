@@ -182,6 +182,9 @@ html.dark :is(.PreviewInner, .PhoneControls) {
   height: 874px;
   border-radius: 44px;
   overflow: hidden;
+  /* A mask as well: Chrome paints a composited layer of the preview's iframe (a bar's backdrop filter over scrolled
+     content) past a round clip, out of the screen's corners; a mask clips everything under it */
+  mask-image: linear-gradient(#000, #000);
   background: var(--phone-screen-background, var(--color-fd-background));
 }
 
@@ -665,4 +668,150 @@ html.dark .CodeBlockWrap [data-rehype-pretty-code-figure],
   cursor: pointer;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 13px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Android phone frame (React Native examples, React and Vue phones)  */
+/* ------------------------------------------------------------------ */
+
+/* A Pixel 9's screen, 412 by 923 dp, in a thin black bezel with a satin rim and the power and volume keys on the
+   right side, as Google's own device frames draw it. The frame is drawn, not an image. */
+.AndroidDevice {
+  position: relative;
+  flex: none;
+  width: 428px;
+  height: 939px;
+  margin-inline: auto;
+  border-radius: 50px;
+  background: #101010;
+  box-shadow:
+    0 0 0 1px #c7c7cb,
+    0 0 0 2px #a9a9ae,
+    0 18px 40px -24px rgb(0 0 0 / 45%);
+}
+
+.AndroidDevice::before,
+.AndroidDevice::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  width: 4px;
+  border-radius: 0 2px 2px 0;
+  background: #b9b9be;
+}
+
+/* Power key, then the volume rocker under it */
+.AndroidDevice::before {
+  top: 196px;
+  height: 64px;
+}
+
+.AndroidDevice::after {
+  top: 300px;
+  height: 118px;
+}
+
+/* The screen's round corners clip the preview's iframe too: Chrome leaves a composited iframe square under
+   overflow and a radius alone, so a clip path rounds it */
+.AndroidScreen {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 412px;
+  height: 923px;
+  border-radius: 42px;
+  overflow: hidden;
+  clip-path: inset(0 round 42px);
+  /* The clip path does not hold a bar's backdrop filter over scrolled content either; a mask does (see .PhoneScreen) */
+  mask-image: linear-gradient(#000, #000);
+  background: var(--phone-screen-background, var(--color-fd-background));
+}
+
+/* The bezel drawn again over the screen's corners: Chrome lets a composited iframe (a page with a backdrop filter)
+   paint past its parent's round clip, so the corners are covered from above, within the device's own outline */
+.AndroidBezel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.AndroidBezel::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 412px;
+  height: 923px;
+  border-radius: 42px;
+  box-shadow: 0 0 0 48px #101010;
+}
+
+.AndroidScreen > .PhoneFrame {
+  width: 412px;
+  height: 923px;
+  /* The frame is clipped by its own round corners as well: its compositing layer escapes the screen's clip */
+  border-radius: 42px;
+  clip-path: inset(0 round 42px);
+}
+
+/* Android 16's status bar: 52dp under the camera cut, the clock at the start and the system icons at the end */
+.AndroidStatusBar {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 4px 26px 0 30px;
+  color: var(--color-text);
+  pointer-events: none;
+}
+
+.AndroidTime {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.AndroidCamera {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  border-radius: 50%;
+  background: #050505;
+  box-shadow: inset 0 0 0 4px #161616;
+}
+
+.AndroidStatusIcons {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* The gesture navigation handle over the bottom of the screen */
+.AndroidGestureHandle {
+  position: absolute;
+  z-index: 1;
+  bottom: 9px;
+  left: 50%;
+  width: 108px;
+  height: 4px;
+  margin-left: -54px;
+  border-radius: 2px;
+  background: var(--color-text);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.PhoneContainer[data-status-bar-scrim] :is(.AndroidStatusBar, .AndroidGestureHandle) {
+  filter: brightness(0.5);
 }

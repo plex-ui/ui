@@ -3,7 +3,7 @@
   "name": "indicators",
   "type": "registry:ui",
   "title": "Indicators",
-  "description": "Loading and progress indicators, from circular spinners and determinate progress rings to animated dots, with configurable color and stroke.",
+  "description": "\"Loading and progress indicators: spinners, determinate progress rings and animated dots.\"",
   "dependencies": [
     "@plexui/vue"
   ],

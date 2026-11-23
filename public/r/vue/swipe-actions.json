@@ -3,7 +3,7 @@
   "name": "swipe-actions",
   "type": "registry:ui",
   "title": "Swipe Actions",
-  "description": "\"Actions behind a row of a list, as the swipe actions of an iOS list: a swipe across the row reveals them, a full swipe runs the first one, and each is a button for the keys.\"",
+  "description": "\"Actions behind a row of a list, revealed by a swipe across the row, as the swipe actions of an iOS list.\"",
   "dependencies": [
     "@plexui/vue"
   ],

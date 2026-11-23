@@ -3,7 +3,8 @@ import type { FontWeightName, PlatformStyle } from "./types"
 /**
  * The text styles of a phone. The names are Apple's (Human Interface Guidelines, Typography, Specifications:
  * the default Large Dynamic Type size); on Android each one takes the nearest role of the Material 3 type scale
- * (m3.material.io/styles/typography/type-scale-tokens). Sizes are pt on iOS and sp on Android.
+ * (m3.material.io/styles/typography/type-scale-tokens), or the Plex Android look's own size where it sets that text
+ * (`title3`, `footnote`). Sizes are pt on iOS and sp on Android.
  */
 export type TextVariant =
   | "largeTitle"
@@ -36,18 +37,19 @@ const IOS: Record<TextVariant, TypeStyle> = {
   caption2: { fontSize: 11, lineHeight: 13, weight: "regular" },
 }
 
-/** Material 3 roles: Headline L 32/40, M 28/36, S 24/32; Title L 22/28, M 16/24 medium; Body L 16/24, M 14/20,
- * S 12/16; Label M 12/16 medium, S 11/16 medium. */
+/** Material 3 roles: Headline L 32/40, M 28/36, S 24/32; Title M 16/24 medium; Body L 16/24, M 14/20; Label M
+ * 12/16 medium, S 11/16 medium. The Android look's own: the title of a dialog or a sheet, Medium 20, and the
+ * secondary line of a row, 13. */
 const ANDROID: Record<TextVariant, TypeStyle> = {
   largeTitle: { fontSize: 32, lineHeight: 40, weight: "regular" }, // headlineLarge
   title1: { fontSize: 28, lineHeight: 36, weight: "regular" }, // headlineMedium
   title2: { fontSize: 24, lineHeight: 32, weight: "regular" }, // headlineSmall
-  title3: { fontSize: 22, lineHeight: 28, weight: "regular" }, // titleLarge
+  title3: { fontSize: 20, lineHeight: 24, weight: "medium" }, // the Android dialog and sheet title
   headline: { fontSize: 16, lineHeight: 24, weight: "medium" }, // titleMedium
   body: { fontSize: 16, lineHeight: 24, weight: "regular" }, // bodyLarge
   callout: { fontSize: 16, lineHeight: 24, weight: "regular" }, // bodyLarge
   subheadline: { fontSize: 14, lineHeight: 20, weight: "regular" }, // bodyMedium
-  footnote: { fontSize: 12, lineHeight: 16, weight: "regular" }, // bodySmall
+  footnote: { fontSize: 13, lineHeight: 16, weight: "regular" }, // the Android row's secondary line
   caption1: { fontSize: 12, lineHeight: 16, weight: "medium" }, // labelMedium
   caption2: { fontSize: 11, lineHeight: 16, weight: "medium" }, // labelSmall
 }

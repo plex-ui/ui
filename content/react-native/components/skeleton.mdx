@@ -1,83 +1,99 @@
 ---
 title: Skeleton
-description: The place of content still loading, a block or a circle that pulses until the content arrives and stands still with reduced motion; the same on iOS and Android.
+description: Loading placeholders in the shape of the content they stand in for, a block or a circle.
+metaDescription: Loading placeholders in the shape of the content they stand in for, a block or a circle that pulses on iOS and shimmers on Android until the content arrives, and stands still with reduced motion.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
-
-export const overviewCode = `<View accessibilityState={{ busy: true }} accessibilityLabel="Loading" style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-  <Skeleton circle height={44} />
-  <View style={{ flex: 1, gap: 8 }}>
-    <Skeleton height={14} width="60%" />
-    <Skeleton height={14} />
-    <Skeleton height={14} width="80%" />
-  </View>
-</View>`
-
-export const shapesCode = `<Skeleton height={160} />
-<Skeleton height={20} width="70%" />
-<Skeleton circle height={32} />
-<Skeleton circle height={44} />
-<Skeleton circle height={56} />
-<Skeleton height={56} width={56} />`
-
-export const loadingCode = `const [loading, setLoading] = useState(true)
-
-useEffect(() => {
-  if (!loading) return
-  const timer = setTimeout(() => setLoading(false), 1500)
-  return () => clearTimeout(timer)
-}, [loading])
-
-{loading ? (
-  <View accessibilityState={{ busy: true }} accessibilityLabel="Loading profile" style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-    <Skeleton circle height={44} />
-    <View style={{ flex: 1, gap: 8 }}>
-      <Skeleton height={17} width="50%" />
-      <Skeleton height={15} width="80%" />
-    </View>
-  </View>
-) : (
-  <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-    <Avatar name="Ada Lovelace" color="info" size={44} />
-    <View style={{ flex: 1 }}>
-      <Text variant="headline">Ada Lovelace</Text>
-      <Text variant="subheadline" color="secondary">Wrote the first program</Text>
-    </View>
-  </View>
-)}
-<Button size="sm" variant="soft" disabled={loading} onPress={() => setLoading(true)}>Reload</Button>`
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
 <UsageBlock>{`import { Skeleton } from "@plexui/react-native"`}</UsageBlock>
 
-The props follow `@plexui/ui`'s Skeleton. Both platforms draw it alike from the Plex tokens: a block of `--skeleton-background` with `--skeleton-radius` corners that pulses between full and half opacity every 1.5 seconds, and stands still when the system asks for reduced motion. Skeletons are hidden from screen readers: say what loads on their container with `accessibilityState={{ busy: true }}` and a label.
-
 ## Examples
+
+<span id="shapes" />
+<span id="loading-content" />
 
 ### Overview
 
-Lay skeletons out in the shape of the content they stand in for.
+<ComponentPreview details={<>
+  <p>The props follow <code>@plexui/ui</code>'s Skeleton. On iOS it is drawn from the Plex tokens: a block of <code>--skeleton-background</code> with <code>--skeleton-radius</code> corners that pulses between full and half opacity every 1.5 seconds. On Android it is a shimmering placeholder: a block of the text color at 6% (white at 5% in dark mode) with 4dp corners, and one light band, 600dp tall, that moves down the screen across every block at once, about every 1.4 seconds on a phone, so the blocks light as one gradient. On both it stands still when the system asks for reduced motion. Skeletons are hidden from screen readers: say what loads on their container with <code>{"accessibilityState={{ busy: true }}"}</code> and a label.</p>
+  <p>A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size with <code>width</code> and <code>height</code>, in points or as a percentage (without <code>width</code> it takes the whole width). <code>content</code> shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), the rows of a list (an avatar and two lines each) and a post in a feed (its author, its text and a picture). A larger radius, as for the pictures of the card and the post, goes in <code>style</code>.</p>
+  <p><code>circle</code> rounds a skeleton, for the avatar of a profile, a list row or a post; without it a skeleton keeps its own radius, as for a square picture. The skeletons are hidden from screen readers, so their container says what loads.</p>
+</>} code={`import { Skeleton, useTheme } from "@plexui/react-native"
 
-<RNPreview demo="skeleton/Overview" code={overviewCode} />
+const theme = useTheme()
+const roundedLg = { borderRadius: theme.length("--radius-lg") }
 
-### Shapes
+<View accessible accessibilityLabel="Loading" accessibilityState={{ busy: true }}>
+[[#content=profile]]
+  <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+    <Skeleton[[#circle]] circle[[/circle]] width={48} height={48} />
+    <View style={{ gap: 8 }}>
+      <Skeleton width={200} height={16} />
+      <Skeleton width={150} height={16} />
+    </View>
+  </View>
+[[/content=profile]]
+[[#content=card]]
+  <View style={{ width: 300, gap: 12, padding: 16, borderWidth: 1, borderColor: theme.color("--color-border"), borderRadius: theme.length("--radius-xl") }}>
+    <Skeleton height={150} style={roundedLg} />
+    <Skeleton width="75%" height={16} />
+    <Skeleton width="50%" height={16} />
+  </View>
+[[/content=card]]
+[[#content=text]]
+  <View style={{ width: 300, gap: 8 }}>
+    <Skeleton height={16} />
+    <Skeleton height={16} />
+    <Skeleton width="80%" height={16} />
+  </View>
+[[/content=text]]
+[[#content=list]]
+  {/* Rows of a list, as a chat list loads: an avatar and two lines */}
+  <View style={{ width: 300 }}>
+    {Array.from({ length: 3 }, (_, i) => (
+      <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 }}>
+        <Skeleton circle width={40} height={40} />
+        <View style={{ flex: 1, gap: 8 }}>
+          <Skeleton width="60%" height={16} />
+          <Skeleton width="80%" height={12} />
+        </View>
+      </View>
+    ))}
+  </View>
+[[/content=list]]
+[[#content=feed]]
+  {/* A post in a feed: its author, its text and a picture */}
+  <View style={{ width: 300, gap: 12, padding: 16, borderWidth: 1, borderColor: theme.color("--color-border"), borderRadius: theme.length("--radius-xl") }}>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+      <Skeleton circle width={32} height={32} />
+      <View style={{ gap: 6 }}>
+        <Skeleton width={120} height={14} />
+        <Skeleton width={72} height={12} />
+      </View>
+    </View>
+    <Skeleton height={16} />
+    <Skeleton width="80%" height={16} />
+    <Skeleton height={150} style={roundedLg} />
+  </View>
+[[/content=feed]]
+</View>`} codeValues={{ content: "profile", circle: true }} previewMinHeight={168}>
+  <RNExample demo="skeleton/Overview" />
+</ComponentPreview>
 
-A skeleton takes the whole width unless `width` sets one, in points or as a percentage. `circle` makes a circle as wide as it is tall, the place of an avatar.
+## Platforms
 
-<RNPreview demo="skeleton/Shapes" code={shapesCode} />
-
-### Loading content
-
-Show the skeleton while the content loads, then the content in its place.
-
-<RNPreview demo="skeleton/Loading" minHeight={180} code={loadingCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Redacted placeholder (.redacted) | None: Material 3's loading indicator is a different component |
+| Look | Gray blocks in the shape of the content, pulsing | Light gray blocks with 4dp corners and one shimmer down the screen across all of them |
 
 ## API
 
 <PropsTable data={[
+  { prop: "circle", type: "boolean", default: "false", description: "A circle as wide as it is tall, the place of an avatar" },
   { prop: "width", type: "DimensionValue", default: '"100%"', description: "Width in points or as a percentage; a circle without one is as wide as its height" },
   { prop: "height", type: "DimensionValue", default: "16", description: "Height in points or as a percentage" },
-  { prop: "circle", type: "boolean", default: "false", description: "A circle, the place of an avatar" },
   { prop: "testID", type: "string", description: "Test id" },
-  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the block" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the block, such as a larger radius" },
 ]} />

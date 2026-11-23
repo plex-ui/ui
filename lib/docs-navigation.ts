@@ -1,6 +1,6 @@
 import type * as PageTree from 'fumadocs-core/page-tree';
 import type { ReactNode } from 'react';
-import { COMPONENT_GROUPS } from './component-groups';
+import { COMPONENT_GROUPS, NATIVE_ONLY_GROUPS } from './component-groups';
 
 export interface DocsSectionNavItem {
   slug: string;
@@ -269,22 +269,24 @@ function toSidebarItems(entries: SidebarEntry[]): PageTree.Item[] {
   }));
 }
 
-const COMPONENTS_INDEX_URL = '/components';
+// The index pages of the component trees: the React (and Vue) list and the React Native one
+const COMPONENTS_INDEX_URLS = new Set(['/components', '/react-native/components']);
 const ICONS_INDEX_URL = '/icons';
 
 /** The component pages under the groups of lib/component-groups.ts, alphabetical inside a group; a page in no
- *  group (none: tests/parity/docs-sync.test.ts) would come last, under Components. */
+ *  group (none: tests/parity/docs-sync.test.ts) would come last, under Components. The React Native tree's pages
+ *  without a React page go to their groups in NATIVE_ONLY_GROUPS. */
 function buildComponentGroups(componentsTree: PageTree.Root): { label: string; items: PageTree.Item[] }[] {
-  const all = flattenRootPages(componentsTree).filter(
-    (page) => page.url !== COMPONENTS_INDEX_URL
-  );
+  const all = flattenRootPages(componentsTree).filter((page) => !COMPONENTS_INDEX_URLS.has(page.url));
   const slugOf = (item: PageTree.Item) => item.url.split('/').pop() ?? '';
   const byName = (a: PageTree.Item, b: PageTree.Item) => toLabel(a.name, '').localeCompare(toLabel(b.name, ''));
   const groups = COMPONENT_GROUPS.map((group) => ({
     label: group.label,
-    items: all.filter((item) => group.slugs.includes(slugOf(item))).sort(byName),
+    items: all
+      .filter((item) => group.slugs.includes(slugOf(item)) || NATIVE_ONLY_GROUPS[slugOf(item)] === group.id)
+      .sort(byName),
   })).filter((group) => group.items.length > 0);
-  const grouped = new Set(COMPONENT_GROUPS.flatMap((group) => group.slugs));
+  const grouped = new Set([...COMPONENT_GROUPS.flatMap((group) => group.slugs), ...Object.keys(NATIVE_ONLY_GROUPS)]);
   const rest = all.filter((item) => !grouped.has(slugOf(item))).sort(byName);
   return rest.length > 0 ? [...groups, { label: 'Components', items: rest }] : groups;
 }
@@ -298,10 +300,14 @@ function buildIconsList(iconsTree: PageTree.Root): PageTree.Item[] {
   );
 }
 
+/** A section of the top nav, whose pages the sidebar lists: the component groups, the docs (Get Started,
+ *  Foundations, AI & Distribution) or the icon libraries. */
+export type DocsSection = 'components' | 'docs' | 'icons';
+
 /**
  * Reshapes three independent fumadocs source trees (docs, components,
- * icons) into a single shadcn/ui-style sidebar with five labeled
- * groups. Each source contributes its own slice:
+ * icons) into a shadcn/ui-style sidebar of labeled groups. Each source
+ * contributes its own slice:
  *
  *   ─ Actions … Patterns ─ componentsTree (/components/*) in lib/component-groups.ts
  *   ─ Get Started ─       hardcoded URLs in DOCS_GROUPS (under /docs)
@@ -309,37 +315,54 @@ function buildIconsList(iconsTree: PageTree.Root): PageTree.Item[] {
  *   ─ AI & Distribution ─ hardcoded URLs in DOCS_GROUPS (under /docs)
  *   ─ Icons ─             flattened from iconsTree (/icons/*)
  *
- * The merged tree is the SAME for every page across all three sources —
- * a user reading /docs/installation still sees Components at the top of
- * the sidebar.
+ * With a `section` the sidebar lists that section's pages only (owner
+ * 23.11: the sidebar of the components holds the components; Docs and
+ * Icons are sections of the top nav with sidebars of their own). Without
+ * one, every slice in the order above.
  */
-function buildMergedTree(trees: {
-  docs: PageTree.Root;
-  components: PageTree.Root;
-  icons: PageTree.Root;
-}): PageTree.Root {
-  const componentGroups = buildComponentGroups(trees.components);
-  const iconsList = buildIconsList(trees.icons);
-
+function buildMergedTree(
+  trees: {
+    docs: PageTree.Root;
+    components: PageTree.Root;
+    icons: PageTree.Root;
+  },
+  section?: DocsSection,
+): PageTree.Root {
   const children: PageTree.Node[] = [];
 
   // Components first, the list people open most, in their groups (owner 16.11)
-  for (const group of componentGroups) {
-    children.push({ type: 'separator', name: group.label });
-    children.push(...group.items);
+  if (!section || section === 'components') {
+    for (const group of buildComponentGroups(trees.components)) {
+      children.push({ type: 'separator', name: group.label });
+      children.push(...group.items);
+    }
   }
 
-  for (const group of DOCS_GROUPS) {
-    children.push({ type: 'separator', name: group.label });
-    children.push(...toSidebarItems(group.entries));
+  if (!section || section === 'docs') {
+    for (const group of DOCS_GROUPS) {
+      children.push({ type: 'separator', name: group.label });
+      children.push(...toSidebarItems(group.entries));
+    }
   }
 
+  const iconsList = !section || section === 'icons' ? buildIconsList(trees.icons) : [];
   if (iconsList.length > 0) {
     children.push({ type: 'separator', name: 'Icons' });
     children.push(...iconsList);
   }
 
   return {
+    // fumadocs keys a tree's list of pages for the page arrows (useFooterItems) by its `$id`, and numbers a tree
+    // without one from 0 in each layout: the React and React Native trees shared "0", so the arrows of whichever the
+    // server rendered first stood on the other's pages too. Each tree has its own id.
+    $id:
+      section === 'docs'
+        ? 'docs-guides'
+        : section === 'icons'
+          ? 'docs-icons'
+          : flattenRootPages(trees.components).some((page) => page.url.startsWith('/react-native/'))
+            ? 'docs-react-native'
+            : 'docs',
     name: trees.docs.name,
     children,
   };
@@ -382,11 +405,14 @@ function buildSections(): DocsSectionNavItem[] {
   });
 }
 
-export function buildDocsTreeNavigation(trees: {
-  docs: PageTree.Root;
-  components: PageTree.Root;
-  icons: PageTree.Root;
-}): {
+export function buildDocsTreeNavigation(
+  trees: {
+    docs: PageTree.Root;
+    components: PageTree.Root;
+    icons: PageTree.Root;
+  },
+  section?: DocsSection,
+): {
   tree: PageTree.Root;
   sections: DocsSectionNavItem[];
 } {
@@ -399,7 +425,7 @@ export function buildDocsTreeNavigation(trees: {
   };
 
   return {
-    tree: buildMergedTree(cloned),
+    tree: buildMergedTree(cloned, section),
     sections: buildSections(),
   };
 }

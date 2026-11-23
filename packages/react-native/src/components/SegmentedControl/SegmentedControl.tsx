@@ -3,13 +3,12 @@ import { Animated, Easing, Pressable, StyleSheet, View, type LayoutChangeEvent, 
 import { childrenOfType, isRenderable, textOf } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
 import { useTabKeys } from "../../internal/tabKeys"
-import { stateLayer, withAlpha } from "../../theme/material"
+import { barShadow, barSurface, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
-import { materialType } from "../../theme/typography"
-import { BarItemContext, useMaterialPress, type ControlSize } from "../Button/Button"
+import { BarItemContext, type ControlSize } from "../Button/Button"
 import { IconDefaultsProvider } from "../Icon/createIcon"
-import { Text } from "../Text/Text"
+import { Text, textStyle } from "../Text/Text"
 
 export type SegmentedControlProps<T extends string> = {
   /** The value of the selected segment (controlled). */
@@ -22,7 +21,8 @@ export type SegmentedControlProps<T extends string> = {
   "aria-label": string
   /**
    * The two sizes of the iOS segmented control: `sm` and smaller the small 32pt one, `md` and larger the large 48pt one
-   * (49 with `mobileMaterial="flat"`). Android draws Material's 40dp connected button group at every size.
+   * (49 with `mobileMaterial="flat"`). On Android the capsule: 32dp at `sm` and smaller, 36 at `md`, 40 at `lg`,
+   * 44 above; in a bar's row of controls the height of its circles.
    * @default "md"
    */
   size?: ControlSize
@@ -123,6 +123,42 @@ function iosLook(theme: Theme, size: ControlSize, material: "glass" | "flat" | u
   }
 }
 
+/**
+ * The curve the large control's lens lands on (touch.css `--tabs-thumb-transition-easing`, iOS 27.2 frame by frame):
+ * CSS `linear()` stops, each [progress, time], read between them as the browser does.
+ */
+const LENS_STOPS: [number, number][] = [
+  [0, 0],
+  [0.2, 0.03],
+  [0.33, 0.0625],
+  [0.45, 0.1],
+  [0.538, 0.1225],
+  [0.623, 0.1625],
+  [0.69, 0.2],
+  [0.747, 0.2425],
+  [0.793, 0.2875],
+  [0.83, 0.325],
+  [0.862, 0.3675],
+  [0.887, 0.41],
+  [0.908, 0.45],
+  [0.925, 0.4925],
+  [0.943, 0.535],
+  [0.956, 0.58],
+  [0.975, 0.66],
+  [0.981, 0.7],
+  [0.989, 0.7475],
+  [0.994, 0.825],
+  [1, 1],
+]
+const lensEasing = (t: number) => {
+  if (t <= 0) return 0
+  if (t >= 1) return 1
+  const after = LENS_STOPS.findIndex(([, at]) => at >= t)
+  const [fromValue, fromAt] = LENS_STOPS[after - 1]
+  const [toValue, toAt] = LENS_STOPS[after]
+  return fromValue + ((toValue - fromValue) * (t - fromAt)) / (toAt - fromAt)
+}
+
 type ControlContext = { inRow: boolean }
 /** A Toolbar.Row tells the control in it that it is in a row, not in the bar's own row. */
 export const SegmentedControlRowContext = createContext<ControlContext>({ inRow: false })
@@ -147,8 +183,8 @@ const optionName = (option: SegmentedControlOptionProps) => {
 
 /**
  * A segmented control: on iOS the small plain capsule of SwiftUI's segmented Picker (32pt) or the large glass one of
- * iOS 26 apps (48pt; 40 in a Toolbar.Row), its thumb sliding to the selection; on Android Material 3's connected
- * button group. Props follow @plexui/ui (`SegmentedControl` and `SegmentedControl.Tab`).
+ * iOS 26 apps (48pt; 40 in a Toolbar.Row), its thumb sliding to the selection; on Android a segmented capsule, white
+ * with a sliding pill of the accent. Props follow @plexui/ui (`SegmentedControl` and `SegmentedControl.Tab`).
  */
 function SegmentedControlRoot<T extends string>({
   value,
@@ -181,7 +217,7 @@ function SegmentedControlRoot<T extends string>({
   const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" }
   return (
     <View accessibilityRole="tablist" aria-label={ariaLabel} accessibilityState={{ disabled }} testID={testID} style={[block ? styles.block : styles.hug, style]}>
-      {theme.isAndroid ? <AndroidControl {...common} /> : <IOSControl {...common} size={size} material={mobileMaterial} />}
+      {theme.isAndroid ? <AndroidControl {...common} size={size} /> : <IOSControl {...common} size={size} material={mobileMaterial} />}
     </View>
   )
 }
@@ -207,6 +243,10 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
   const [widths, setWidths] = useState<Record<string, number>>({})
   const widest = Math.max(0, ...options.map((option) => labels[option.value] ?? 0))
   const optionRadius = look.height / 2 - look.gutter
+  // The large glass control held down, as the phone CSS ports it: the capsule grows 7% and whitens, the held label
+  // fades to 20%, with no capsule of its own under the finger
+  const largeGlass = look.glass && look.height >= 40
+  const [held, setHeld] = useState<string | null>(null)
   // The thumb's place from the segments in their order, so a reorder moves it even when no box changes size
   const index = options.findIndex((option) => option.value === value)
   const measured = index >= 0 && options.slice(0, index + 1).every((option) => widths[option.value] != null)
@@ -225,21 +265,25 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
       placed.current = true
       return
     }
-    // The large control's lens lands in 400ms on a fast-out curve (iOS 27.2, touch.css); the small one eases in 250
-    const easing = look.glass && look.height >= 40 ? Easing.out(Easing.poly(5)) : Easing.bezier(0.25, 0.1, 0.25, 1)
+    // The large control's lens lands in 400ms on touch.css's own curve; the small one eases (CSS `ease`) in 250
+    const easing = look.glass && look.height >= 40 ? lensEasing : Easing.bezier(0.25, 0.1, 0.25, 1)
     Animated.parallel([
       Animated.timing(x, { toValue: selectedX, duration: look.duration, easing, useNativeDriver: false }),
       Animated.timing(width, { toValue: selectedWidth, duration: look.duration, easing, useNativeDriver: false }),
     ]).start()
   }, [selectedX, selectedWidth, look.duration, look.glass, look.height, theme.reducedMotion, x, width])
+  // The segments take the capsule's whole height, so a press anywhere on it lands (the thumb keeps its inset); a
+  // minimum, so text a person enlarges is not cut
   const track: ViewStyle = {
-    height: look.height,
-    padding: look.gutter,
+    minHeight: look.height,
+    paddingHorizontal: look.gutter,
     gap: look.gap,
     flexDirection: "row",
     borderRadius: look.height / 2,
     borderCurve: "continuous",
   }
+  // UISegmentedControl keeps its type at a large text size; a label here grows until it fills its segment
+  const maxScale = look.height / look.lineHeight
   const content = (
     <>
       {selected ? (
@@ -262,6 +306,8 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
             accessibilityState={{ selected: isSelected, disabled: off }}
             aria-selected={isSelected}
             disabled={off}
+            onPressIn={largeGlass ? () => setHeld(option.value) : undefined}
+            onPressOut={largeGlass ? () => setHeld(null) : undefined}
             onPress={() => select(option)}
             testID={option.testID}
             onLayout={(event: LayoutChangeEvent) => {
@@ -270,7 +316,7 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
             }}
             style={[
               styles.option,
-              { paddingHorizontal: look.optionGutter, borderRadius: optionRadius },
+              { paddingHorizontal: look.optionGutter, borderRadius: look.height / 2 },
               block ? styles.grow : equal && widest ? { width: widest + 2 * look.optionGutter } : null,
             ]}
           >
@@ -279,7 +325,7 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
                 const w = Math.ceil(event.nativeEvent.layout.width)
                 setLabels((prev) => (prev[option.value] === w ? prev : { ...prev, [option.value]: w }))
               }}
-              style={styles.label}
+              style={[styles.label, held === option.value ? styles.heldLabel : null]}
             >
               {symbolOnly ? (
                 <IconDefaultsProvider size={20} color={color}>
@@ -288,6 +334,7 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
               ) : (
                 <Text
                   numberOfLines={1}
+                  maxFontSizeMultiplier={maxScale}
                   color={color}
                   weight={isSelected ? look.selectedWeight : look.weight}
                   style={{ fontSize: look.fontSize, lineHeight: look.lineHeight }}
@@ -304,7 +351,12 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
   if (look.glass) {
     // The glass keeps the control's fill over it: one flat layer, no sheen (touch.css)
     return (
-      <Glass radius={look.height / 2} fillToken={look.height >= 40 ? "--segmented-control-mobile-glass-background" : undefined} style={[track, block ? styles.stretch : null]}>
+      <Glass
+        radius={look.height / 2}
+        fillToken={look.height >= 40 ? "--segmented-control-mobile-glass-background" : undefined}
+        tint={largeGlass && held != null ? theme.color("--segmented-control-mobile-glass-background-pressed", theme.scheme === "dark" ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.85)") : undefined}
+        style={[track, block ? styles.stretch : null, largeGlass && held != null ? styles.heldControl : null]}
+      >
         {look.height < 40 && look.fill ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: look.height / 2, backgroundColor: look.fill }]} /> : null}
         {content}
       </Glass>
@@ -313,90 +365,149 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
   return <View style={[track, { backgroundColor: look.fill }, block ? styles.stretch : null]}>{content}</View>
 }
 
-/**
- * Material 3 Expressive's connected button group, the successor of segmented buttons: 40dp toggle buttons 2dp apart,
- * the outer corners full and the inner 8dp, the selected one fully round in the Plex primary solid.
- */
-const TARGET_SLOP = { top: 4, bottom: 4 }
+/** The height of Android's segmented capsule under its bar (36dp, measured), a step smaller and larger by size. */
+const ANDROID_HEIGHT: Record<string, number> = { "3xs": 32, "2xs": 32, xs: 32, sm: 32, md: 36, lg: 40, xl: 44, "2xl": 44, "3xl": 44 }
 
-function AndroidControl({ options, value, select, keys, disabled, block, equal }: ControlProps) {
+/** Android's tabs: the pill moves in 320ms on an ease-out quint, the labels' colors blending with it. */
+const ANDROID_MOVE = { duration: 320, easing: Easing.bezier(0.23, 1, 0.32, 1) }
+/** A pressed tab: the tab selector, the ink at 7%. */
+const ANDROID_PRESSED = 0.07
+
+/**
+ * Android's control is a segmented capsule, as the tabs under a bar and a settings row in the content draw it
+ * (Material's connected button group has no place in this look): a capsule of the bar's surface (white, a gray at
+ * night) with the shadow of the bar's circles, its segments 4dp in, the selected one a pill of the accent at 12% with
+ * its label in the accent, the others in the secondary gray. The pill slides to a new selection and takes its width.
+ * In a bar's row of controls the capsule takes the height of the circles beside it (46dp).
+ */
+function AndroidControl({ options, value, select, keys, disabled, block, equal, size }: ControlProps & { size: ControlSize }) {
   const theme = useTheme()
   const m = theme.material
-  const nativeRipple = useMaterialPress(theme)
-  const [pressed, setPressed] = useState<string | null>(null)
-  const [labels, setLabels] = useState<Record<string, number>>({})
-  const widest = Math.max(0, ...options.map((option) => labels[option.value] ?? 0))
-  const type = materialType.labelLarge
-  const height = 40
-  const full = height / 2
+  const bar = useContext(BarItemContext)
+  const { inRow } = useContext(SegmentedControlRowContext)
+  const height = bar && !inRow ? bar.height : (ANDROID_HEIGHT[size] ?? 36)
+  const inner = height - 8
+  const [widths, setWidths] = useState<Record<string, number>>({})
+  // Equal segments that hug their labels all take the widest one's width
+  const widest = equal && !block ? Math.max(0, ...Object.values(widths)) : 0
+  const [x] = useState(() => new Animated.Value(0))
+  const [width] = useState(() => new Animated.Value(0))
+  const placed = useRef(false)
+  // The pill's place from the segments' widths in their order, 4 in from the capsule's start (react-native-web reports
+  // a layout on a resize, not on a move)
+  const index = options.findIndex((option) => option.value === value)
+  const measured = index >= 0 && options.slice(0, index + 1).every((option) => widths[option.value] != null)
+  const frameX = measured ? 4 + options.slice(0, index).reduce((sum, option) => sum + widths[option.value], 0) : undefined
+  const frameWidth = measured ? widths[options[index].value] : undefined
+  const frame = frameX != null
+  useEffect(() => {
+    if (frameX == null || frameWidth == null) return
+    if (!placed.current || theme.reducedMotion) {
+      x.setValue(frameX)
+      width.setValue(frameWidth)
+      placed.current = true
+      return
+    }
+    const timing = { ...ANDROID_MOVE, useNativeDriver: false }
+    Animated.parallel([Animated.timing(x, { ...timing, toValue: frameX }), Animated.timing(width, { ...timing, toValue: frameWidth })]).start()
+  }, [frameX, frameWidth, x, width, theme.reducedMotion])
   return (
-    <View style={[styles.androidGroup, block ? styles.stretch : null]}>
-      {options.map((option, index) => {
-        const isSelected = option.value === value
-        const off = disabled || !!option.disabled
-        const first = index === 0
-        const last = index === options.length - 1
-        const inner = pressed === option.value ? 4 : 8
-        const corners: ViewStyle = isSelected
-          ? { borderRadius: full }
-          : {
-              borderTopLeftRadius: first ? full : inner,
-              borderBottomLeftRadius: first ? full : inner,
-              borderTopRightRadius: last ? full : inner,
-              borderBottomRightRadius: last ? full : inner,
-            }
-        // Selected as a selected Plex button: the primary solid (the neutral ink, or a brand's), as decision 0017 keeps
-        // Plex primary neutral on Android where Material would fill it with the accent
-        const background = off ? withAlpha(m.onSurface, 0.1) : isSelected ? theme.color("--color-background-primary-solid") : m.surfaceContainer
-        const color = off ? withAlpha(m.onSurface, 0.38) : isSelected ? theme.color("--color-text-primary-solid") : m.onSurfaceVariant
-        return (
-          <Pressable
-            key={option.value}
-            {...keys({ value: option.value, disabled: off })}
-            accessibilityRole="tab"
-            accessibilityLabel={optionName(option)}
-            accessibilityState={{ selected: isSelected, disabled: off }}
-            aria-selected={isSelected}
-            disabled={off}
-            onPress={() => select(option)}
-            onPressIn={() => setPressed(option.value)}
-            onPressOut={() => setPressed(null)}
-            android_ripple={nativeRipple ? { color: withAlpha(color, stateLayer.pressed), foreground: true } : undefined}
-            // Material's 48dp touch target around the 40dp button (ButtonGroup's minimumInteractiveComponentSize)
-            hitSlop={TARGET_SLOP}
-            testID={option.testID}
-            style={[
-              styles.androidOption,
-              corners,
-              { height, backgroundColor: background },
-              block ? styles.grow : equal && widest ? { width: widest + 32 } : null,
-            ]}
-          >
-            {pressed === option.value && !nativeRipple && !off ? (
-              <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(color, stateLayer.pressed) }]} />
-            ) : null}
-            <View
-              style={styles.androidLabel}
-              onLayout={(event: LayoutChangeEvent) => {
-                const w = Math.ceil(event.nativeEvent.layout.width)
-                setLabels((prev) => (prev[option.value] === w ? prev : { ...prev, [option.value]: w }))
-              }}
-            >
-              {isRenderable(option.icon) ? (
-                <IconDefaultsProvider size={20} color={color}>
-                  {option.icon}
-                </IconDefaultsProvider>
-              ) : null}
-              {isRenderable(option.children) ? (
-                <Text numberOfLines={1} color={color} style={{ fontSize: type.fontSize, lineHeight: type.lineHeight, ...theme.font("medium") }}>
-                  {option.children}
-                </Text>
-              ) : null}
-            </View>
-          </Pressable>
-        )
-      })}
+    <View
+      style={[
+        styles.androidRow,
+        { height, borderRadius: height / 2, backgroundColor: barSurface(m, theme.scheme), boxShadow: barShadow(theme.scheme) },
+        block ? styles.stretch : null,
+      ]}
+    >
+      {frame ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.androidPill, { height: inner, borderRadius: inner / 2, backgroundColor: withAlpha(m.primary, 0.12), left: x, width }]}
+        />
+      ) : null}
+      {options.map((option) => (
+        <AndroidSegment
+          key={option.value}
+          option={option}
+          selected={option.value === value}
+          off={disabled || !!option.disabled}
+          framed={frame}
+          height={inner}
+          // In a filled row equal segments share the width and the others take their label and share what is left; a
+          // control that hugs its segments gives equal ones the widest one's width
+          size={block ? (equal ? styles.grow : styles.share) : widest ? { minWidth: widest } : null}
+          keys={keys}
+          select={select}
+          onWidth={(w) => setWidths((prev) => (prev[option.value] === w ? prev : { ...prev, [option.value]: w }))}
+        />
+      ))}
     </View>
+  )
+}
+
+type AndroidSegmentProps = {
+  option: SegmentedControlOptionProps
+  selected: boolean
+  off: boolean
+  /** The pill is placed: the selected segment draws none of its own. */
+  framed: boolean
+  height: number
+  size: ViewStyle | null
+  keys: ReturnType<typeof useTabKeys>
+  select: (option: SegmentedControlOptionProps) => void
+  onWidth: (width: number) => void
+}
+
+/** One segment of the capsule: its label turns from the gray to the accent as the pill comes, and back as it goes. */
+function AndroidSegment({ option, selected, off, framed, height, size, keys, select, onWidth }: AndroidSegmentProps) {
+  const theme = useTheme()
+  const m = theme.material
+  const [tint] = useState(() => new Animated.Value(selected ? 1 : 0))
+  useEffect(() => {
+    if (theme.reducedMotion) {
+      tint.stopAnimation()
+      tint.setValue(selected ? 1 : 0)
+      return
+    }
+    const animation = Animated.timing(tint, { toValue: selected ? 1 : 0, ...ANDROID_MOVE, useNativeDriver: false })
+    animation.start()
+    return () => animation.stop()
+  }, [selected, theme.reducedMotion, tint])
+  // A tab's label: the inactive gray (#777C7F) to the accent; a disabled segment the ink at 38%
+  const idle = theme.colors.labelSecondary
+  const color = off ? withAlpha(m.onSurface, 0.38) : selected ? m.primary : idle
+  const label = off ? color : tint.interpolate({ inputRange: [0, 1], outputRange: [idle, m.primary] })
+  return (
+    <Pressable
+      {...keys({ value: option.value, disabled: off })}
+      accessibilityRole="tab"
+      accessibilityLabel={optionName(option)}
+      accessibilityState={{ selected, disabled: off }}
+      aria-selected={selected}
+      disabled={off}
+      onPress={() => select(option)}
+      testID={option.testID}
+      onLayout={(event: LayoutChangeEvent) => onWidth(event.nativeEvent.layout.width)}
+      style={({ pressed }) => [
+        styles.androidOption,
+        { height, borderRadius: height / 2 },
+        size,
+        // Until the pill is placed the selected segment draws its own
+        selected && !framed ? { backgroundColor: withAlpha(m.primary, 0.12) } : !selected && pressed && !off ? { backgroundColor: withAlpha(m.onSurface, ANDROID_PRESSED) } : null,
+      ]}
+    >
+      {isRenderable(option.icon) ? (
+        <IconDefaultsProvider size={20} color={color}>
+          {option.icon}
+        </IconDefaultsProvider>
+      ) : null}
+      {isRenderable(option.children) ? (
+        // An Animated text, so its color can blend: the face, size and tracking of the kit's Text
+        <Animated.Text numberOfLines={1} style={[textStyle(theme, { weight: "medium" }), { fontSize: 14, lineHeight: 20, letterSpacing: theme.tracking(14), color: label }]}>
+          {option.children}
+        </Animated.Text>
+      ) : null}
+    </Pressable>
   )
 }
 
@@ -408,10 +519,13 @@ const styles = StyleSheet.create({
   grow: { flex: 1 },
   // The control is in a column: it fills the width and keeps its own height
   stretch: { alignSelf: "stretch" },
+  heldControl: { transform: [{ scale: 1.07 }] },
+  heldLabel: { opacity: 0.2 },
   thumb: { position: "absolute", borderCurve: "continuous" },
   option: { alignItems: "center", justifyContent: "center", minWidth: 0 },
   label: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  androidGroup: { flexDirection: "row", gap: 2 },
-  androidOption: { alignItems: "center", justifyContent: "center", paddingHorizontal: 16, overflow: "hidden" },
-  androidLabel: { flexDirection: "row", alignItems: "center", gap: 8 },
+  androidRow: { flexDirection: "row", alignItems: "center", padding: 4 },
+  androidPill: { position: "absolute", top: 4 },
+  androidOption: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 12.5, minWidth: 0 },
+  share: { flexGrow: 1, flexShrink: 1, flexBasis: "auto" },
 })

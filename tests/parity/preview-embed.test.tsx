@@ -576,12 +576,63 @@ describe("Compact Phone viewport", () => {
     expect(pointerPreview.querySelector('[aria-label="Screen"]')).toBeNull()
   })
 
+  // Owner 23.11 («Добавить Android-рамку в Phone-превью страниц React/Vue?» → «Да»): a React or Vue screen stands in an
+  // iPhone or an Android phone, the page's pick or the example's own; the web components inside are the same.
+  test("a screen stands in an iPhone or an Android phone, the page's pick or its own", () => {
+    const view = render(<PreviewViewportProvider>
+      <PreviewViewportControl />
+      <ChoosePhone />
+      <ComponentPreview previewId="first" phonePresentation="screen"><span>First</span></ComponentPreview>
+      <ComponentPreview previewId="second" phonePresentation="screen"><span>Second</span></ComponentPreview>
+      <ComponentPreview previewId="pointer" phonePresentation="none"><span>Pointer only</span></ComponentPreview>
+    </PreviewViewportProvider>)
+    // On the desktop view there is no device to pick
+    expect(view.queryByLabelText("All phones")).toBeNull()
+    expect(view.queryAllByLabelText("Platform")).toHaveLength(0)
+    fireEvent.click(view.getByText("Use Phone"))
+    expect(view.getAllByLabelText("Platform")).toHaveLength(2)
+    const frames = () => view.getAllByTitle("Phone preview") as HTMLIFrameElement[]
+    expect(frames().map((frame) => frame.getAttribute("src"))).toEqual([
+      "/preview/components/auth-forms?key=first",
+      "/preview/components/auth-forms?key=second",
+    ])
+    expect(frames().every((frame) => frame.closest(".PhoneDevice"))).toBe(true)
+    // The page's pick: every screen in an Android phone, its status bar and gesture handle
+    fireEvent.click(within(view.getByLabelText("All phones")).getByText("Android"))
+    expect(frames().map((frame) => frame.getAttribute("src"))).toEqual([
+      "/preview/components/auth-forms?key=first&platform=android",
+      "/preview/components/auth-forms?key=second&platform=android",
+    ])
+    expect(frames().every((frame) => frame.closest(".AndroidDevice") && !frame.closest(".PhoneDevice"))).toBe(true)
+    expect(view.container.querySelectorAll(".AndroidGestureHandle")).toHaveLength(2)
+    // An example's own pick: only that one goes back to the iPhone
+    fireEvent.click(within(view.getAllByLabelText("Platform")[0]).getByText("iOS"))
+    expect(frames()[0].closest(".PhoneDevice")).toBeTruthy()
+    expect(frames()[1].closest(".AndroidDevice")).toBeTruthy()
+    // A pointer-only example has no phone, so no device either
+    const pointerPreview = view.getByText("Pointer only").closest("[data-component-preview]")!
+    expect(pointerPreview.querySelector('[aria-label="Platform"]')).toBeNull()
+  })
+
+  test("a page of examples that are only phones offers their device, with no Desktop and Phone switch", () => {
+    const view = render(<PreviewViewportProvider>
+      <PreviewViewportControl />
+      <ComponentPreview previewId="bar" phoneOnly><span>Bar</span></ComponentPreview>
+    </PreviewViewportProvider>)
+    expect(view.queryByLabelText("All examples")).toBeNull()
+    fireEvent.click(within(view.getByLabelText("All phones")).getByText("Android"))
+    const frame = view.getByTitle("Phone preview") as HTMLIFrameElement
+    expect(frame.getAttribute("src")).toBe("/preview/components/auth-forms?key=bar&platform=android")
+    expect(frame.closest(".AndroidDevice")).toBeTruthy()
+  })
+
   test("screen geometry stays at 100% in a narrow host, with horizontal scrolling instead of scaling", () => {
     // Apply the production geometry rules: jsdom can resolve their fixed sizes,
     // but does not perform flex layout or calculate scrollWidth.
     const css = readFileSync("components/docs/ComponentPreview.module.css", "utf8")
     const stylesheet = document.createElement("style")
-    stylesheet.textContent = Array.from(css.matchAll(/\.(?:PhoneContainer|PhoneDevice|PhoneCanvas|PhoneScreen|PhoneFrame|PhoneStatusBar|ComponentPhoneFrame)\s*\{[^}]*\}/g), (match) => match[0]).join("\n")
+    // Only the rules of the class alone: a rule such as `.AndroidScreen > .PhoneFrame` is the Android frame's
+    stylesheet.textContent = Array.from(css.matchAll(/(?:^|\n)\.(?:PhoneContainer|PhoneDevice|PhoneCanvas|PhoneScreen|PhoneFrame|PhoneStatusBar|ComponentPhoneFrame)\s*\{[^}]*\}/g), (match) => match[0]).join("\n")
     document.head.append(stylesheet)
     try {
       const view = render(<div style={{ width: 320 }}><PhonePage>

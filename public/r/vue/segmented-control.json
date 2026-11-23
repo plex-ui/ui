@@ -3,7 +3,7 @@
   "name": "segmented-control",
   "type": "registry:ui",
   "title": "Segmented Control",
-  "description": "Switch between grouped views with one control, a segmented track or underline tabs, with icon-only segments and badge counts on each option.",
+  "description": "\"One control that switches between related views, as a segmented track or as underline tabs.\"",
   "dependencies": [
     "@plexui/vue"
   ],

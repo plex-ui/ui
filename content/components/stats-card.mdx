@@ -1,6 +1,6 @@
 ---
 title: Stats Card
-description: Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
+description: "A dashboard card that shows one figure, such as a KPI, with its trend, an icon or a progress bar."
 metaDescription: React stats card component for dashboards displaying KPIs with trend deltas, info tooltip, icon, progress bar, and accent bar
 aliases: StatCard
 ---
@@ -9,8 +9,6 @@ import { StatsCard } from "@plexui/ui/components/StatsCard"
 import { StatsCardOverviewDemo } from "@/components/docs/StatsCardDemos"
 
 <UsageBlock>{`import { StatsCard } from "@plexui/ui/components/StatsCard";`}</UsageBlock>
-
-Formerly `StatCard`. The old name and its import path `@plexui/ui/components/StatCard` still work but are deprecated.
 
 ## Examples
 
@@ -27,7 +25,10 @@ Formerly `StatCard`. The old name and its import path `@plexui/ui/components/Sta
 
 ### Overview
 
-<ComponentPreview details={<>Dashboard-ready stats cards with trends, icons, and progress bars. Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography; it pairs well with <code>tooltip</code>, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (<code>trendPosition</code>), as plain text or in a badge (<code>trendVariant</code>). Use <code>invertTrend</code> for metrics where a rise is bad, such as error rate or response time. An <code>icon</code> stands in a small soft tile at the end of the header, and <code>progress</code> draws a bar of completion or usage across the card. The <code>accent</code> variant adds a colored bar before the content in one of eight semantic colors (<code>accentColor</code>).</>} code={`import { DollarCircle } from "@plexui/ui/components/Icon"
+<ComponentPreview details={<>
+  <p>Formerly <code>StatCard</code>. The old name and its import path <code>@plexui/ui/components/StatCard</code> still work but are deprecated.</p>
+  <p>Dashboard-ready stats cards with trends, icons, and progress bars. Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography; it pairs well with <code>tooltip</code>, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (<code>trendPosition</code>), as plain text or in a badge (<code>trendVariant</code>). Use <code>invertTrend</code> for metrics where a rise is bad, such as error rate or response time. An <code>icon</code> stands in a small soft tile at the end of the header, and <code>progress</code> draws a bar of completion or usage across the card. The <code>accent</code> variant adds a colored bar before the content in one of eight semantic colors (<code>accentColor</code>).</p>
+</>} code={`import { DollarCircle } from "@plexui/ui/components/Icon"
 
 const [size, setSize] = useState("default")
 const [variant, setVariant] = useState("default")

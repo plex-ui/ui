@@ -140,7 +140,7 @@ export function InputWithButtonDemo() {
       <PhoneRowsStage>
         <FieldGroup>
           <Field row label="Email">
-            <Input type="email" placeholder="jane.doe@gmail.com" />
+            <Input type="email" placeholder="name@example.com" />
           </Field>
         </FieldGroup>
         <Button color="primary" size="3xl" pill block>
@@ -180,7 +180,7 @@ export function InputWithButtonDemo() {
       </div>
       <div data-demo-stage className="py-10">
         <div className="flex w-[320px] gap-2">
-          <Input placeholder="jane.doe@gmail.com" size={size} variant={variant} />
+          <Input placeholder="name@example.com" size={size} variant={variant} />
           <Button color="primary" size={size} variant={variant} pill={false}>
             Subscribe
           </Button>

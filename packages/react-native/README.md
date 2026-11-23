@@ -36,6 +36,9 @@ export default function App() {
 
 - `scheme`: `"system"` (default), `"light"` or `"dark"`.
 - `platform`: `"ios"` or `"android"`. Defaults to the device; a browser draws iOS.
+- `selectionColor`: the on color of every Switch, Checkbox and RadioGroup that sets none of its own. `"primary"`
+  (default) is the Plex primary, the ink, as on the web; `"accent"` is each platform's own: on iOS a switch turns the
+  system green and a checkbox or a checkmark the accent, the iOS tint; on Android all of them take the accent.
 - `brand`: a product's colors, tokens, fonts and radii over Plex UI:
 
 ```tsx

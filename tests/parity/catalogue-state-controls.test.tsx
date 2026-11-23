@@ -21,6 +21,7 @@ import { PopoverOverviewDemo } from '../../components/docs/PopoverDemos';
 import { AvatarGroupOverviewDemo } from '../../components/docs/AvatarGroupDemos';
 import { BreadcrumbOverviewDemo } from '../../components/docs/BreadcrumbDemos';
 import { PageControlOverviewDemo } from '../../components/docs/PageControlDemos';
+import { ONBOARDING_CARDS } from '../../components/docs/pageControlData';
 import { ColorPickerInlineDemo, ColorWellOverviewDemo } from '../../components/docs/ColorPickerDemos';
 import { VuePopoverDemo } from '../../components/docs/vue/VuePopoverDemos';
 import { CODE_BLOCK_LANGUAGE_SAMPLES } from '../../components/docs/CodeBlockSamples';
@@ -39,9 +40,10 @@ import { PageOverviewDemo } from '../../components/docs/PageDemos';
 import { SliderOverviewDemo, SliderSettingDemo } from '../../components/docs/SliderDemos';
 import { TipOverviewDemo } from '../../components/docs/TipDemos';
 import { ToolbarOverviewDemo } from '../../components/docs/ToolbarDemos';
+import { ORDERS } from '../../components/docs/toolbarOrders';
 import { ToastDemosHost, ToastOverviewDemo } from '../../components/docs/ToastDemos';
 import { VueToastDemo, VueToastDemosHost } from '../../components/docs/vue/VueToastDemos';
-import { TOAST_LONG_DESCRIPTION, TOAST_MESSAGES } from '../../components/docs/toastMessages';
+import { TOAST_MESSAGES } from '../../components/docs/toastMessages';
 import { compact as reactCompact, toast as reactToast } from '@plexui/ui/components/Toast';
 import { compact as vueCompact, toast as vueToast } from '@plexui/vue/components/Toast';
 import { VuePhoneRowsDemo } from '../../components/docs/vue/VuePhoneRowsDemo';
@@ -212,7 +214,8 @@ const pageOverview = (() => {
   };
   const styles = { Row: 'Row', Value: 'Value', Frame: 'Frame' };
   const template = read('overview', { frame: read('frame', { pageStyles: styles }), list: read('list', { toolbarStyles: styles }) }) as string;
-  return { template, controls: read('overviewControls') as VueDemoControl[], state: { rows: read('rows') } };
+  // The page's rows are the orders of the Toolbar examples (toolbarOrders.ts, imported by the page)
+  return { template, controls: read('overviewControls') as VueDemoControl[], state: { rows: ORDERS } };
 })();
 /** The Slider Overview as its page mounts it: its phone cell, its state (a value for each number of thumbs, the
  * scale's marks) and its controls */
@@ -223,11 +226,13 @@ const sliderOverview = (() => {
     return new Function(...Object.keys(bindings), `return ${rest.slice(0, rest.search(/\nexport const |\n<UsageBlock>/)).trim()}`)(...Object.values(bindings));
   };
   const cells = { rowButtonClassName, sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName };
+  // The slider's name, an expression of the controls over the page's table of names
+  const name = read('name');
   return {
-    template: read('overview') as string,
-    phoneTemplate: phoneRows(read('overviewPhone', cells) as string),
+    template: read('overview', { name }) as string,
+    phoneTemplate: phoneRows(read('overviewPhone', { ...cells, name }) as string),
     controls: read('overviewControls') as VueDemoControl[],
-    state: read('overviewState') as Record<string, unknown>,
+    state: read('overviewState', { names: read('names') }) as Record<string, unknown>,
   };
 })();
 /** The Slider's settings-group example as its page mounts it: a Zoom setting, its reset in the group's heading */
@@ -264,9 +269,10 @@ const toolbarOverview = (() => {
   };
   const styles = { Row: 'Row', Value: 'Value', Frame: 'Frame', Stage: 'Stage' };
   const frame = read('frame', { pageStyles: styles }) as (body: string) => string;
-  const template = frame(read('overview', { list: read('list', { toolbarStyles: styles }) }) as string);
+  const list = read('list', { toolbarStyles: styles });
+  const template = frame(read('overview', { overviewList: read('overviewList', { list }) }) as string);
   // The page's own state: the orders and the selected view of a row's segmented control
-  return { template, stageClassName: 'Stage', state: { rows: read('rows'), view: 'all', searching: false }, controls: read('overviewControls') as VueDemoControl[] };
+  return { template, stageClassName: 'Stage', state: { rows: ORDERS, view: 'all', searching: false }, controls: read('overviewControls') as VueDemoControl[] };
 })();
 /** A viewport a test can narrow to a phone and widen again, telling the demos' media queries */
 function viewport() {
@@ -322,7 +328,7 @@ const avatarGroupOverview = { ...example('avatar-group', 'overview'), stageClass
 /** The Breadcrumb Overview as its page mounts it */
 const breadcrumbOverview = { ...example('breadcrumb', 'overview'), stageClassName: 'flex-1 flex flex-col items-center justify-center gap-4 py-12 w-full' };
 /** The Page Control Overview as its page mounts it */
-const pageControlOverview = { ...example('page-control', 'overview'), state: { page: 0 }, stageClassName: 'flex-1 flex items-center justify-center py-10 w-full' };
+const pageControlOverview = { ...example('page-control', 'overview'), state: { page: 0, cards: ONBOARDING_CARDS }, stageClassName: 'flex-1 flex items-center justify-center py-10 w-full' };
 /** The Color well and Picker examples as their page mounts them (the phone screen is not under test here) */
 const colorSwatches = ['#000000', '#007aff', '#34c759'];
 const colorWellOverview = { ...example('color-picker', 'overview'), state: { tint: '#af52de', highlight: null, swatches: colorSwatches }, stageClassName: 'flex-1 flex items-center justify-center py-10 w-full' };
@@ -927,6 +933,10 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     const choose = (name: string, option: string) => interact(() => fireEvent.click(within(page.getByRole('radiogroup', { name })).getByRole('radio', { name: option, exact: true })));
     expect(control().getAttribute('aria-valuemax')).toBe('5');
     expect(slides()).toBe(5);
+    // The pages of an onboarding, each a symbol, a title and a line
+    const pagesElement = () => stage().querySelector(`[id="${control().getAttribute('aria-controls')}"]`)!;
+    expect(Array.from(pagesElement().children, (card) => card.textContent)).toEqual(ONBOARDING_CARDS.slice(0, 5).map(({ title, text }) => `${title}${text}`));
+    expect(pagesElement().children[0].querySelector('svg')).not.toBeNull();
     const background = () => control().closest('[data-background]')?.getAttribute('data-background');
     expect(background()).toBe('automatic');
     await choose('background', 'prominent');
@@ -1071,7 +1081,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     const buttons = () => [...root().querySelectorAll('button')].map((button) => button.textContent?.trim());
     expect(root().dataset.fill).toBe('static');
     expect(part('Title')?.textContent).toBe('No projects yet');
-    expect(part('Description')?.textContent?.trim()).toBe('Create your first project to get started');
+    expect(part('Description')?.textContent?.trim()).toBe('Create your first project to get started.');
     expect(buttons()).toEqual(['New project']);
     expect(root().querySelector<HTMLElement>('button')?.dataset.size).toBe('xl');
     // The icon and the title take their own color (a warning icon over a plain title); the description keeps its own
@@ -1207,7 +1217,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
   });
 
   test('skeleton: the Overview carries the content and circle, offered for the profile (owner 11.11, row 33)', async () => {
-    const view = render(framework === 'React' ? <SkeletonOverviewDemo /> : <VueDemo {...example('skeleton', 'overview', ['profile', 'card', 'text', 'form', 'table'])} />);
+    const view = render(framework === 'React' ? <SkeletonOverviewDemo /> : <VueDemo {...example('skeleton', 'overview', ['profile', 'card', 'text', 'list', 'feed'])} />);
     await interact(() => {});
     const page = within(view.container);
     const avatar = () => view.container.querySelector<HTMLElement>('[data-demo-stage] .size-12');
@@ -1215,11 +1225,15 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(avatar()!.hasAttribute('data-circle')).toBe(true);
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'circle', exact: true })));
     expect(avatar()!.hasAttribute('data-circle')).toBe(false);
-    // A table has a header and four rows of three placeholders, and no avatar to round
-    await choose('table');
+    // A list has three rows of a round avatar and two lines, and no circle to choose
+    await choose('list');
     expect(avatar()).toBeNull();
     expect(page.queryByRole('switch', { name: 'circle', exact: true })).toBeNull();
-    expect(view.container.querySelectorAll('[data-demo-stage] .w-\\[150px\\]')).toHaveLength(5);
+    expect(view.container.querySelectorAll('[data-demo-stage] .size-10[data-circle]')).toHaveLength(3);
+    // A post in a feed: a round avatar over its text and picture
+    await choose('feed');
+    expect(view.container.querySelectorAll('[data-demo-stage] .size-8[data-circle]')).toHaveLength(1);
+    expect(view.container.querySelectorAll('[data-demo-stage] .h-\\[150px\\]')).toHaveLength(1);
     // Back on the profile, circle keeps its choice
     await choose('profile');
     expect(avatar()!.hasAttribute('data-circle')).toBe(false);
@@ -1247,13 +1261,13 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect([badge()?.querySelector('svg') !== null, badge()?.textContent?.trim()]).toEqual([true, 'Beta']);
     await choose('leading', 'loading');
     expect([badge()?.classList.contains('gap-1.5'), badge()?.textContent?.trim()]).toEqual([true, 'In progress']);
-    // The cross removes the badge; Show again brings it back
+    // The cross makes the badge a tag and removes it; Show again brings it back
     expect(page.queryByRole('button', { name: 'Remove In progress' })).toBeNull();
     await toggle('onRemove');
-    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Remove In progress' })));
+    await interact(() => fireEvent.click(page.getByRole('button', { name: 'Remove Uploading' })));
     expect(badge()).toBeNull();
     await interact(() => fireEvent.click(page.getByRole('button', { name: 'Show again' })));
-    expect(badge()?.textContent?.trim()).toBe('In progress');
+    expect(badge()?.textContent?.trim()).toBe('Uploading');
   });
 
   test('toast: one Overview carries every setting of a toast; persistent comes with a way to close it (owner 11.11)', async () => {
@@ -1278,8 +1292,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     try {
       // The code declares the messages it shows
       const code = readFileSync(framework === 'React' ? 'content/components/toast.mdx' : 'content/vue/components/toast.mdx', 'utf8');
-      for (const message of Object.values(TOAST_MESSAGES)) expect(code).toContain(`{ title: "${message.title}", description: "${message.description}", action: "${message.action}" }`);
-      expect(code).toContain(`const longDescription = "${TOAST_LONG_DESCRIPTION}"`);
+      for (const message of Object.values(TOAST_MESSAGES)) expect(code).toContain(`{ title: "${message.title}", description: "${message.description}", long: "${message.long}", action: "${message.action}" }`);
       // Persistent waits to be closed: it comes with an action or a close button
       expect(offered('persistent')).toBe(false);
       await toggle('closeButton');
@@ -1353,9 +1366,9 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     const group = (name: string) => within(page.getByRole('radiogroup', { name }));
     const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
     const boxes = () => page.getAllByRole<HTMLButtonElement>('checkbox');
-    expect(box('Share usage data').getAttribute('aria-checked')).toBe('true');
-    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('false');
-    expect(box('Sync all folders').getAttribute('aria-checked')).toBe('mixed');
+    expect(box('Photos').getAttribute('aria-checked')).toBe('true');
+    expect(box('Messages').getAttribute('aria-checked')).toBe('false');
+    expect(box('Folders').getAttribute('aria-checked')).toBe('mixed');
     for (const item of boxes()) expect(item.getAttribute('data-variant')).toBe('solid');
     // pill rounds the box of both variants: the solid fill, the ghost hover tint and focus ring
     await toggle('pill');
@@ -1368,34 +1381,34 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     }
     await interact(() => fireEvent.click(group('variant').getByRole('radio', { name: 'solid' })));
     // description and orientation act next to a label
-    expect(box('Share usage data').getAttribute('aria-describedby')).toBeNull();
+    expect(box('Photos').getAttribute('aria-describedby')).toBeNull();
     await toggle('description');
-    expect(page.getByText('Help improve the product with anonymous usage reports.')).toBeTruthy();
-    expect(box('Share usage data').getAttribute('aria-describedby')).toBeTruthy();
+    expect(page.getByText('Back up photos and videos over Wi-Fi.')).toBeTruthy();
+    expect(box('Photos').getAttribute('aria-describedby')).toBeTruthy();
     await interact(() => fireEvent.click(group('orientation').getByRole('radio', { name: 'right' })));
     for (const item of boxes()) expect(item.closest('[data-orientation]')?.getAttribute('data-orientation')).toBe('right');
     await toggle('label');
     expect(page.queryByRole('switch', { name: 'description' })).toBeNull();
     expect(page.queryByRole('radiogroup', { name: 'orientation' })).toBeNull();
-    expect(page.queryByText('Share usage data')).toBeNull();
-    expect(page.queryByText('Help improve the product with anonymous usage reports.')).toBeNull();
-    expect(box('Share usage data').getAttribute('aria-label')).toBe('Share usage data');
-    expect(box('Share usage data').getAttribute('aria-describedby')).toBeNull();
+    expect(page.queryByText('Photos')).toBeNull();
+    expect(page.queryByText('Back up photos and videos over Wi-Fi.')).toBeNull();
+    expect(box('Photos').getAttribute('aria-label')).toBe('Photos');
+    expect(box('Photos').getAttribute('aria-describedby')).toBeNull();
     // The choices come back with the label
     await toggle('label');
-    expect(page.getByText('Help improve the product with anonymous usage reports.')).toBeTruthy();
+    expect(page.getByText('Back up photos and videos over Wi-Fi.')).toBeTruthy();
     expect(group('orientation').getByRole('radio', { name: 'right' }).getAttribute('aria-checked')).toBe('true');
     // disabled keeps a user's change and the indeterminate state
-    await interact(() => fireEvent.click(box('Enable notifications')));
-    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('true');
+    await interact(() => fireEvent.click(box('Messages')));
+    expect(box('Messages').getAttribute('aria-checked')).toBe('true');
     await toggle('disabled');
     for (const item of boxes()) expect(item.disabled).toBe(true);
-    await interact(() => fireEvent.click(box('Enable notifications')));
-    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('true');
-    expect(box('Sync all folders').getAttribute('aria-checked')).toBe('mixed');
+    await interact(() => fireEvent.click(box('Messages')));
+    expect(box('Messages').getAttribute('aria-checked')).toBe('true');
+    expect(box('Folders').getAttribute('aria-checked')).toBe('mixed');
     await toggle('disabled');
-    await interact(() => fireEvent.click(box('Enable notifications')));
-    expect(box('Enable notifications').getAttribute('aria-checked')).toBe('false');
+    await interact(() => fireEvent.click(box('Messages')));
+    expect(box('Messages').getAttribute('aria-checked')).toBe('false');
   });
 
   test('radio group: one Overview carries direction, orientation, descriptions and both kinds of disabled (owner 11.11)', async () => {
@@ -1650,8 +1663,8 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     const control = () => view.container.querySelector<HTMLElement>('[data-slot="select-control"]')!;
     const group = (name: string) => within(page.getByRole('radiogroup', { name }));
     const toggle = (name: string) => interact(() => fireEvent.click(page.getByRole('switch', { name })));
-    // The Fruit field's trigger, named by its label and its value
-    expect(page.getByRole('button', { name: 'Fruit Select a fruit...' })).toBe(control());
+    // The Currency field's trigger, named by its label and its value
+    expect(page.getByRole('button', { name: 'Currency Select a currency...' })).toBe(control());
     expect(control().getAttribute('data-variant')).toBe('outline');
     expect(control().getAttribute('data-size')).toBe('md');
     expect(control().hasAttribute('data-block')).toBe(true);
@@ -1702,9 +1715,9 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(control().querySelector('.DropdownIconChevron')).toBeTruthy();
     await toggle('pill');
     expect(control().hasAttribute('data-pill')).toBe(true);
-    // multiple: the Fruits field, an array of values
+    // multiple: the Currencies field, an array of values
     await toggle('multiple');
-    expect(page.getByRole('button', { name: 'Fruits Select fruits...' })).toBe(control());
+    expect(page.getByRole('button', { name: 'Currencies Select currencies...' })).toBe(control());
     await toggle('loading');
     expect(control().getAttribute('aria-busy')).toBe('true');
     await toggle('disabled');
@@ -1725,9 +1738,9 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     // The checkmark leads every row: checkPosition is start or none there
     expect(offered('radiogroup', 'checkPosition')).toBe(true);
     expect(within(page.getByRole('radiogroup', { name: 'checkPosition' })).getAllByRole('radio').map((radio) => radio.textContent)).toEqual(['start', 'none']);
-    expect(page.getByRole('button', { name: 'Fruit None' })).toBe(control());
+    expect(page.getByRole('button', { name: 'Currency None' })).toBe(control());
     await interact(() => fireEvent.click(page.getByRole('switch', { name: 'multiple' })));
-    expect(page.getByRole('button', { name: 'Fruits None' })).toBe(control());
+    expect(page.getByRole('button', { name: 'Currencies None' })).toBe(control());
   });
 
   test('progress steps: every setting is a control of the one Overview, the minimal bar only with its own (owner 11.11)', async () => {
@@ -1969,7 +1982,8 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     // One thumb at 50 of 0–100, its label and a reset button over the value and its %
     expect(values()).toEqual(['50']);
     expect(root().getAttribute('data-orientation')).toBe('horizontal');
-    expect(within(stage()).getByText('Example field')).toBeTruthy();
+    // The slider is named after what it sets: one value in percent is a volume
+    expect(within(stage()).getByText('Volume')).toBeTruthy();
     expect(within(stage()).getByRole('button', { name: 'Reset to default' })).toBeTruthy();
     expect(text()).toContain('%');
     expect(minSteps()).toBeNull();
@@ -2029,8 +2043,10 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await push(3);
     expect(values()).toEqual(['20', '40', '70']);
     // unit follows the value, prefixUnit comes before it, none is a bare number
+    // and the name follows: tiers of prices, then of ages
     await choose('unit', 'prefixUnit');
     expect(text()).toContain('$20 – $40 – $70');
+    expect(within(stage()).getByText('Price tiers')).toBeTruthy();
     await choose('unit', 'none');
     expect(text()).toContain('20 – 40 – 70');
     // The scale's marks, the track's colors, a tooltip on the label
@@ -2038,10 +2054,10 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(marks()).toEqual(['0', '25', '50', '75', '100']);
     await toggle('colors');
     const colors = stage().querySelector<HTMLElement>('[style*="--slider-track-color"]')!;
-    expect(colors.style.getPropertyValue('--slider-track-color')).toBe('#61C454');
-    expect(colors.style.getPropertyValue('--slider-range-color')).toBe('#EF4146');
+    expect(colors.style.getPropertyValue('--slider-track-color')).toBe('#61C45433');
+    expect(colors.style.getPropertyValue('--slider-range-color')).toBe('#61C454');
     await toggle('tooltip');
-    expect(within(stage()).getByText('Example field').closest('[data-state]')).toBeTruthy();
+    expect(within(stage()).getByText('Age groups').closest('[data-state]')).toBeTruthy();
     // A vertical slider draws no marks, so they are not offered there, and they come back with the horizontal one
     await choose('orientation', 'vertical');
     expect(root().getAttribute('data-orientation')).toBe('vertical');
@@ -2136,9 +2152,9 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     const cell = () => view.container.querySelector<HTMLElement>('[data-row]')!;
     const slider = () => cell().querySelector<HTMLElement>('[data-orientation]')!;
     // The phone slider is horizontal, in a cell of a group its title names, with no label row of its own
-    expect(within(view.container).getByText('Example field').closest('[data-row]')).toBeNull();
+    expect(within(view.container).getByText('Discount tiers').closest('[data-row]')).toBeNull();
     expect(slider().getAttribute('data-orientation')).toBe('horizontal');
-    expect(within(cell()).getAllByRole('slider').map((thumb) => thumb.getAttribute('aria-label'))).toEqual(['Example field Value 1 of 3', 'Example field Value 2 of 3', 'Example field Value 3 of 3']);
+    expect(within(cell()).getAllByRole('slider').map((thumb) => thumb.getAttribute('aria-label'))).toEqual(['Discount tiers Value 1 of 3', 'Discount tiers Value 2 of 3', 'Discount tiers Value 3 of 3']);
     for (const [role, name] of [['switch', 'tooltip'], ['radiogroup', 'orientation']]) expect(offered(role, name), name).toBe(false);
     // A range keeps a step of 1, its thumbs minStepsBetweenThumbs apart
     expect(offered('radiogroup', 'step')).toBe(false);
@@ -2165,7 +2181,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(value().className).toContain('text-secondary');
     // The value is a field, typed in place (Keynote for iPhone; owner 14.11): a number moves the slider, whole and
     // within the scale, as the slider's own field takes it; Escape or an empty field keeps the value
-    const field = () => within(cell()).getByRole('textbox', { name: 'Example field value' }) as HTMLInputElement;
+    const field = () => within(cell()).getByRole('textbox', { name: 'Max price value' }) as HTMLInputElement;
     expect(field().getAttribute('inputmode')).toBe('numeric');
     const type = async (typed: string, end: 'commit' | 'escape' = 'commit') => {
       await interact(() => field().focus());
@@ -2191,7 +2207,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     await choose('step', '1');
     // The reset is a row of its own under the slider's group (Settings, IMG_5940), offered on a phone too
     expect(offered('switch', 'resetValue')).toBe(true);
-    const reset = () => within(view.container).queryByRole('button', { name: 'Reset to Default' });
+    const reset = () => within(view.container).queryByRole('button', { name: 'Reset to default' });
     await type('20');
     await interact(() => fireEvent.click(reset()!));
     expect(now()).toBe('50');
@@ -2218,7 +2234,7 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(cell().textContent).not.toContain('$50');
     // The track's colors reach the cell
     await toggle('colors');
-    expect(cell().querySelector<HTMLElement>('[style*="--slider-track-color"]')?.style.getPropertyValue('--slider-range-color')).toBe('#EF4146');
+    expect(cell().querySelector<HTMLElement>('[style*="--slider-track-color"]')?.style.getPropertyValue('--slider-range-color')).toBe('#61C454');
     await show('desktop');
     expect(view.container.querySelector('[data-demo-stage] [data-orientation]')?.getAttribute('data-orientation')).toBe('vertical');
     expect(page.getByRole('radiogroup', { name: 'orientation' })).toBeTruthy();
@@ -2299,33 +2315,33 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     const offered = (name: string) => !!(page.queryByRole('radiogroup', { name }) ?? page.queryByRole('switch', { name }));
     const buttons = (element: HTMLElement) => within(element).getAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent?.trim());
     const options = (name: string) => within(page.getByRole('radiogroup', { name })).getAllByRole('radio').map((radio) => radio.textContent);
-    // Back, the title and Close in a glass bar, and no bottom bar: its control stands under the preview
+    // Back, the title and More in a glass bar, and no bottom bar: its control stands under the preview
     expect([top().dataset.titleStyle, top().dataset.titleAlign, top().dataset.background]).toEqual(['inline', 'center', 'glass']);
-    expect(buttons(top())).toEqual(['Back', 'Close']);
+    expect(buttons(top())).toEqual(['Back', 'More']);
     expect(within(top()).getByText('Orders')).toBeTruthy();
     expect(bar('bottom')).toBeNull();
     expect(page.getByRole('radiogroup', { name: 'bottom' }).closest('[data-demo-controls="bottom"]')).toBeTruthy();
     expect(offered('background (bottom)')).toBe(false);
-    // An inline title aligns and takes a subtitle; a large one takes Done (confirm), a compact one the Back button's place
+    // An inline title aligns and takes a subtitle; a large one keeps Back and More, a compact one the Back button's place
     await choose('titleAlign', 'start');
     await toggle('subtitle');
     expect([top().dataset.titleAlign, within(top()).queryAllByText('24 orders').length > 0]).toEqual(['start', true]);
     await choose('titleStyle', 'large');
     expect([top().dataset.titleStyle, top().dataset.titleAlign, offered('titleAlign'), within(top()).queryAllByText('24 orders').length > 0]).toEqual(['large', 'center', false, true]);
-    expect(buttons(top())).toEqual(['Back', 'Confirm']);
+    expect(buttons(top())).toEqual(['Back', 'More']);
     await choose('titleStyle', 'compact-large');
-    expect([offered('subtitle'), within(top()).queryAllByText('24 orders').length, buttons(top())]).toEqual([false, 0, ['Close']]);
+    expect([offered('subtitle'), within(top()).queryAllByText('24 orders').length, buttons(top())]).toEqual([false, 0, ['More']]);
     await choose('titleStyle', 'compact-medium');
-    expect([top().dataset.titleStyle, buttons(top())]).toEqual(['compact-medium', ['Close']]);
+    expect([top().dataset.titleStyle, buttons(top())]).toEqual(['compact-medium', ['More']]);
     // Without a title the bar holds its controls alone, Back among them, and offers none of the title's settings
     await toggle('title');
-    expect([within(top()).queryAllByText('Orders').length, buttons(top())]).toEqual([0, ['Back', 'Close']]);
+    expect([within(top()).queryAllByText('Orders').length, buttons(top())]).toEqual([0, ['Back', 'More']]);
     expect(['titleStyle', 'titleAlign', 'subtitle', 'group'].map(offered)).toEqual([false, false, false, true]);
     await toggle('title');
     await choose('titleStyle', 'inline');
     // A group of actions in one capsule, which leaves an inline title room on a phone
     await toggle('group');
-    expect(buttons(top())).toEqual(['Back', 'Translate', 'More']);
+    expect(buttons(top())).toEqual(['Back', 'Share', 'More']);
     expect(within(top()).getByRole('group', { name: 'Order actions' })).toBeTruthy();
     // The search waits in a row under the controls or behind a button in the bar, and a tap opens it: its field in
     // place of the title and the buttons, with Close (owner 13.11: «это уже включенное состояние поиска»)
@@ -2336,14 +2352,14 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(options('search')).toEqual(['none', 'row', 'button']);
     expect([field(), rowsOf()]).toEqual([null, []]);
     await choose('search', 'button');
-    expect([buttons(top()), field()]).toEqual([['Back', 'Search', 'Translate', 'More'], null]);
+    expect([buttons(top()), field()]).toEqual([['Back', 'Search', 'Share', 'More'], null]);
     await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
     expect([within(top()).queryAllByText('Orders').length, buttons(top()), !!field()?.closest('[data-toolbar] > *:not([data-toolbar-row])')]).toEqual([0, ['Close search'], true]);
     // The title's settings stay: they hold for the bar the search goes back to
     expect(['title', 'titleStyle', 'titleAlign', 'subtitle', 'group'].map(offered)).toEqual([true, true, true, true, true]);
     // Close gives the focus back to the Search button (Codex #10)
     await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
-    expect([within(top()).queryAllByText('Orders').length > 0, buttons(top()), field()]).toEqual([true, ['Back', 'Search', 'Translate', 'More'], null]);
+    expect([within(top()).queryAllByText('Orders').length > 0, buttons(top()), field()]).toEqual([true, ['Back', 'Search', 'Share', 'More'], null]);
     expect(document.activeElement?.getAttribute('aria-label')).toBe('Search');
     // Or the button opens its field at the bottom (owner 13.11 «нужно поддержать оба варианта настройкой»), as SwiftUI's
     // search button does: the field and Close in a bottom bar, the top bar without its title and buttons, and a
@@ -2359,28 +2375,28 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect([bar('bottom')!.dataset.background, offered('background (bottom)')]).toEqual(['soft', false]);
     // Close puts the bar back and gives the focus back to the Search button
     await interact(() => fireEvent.click(within(bar('bottom')!).getByRole('button', { name: 'Close search' })));
-    expect([bar('bottom'), labels(top()), rowsOf(), document.activeElement?.getAttribute('aria-label')]).toEqual([null, ['Back', 'Search', 'Translate', 'More'], ['md'], 'Search']);
+    expect([bar('bottom'), labels(top()), rowsOf(), document.activeElement?.getAttribute('aria-label')]).toEqual([null, ['Back', 'Search', 'Share', 'More'], ['md'], 'Search']);
     // A field moved back to the top waits again
     await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
     await choose('field (search)', 'top');
-    expect([bar('bottom'), labels(top())]).toEqual([null, ['Back', 'Search', 'Translate', 'More']]);
+    expect([bar('bottom'), labels(top())]).toEqual([null, ['Back', 'Search', 'Share', 'More']]);
     await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Search' })));
     expect([labels(top()), bar('bottom')]).toEqual([['Close search'], null]);
     await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
     await toggle('segmented');
     await choose('search', 'row');
-    expect([rowsOf(), buttons(top()), offered('field (search)')]).toEqual([['search'], ['Back', 'Translate', 'More'], false]);
+    expect([rowsOf(), buttons(top()), offered('field (search)')]).toEqual([['search'], ['Back', 'Share', 'More'], false]);
     await openFrom(field()!);
     expect([rowsOf(), buttons(top()), within(top()).queryAllByText('Orders').length]).toEqual([[], ['Close search'], 0]);
     // and to the row's field, which stays closed until a click opens it again
     await interact(() => fireEvent.click(within(top()).getByRole('button', { name: 'Close search' })));
-    expect([rowsOf(), buttons(top()), document.activeElement === field()]).toEqual([['search'], ['Back', 'Translate', 'More'], true]);
+    expect([rowsOf(), buttons(top()), document.activeElement === field()]).toEqual([['search'], ['Back', 'Share', 'More'], true]);
     await interact(() => fireEvent.click(field()!));
     expect(buttons(top())).toEqual(['Close search']);
     // A search moved elsewhere and back waits again (Codex #10)
     await choose('search', 'none');
     await choose('search', 'row');
-    expect([rowsOf(), buttons(top())]).toEqual([['search'], ['Back', 'Translate', 'More']]);
+    expect([rowsOf(), buttons(top())]).toEqual([['search'], ['Back', 'Share', 'More']]);
     // Under a large title the row stands in the content, and Close gives its field the focus back there too (Codex #11)
     await choose('titleStyle', 'large');
     const waiting = () => view.container.querySelector<HTMLInputElement>('.LargeTitleRows input[aria-label="Search orders"]');
@@ -2395,6 +2411,18 @@ describe.each(['React', 'Vue'])('%s consolidated catalogue states', (framework) 
     expect(offered('size (row)')).toBe(false);
     await toggle('segmented');
     expect(rowsOf()).toEqual(['search', 'md']);
+    // The segmented row shows the orders of its view: three unpaid, as its badge counts, and three refunded
+    // Each row is two lines: the customer over "#number · status", the total at its end (owner 23.11)
+    const orders = () =>
+      Array.from(view.container.querySelectorAll<HTMLElement>('[data-row]'), (row) => row.firstElementChild?.lastElementChild?.textContent?.split(' · ')[1]);
+    const showView = (name: string) => interact(() => fireEvent.click(within(within(top()).getByRole('radiogroup', { name: 'Orders' })).getByRole('radio', { name: new RegExp(`^${name}`) })));
+    expect(orders()).toHaveLength(24);
+    await showView('Unpaid');
+    expect(orders()).toEqual(['Unpaid', 'Unpaid', 'Unpaid']);
+    await showView('Refunds');
+    expect(orders()).toEqual(['Refunded', 'Refunded', 'Refunded']);
+    await showView('All');
+    expect(orders()).toHaveLength(24);
     await choose('size (row)', 'lg');
     expect(rowsOf()).toEqual(['search', 'lg']);
     await openFrom(field()!);

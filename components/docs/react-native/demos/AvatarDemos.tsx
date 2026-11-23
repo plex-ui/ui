@@ -1,75 +1,89 @@
-import { Avatar, AvatarGroup, Text } from '@plexui/react-native';
-import { User } from '@plexui/react-native/icons';
 import { useState } from 'react';
+import { Avatar, AvatarGroup } from '@plexui/react-native';
+import { Robot } from '@plexui/react-native/icons';
 import { View } from 'react-native';
+import { DemoControlBoolean, DemoControlRow, Segments, controlsTableStyle } from '../../ButtonDemos';
+import { SliderValueControl } from '../../SliderValueControl';
+import { RNScreen, docsDemo } from '../RNScreen';
 
-const row = { flexDirection: 'row', flexWrap: 'wrap', gap: 10, alignItems: 'center', justifyContent: 'center' } as const;
-const PHOTO = 'https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552';
-const COLORS = ['secondary', 'primary', 'success', 'info', 'discovery', 'danger'] as const;
+const TYPES = ['text', 'image', 'icon', 'overflow'] as const;
+const COLORS = ['primary', 'secondary', 'success', 'danger', 'info', 'discovery'] as const;
+// The React page's soft and solid, and React Native's gradient with two initials
+const VARIANTS = ['soft', 'solid', 'gradient'] as const;
+const IMAGE_URL = 'https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552';
 
-export function Overview() {
+function SliderRow({ name, min, max, step, value, onChange }: { name: string; min: number; max: number; step: number; value: number; onChange: (value: number) => void }) {
   return (
-    <View style={row}>
-      <Avatar name="Ada Lovelace" color="info" size={40} />
-      <Avatar name="Tyler" imageUrl={PHOTO} size={40} />
-      <Avatar Icon={User} color="discovery" size={40} accessibilityLabel="Guest" />
-      <Avatar overflowCount={12} size={40} />
-    </View>
+    <DemoControlRow name={name}>
+      <SliderValueControl ariaLabel={name} min={min} max={max} step={step} value={value} onChange={onChange} width="min(42vw, 340px)" />
+    </DemoControlRow>
   );
 }
 
-export function Colors() {
+/**
+ * One avatar with every setting, as the React page's Overview: `type` picks what it shows (the initial of `name`, a
+ * picture, a symbol or a count), `size` sets it in points, `color` and `variant` fill every avatar but a loaded
+ * picture, and `onPress` makes it a button. The React page's `roundness` is a Tailwind class there; a React Native
+ * avatar is always a circle (see the page's details).
+ */
+export const Overview = docsDemo(function Overview() {
+  const [type, setType] = useState<(typeof TYPES)[number]>('text');
+  const [size, setSize] = useState(48);
+  const [overflowCount, setOverflowCount] = useState(9);
+  const [color, setColor] = useState<(typeof COLORS)[number]>('secondary');
+  const [variant, setVariant] = useState<(typeof VARIANTS)[number]>('soft');
+  const [onPress, setOnPress] = useState(false);
+  const colored = type !== 'image';
   return (
-    <View style={{ gap: 10 }}>
-      {(['soft', 'solid'] as const).map((variant) => (
-        <View key={variant} style={row}>
-          {COLORS.map((color) => (
-            <Avatar key={color} name={color} color={color} variant={variant} size={40} />
-          ))}
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="type" options={TYPES} value={type} onChange={setType} />
+        {type === 'overflow' && <SliderRow name="overflowCount" min={1} max={999} step={1} value={overflowCount} onChange={setOverflowCount} />}
+        <SliderRow name="size" min={14} max={80} step={2} value={size} onChange={setSize} />
+        {colored && <Segments name="color" options={COLORS} value={color} onChange={setColor} />}
+        {colored && <Segments name="variant" options={VARIANTS} value={variant} onChange={setVariant} />}
+        <DemoControlBoolean name="onPress" value={onPress} onChange={setOnPress} />
+      </div>
+      <RNScreen bare minHeight={228}>
+        <View style={{ alignSelf: 'center' }}>
+          <Avatar
+            name={type === 'icon' ? 'Tech support' : type === 'overflow' ? `${overflowCount} more` : 'Tyler'}
+            imageUrl={type === 'image' ? IMAGE_URL : undefined}
+            Icon={type === 'icon' ? Robot : undefined}
+            overflowCount={type === 'overflow' ? overflowCount : undefined}
+            size={size}
+            color={colored ? color : 'secondary'}
+            variant={colored ? variant : 'soft'}
+            onPress={onPress ? () => {} : undefined}
+          />
         </View>
-      ))}
-    </View>
+      </RNScreen>
+    </>
   );
-}
+});
 
-export function Sizes() {
+/**
+ * AvatarGroup, as the Overview of the React Avatar Group page: a picture, a solid initial, a solid symbol and a count,
+ * the first on top and each cutting the next, all at the group's `size`. The React group's `stack` is not a prop of the
+ * React Native one, which always lays the first on top, as the React group's default (see the page's details).
+ */
+export const Group = docsDemo(function Group() {
+  const [size, setSize] = useState(42);
   return (
-    <View style={row}>
-      <Avatar name="Grace" color="primary" size={24} />
-      <Avatar name="Grace" color="primary" />
-      <Avatar name="Grace" color="primary" size={40} />
-      <Avatar name="Grace" color="primary" size={56} />
-      <Avatar name="Grace" color="primary" size={72} />
-    </View>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <SliderRow name="size" min={14} max={80} step={2} value={size} onChange={setSize} />
+      </div>
+      <RNScreen minHeight={168}>
+        <View style={{ alignSelf: 'center' }}>
+          <AvatarGroup size={size}>
+            <Avatar name="Tyler" imageUrl={IMAGE_URL} />
+            <Avatar name="Jane" color="primary" variant="solid" />
+            <Avatar name="Tech support" Icon={Robot} variant="solid" />
+            <Avatar overflowCount={5} />
+          </AvatarGroup>
+        </View>
+      </RNScreen>
+    </>
   );
-}
-
-export function AsButton() {
-  const [count, setCount] = useState(0);
-  return (
-    <View style={{ alignItems: 'center', gap: 8 }}>
-      <Avatar name="Grace Hopper" color="primary" size={56} onPress={() => setCount((n) => n + 1)} />
-      <Text variant="footnote" color="secondary">
-        Presses: {count}
-      </Text>
-    </View>
-  );
-}
-
-export function Group() {
-  return (
-    <View style={{ gap: 16 }}>
-      <AvatarGroup size={36}>
-        <Avatar name="Ada" color="info" />
-        <Avatar name="Grace" color="success" />
-        <Avatar name="Linus" color="discovery" />
-        <Avatar overflowCount={4} />
-      </AvatarGroup>
-      <AvatarGroup>
-        <Avatar name="Tyler" imageUrl={PHOTO} />
-        <Avatar name="Margaret" color="primary" variant="solid" />
-        <Avatar overflowCount={128} />
-      </AvatarGroup>
-    </View>
-  );
-}
+});

@@ -145,13 +145,13 @@ const available = computed(() => {
 
 <UsageBlock>{`import { TagInput } from "@plexui/vue/components/TagInput";`}</UsageBlock>
 
-On Phone, put a tag input under the label of a row in a `FieldGroup` (`Field row orientation="vertical"`) with `variant="ghost"`, as the [Forms: Settings](/vue/components/settings-forms) put a textarea. The row is its frame and sets its insets and type, so the Phone previews show rows without the `size` and `pill` controls. To pick tags from a fixed list, use the tag row of the Form Examples, which opens a sheet.
-
 ## Examples
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone, "the tags are the value of a row, under its label.")} previewMinHeight={168}>
+<ComponentPreview details={<>
+  <p>On Phone, put a tag input under the label of a row in a <code>FieldGroup</code> (<code>Field row orientation="vertical"</code>) with <code>variant="ghost"</code>, as the <a href="/vue/components/settings-forms">Forms: Settings</a> put a textarea. The row is its frame and sets its insets and type, so the Phone previews show rows without the <code>size</code> and <code>pill</code> controls. To pick tags from a fixed list, use the tag row of the Form Examples, which opens a sheet.</p>
+</>} className={phoneRowsStyles.PhoneRowsPreview} language="vue" code={withPhone(overview, overviewPhone, "the tags are the value of a row, under its label.")} previewMinHeight={168}>
   <VuePhoneRowsDemo
     template={overview}
     phoneTemplate={phoneRows(overviewPhone)}

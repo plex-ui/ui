@@ -1,92 +1,84 @@
 ---
-title: EmptyMessage
-description: What a screen shows when it has nothing to show, with a symbol, a title, a description and actions, in a compact size and danger or warning tones; ContentUnavailableView's layout on iOS, Material's type on Android.
+title: Empty Message
+description: What a screen shows when it has nothing to show, with a symbol, a title, a description and actions.
+metaDescription: What a screen shows when it has nothing to show, with a symbol, a title, a description and actions, in a compact size and danger or warning tones; ContentUnavailableView's layout on iOS, the Plex Android empty view on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `import { Search } from "@plexui/react-native/icons"
+export const overviewCode = `import { Button, EmptyMessage } from "@plexui/react-native"
+import { AllProductsExplore, Plus } from "@plexui/react-native/icons"
+import { Platform, View } from "react-native"
 
-<EmptyMessage>
-  <EmptyMessage.Icon>
-    <Search />
-  </EmptyMessage.Icon>
-  <EmptyMessage.Title>No results</EmptyMessage.Title>
-  <EmptyMessage.Description>Check the spelling or try a new search.</EmptyMessage.Description>
-</EmptyMessage>`
+const [fill, setFill] = useState("static") // or "absolute", "none"
+const [size, setSize] = useState("md") // or "sm"
+const [align, setAlign] = useState("center") // or "start"
+const [icon, setIcon] = useState(true)
+const [iconSize, setIconSize] = useState("md") // or "sm"; a compact message gives its icon the compact tile
+const [iconColor, setIconColor] = useState("secondary") // or "danger", "warning"
+const [title, setTitle] = useState(true)
+const [titleColor, setTitleColor] = useState("secondary") // or "danger", "warning"
+const [description, setDescription] = useState(true) // a message needs a title or a description
+const [actions, setActions] = useState("one") // or "two", "none"
+// iOS: a small capsule, a medium one in a compact message; Android: no size, so a full message's button is
+// the big 48dp pill across the column
+const buttonSize = Platform.OS === "android" ? undefined : size === "sm" ? "md" : "sm"
 
-export const actionsCode = `<EmptyMessage>
-  <EmptyMessage.Icon>
-    <FolderOpen />
-  </EmptyMessage.Icon>
-  <EmptyMessage.Title>No documents</EmptyMessage.Title>
-  <EmptyMessage.Description>Documents you create or import show up here.</EmptyMessage.Description>
-  <EmptyMessage.ActionRow>
-    <Button>New document</Button>
-    <Button variant="ghost">Import</Button>
-  </EmptyMessage.ActionRow>
-</EmptyMessage>`
-
-export const colorsCode = `<EmptyMessage>
-  <EmptyMessage.Icon color="danger">
-    <Warning />
-  </EmptyMessage.Icon>
-  <EmptyMessage.Title color="danger">Couldn't load messages</EmptyMessage.Title>
-  <EmptyMessage.Description>Check your connection and try again.</EmptyMessage.Description>
-  <EmptyMessage.ActionRow>
-    <Button variant="soft">Try again</Button>
-  </EmptyMessage.ActionRow>
-</EmptyMessage>`
-
-export const compactCode = `<EmptyMessage size="sm">
-  <EmptyMessage.Icon color="danger">
-    <Heart />
-  </EmptyMessage.Icon>
-  <EmptyMessage.Title>No favorites yet</EmptyMessage.Title>
-  <EmptyMessage.Description>Tap the heart on a place to keep it here.</EmptyMessage.Description>
-</EmptyMessage>`
-
-export const alignStartCode = `<EmptyMessage size="sm" align="start">
-  <EmptyMessage.Icon>
-    <Search />
-  </EmptyMessage.Icon>
-  <EmptyMessage.Title>No recent searches</EmptyMessage.Title>
-  <EmptyMessage.Description>Places you search for show up here.</EmptyMessage.Description>
-</EmptyMessage>`
+// The space under the screen's top bar: a static or absolute message fills it
+<View style={{ flex: 1 }}>
+  <EmptyMessage fill={fill} size={size} align={align}>
+    {icon && (
+      <EmptyMessage.Icon color={iconColor} size={size === "md" ? iconSize : undefined}>
+        <AllProductsExplore />
+      </EmptyMessage.Icon>
+    )}
+    {title && <EmptyMessage.Title color={titleColor}>No projects yet</EmptyMessage.Title>}
+    {(description || !title) && (
+      <EmptyMessage.Description>Create your first project to get started.</EmptyMessage.Description>
+    )}
+    {actions !== "none" && (
+      <EmptyMessage.ActionRow>
+        <Button color="primary" size={buttonSize}>
+          <Plus />
+          New project
+        </Button>
+        {actions === "two" && (
+          <Button color="primary" variant="ghost" size={buttonSize}>
+            Browse templates
+          </Button>
+        )}
+      </EmptyMessage.ActionRow>
+    )}
+  </EmptyMessage>
+</View>`
 
 <UsageBlock>{`import { EmptyMessage } from "@plexui/react-native"`}</UsageBlock>
 
-The parts follow `@plexui/ui`'s EmptyMessage (`EmptyMessage.Icon`, `.Title`, `.Description`, `.ActionRow`); `EmptyState` is the same component under the pattern's name on the phone platforms. On iOS the phone layer's layout, as SwiftUI's ContentUnavailableView: a 48pt symbol 19pt over the title, the title 20/25 bold, the description 17/25 in the secondary label, actions 28pt under it. Material has no empty-state spec, so Android keeps the same layout in Material's type: the title in Title L, the description in Body M, the symbol and the description in `onSurfaceVariant`.
-
 ## Examples
+
+<span id="actions" />
+<span id="colors" />
+<span id="compact" />
+<span id="aligned-to-the-start" />
 
 ### Overview
 
-<RNPreview demo="empty-message/Overview" minHeight={240} code={overviewCode} />
+<ComponentPreview details={<>
+  <p>The parts follow <code>@plexui/ui</code>'s EmptyMessage (<code>EmptyMessage.Icon</code>, <code>.Title</code>, <code>.Description</code>, <code>.ActionRow</code>); <code>EmptyState</code> is the same component under the pattern's name on the phone platforms. On iOS the phone layer's layout, as SwiftUI's ContentUnavailableView: a 48pt symbol 19pt over the title, the title 20/25 bold, the description 17/25 in the secondary label, actions 28pt under it. On Android the view stands 46dp in from the sides: the symbol in gray 12dp over a Medium 20 title, the description 14sp in gray 8dp under it, and actions 16dp under that across the column, 74dp from the screen's edges; a Button that sets no size or width of its own there is the big 48dp pill, as wide as the column.</p>
+  <p>An empty message is made of parts, each optional: an icon, a title, a description and an action row. It needs a title or a description, so this preview offers <code>description</code> with a title. <code>color</code> on <code>EmptyMessage.Icon</code> and on <code>EmptyMessage.Title</code> shows the intent of the message, such as <code>danger</code> on both for an error (a missing permission) or <code>warning</code> on the icon for a notice (a feature in beta); the description keeps its own color.</p>
+  <p><code>fill</code> sizes the message to its parent: <code>static</code> grows to fill the space it is given and centers in it, <code>absolute</code> covers its parent and centers, and <code>none</code> hugs its content, for a container that sets the height (a list with no results). Use <code>size="sm"</code> for an empty panel, card section or list: the symbol becomes a 32pt tinted tile with a 20pt symbol and the description on iOS is 15/20; in a message of the default size the icon takes its own <code>size</code>. <code>align="start"</code> lines the message up at the start, for an empty state under a section heading.</p>
+  <p>On iOS a message of the default size is ContentUnavailableView: the symbol bare, with no circle, in the secondary label, a 20pt bold title right over a 17pt description, and the block centered in the free space under the screen's top bar. Its actions stand under the text, each at its own width, one under the other: a small capsule, then a plain button for a second action. On a screen with a bar, an action that adds (such as New project) can stand in the bar instead, as iOS apps put it. Android sets the same parts in its own sizes.</p>
+  <p>The React page also offers a text link as the action, a <code>TextLink</code>; React Native has no text link, so this example does not offer it.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <RNExample demo="empty-message/Overview" />
+</ComponentPreview>
 
-### Actions
+## Platforms
 
-`EmptyMessage.ActionRow` stacks the buttons under the description, each at its own width.
-
-<RNPreview demo="empty-message/Actions" minHeight={320} code={actionsCode} />
-
-### Colors
-
-`color` on the icon and the title tints them `danger` or `warning`, for an error in place of the content.
-
-<RNPreview demo="empty-message/Colors" minHeight={280} code={colorsCode} />
-
-### Compact
-
-`size="sm"` is for a panel, a card or an empty list: the symbol becomes a 32pt tinted tile with a 20pt symbol, and the description on iOS is 15/20.
-
-<RNPreview demo="empty-message/Compact" minHeight={200} code={compactCode} />
-
-### Aligned to the start
-
-`align="start"` lines the message up at the start, for an empty state under a section's heading.
-
-<RNPreview demo="empty-message/AlignStart" minHeight={200} code={alignStartCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Content unavailable view | None: the Plex Android empty view |
+| Look | A bare symbol, a bold title and a description, centered | A gray symbol, a Medium 20 title and a 14sp gray description, centered, over a full-width 48dp pill |
 
 ## API
 
@@ -94,9 +86,9 @@ The parts follow `@plexui/ui`'s EmptyMessage (`EmptyMessage.Icon`, `.Title`, `.D
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "The parts" },
-  { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "static grows to fill the space it is given and centers in it; absolute fills its parent and centers; none hugs its content" },
+  { prop: "fill", type: '"static" | "absolute" | "none"', default: '"static"', description: "static grows to fill the space it is given and centers in it; absolute covers its parent and centers; none hugs its content" },
   { prop: "size", type: '"sm" | "md"', default: '"md"', description: "sm is the compact message for a panel: a small icon tile and, on iOS, a 15/20 description" },
-  { prop: "align", type: '"center" | "start"', default: '"center"', description: "start lines the message up at the start" },
+  { prop: "align", type: '"center" | "start"', default: '"center"', description: "start lines the message up at the start, for an empty state under a section heading" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the container" },
 ]} />
@@ -113,7 +105,7 @@ The parts follow `@plexui/ui`'s EmptyMessage (`EmptyMessage.Icon`, `.Title`, `.D
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "The title, announced as a header" },
-  { prop: "color", type: '"secondary" | "danger" | "warning"', description: "danger or warning tints the title; without it, or with secondary, it keeps the text color" },
+  { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "danger or warning tints the title; secondary keeps the text color" },
 ]} />
 
 `EmptyMessage.Description` and `EmptyMessage.ActionRow` take `children` only.

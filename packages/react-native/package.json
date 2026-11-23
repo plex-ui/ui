@@ -40,20 +40,36 @@
       "types": "./dist/types/icons/lucide/index.d.ts",
       "default": "./dist/es/icons/lucide/index.js"
     },
-    "./icons/lucide/*": "./src/icons/lucide/*.ts",
+    "./icons/lucide/*": {
+      "react-native": "./src/icons/lucide/*.ts",
+      "types": "./dist/types/icons/lucide/*.d.ts",
+      "default": "./dist/es/icons/lucide/*.js"
+    },
     "./icons/tabler": {
       "react-native": "./src/icons/tabler/index.ts",
       "types": "./dist/types/icons/tabler/index.d.ts",
       "default": "./dist/es/icons/tabler/index.js"
     },
-    "./icons/tabler/*": "./src/icons/tabler/*.ts",
+    "./icons/tabler/*": {
+      "react-native": "./src/icons/tabler/*.ts",
+      "types": "./dist/types/icons/tabler/*.d.ts",
+      "default": "./dist/es/icons/tabler/*.js"
+    },
     "./icons/hugeicons": {
       "react-native": "./src/icons/hugeicons/index.ts",
       "types": "./dist/types/icons/hugeicons/index.d.ts",
       "default": "./dist/es/icons/hugeicons/index.js"
     },
-    "./icons/hugeicons/*": "./src/icons/hugeicons/*.ts",
-    "./icons/*": "./src/icons/plex/*.ts",
+    "./icons/hugeicons/*": {
+      "react-native": "./src/icons/hugeicons/*.ts",
+      "types": "./dist/types/icons/hugeicons/*.d.ts",
+      "default": "./dist/es/icons/hugeicons/*.js"
+    },
+    "./icons/*": {
+      "react-native": "./src/icons/plex/*.ts",
+      "types": "./dist/types/icons/plex/*.d.ts",
+      "default": "./dist/es/icons/plex/*.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [

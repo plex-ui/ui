@@ -3,7 +3,7 @@
   "name": "date-picker",
   "type": "registry:ui",
   "title": "Date Picker",
-  "description": "Date picker with an interactive calendar, time picker, year and month dropdowns, min/max limits, and date-of-birth presets.",
+  "description": "Date picker with a calendar, a time picker, month and year dropdowns, and min and max limits.",
   "dependencies": [
     "@plexui/vue"
   ],

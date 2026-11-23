@@ -1,6 +1,6 @@
 ---
 title: Slider
-description: Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.
+description: "A slider for choosing a number or a range on a scale, with marks and a value that can be typed."
 metaDescription: React slider component for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation
 ---
 
@@ -9,6 +9,12 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 import { sliderCellClassName, sliderCellStackedClassName, sliderCellValueBelowClassName, sliderCellValueClassName, sliderCellValueDisabledClassName, sliderCellValueFieldClassName, sliderCellValueInputClassName } from "@/components/docs/phoneRowsTemplate"
 
 export const overviewCode = `const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
+// The slider is named after what it sets: a value in percent, in dollars or bare; a range or tiers of them
+const names = {
+  one: { none: "Brightness", unit: "Volume", prefixUnit: "Max price" },
+  two: { none: "Age range", unit: "Humidity range", prefixUnit: "Price range" },
+  three: { none: "Age groups", unit: "Discount tiers", prefixUnit: "Price tiers" },
+}
 
 const [thumbs, setThumbs] = useState("one") // or "two", "three"
 const [values, setValues] = useState({ one: 50, two: [25, 75], three: [10, 40, 70] })
@@ -24,14 +30,17 @@ const [orientation, setOrientation] = useState("horizontal") // or "vertical"
 const [disabled, setDisabled] = useState(false)
 
 const setValue = (value) => setValues({ ...values, [thumbs]: value })
+// A small and a large letter at the ends size text
+const name = adornments && thumbs === "one" ? "Text size" : names[thumbs][unit]
 const text = (value) => (unit === "prefixUnit" ? "$" : "") + value + (unit === "unit" ? "%" : "")
 const shared = {
   min: 0,
   max: 100,
   step: thumbs === "one" ? Number(step) : 1,
   marks: marks ? scaleMarks : undefined, // a vertical slider draws none
-  trackColor: colors ? "#61C454" : undefined,
-  rangeColor: colors ? "#EF4146" : undefined,
+  // One hue: the fill in green and the track in a light tint of it
+  trackColor: colors ? "#61C45433" : undefined,
+  rangeColor: colors ? "#61C454" : undefined,
   // A small and a large letter at the ends, as Settings draws a text size slider; a vertical slider draws none
   startAdornment: adornments ? <span className="text-[15px]">A</span> : undefined,
   endAdornment: adornments ? <span className="text-[22px]">A</span> : undefined,
@@ -41,10 +50,10 @@ const shared = {
 const desktop = {
   ...shared,
   label: tooltip ? (
-    <Tooltip content="More details about this field">
-      <Tooltip.TriggerDecorator>Example field</Tooltip.TriggerDecorator>
+    <Tooltip content="Drag to adjust, or type a value">
+      <Tooltip.TriggerDecorator>{name}</Tooltip.TriggerDecorator>
     </Tooltip>
-  ) : "Example field",
+  ) : name,
   unit: unit === "unit" ? "%" : undefined,
   prefixUnit: unit === "prefixUnit" ? "$" : undefined,
   orientation,
@@ -71,15 +80,15 @@ const commitTyped = () => {
   setTyped(null)
 }
 
-<FieldGroup title="Example field">
+<FieldGroup title={name}>
   {thumbs === "one" && !marks ? (
     <div data-row className="${sliderCellClassName}">
-      <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
+      <Slider aria-label={name} {...shared} value={values.one} onChange={setValue} className="min-w-0 flex-1" />
       {/* The letters stand where the value would: Settings shows none beside them */}
       {!adornments && <label className={\`min-w-[4ch] ${sliderCellValueClassName} ${sliderCellValueFieldClassName} \${disabled ? "${sliderCellValueDisabledClassName}" : "text-secondary"}\`}>
         {unit === "prefixUnit" && "$"}
         <input
-          aria-label="Example field value"
+          aria-label={\`\${name} value\`}
           inputMode="numeric"
           enterKeyHint="done"
           className="${sliderCellValueInputClassName}"
@@ -100,9 +109,9 @@ const commitTyped = () => {
   ) : (
     <div data-row className="${sliderCellStackedClassName}">
       {thumbs === "one" ? (
-        <Slider aria-label="Example field" {...shared} value={values.one} onChange={setValue} />
+        <Slider aria-label={name} {...shared} value={values.one} onChange={setValue} />
       ) : (
-        <Slider range aria-label="Example field" {...shared} value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
+        <Slider range aria-label={name} {...shared} value={values[thumbs]} onChange={setValue} minStepsBetweenThumbs={minStepsBetweenThumbs} />
       )}
       {!marks && (
         <span className={\`${sliderCellValueBelowClassName}\${disabled ? " ${sliderCellValueDisabledClassName}" : ""}\`}>{values[thumbs].map(text).join(" – ")}</span>
@@ -113,7 +122,7 @@ const commitTyped = () => {
 {thumbs === "one" && resetValue && (
   <FieldGroup>
     <div data-row data-align="center">
-      <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to Default</Button>
+      <Button block color="info" variant="ghost" disabled={disabled} onClick={() => setValue(50)}>Reset to default</Button>
     </div>
   </FieldGroup>
 )}`
@@ -172,7 +181,7 @@ const commitTyped = () => {
 
 <UsageBlock>{`import { Slider } from "@plexui/ui/components/Slider";`}</UsageBlock>
 
-On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a field the number can be typed in, a range goes under the track, and with marks the cell shows the scale instead of a value. A reset is a row of its own under the group. For a slider among other settings, see [Sliders and steppers](/components/settings-forms#sliders-and-steppers).
+For a slider among other settings, see [Sliders and steppers](/components/settings-forms#sliders-and-steppers).
 
 ## Examples
 
@@ -186,6 +195,7 @@ On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: th
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>On Phone, each slider stands in a cell of a grouped list, as in iOS Settings: the group's title names the slider and the slider fills the cell. One value ends the cell, a field the number can be typed in, a range goes under the track, and with marks the cell shows the scale instead of a value.</p>
   <p>Set <code>range</code> and give <code>value</code> two numbers for a range, or three or more for several thumbs; <code>onChange</code> then receives an array. <code>step</code> is how far a drag or a key moves the value at a time: 25 here stops it on the marks. A typed number is taken as it is, whole and within the scale. <code>minStepsBetweenThumbs</code> keeps the thumbs that many steps apart. <code>resetValue</code>, with one thumb, adds a button to the label that brings the value back; a disabled slider leaves that button out.</p>
   <p><code>unit</code> follows the value and <code>prefixUnit</code> comes before it. <code>marks</code> label points of the scale under the track, horizontal only. <code>trackColor</code> and <code>rangeColor</code> color the track and its fill. <code>startAdornment</code> and <code>endAdornment</code> stand at the ends of a horizontal track, as Settings puts a small and a large letter at the ends of a text size slider; on a phone they take the place of the value. They are decoration, so the slider's name has to say what it sets. A label given as JSX can carry a tooltip, and <code>orientation="vertical"</code> stands the slider up.</p>
   <p>On a phone the slider is horizontal, as a list of iOS settings has no vertical slider, and a tooltip opens on hover, which a phone does not have, so the Phone preview leaves out those controls. The value at the end of the cell is a field: a tap brings up the number pad and the typed number moves the slider, taken as the slider's own field takes it, as Keynote for iPhone takes a value in the field next to its slider. The cell has no label row for a reset button, so the reset is a row of its own under the slider's group, its label centered in the accent, as Settings resets Hover Text's size; a disabled slider dims the row with it. A slider with a label of its own keeps the reset beside its value on a phone, as the small round gray button of the iOS 27 kit: a 28px circle that takes touches 44px around it. Marks take the place of the value, so with marks the phone shows no unit either.</p>

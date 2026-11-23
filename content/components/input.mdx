@@ -1,6 +1,6 @@
 ---
 title: Input
-description: Text input with start and end adornments, a clear button, a password visibility toggle, and presets for SSN and birthday.
+description: Text input with start and end adornments, a clear button and a password visibility toggle.
 metaDescription: React text input component with start and end adornments, clear button, password visibility toggle, and presets for SSN and birthday
 ---
 
@@ -81,8 +81,6 @@ const [columns, setColumns] = useState(false) // phone
 
 <UsageBlock>{`import { Input } from "@plexui/ui/components/Input";`}</UsageBlock>
 
-On Phone, put an input in a row of a `FieldGroup`, as the [Forms: Settings](/components/settings-forms) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `size`, `gutterSize`, `pill` and `variant` controls.
-
 ## Examples
 
 {/* The examples Variants, Adornments, Clear button, Sizing & roundness, Behavior and Optical alignment are settings
@@ -97,6 +95,7 @@ On Phone, put an input in a row of a `FieldGroup`, as the [Forms: Settings](/com
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>On Phone, put an input in a row of a <code>FieldGroup</code>, as the <a href="/components/settings-forms">Forms: Settings</a> do.</p>
   <p>Use <code>variant</code> to stylize the input. <code>ghost</code> has no border and no fill, for a field its container already frames, such as the search line at the top of a dialog; it still turns red when <code>invalid</code>. <code>size</code> sets the control <code>height</code> and gives a <code>gutterSize</code> (the horizontal padding) and a <code>font-size</code>, each of which can be overridden; Input shares the 9-step size scale with Button, Select, SelectControl and SegmentedControl, so adjacent controls of one <code>size</code> line up. <code>pill</code> rounds it fully.</p>
   <p><code>startAdornment</code> puts content before the value, such as a prefix or a search icon, and <code>endAdornment</code> after it, such as a character counter. <code>gutterSize</code> sets the space at the edges (a negative margin on the adornment, such as <code>-ml-2</code>, fine-tunes it), and <code>gap</code> on the container the space between the adornment and the value. <code>onClear</code> shows a built-in clear button while the input has a value and is not disabled or read-only; clicking it keeps focus in the input. <code>opticallyAlign</code> (<code>"start"</code> or <code>"end"</code>) offsets the gutter so the text lines up with the content around it, here the label; on a <code>Field</code> it is forwarded to its control.</p>
   <p><code>autoSelect</code> selects all the text, useful with copy actions; it acts when toggled and leaves the selection free to change. Autofill extensions are prevented by default; <code>allowAutofillExtensions</code> lets them in, and a <code>name</code> or <code>type="password"</code> turns it on by default. <code>readOnly</code> keeps the value and hides the clear button. <code>disabled</code> greys the input out and blocks interaction. <code>invalid</code> marks it invalid, with <code>[data-invalid]</code> on the container; you decide how the state is removed (<code>onFocus</code>, <code>onChange</code>, an <code>onSubmit</code> handler).</p>
@@ -216,14 +215,14 @@ Plex UI also provides a `FieldError` component (`@plexui/ui/components/FieldErro
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>You can pair <code>Input</code> and <code>Button</code> components together by using the same <code>size</code> value. On Phone, the button is the 50px main action under the group, <code>size="3xl"</code>.</>} code={`// Desktop
 <div className="flex gap-2">
-  <Input placeholder="jane.doe@gmail.com" size="lg" variant="outline" />
+  <Input placeholder="name@example.com" size="lg" variant="outline" />
   <Button color="primary" size="lg" variant="outline" pill={false}>Subscribe</Button>
 </div>
 
 // Phone
 <FieldGroup>
   <Field row label="Email">
-    <Input type="email" placeholder="jane.doe@gmail.com" />
+    <Input type="email" placeholder="name@example.com" />
   </Field>
 </FieldGroup>
 <Button color="primary" size="3xl" pill block>Subscribe</Button>`} previewMinHeight={168}>

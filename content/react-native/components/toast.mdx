@@ -1,61 +1,76 @@
 ---
 title: Toast
-description: "Brief feedback with sonner's API: glass banners from the top on iOS 26, Material 3's snackbar at the bottom on Android, with types, a description, an action and a close button."
+description: "Brief feedback with sonner's API: a type, a description, an action and a close button."
+metaDescription: "React Native toasts with sonner's API: glass banners from the top on iOS 26, a dark card at the bottom on Android, with types, a description, an action and a close button."
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `<Toaster />
+export const overviewCode = `import { Button, toast } from "@plexui/react-native"
 
-<Button color="secondary" variant="soft" onPress={() => toast("Saved to Photos")}>
-  Plain
-</Button>
-<Button
-  color="secondary"
-  variant="soft"
-  onPress={() => toast("Link copied", { description: "Anyone with the link can view it." })}
->
-  With description
+// Each type's title, its short description, a long one that wraps to two lines, and its action's label
+const messages = {
+  default: { title: "Changes saved", description: "Your profile is live for everyone on the team.", long: "Your profile is live for everyone on the team. Anna Kim and 3 others will see your new photo and title.", action: "Undo" },
+  success: { title: "Inquiry ID copied", description: "Paste it into the support form.", long: "Paste it into the support form so we can find your case. We usually reply within one business day.", action: "Open" },
+  error: { title: "Failed to assign owner", description: "The owner has left the workspace.", long: "Anna Kim has left the workspace. Choose another owner for “Q3 roadmap” or invite her back first.", action: "Retry" },
+  warning: { title: "Session expires in 2 minutes", description: "Unsaved changes will be lost.", long: "Unsaved changes to “Q3 roadmap” will be lost. Stay signed in to keep editing.", action: "Stay" },
+  info: { title: "New version available", description: "Reload to get the latest features.", long: "Version 2.4 adds shared folders and faster search. Reload to get the latest features.", action: "Reload" },
+}
+
+const [type, setType] = useState("default") // or "success", "error", "warning", "info"
+const [icon, setIcon] = useState(true) // the type's icon; false passes icon: false
+const [description, setDescription] = useState("none") // or "short", "long"
+const [action, setAction] = useState("none") // or "action"
+const [closeButton, setCloseButton] = useState(false) // Android
+const [persistent, setPersistent] = useState(false) // with an action or a close button
+
+const message = messages[type]
+
+const show = () => {
+  const options = {
+    description: description === "none" ? undefined : description === "short" ? message.description : message.long,
+    action: action === "none" ? undefined : { label: message.action, onClick: () => {} },
+    closeButton,
+    // Open until closed, once there is a button to close it
+    duration: persistent && (action !== "none" || closeButton) ? Infinity : undefined,
+    icon: icon ? undefined : false,
+  }
+  ;(type === "default" ? toast : toast[type])(message.title, options)
+}
+
+<Button color="secondary" variant="outline" onPress={show}>
+  Show toast
 </Button>`
-
-export const typesCode = `toast.success("Payment sent", { description: "$24.00 to Jane" })
-toast.error("Upload failed")
-toast.warning("Storage almost full")
-toast.info("Update available")`
-
-export const actionsCode = `toast("Message deleted", { action: { label: "Undo", onClick: undo } })
-
-toast("Connection lost", {
-  action: { label: "Retry", onClick: retry },
-  closeButton: true,
-  duration: Infinity,
-})
-
-toast.dismiss()`
 
 <UsageBlock>{`import { Toaster, toast } from "@plexui/react-native"`}</UsageBlock>
 
-`toast()` follows sonner on the web: `toast("Saved")`, `toast.success`, `toast.error`, `toast.warning`, `toast.info` and `toast.dismiss`. Render one `<Toaster />` near the root of the app, inside the `ThemeProvider`. On iOS a toast is a glass banner from the top of the screen (radius 24, a 15pt semibold title, the type's symbol and an action in a 34pt capsule), up to three at once, swiped up to go. On Android it is Material 3's snackbar at the bottom: `inverseSurface` with 4dp corners, Body M, the action in `inversePrimary`, one at a time while the others wait their turn, swiped down to go. A screen reader announces each toast.
-
 ## Examples
 
-### Title and description
+### Overview
 
-A toast stays 4 seconds by default.
+<span id="variants" />
+<span id="description" />
+<span id="action" />
+<span id="long-content" />
+<span id="persistent" />
 
-<RNPreview demo="toast/Overview" minHeight={220} code={overviewCode} />
+<ComponentPreview details={<>
+  <p><code>toast()</code> follows sonner on the web: <code>toast("Saved")</code>, <code>toast.success</code>, <code>toast.error</code>, <code>toast.warning</code>, <code>toast.info</code> and <code>toast.dismiss</code>. Render one <code>&lt;Toaster /&gt;</code> near the root of the app, inside the <code>ThemeProvider</code>. On iOS a toast is a glass banner from the top of the screen, up to three at once, swiped up to go; on Android it is a dark card at the bottom, one at a time: a new toast replaces the one shown, which leaves as it comes. The card springs up from under its place and goes back down the same way, a sideways swipe takes it away (past a third of its width, or on a flick), and while it is touched its time stands still, starting again in full as the touch ends. A screen reader announces each toast.</p>
+  <p>Call <code>toast</code> with a message, or <code>toast.success</code>, <code>.error</code>, <code>.warning</code> and <code>.info</code> for the semantic types, which map to Plex UI's success, danger, warning and info tokens. On iOS each of them shows the web Toaster's outline symbol before the title, in its type's outline color, and on Android the same symbol in white; <code>icon: false</code> or <code>null</code> leaves it out, and <code>icon</code> takes an element of your own instead. The options add a <code>description</code> under the message and an <code>action</code> button, which runs its <code>onClick</code> and closes the toast. <code>closeButton</code> adds a close icon at the end of the card on Android; iOS banners have none, a swipe up closes them, so the iOS example does not offer it.</p>
+  <p><code>duration: Infinity</code> keeps a toast open until the user closes it, so give it an action or a close button. A toast stays 4 seconds by default on iOS, and on Android 2.75 seconds, or 5 with an action. <code>toast.dismiss()</code> closes every toast and <code>toast.dismiss(id)</code> one; a toast shown again with the same <code>id</code> is updated in place.</p>
+  <p>On iOS the banner stands 16pt under the status bar, as wide as its message between 14pt gutters and centered, as the web toast on a phone: 21.5pt corners without a description and 24pt with one, a 15pt title in medium (semibold over a description), and its action a solid 34pt capsule with a regular label at the end of the banner. On Android the toast is a dark card with 16dp corners, 16dp from the sides and 8dp above the gesture bar, at least 48dp tall, its text in white (15sp on one line) and its action a 14sp medium label in a light tint of the accent, whose press shows a rounded tint of that color. The web's <code>toast.promise</code>, its <code>cancel</code> button and <code>compact</code> have no counterpart in React Native's <code>toast</code>.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="toast/Overview" />
+</ComponentPreview>
 
-### Types
+## Platforms
 
-On iOS each type shows its symbol before the title, in its semantic color; `icon` gives a toast a symbol of its own. The snackbar of Android has no symbols.
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None (a Plex banner; iOS has no system toast) | None (a Plex view drawn as a dark card) |
+| Look | Glass banner from the top | A dark card with 16dp corners at the bottom |
 
-<RNPreview demo="toast/Types" minHeight={220} code={typesCode} />
-
-### Action and close button
-
-One `action` runs its `onClick` and closes the toast. `duration: Infinity` keeps a toast until it is closed or dismissed, and `closeButton` adds the snackbar's close icon on Android; iOS banners have none, a swipe up closes them. `toast.dismiss()` closes every toast, `toast.dismiss(id)` one; a toast shown again with the same `id` is updated in place.
-
-<RNPreview demo="toast/Actions" minHeight={220} code={actionsCode} />
+Neither platform's system toast is used: on Android the toast is a view of the app, not Material's Snackbar.
 
 ## API
 
@@ -75,10 +90,10 @@ One `action` runs its `onClick` and closes the toast. `duration: Infinity` keeps
 <PropsTable data={[
   { prop: "id", type: "string | number", description: "The toast's id; a toast with the same id is updated in place and its time starts again" },
   { prop: "description", type: "ReactNode", description: "A second line under the title" },
-  { prop: "action", type: "{ label: string; onClick: () => void }", description: "One action, as sonner's" },
-  { prop: "duration", type: "number", default: "4000", description: "Milliseconds on screen; Infinity stays until it is dismissed" },
-  { prop: "icon", type: "ReactNode", description: "A symbol of its own before the title, on iOS" },
-  { prop: "closeButton", type: "boolean", description: "A close button: the snackbar's dismiss icon on Android. iOS ignores it" },
+  { prop: "action", type: "{ label: string; onClick: () => void }", description: "One action, as sonner's; it closes the toast after its onClick" },
+  { prop: "duration", type: "number", default: "4000; 2750 on Android, 5000 with an action", description: "Milliseconds on screen; Infinity stays until it is dismissed" },
+  { prop: "icon", type: "ReactNode", description: "A symbol of its own before the title; false or null leaves the type's out" },
+  { prop: "closeButton", type: "boolean", description: "A close button: a close icon at the end of the card on Android. iOS ignores it" },
   { prop: "closeButtonAriaLabel", type: "string", default: '"Close toast"', description: "Accessible name of the close button" },
   { prop: "onDismiss", type: "() => void", description: "Called when the toast is dismissed" },
 ]} />
@@ -86,6 +101,7 @@ One `action` runs its `onClick` and closes the toast. `duration: Infinity` keeps
 ### Toaster
 
 <PropsTable data={[
-  { prop: "visibleToasts", type: "number", default: "3", description: "How many toasts stand at once on iOS; Android shows one snackbar at a time" },
+  { prop: "visibleToasts", type: "number", default: "3", description: "How many toasts stand at once on iOS; on Android a new toast replaces the one shown" },
+  { prop: "bottomOffset", type: "number", default: "0", description: "Android: the height of a bar at the bottom (a TabBar, a bottom Toolbar, from the screen's edge) that the toast stands 8dp above" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />

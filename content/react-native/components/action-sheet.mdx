@@ -1,55 +1,83 @@
 ---
-title: ActionSheet
-description: "A choice of actions from the bottom of the screen: UIAlertController's action sheet on iOS, a Material 3 bottom sheet of list rows on Android."
+title: Action Sheet
+description: "A choice of actions from the bottom of the screen, with an optional title and message."
+metaDescription: "A React Native action sheet: UIAlertController's action sheet on iOS, a menu sheet of rows on Android, with a title, a message and destructive actions."
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const [open, setOpen] = useState(false)
+export const overviewCode = `import { ActionSheet, Button } from "@plexui/react-native"
+import { Copy, EditPencil, RemoveTrash } from "@plexui/react-native/icons"
 
-<Button color="secondary" variant="soft" onPress={() => setOpen(true)}>
-  Photo actions
+const [open, setOpen] = useState(false)
+const [title, setTitle] = useState(true)
+const [message, setMessage] = useState(true)
+const [destructive, setDestructive] = useState(true)
+const [disabled, setDisabled] = useState(false)
+const [icons, setIcons] = useState(true) // Android: iOS leaves icons out
+
+<Button color="secondary" variant="outline" onPress={() => setOpen(true)}>
+  Project actions
 </Button>
 <ActionSheet
   open={open}
   onOpenChange={setOpen}
-  title="Photo"
-  message="What would you like to do with it?"
+  title={title ? "Website redesign" : undefined}
+  message={message ? "What would you like to do with this project?" : undefined}
   actions={[
-    { label: "Share", icon: <Share />, onPress: share },
-    { label: "Duplicate", icon: <Copy />, onPress: duplicate },
-    { label: "Delete", icon: <RemoveTrash />, destructive: true, onPress: remove },
+    { label: "Rename", icon: icons ? <EditPencil /> : undefined, onPress: rename },
+    { label: "Duplicate", icon: icons ? <Copy /> : undefined, disabled, onPress: duplicate },
+    { label: "Delete project", icon: icons ? <RemoveTrash /> : undefined, destructive, onPress: remove },
   ]}
 />`
 
-export const actionsOnlyCode = `<ActionSheet
+export const actionsOnlyCode = `import { CameraPhoto, Folder, Images } from "@plexui/react-native/icons"
+
+const [open, setOpen] = useState(false)
+
+<Button color="secondary" variant="outline" onPress={() => setOpen(true)}>
+  Add a photo
+</Button>
+<ActionSheet
   open={open}
   onOpenChange={setOpen}
-  cancelLabel="Not now"
+  cancelLabel="Cancel"
   actions={[
-    { label: "Take Photo", icon: <CameraPhoto />, disabled: true },
-    { label: "Photo Library", icon: <Images />, onPress: openLibrary },
-    { label: "Browse Files", icon: <Folder />, onPress: browse },
+    { label: "Take photo", icon: <CameraPhoto />, disabled: true },
+    { label: "Photo library", icon: <Images />, onPress: openLibrary },
+    { label: "Browse files", icon: <Folder />, onPress: browse },
   ]}
 />`
 
 <UsageBlock>{`import { ActionSheet } from "@plexui/react-native"`}</UsageBlock>
 
-ActionSheet is React Native only: the web offers a [Menu](/components/menu). On iOS it is the action sheet of iOS 26 on an iPhone: a glass panel of 48pt capsule actions with the title and message over them, and the cancel capsule apart under it. On Android it is a Material 3 modal [BottomSheet](/react-native/components/bottom-sheet) with a list of 56dp rows, each with its icon. It has no cancel row: a tap outside, a drag down or Back closes it.
+A question with its answers is a [Dialog](/react-native/components/dialog).
 
 ## Examples
 
-### Title and message
+### Overview
 
-The button opens the sheet; an action runs its `onPress` and closes it. A `destructive` action is red. iOS leaves the icons out, as UIAlertController does.
-
-<RNPreview demo="action-sheet/Overview" code={overviewCode} minHeight={520} />
+<ComponentPreview details={<>
+  <p>ActionSheet is React Native only: on the web a choice of actions is a <a href="/components/menu">Menu</a>, and a question with its answers a <a href="/components/dialog">Dialog</a>'s alert. On iOS it is the action sheet of iOS 26 on an iPhone: a glass panel of 48pt capsule actions with the title and message over them, drawn as the alert's, and the cancel capsule apart under it. On Android it is a menu sheet, a <a href="/react-native/components/bottom-sheet">Bottom Sheet</a> with a list of 48dp rows in 16sp, each icon in a 56dp slot at the start (with no icons the labels start 16dp in). It has no cancel row there: a tap outside, a drag down or Back closes it.</p>
+  <p>One sheet with every setting: the actions of the web Menu's Destructive items, Rename, Duplicate and Delete project, the destructive one last. An action runs its <code>onPress</code> and closes the sheet. As the web Dialog's alerts and sheets do in its phone preview, the sheet here opens with the phone's screen.</p>
+  <p><code>title</code> and <code>message</code> stand over the actions: on iOS centered in 13pt, the title semibold, both in the alert's message color; on Android the title in 16sp and the message in 14sp, both gray, at the top of the sheet. A <code>destructive</code> action is red, its icon too on Android. A <code>disabled</code> one is dimmed and takes no presses. <code>icon</code> puts a symbol before an action's label in Android's list, in the text color (gray at night); iOS leaves it out, as UIAlertController does, so the iOS example does not offer it.</p>
+  <p>On iOS the cancel capsule stands apart under the actions, semibold, and a tap on the dim closes the sheet as Cancel does. Many actions scroll inside the panel while the cancel capsule stays in view.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="action-sheet/Overview" />
+</ComponentPreview>
 
 ### Actions alone
 
-Without a title and a message the sheet holds its actions only. A `disabled` action is dimmed and takes no presses, and `cancelLabel` names the cancel capsule of iOS. Many actions scroll inside the panel, the cancel capsule staying in view.
+<ComponentPreview details={<>Without a title and a message the sheet holds its actions alone. <code>cancelLabel</code> names the cancel capsule of iOS (Cancel by default); Android has no cancel row. Take photo is <code>disabled</code>, as on a device without a camera.</>} code={actionsOnlyCode} previewMinHeight={168}>
+  <RNExample demo="action-sheet/ActionsOnly" />
+</ComponentPreview>
 
-<RNPreview demo="action-sheet/ActionsOnly" code={actionsOnlyCode} minHeight={520} />
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Action sheet (confirmation dialog) | Modal bottom sheet with a list |
+| Look | Glass capsules, cancel apart | A menu sheet: 48dp rows, each icon in a 56dp slot, no handle |
 
 ## API
 
@@ -70,7 +98,7 @@ Without a title and a message the sheet holds its actions only. A `disabled` act
 <PropsTable data={[
   { prop: "label", type: "string", description: "The action's label (required)" },
   { prop: "onPress", type: "() => void", description: "Called when the action is pressed, before the sheet closes" },
-  { prop: "icon", type: "ReactNode", description: "A symbol before the label; Material's list shows it, iOS leaves it out" },
+  { prop: "icon", type: "ReactNode", description: "A symbol before the label; Android's list shows it, iOS leaves it out" },
   { prop: "destructive", type: "boolean", default: "false", description: "A red action" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the action and takes no presses" },
   { prop: "testID", type: "string", description: "Test id" },

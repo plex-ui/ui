@@ -1,11 +1,10 @@
-import type { ReactNode } from "react"
-import { Animated, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
+import { useId, type ReactNode } from "react"
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Glass } from "../../internal/Glass"
 import { glassOpacity, iosDim, Overlay } from "../../internal/Overlay"
-import { stateLayer, withAlpha } from "../../theme/material"
+import { dangerText } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
-import { materialType } from "../../theme/typography"
 import { BottomSheet } from "../BottomSheet/BottomSheet"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text } from "../Text/Text"
@@ -13,7 +12,7 @@ import { Text } from "../Text/Text"
 export type ActionSheetAction = {
   label: string
   onPress?: () => void
-  /** A symbol before the label; Material's list shows it, iOS leaves it out as UIAlertController does. */
+  /** A symbol before the label; Android's list shows it, iOS leaves it out as UIAlertController does. */
   icon?: ReactNode
   destructive?: boolean
   disabled?: boolean
@@ -34,7 +33,8 @@ export type ActionSheetProps = {
 /**
  * A choice of actions from the bottom of the screen (React Native only: the web has a Menu). iOS 26 draws
  * UIAlertController's `.actionSheet` on an iPhone: a glass panel of 48pt capsule actions with the title and message
- * over them, and the cancel capsule apart under it; Android a Material 3 modal bottom sheet with a list of 56dp rows.
+ * over them, and the cancel capsule apart under it; Android a menu sheet (its items: 48dp rows of Regular 16, the
+ * icon in a 56dp slot in the ink, gray at night, the text 16 in with no icons, a gray title of 16 over them).
  */
 export function ActionSheet({ open, onOpenChange, title, message, actions, cancelLabel = "Cancel", testID }: ActionSheetProps) {
   const theme = useTheme()
@@ -47,30 +47,34 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
     action.onPress?.()
     close()
   }
+  const ids = { title: useId(), message: useId() }
   if (theme.isAndroid) {
     const m = theme.material
-    const body = materialType.bodyLarge
+    const icons = actions.some((action) => action.icon)
     return (
-      <BottomSheet open={open} onOpenChange={onOpenChange} title={title} testID={testID} contentStyle={styles.androidList} aria-label={typeof title === "string" ? title : undefined}>
-        {message != null ? (
-          <Text
-            color={m.onSurfaceVariant}
-            style={[
-              styles.androidMessage,
-              {
-                fontSize: materialType.bodyMedium.fontSize,
-                lineHeight: materialType.bodyMedium.lineHeight,
-              },
-            ]}
-          >
-            {message}
-          </Text>
+      <BottomSheet open={open} onOpenChange={onOpenChange} testID={testID} contentStyle={styles.androidList} aria-label={typeof title === "string" ? title : undefined}>
+        {/* Android's plain sheet title: Regular 16 in its secondary gray (#757575, #7D7D7D at night), 16 around it; a
+            message under it in 14 */}
+        {title != null || message != null ? (
+          <View style={styles.androidHeader}>
+            {title != null ? (
+              <Text nativeID={ids.title} accessibilityRole="header" color={theme.colors.labelSecondary} style={styles.androidTitle}>
+                {title}
+              </Text>
+            ) : null}
+            {message != null ? (
+              <Text nativeID={ids.message} color={theme.colors.labelSecondary} style={styles.androidMessage}>
+                {message}
+              </Text>
+            ) : null}
+          </View>
         ) : null}
-        {actions.map((action) => {
-          const color = action.disabled ? withAlpha(m.onSurface, 0.38) : action.destructive ? m.error : m.onSurface
+        {actions.map((action, index) => {
+          const color = action.destructive ? dangerText(theme) : m.onSurface
           return (
             <Pressable
-              key={action.label}
+              // Two actions may share a label: each keeps its place in `actions`
+              key={index}
               accessibilityRole="button"
               accessibilityState={{ disabled: !!action.disabled }}
               disabled={action.disabled}
@@ -78,19 +82,22 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
               testID={action.testID}
               style={({ pressed }) => [
                 styles.androidRow,
-                pressed
-                  ? {
-                      backgroundColor: withAlpha(m.onSurface, stateLayer.pressed),
-                    }
-                  : null,
+                icons ? null : styles.androidRowText,
+                { opacity: action.disabled ? 0.5 : 1 },
+                pressed ? { backgroundColor: theme.scheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.06)" } : null,
               ]}
             >
-              {action.icon ? (
-                <IconDefaultsProvider size={24} color={action.disabled ? color : action.destructive ? m.error : m.onSurfaceVariant}>
-                  {action.icon}
-                </IconDefaultsProvider>
+              {icons ? (
+                <View style={styles.androidIcon}>
+                  {action.icon ? (
+                    // A sheet row's icon: the ink (#1A1D21), a gray (#8C8C8C) at night
+                    <IconDefaultsProvider size={24} color={action.destructive ? dangerText(theme) : theme.scheme === "dark" ? theme.colors.labelSecondary : m.onSurface}>
+                      {action.icon}
+                    </IconDefaultsProvider>
+                  ) : null}
+                </View>
               ) : null}
-              <Text color={color} style={{ fontSize: body.fontSize, lineHeight: body.lineHeight }}>
+              <Text color={color} style={styles.androidLabel}>
                 {action.label}
               </Text>
             </Pressable>
@@ -100,9 +107,9 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
     )
   }
   const height = theme.length("--dialog-alert-action-height", 48)
-  const action = (item: ActionSheetAction, preferred = false) => (
+  const action = (item: ActionSheetAction, key: number | string, preferred = false) => (
     <Pressable
-      key={item.label}
+      key={key}
       accessibilityRole="button"
       accessibilityState={{ disabled: !!item.disabled }}
       disabled={item.disabled}
@@ -127,24 +134,35 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
       </Text>
     </Pressable>
   )
+  // The web names the sheet by its title and describes it by its message; a phone keeps the modal view
+  const a11y =
+    Platform.OS === "web"
+      ? {
+          role: "dialog" as const,
+          "aria-modal": true,
+          "aria-labelledby": title != null ? ids.title : undefined,
+          "aria-describedby": message != null ? ids.message : undefined,
+        }
+      : { accessibilityViewIsModal: true }
   return (
-    <Overlay open={open} onDismiss={close} scrim={iosDim(theme.scheme === "dark")} enter={350} exit={250} testID={testID}>
-      {(progress) => (
+    <Overlay open={open} onDismiss={close} scrim={iosDim(theme)} motion="sheet" testID={testID}>
+      {(progress, opening, focus) => (
         <View pointerEvents="box-none" style={styles.bottom}>
           <Animated.View
-            accessibilityViewIsModal
-            aria-modal
+            {...a11y}
+            // On the web the sheet itself takes the first focus, not its first action with a ring
+            tabIndex={focus.tabIndex}
+            onBlur={focus.onBlur}
             style={[
+              focus.style,
               styles.iosStack,
               // An offset, not a transform: a transform would stop the glass's blur on the web
               {
                 maxHeight: screen - insets.top - 8,
                 paddingBottom: Math.max(insets.bottom, 8),
-                opacity: glassOpacity(progress, open),
-                top: progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [80, 0],
-                }),
+                opacity: glassOpacity(progress, opening),
+                // With reduced motion it fades in place
+                top: theme.reducedMotion ? 0 : progress.interpolate({ inputRange: [0, 1], outputRange: [80, 0] }),
               },
             ]}
           >
@@ -154,18 +172,18 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
                 {title != null || message != null ? (
                   <View style={styles.iosHeader}>
                     {title != null ? (
-                      <Text weight="semibold" color={theme.color("--dialog-alert-message-color")} accessibilityRole="header" style={styles.iosHeaderText}>
+                      <Text nativeID={ids.title} weight="semibold" color={theme.color("--dialog-alert-message-color")} accessibilityRole="header" style={styles.iosHeaderText}>
                         {title}
                       </Text>
                     ) : null}
                     {message != null ? (
-                      <Text color={theme.color("--dialog-alert-message-color")} style={styles.iosHeaderText}>
+                      <Text nativeID={ids.message} color={theme.color("--dialog-alert-message-color")} style={styles.iosHeaderText}>
                         {message}
                       </Text>
                     ) : null}
                   </View>
                 ) : null}
-                {actions.map((item) => action(item))}
+                {actions.map((item, index) => action(item, index))}
               </ScrollView>
             </Glass>
             <Glass radius={theme.length("--dialog-alert-radius", 34)} elevation="raised" fillToken="--dialog-alert-background" style={styles.iosPanel}>
@@ -174,6 +192,7 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
                   label: cancelLabel,
                   testID: testID ? `${testID}-cancel` : undefined,
                 },
+                "cancel",
                 true,
               )}
             </Glass>
@@ -201,13 +220,14 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
   },
   iosLabel: { fontSize: 17, lineHeight: 22, textAlign: "center" },
-  androidList: { paddingHorizontal: 0, paddingTop: 8, paddingBottom: 8 },
-  androidMessage: { paddingHorizontal: 24, paddingBottom: 8 },
-  androidRow: {
-    minHeight: 56,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    paddingHorizontal: 24,
-  },
+  androidList: { paddingHorizontal: 0, paddingTop: 0, paddingBottom: 8 },
+  androidHeader: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8, gap: 4 },
+  androidTitle: { fontSize: 16, lineHeight: 20 },
+  androidMessage: { fontSize: 14, lineHeight: 18 },
+  // Android's sheet row: 48dp, the icon centered in a 56dp slot at the start, the text 16 past it (72 in), or
+  // 16 in with no icons
+  androidRow: { minHeight: 48, flexDirection: "row", alignItems: "center", paddingEnd: 21, paddingVertical: 6 },
+  androidRowText: { paddingStart: 16, paddingEnd: 16 },
+  androidIcon: { width: 56, marginEnd: 16, alignItems: "center" },
+  androidLabel: { flexShrink: 1, fontSize: 16, lineHeight: 20 },
 })

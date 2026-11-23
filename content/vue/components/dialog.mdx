@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: Modal dialog for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
+description: Modal dialog for confirmations, forms and destructive alerts, with a focus trap and an overlay scrim.
 metaDescription: Accessible Vue 3 modal dialog component for confirmations, forms, and destructive alerts, with a focus trap, escape handling, and an overlay scrim.
 ---
 
@@ -22,7 +22,7 @@ export const steps = `<Dialog v-model:open="open" @update:open="(next) => { if (
     <DialogBody>
       <DialogSteps :step="step" :direction="direction">
         <div v-if="step === 'email'" class="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
-          <p>We send a code to this address.</p>
+          <p>We’ll send a code to this address.</p>
           <Input v-model:value="email" aria-label="Email" type="email" autocomplete="email" placeholder="Email address" variant="soft" size="3xl" pill />
         </div>
         <div v-else class="flex flex-col gap-4 text-sm text-secondary max-md:gap-5 max-md:text-[length:var(--dialog-mobile-type-size)] max-md:leading-[var(--dialog-mobile-type-leading)]">
@@ -85,7 +85,7 @@ export const confirmClose = `<Dialog v-model:open="open" @update:open="(next) =>
     :confirm-close="note.trim() !== '' && { message: 'Are you sure you want to discard this new note?' }"
   >
     <DialogHeader>
-      <DialogTitle>New Note</DialogTitle>
+      <DialogTitle>New note</DialogTitle>
     </DialogHeader>
     <DialogBody>
       <FieldGroup>
@@ -131,7 +131,7 @@ export const overview = `<Dialog v-model:open="open" @update:open="(next) => { i
         {{ texts[field ? 'rename' : actions === '1' ? 'notice' : destructive ? 'delete' : 'save'].action }}
       </Button>
       <template v-if="actions === '3'">
-        <Button color="danger" variant="soft" @click="open = false">Don’t Save</Button>
+        <Button color="danger" variant="soft" @click="open = false">Don’t save</Button>
         <DialogClose>
           <Button color="primary" variant="soft">Cancel</Button>
         </DialogClose>
@@ -343,10 +343,6 @@ const rows = [
   DialogTrigger,
 } from "@plexui/vue/components/Dialog";`}</UsageBlock>
 
-At 767px and below a dialog is one of the two modal views of iOS. `mobile-variant="alert"` (or `mobile-placement="center"`) presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Any other dialog is a Sheet, the default, for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance.
-
-Two alert actions stand side by side and wrap onto separate rows when their labels need more space; three or more stack, as on iOS. Set `<DialogFooter mobile-layout="stacked">` when two actions should stack too. A title without a message stands centered. Put long sheet content in `DialogBody` to keep the header and actions visible while the body scrolls.
-
 ## Examples
 
 ### Overview
@@ -355,7 +351,11 @@ Two alert actions stand side by side and wrap onto separate rows when their labe
 <span id="three-actions" />
 <span id="text-field" />
 
-<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>On a phone a dialog is one of the two modal views of iOS: an Alert (<code>mobile-variant="alert"</code>), a short question with its answers, or a Sheet, which it is by default (see <a href="#placement">Placement</a>). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. <code>DialogFooter mobile-layout="stacked"</code> stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (<code>color="danger"</code>: a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.</>} code={overviewCode} previewMinHeight={120}>
+<ComponentPreview phonePresentation="screen" phoneDialog language="vue" details={<>
+  <p>At 767px and below a dialog is one of the two modal views of iOS. <code>mobile-variant="alert"</code> (or <code>mobile-placement="center"</code>) presents a compact centered glass alert, a confirmation or a request for one short value, with its actions side by side, or stacked from three, and no close icon. Any other dialog is a Sheet, the default, for forms and details: it opens at the bottom with a leading Close button and a centered title, and without a grabber, as iOS 27.2 draws one only on a sheet that changes height. Both variants preserve the desktop appearance.</p>
+  <p>Two alert actions stand side by side and wrap onto separate rows when their labels need more space; three or more stack, as on iOS. Put long sheet content in <code>DialogBody</code> to keep the header and actions visible while the body scrolls.</p>
+  <p>On a phone a dialog is one of the two modal views of iOS: an Alert (<code>mobile-variant="alert"</code>), a short question with its answers, or a Sheet, which it is by default (see <a href="#placement">Placement</a>). The alert takes what the iOS 27 kit and UIAlertController offer. One, two or three actions: two stand side by side with Cancel first, and three or more stack in their order with Cancel last, as iOS sets them. <code>DialogFooter mobile-layout="stacked"</code> stacks two, for long labels. The main action is preferred (solid: the accent fill on a phone), plain (soft), or destructive (<code>color="danger"</code>: a red label on the alert's fill on a phone). A title without a message stands centered. A field asks for one short value: a 48px capsule on a phone, its text selected when the alert opens, and Rename unavailable while it is empty. Label actions in title case, as iOS does.</p>
+</>} code={overviewCode} previewMinHeight={120}>
   <VueDemo template={overview} phoneTemplate={overview.replace('v-model:open="open"', ':open="true"').replace(" field ? $refs.input.$el.querySelector('input').select() : $refs.heading.focus({ preventScroll: true })", '')} controls={overviewControls} phoneState={{ open: true, name: 'Untitled', texts }} stageClassName="py-10 flex justify-center" state={{ open: false, name: 'Untitled', texts }} />
 </ComponentPreview>
 

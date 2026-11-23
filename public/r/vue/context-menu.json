@@ -3,7 +3,7 @@
   "name": "context-menu",
   "type": "registry:ui",
   "title": "Context Menu",
-  "description": "\"A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu.\"",
+  "description": "\"A menu of actions for an element, opened by a secondary click or, on a touch screen, a touch and hold.\"",
   "dependencies": [
     "@plexui/vue"
   ],

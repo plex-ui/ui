@@ -3,7 +3,7 @@
   "name": "toolbar",
   "type": "registry:ui",
   "title": "Toolbar",
-  "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content. Desktop layouts have their own composition, so a toolbar never renders from 768px up.\"",
+  "description": "\"The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content.\"",
   "dependencies": [
     "@plexui/vue"
   ],

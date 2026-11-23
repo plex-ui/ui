@@ -1,72 +1,195 @@
 ---
 title: Menu
-description: "A menu of actions from a trigger: the iOS 26 pop-up menu on iOS, Material 3 Expressive's menu on Android, with icons, descriptions, labels and separators."
+description: A menu of actions from a trigger, with icons, descriptions, checkmarks, labels, separators and submenus.
+metaDescription: "A menu of actions from a trigger, with icons, descriptions, options with a checkmark, labels, separators and submenus: the iOS 26 pop-up menu on iOS, a popup panel with 12dp corners on Android."
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `<Menu>
-  <Menu.Trigger>
-    <Button color="secondary" variant="soft">Actions</Button>
-  </Menu.Trigger>
-  <Menu.Content aria-label="Actions">
-    <Menu.Item icon={<Pencil />} onSelect={rename}>Rename</Menu.Item>
-    <Menu.Item icon={<Copy />} onSelect={duplicate}>Duplicate</Menu.Item>
-    <Menu.Item icon={<Share />} onSelect={share}>Share</Menu.Item>
-    <Menu.Separator />
-    <Menu.Item icon={<RemoveTrash />} danger onSelect={remove}>Delete</Menu.Item>
-  </Menu.Content>
-</Menu>`
+export const overviewCode = `import { Button, Menu, Toolbar } from "@plexui/react-native"
+import { CheckCircle, Desktop, DotsHorizontal, FileDocument, FolderPlus, List, VideoGrid } from "@plexui/react-native/icons"
 
-export const labelsAndDescriptionsCode = `<Menu.Content aria-label="Document">
-  <Menu.Label>Document</Menu.Label>
-  <Menu.Item icon={<Pencil />} onSelect={rename}>Rename</Menu.Item>
-  <Menu.Item icon={<Copy />} description="A copy in the same folder" onSelect={duplicate}>
-    Duplicate
-  </Menu.Item>
-  <Menu.Item icon={<Share />} disabled>Share</Menu.Item>
-  <Menu.Separator />
-  <Menu.Label>Danger zone</Menu.Label>
-  <Menu.Item icon={<RemoveTrash />} danger description="It cannot be undone" onSelect={remove}>
-    Delete
-  </Menu.Item>
-</Menu.Content>`
+const [icons] = useState(true)
+const [checkmarks] = useState(true)
+const [view, setView] = useState("list")
+const [sort, setSort] = useState("date")
+const [group, setGroup] = useState("date")
+const SORTS = [["name", "Name"], ["kind", "Kind"], ["date", "Date"], ["size", "Size"], ["tags", "Tags"]]
+const GROUPS = [["none", "None"], ["kind", "Kind"], ["date", "Date"], ["size", "Size"], ["shared", "Shared by"]]
 
-export const controlledCode = `const [open, setOpen] = useState(false)
+// The More button of the top bar opens the menu
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Overview</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+      <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform accessibilityLabel="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+      <Menu.Content align="end" aria-label="Downloads">
+        <Menu.Item icon={icons ? <CheckCircle /> : undefined} onSelect={() => {}}>Select</Menu.Item>
+        <Menu.Item icon={icons ? <FolderPlus /> : undefined} onSelect={() => {}}>New folder</Menu.Item>
+        <Menu.Item icon={icons ? <FileDocument /> : undefined} onSelect={() => {}}>Scan documents</Menu.Item>
+        <Menu.Item icon={icons ? <Desktop /> : undefined} onSelect={() => {}}>Connect to server</Menu.Item>
+        <Menu.Separator />
+        {checkmarks && (
+          <>
+            <Menu.Item icon={icons ? <VideoGrid /> : undefined} checked={view === "icons"} onSelect={() => setView("icons")}>Icons</Menu.Item>
+            <Menu.Item icon={icons ? <List /> : undefined} checked={view === "list"} onSelect={() => setView("list")}>List</Menu.Item>
+            <Menu.Separator />
+            {SORTS.map(([value, label]) => (
+              <Menu.Item
+                key={value}
+                checked={sort === value}
+                description={value === "date" && sort === "date" ? "Newest to oldest" : undefined}
+                onSelect={() => setSort(value)}
+              >
+                {label}
+              </Menu.Item>
+            ))}
+            <Menu.Separator />
+            <Menu.Sub>
+              <Menu.SubTrigger>Group by</Menu.SubTrigger>
+              <Menu.SubContent>
+                {GROUPS.map(([value, label]) => (
+                  <Menu.Item key={value} checked={group === value} onSelect={() => setGroup(value)}>{label}</Menu.Item>
+                ))}
+              </Menu.SubContent>
+            </Menu.Sub>
+          </>
+        )}
+        <Menu.Item onSelect={() => {}}>View options</Menu.Item>
+      </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>`
 
-<Menu open={open} onOpenChange={setOpen}>
-  <Menu.Trigger>
-    <IconButton icon={<DotsHorizontal />} variant="soft" color="secondary" accessibilityLabel="More" />
-  </Menu.Trigger>
-  <Menu.Content align="end" aria-label="More">
-    <Menu.Item icon={<Archive />} onSelect={archive}>Archive</Menu.Item>
-    <Menu.Item icon={<Flag />} onSelect={flag}>Flag</Menu.Item>
-  </Menu.Content>
-</Menu>`
+export const groupedCode = `import { Button, Menu, Toolbar } from "@plexui/react-native"
+import { Chat, ChatTripleDots, Chats, DotsHorizontal, RemoveTrash, XSquare } from "@plexui/react-native/icons"
+
+const [filter, setFilter] = useState("messages")
+
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Grouped items</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+      <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform accessibilityLabel="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+      <Menu.Content align="end" aria-label="Filter">
+        <Menu.Item icon={<Chats />} checked={filter === "messages"} onSelect={() => setFilter("messages")}>Messages</Menu.Item>
+        <Menu.Item icon={<XSquare />} checked={filter === "spam"} onSelect={() => setFilter("spam")}>Spam</Menu.Item>
+        <Menu.Item icon={<RemoveTrash />} checked={filter === "deleted"} onSelect={() => setFilter("deleted")}>Recently deleted</Menu.Item>
+        <Menu.Separator />
+        <Menu.Label>Filter by</Menu.Label>
+        <Menu.Item icon={<Chat />} checked={filter === "unread"} onSelect={() => setFilter("unread")}>Unread</Menu.Item>
+        <Menu.Item icon={<ChatTripleDots />} checked={filter === "drafts"} onSelect={() => setFilter("drafts")}>Drafts</Menu.Item>
+        <Menu.Separator />
+        <Menu.Item onSelect={() => {}}>Manage filtering</Menu.Item>
+      </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>`
+
+export const radioCode = `import { Button, Menu, Toolbar } from "@plexui/react-native"
+import { DotsHorizontal } from "@plexui/react-native/icons"
+
+const PERIODS = [
+  { value: "any", label: "Any time" },
+  { value: "today", label: "Today", disabled: true },
+  { value: "last7d", label: "Last 7 days" },
+  { value: "last30d", label: "Last 30 days" },
+  { value: "last3m", label: "Last 3 months" },
+]
+
+const [value, setValue] = useState("any")
+
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Radio items</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+      <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform accessibilityLabel="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+      <Menu.Content align="end" aria-label="Date modified">
+        {PERIODS.map((period) => (
+          <Menu.Item
+            key={period.value}
+            checked={value === period.value}
+            disabled={period.disabled}
+            onSelect={() => setValue(period.value)}
+          >
+            {period.label}
+          </Menu.Item>
+        ))}
+      </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>`
+
+export const destructiveCode = `import { Button, Menu, Toolbar } from "@plexui/react-native"
+import { Copy, DotsHorizontal, EditPencil, RemoveTrash } from "@plexui/react-native/icons"
+
+<Toolbar titleStyle="large">
+  <Toolbar.Title>Destructive items</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Menu>
+      <Menu.Trigger>
+        <Button color="secondary" variant="soft" uniform accessibilityLabel="More"><DotsHorizontal /></Button>
+      </Menu.Trigger>
+      <Menu.Content align="end" aria-label="More actions">
+        <Menu.Item icon={<EditPencil />} onSelect={rename}>Rename</Menu.Item>
+        <Menu.Item icon={<Copy />} onSelect={duplicate}>Duplicate</Menu.Item>
+        <Menu.Separator />
+        <Menu.Item icon={<RemoveTrash />} danger onSelect={remove}>Delete project</Menu.Item>
+      </Menu.Content>
+    </Menu>
+  </Toolbar.Trailing>
+</Toolbar>`
 
 <UsageBlock>{`import { Menu } from "@plexui/react-native"`}</UsageBlock>
 
-The parts follow `@plexui/ui`'s Menu: `Menu.Trigger`, `Menu.Content`, `Menu.Item`, `Menu.Separator` and `Menu.Label`. On iOS the pop-up menu of iOS 26: a 250pt glass panel with radius 34, 17pt rows at least 42 tall with the symbol at the leading edge, 8 under its trigger. On Android Material 3 Expressive's menu (Compose's `DropdownMenuGroup`): `surfaceContainerLow` with 16dp corners, as wide as its items and right at its trigger's edge, 44dp items in Label L with 20dp icons; the first and last item between two separators round to the group's corners. The menu opens over its trigger when the screen ends below it, long menus scroll, and a tap outside closes it.
-
 ## Examples
 
-### Items and separators
+### Overview
 
-`Menu.Trigger` takes a Button, or any element with `onPress`, and opens the menu. Choosing an item runs its `onSelect` and closes the menu. A `danger` item is red.
+<ComponentPreview details={<>
+  <p>The parts follow <code>@plexui/ui</code>'s Menu: <code>Menu.Trigger</code>, <code>Menu.Content</code>, <code>Menu.Item</code>, <code>Menu.Separator</code>, <code>Menu.Label</code> and <code>Menu.Sub</code> with its <code>Menu.SubTrigger</code> and <code>Menu.SubContent</code>; a radio item is a <code>Menu.Item</code> with <code>checked</code>. On iOS the symbol stands at the leading edge of a row at least 42 tall. On Android the menu is a popup: a white panel (a dark gray at night) with 12dp corners and a soft shadow, as wide as its items (196dp to 288dp), that opens over its trigger, its top on the trigger's top (its bottom on the trigger's bottom when the screen ends first). It unrolls from the trigger's side while its rows fade in one after another, and fades out as it lifts 5dp. A pressed item takes its text color at 12%. Long menus scroll, and a tap outside closes the menu.</p>
+  <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as options, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group by, a submenu of its own options. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column.</p>
+  <p>An item takes its symbol as <code>icon</code>, in the label's color: 20pt on iOS, centred in a 36pt slot (in a menu with checkmarks it stands 2pt past the labels' line, its label 14 after it), 24dp on Android. An option is an item with <code>checked</code>: a menu whose items set it, true or false, keeps a column for the checkmark on iOS, so every label lines up, and on Android a chosen item shows a thin check in the text color at the leading edge of its row (at its end when the item has an icon). Choosing an item runs its <code>onSelect</code> and closes the menu, an option too.</p>
+  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos; in the phone preview it stands open when the screen appears. <code>align="end"</code> lines the menu's end up with the button's. On iOS the menu is the 250pt panel of iOS menus unless <code>width</code> sets another.</p>
+  <p>A submenu's row ends in a chevron. On iOS, as iOS 26 menus, the submenu opens over the menu with its heading on that row, in Semibold with a chevron down, while the menu steps back (a touch smaller, its rows at half strength); a press on the heading or on the menu behind goes back. On Android the submenu slides in from the end, headed by a Back row and an 8dp band, while the menu moves back under a dim and the popup takes the submenu's size; Back, a swipe towards the end or a flick goes back. Choosing an item of a submenu closes the whole menu.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="menu/Overview" />
+</ComponentPreview>
 
-<RNPreview demo="menu/Overview" code={overviewCode} minHeight={440} />
+### Grouped items
 
-### Labels and descriptions
+<ComponentPreview details={<>
+  <p>Use <code>Menu.Label</code> over a group of items to name it. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter by, and Manage filtering under a separator. Both sets of options hold one value, so one checkmark marks the list shown.</p>
+  <p>On iOS a label and a row without an icon start after the checkmark column, where the icons of the other rows start; the label is 13pt in the secondary label color. On Android a label is plain text in the popup, 13sp in the text color, and a separator an 8dp band between the groups.</p>
+</>} code={groupedCode} previewMinHeight={168}>
+  <RNExample demo="menu/Grouped" />
+</ComponentPreview>
 
-`Menu.Label` heads a group of items, `description` adds a second line under an item's label, and a `disabled` item is dimmed and takes no presses.
+### Radio items
 
-<RNPreview demo="menu/LabelsAndDescriptions" code={labelsAndDescriptionsCode} minHeight={440} />
+<ComponentPreview details={<>Items with <code>checked</code> make a set of options of one value: the chosen one shows the checkmark, leading the row as in iOS menus (on Android in the text color). A <code>disabled</code> option is dimmed and cannot be chosen.</>} code={radioCode} previewMinHeight={168}>
+  <RNExample demo="menu/RadioItems" />
+</ComponentPreview>
 
-### Aligned to the end, controlled
+### Destructive items
 
-`align="end"` lines the menu's trailing edge up with its trigger's, as for a More button at the end of a row. `open` and `onOpenChange` control the menu; a menu opened from outside is placed at its trigger too.
+<ComponentPreview details={<>Mark a destructive action (delete, remove, leave) with <code>danger</code>: the label and its icon take the danger color, red on iOS and on Android, and a <code>description</code> keeps its secondary color. Put such items last, after a separator.</>} code={destructiveCode} previewMinHeight={168}>
+  <RNExample demo="menu/Destructive" />
+</ComponentPreview>
 
-<RNPreview demo="menu/Controlled" code={controlledCode} minHeight={440} />
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Menu | Menu |
+| Look | A 250pt glass panel with 34pt corners and 17pt rows | A popup: a white (night: dark gray) panel with 12dp corners, 48dp items in 16sp, groups parted by an 8dp band |
+| Motion | Grows from its anchor | Unrolls from its trigger as its rows fade in; a submenu slides in, and a swipe takes it back |
 
 ## API
 
@@ -90,7 +213,7 @@ The parts follow `@plexui/ui`'s Menu: `Menu.Trigger`, `Menu.Content`, `Menu.Item
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "Items, separators and labels" },
   { prop: "align", type: '"start" | "end"', default: '"start"', description: "The menu's edge that lines up with the trigger's" },
-  { prop: "width", type: "number", default: "250 on iOS", description: "Width of the menu; on Android it fits its items, 112 to 280" },
+  { prop: "width", type: "number", default: "250 on iOS", description: "Width of the menu; on Android it fits its items, 196 to 288" },
   { prop: "aria-label", type: "string", description: "Accessible name of the menu" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />
@@ -101,11 +224,33 @@ The parts follow `@plexui/ui`'s Menu: `Menu.Trigger`, `Menu.Content`, `Menu.Item
   { prop: "children", type: "ReactNode", description: "The item's label" },
   { prop: "icon", type: "ReactNode", description: "A symbol at the leading edge" },
   { prop: "description", type: "ReactNode", description: "A second line under the label" },
-  { prop: "danger", type: "boolean", default: "false", description: "A red, destructive item" },
+  { prop: "danger", type: "boolean", default: "false", description: "A destructive item, in the danger color" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the item and takes no presses" },
-  { prop: "checked", type: "boolean", description: "The checkmark of a chosen option; a menu whose items set it (true or false) keeps a column for the checkmark, as Select's" },
+  { prop: "checked", type: "boolean", description: "The checkmark of a chosen option; a menu whose items set it (true or false) keeps a column for the checkmark and names its items as radio items" },
   { prop: "onSelect", type: "() => void", description: "Called when the item is chosen; the menu closes after it" },
   { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### Menu.Sub
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "A Menu.SubTrigger and its Menu.SubContent" },
+]} />
+
+### Menu.SubTrigger
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The row's label, which also heads the open submenu on iOS" },
+  { prop: "icon", type: "ReactNode", description: "A symbol at the leading edge" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the row and takes no presses" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### Menu.SubContent
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The submenu's items, separators and labels" },
+  { prop: "backLabel", type: "string", default: '"Back"', description: "Android: the row that goes back to the menu" },
 ]} />
 
 `Menu.Separator` takes no props. `Menu.Label` takes its text as `children`.

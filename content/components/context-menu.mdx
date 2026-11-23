@@ -1,6 +1,6 @@
 ---
 title: Context Menu
-description: "A menu of actions for an element: a secondary click opens it at the pointer, a touch and hold opens it beside the element over a dimmed page, as iOS 26 context menus do. Its items are the ones of Menu."
+description: "A menu of actions for an element, opened by a secondary click or, on a touch screen, a touch and hold."
 metaDescription: "React context menu in the iOS 26 style: right click at the pointer, touch and hold with the element lifted over a dimmed, blurred page and the menu beside it, keyboard access, Menu items."
 ---
 
@@ -12,13 +12,14 @@ import phoneRowsStyles from "@/components/docs/PhoneRows.module.css"
 
 <MenuFamilyNote current="context-menu" />
 
-A context menu gathers the actions for one element, such as a row, a file or a photo, without a button of its own: a secondary click (a right click or a Control click) opens it at the pointer, and on a touch screen a touch and hold opens it beside the element, as in iOS 26. Keep the actions an element already shows elsewhere too, because a context menu is easy to miss, and put the most used ones first.
-
 ## Examples
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>Wrap the element in <code>ContextMenu.Trigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, on the side where the element stands, as iOS 27.2 places it: at the element's start edge in the first third of the screen, at its end edge in the last third, and centred under it in the middle. The press that opened the menu does not activate the element. An element in the lower half of the screen opens its menu 16px above it where it fits, and stays where it is. When the menu fits on neither side, it opens below and the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.</>} code={`<ContextMenu>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} details={<>
+  <p>A context menu gathers the actions for one element, such as a row, a file or a photo, without a button of its own: a secondary click (a right click or a Control click) opens it at the pointer, and on a touch screen a touch and hold opens it beside the element, as in iOS 26. Keep the actions an element already shows elsewhere too, because a context menu is easy to miss, and put the most used ones first.</p>
+  <p>Wrap the element in <code>ContextMenu.Trigger</code>: it keeps its own role and focus. On a touch screen, hold for half a second: the element stays clear above the dimmed, blurred page and the menu opens 16px below it, as in the iOS 27 kit, on the side where the element stands, as iOS 27.2 places it: at the element's start edge in the first third of the screen, at its end edge in the last third, and centred under it in the middle. The press that opened the menu does not activate the element. An element in the lower half of the screen opens its menu 16px above it where it fits, and stays where it is. When the menu fits on neither side, it opens below and the element moves up with it, as far as the room above allows, and settles back when the menu closes, as a lifted preview of iOS does. A tap on the element while its menu stands does what a tap on it always does, and closes the menu. On a phone the rows sit on the grouped background of an iOS list.</p>
+</>} code={`<ContextMenu>
   <ContextMenu.Trigger>
     <div tabIndex={0}>Groceries</div>
   </ContextMenu.Trigger>

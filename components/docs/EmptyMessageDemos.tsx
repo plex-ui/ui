@@ -78,7 +78,7 @@ export function EmptyMessageOverviewDemo() {
             </EmptyMessage.Icon>
           )}
           {title && <EmptyMessage.Title color={titleColor}>No projects yet</EmptyMessage.Title>}
-          {shownDescription && <EmptyMessage.Description>Create your first project to get started</EmptyMessage.Description>}
+          {shownDescription && <EmptyMessage.Description>Create your first project to get started.</EmptyMessage.Description>}
           {actions === 'link' ? (
             <EmptyMessage.ActionRow className="text-sm">
               <TextLink href="#" onClick={preventDefault}>

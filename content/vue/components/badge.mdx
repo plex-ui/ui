@@ -1,6 +1,6 @@
 ---
 title: Badge
-description: Compact label for statuses and inline metadata, with semantic colors, three variants and sizes, icon support, and a loading state.
+description: Compact label for statuses and inline metadata, with semantic colors, variants, sizes and icons.
 metaDescription: Vue 3 badge component for status indicators and inline labels with semantic colors, multiple variants, icon support, and loading state. Same props and markup as the React Badge.
 ---
 
@@ -13,12 +13,12 @@ export const overview = `<Badge
   :size="size"
   :pill="pill"
   :class="leading === 'loading' ? 'gap-1.5' : undefined"
-  :remove-label="'Remove ' + labels[leading]"
+  :remove-label="'Remove ' + (onRemove ? tags : labels)[leading]"
   :on-remove="onRemove ? () => (shown = false) : undefined"
 >
   <Flask v-if="leading === 'icon'" />
   <LoadingIndicator v-if="leading === 'loading'" />
-  {{ labels[leading] }}
+  {{ (onRemove ? tags : labels)[leading] }}
 </Badge>
 <Button v-else color="secondary" variant="outline" size="sm" @click="shown = true">Show again</Button>`
 
@@ -31,7 +31,7 @@ export const overviewControls = [
   { name: "onRemove", type: "boolean", default: false },
 ]
 
-export const overviewState = { shown: true, labels: { none: "New", icon: "Beta", loading: "In progress" } }
+export const overviewState = { shown: true, labels: { none: "New", icon: "Beta", loading: "In progress" }, tags: { none: "Design", icon: "Research", loading: "Uploading" } }
 
 export const overviewCode = `<script setup lang="ts">
 import { ref } from 'vue';
@@ -44,6 +44,7 @@ const leading = ref("none"); // or "icon", "loading"
 const onRemove = ref(false);
 const shown = ref(true);
 const labels = { none: "New", icon: "Beta", loading: "In progress" };
+const tags = { none: "Design", icon: "Research", loading: "Uploading" }; // a badge with a cross is a tag the reader added
 </script>
 
 <template>

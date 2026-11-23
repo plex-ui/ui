@@ -1,19 +1,42 @@
-import { useEffect, useState, type ReactNode } from "react"
-import { Animated, Easing, Pressable, StyleSheet, Text as NativeText, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from "react-native"
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ComponentRef, type ReactNode, type Ref } from "react"
+import {
+  Animated,
+  Easing,
+  PixelRatio,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text as NativeText,
+  TextInput,
+  View,
+  type PressableProps,
+  type StyleProp,
+  type TextInputProps,
+  type ViewProps,
+  type ViewStyle,
+} from "react-native"
 import XCircleFilled from "../../icons/plex/XCircleFilled"
-import { withAlpha } from "../../theme/material"
+import { useDescription } from "../../internal/a11y"
+import { useAndroidGlass } from "../../internal/BarBackdrop"
+import { Glass } from "../../internal/Glass"
+import { useRTL } from "../../internal/direction"
+import { RowEndContext } from "../../internal/row"
+import { barShadow, barSurface, withAlpha, dangerText, stateLayer } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
-import { materialType } from "../../theme/typography"
-import type { ControlSize } from "../Button/Button"
+import { BarFieldContext, type ControlSize } from "../Button/Button"
 import { IconDefaultsProvider } from "../Icon/createIcon"
-import { MaterialCancel } from "../Icon/material"
+import { MaterialCancel, MaterialClose } from "../Icon/material"
 import { Text } from "../Text/Text"
 
 export type InputVariant = "outline" | "soft" | "ghost"
 
 export type InputProps = Omit<TextInputProps, "editable" | "style"> & {
-  /** On Android `outline` is Material's outlined text field, `soft` and `ghost` its filled one. @default "outline" */
+  /**
+   * On Android `outline` is the outlined field, `soft` a field filled with the text color at 5%, `ghost` a card's
+   * bare field; a `soft` field with a `startAdornment` (a magnifier) and no label is the Android search field, a 40dp
+   * pill. @default "outline"
+   */
   variant?: InputVariant
   /** @default "md" (44pt on a phone, as every phone control) */
   size?: ControlSize
@@ -33,55 +56,189 @@ type FrameState = { focused: boolean; filled: boolean; disabled: boolean; invali
 
 /**
  * The line around (outlined) or under (filled) an Android field. Drawn as a layer over the field, not as the field's
- * border, so the field stays 56 tall and its content does not move when the line thickens on focus (Compose draws it
+ * border, so the field keeps its height and its content does not move when the line thickens on focus (Compose draws it
  * inside the container the same way).
  */
 export type FieldFrame = { outlined: boolean; color: string; width: number; radius: number }
 
+/**
+ * The phone layer's field at each size: Input.module.css's size table under touch.css's phone rules, which give every
+ * size 17pt text and a 14pt gutter (11 beside a start adornment, `html [data-slot="input"]`, scoped rules with no root
+ * token) and give 3xs to xs the height and gap of sm, as 22 to 26pt could not hold the 17pt text.
+ */
+const IOS_FIELD: Record<ControlSize, { height: ControlSize; radius: "sm" | "md" | "lg" | "xl"; gap: "md" | "lg"; adornmentOffset: number }> = {
+  "3xs": { height: "sm", radius: "sm", gap: "md", adornmentOffset: -1 },
+  "2xs": { height: "sm", radius: "sm", gap: "md", adornmentOffset: -1 },
+  xs: { height: "sm", radius: "sm", gap: "md", adornmentOffset: -1 },
+  sm: { height: "sm", radius: "sm", gap: "md", adornmentOffset: -1 },
+  md: { height: "md", radius: "md", gap: "md", adornmentOffset: -2 },
+  lg: { height: "lg", radius: "lg", gap: "md", adornmentOffset: -2 },
+  xl: { height: "xl", radius: "xl", gap: "lg", adornmentOffset: -2 },
+  "2xl": { height: "2xl", radius: "xl", gap: "lg", adornmentOffset: -4 },
+  "3xl": { height: "3xl", radius: "xl", gap: "lg", adornmentOffset: -4 },
+}
+/** The kit's own values of the tokens the table reads, for a theme without them. */
+const IOS_RADIUS = { sm: 6, md: 8, lg: 10, xl: 12 }
+const IOS_GAP = { md: 8, lg: 10 }
+
 /** The look of a field on this platform: its box, text and colors. Shared by Input, TextField and Select. */
-export function fieldLook(theme: Theme, { variant, size, pill }: { variant: InputVariant; size: ControlSize; pill: boolean }, state: FrameState) {
+export function fieldLook(
+  theme: Theme,
+  {
+    variant,
+    size,
+    pill,
+    startAdornment = false,
+    bar = null,
+    label = false,
+    search = false,
+  }: {
+    variant: InputVariant
+    size: ControlSize
+    pill: boolean
+    startAdornment?: boolean
+    bar?: { height: number; raised: boolean; row?: boolean } | null
+    /** Android: the field has a floating label, so it is 56dp tall. */
+    label?: boolean
+    /** Android: the pill search field (40dp) of a screen or a sheet; a bar's own field, in or under it, is `bar`. */
+    search?: boolean
+  },
+  state: FrameState,
+) {
   if (theme.isAndroid) {
-    // Compose material3 OutlinedTextFieldTokens / FilledTextFieldTokens
     const m = theme.material
+    if (search) {
+      // Android's search field: a 40dp pill of the text color at 5% (7% in dark mode), a 24dp
+      // magnifier 12dp in and the text 48dp in, Regular 15, the hint at 50%, the icons at 60%, the caret in the accent
+      const off = withAlpha(m.onSurface, 0.38)
+      const icon = state.disabled ? off : withAlpha(m.onSurface, 0.6)
+      return {
+        box: { minHeight: 40, borderRadius: 20, backgroundColor: withAlpha(m.onSurface, theme.scheme === "dark" ? 0.07 : 0.05) } as ViewStyle,
+        glass: false,
+        frame: null as FieldFrame | null,
+        gap: 12,
+        text: { fontSize: 15, lineHeight: 20, color: state.disabled ? off : m.onSurface },
+        placeholder: withAlpha(m.onSurface, 0.5),
+        icon,
+        trailingIcon: icon,
+        caret: m.primary,
+        iconSize: 24,
+        clearSize: 24,
+        clearTarget: 48,
+        adornmentOffset: 0,
+        height: 40,
+        gutter: 12,
+      }
+    }
+    if (bar) {
+      // A Toolbar's search field, in its bar or in a row under it, as Android draws the bar's search: a capsule at the
+      // bar's 46dp (drawn in the glass of its circles by InputField), the text Regular 18 from 18dp in, the hint a
+      // field's (#A8A8A8 on white: the text at 38%), the caret in the text color, no magnifier of its own
+      const off = withAlpha(m.onSurface, 0.38)
+      return {
+        box: { minHeight: bar.height, borderRadius: bar.height / 2, backgroundColor: barSurface(m, theme.scheme), boxShadow: barShadow(theme.scheme) } as ViewStyle,
+        glass: false,
+        frame: null as FieldFrame | null,
+        gap: 10,
+        text: { fontSize: 18, lineHeight: 24, color: state.disabled ? off : m.onSurface },
+        placeholder: withAlpha(m.onSurface, 0.38),
+        icon: state.disabled ? off : m.onSurfaceVariant,
+        trailingIcon: state.disabled ? off : m.onSurface,
+        caret: m.onSurface,
+        iconSize: 24,
+        clearSize: 24,
+        clearTarget: bar.height,
+        adornmentOffset: 0,
+        height: bar.height,
+        gutter: 18,
+      }
+    }
+    // Android's fields: `outline` is the outlined field (radius 8, a hairline that thickens to 1.667dp in the accent
+    // on focus, the label floating on the top line), `soft` a field filled with the text color at 5% (the chips' and
+    // sheets' search fields), `ghost` the bare field of a card. The text is 17 with a 38% hint; a field is 50dp (a
+    // row's height), 56 with a label; disabled dims it to 50%. Focused, the line and the label take the accent, its
+    // lighter text in dark mode (#6EB2EF)
     const outlined = variant === "outline"
-    const accent = state.invalid ? m.error : state.focused ? m.primary : null
-    const radius = outlined && pill ? 28 : 4
-    const frame: FieldFrame | null =
-      variant === "ghost"
-        ? null
-        : {
-            outlined,
-            color: state.disabled ? withAlpha(m.onSurface, outlined ? 0.12 : 0.38) : (accent ?? (outlined ? m.outline : m.onSurfaceVariant)),
-            width: state.focused && !state.disabled ? 2 : 1,
-            radius,
-          }
-    const box: ViewStyle = outlined
-      ? { minHeight: 56, borderRadius: radius, paddingHorizontal: 16 }
-      : {
-          minHeight: 56,
-          borderTopLeftRadius: 4,
-          borderTopRightRadius: 4,
-          backgroundColor: variant === "ghost" ? "transparent" : state.disabled ? withAlpha(m.onSurface, 0.04) : m.surfaceContainerHighest,
-          paddingHorizontal: 16,
-        }
-    const type = materialType.bodyLarge
-    const off = withAlpha(m.onSurface, 0.38)
+    const ghost = variant === "ghost"
+    const accent = state.invalid ? dangerText(theme) : state.focused ? focusAccent(theme) : null
+    const height = label ? 56 : 50
+    const radius = pill ? height / 2 : 8
+    // The idle line: 0.5dp, at least 2 device pixels (1 on a 1x screen) (the text at 16%, 24% in dark mode)
+    const ratio = PixelRatio.get()
+    const hairline = Math.max(Math.min(2, ratio) / ratio, 0.5)
+    const idle = withAlpha(m.onSurface, theme.scheme === "dark" ? 0.24 : 0.16)
+    const frame: FieldFrame | null = outlined
+      ? { outlined: true, color: accent ?? idle, width: state.focused && !state.disabled ? 1.667 : hairline, radius }
+      : state.invalid
+        ? // A field with no line of its own shows an error as Android's underline does: 2dp in the error color
+          ghost
+          ? { outlined: false, color: dangerText(theme), width: 2, radius: 0 }
+          : { outlined: true, color: dangerText(theme), width: 1.667, radius }
+        : null
+    const box: ViewStyle = {
+      minHeight: height,
+      borderRadius: ghost ? 0 : radius,
+      backgroundColor: variant === "soft" ? withAlpha(m.onSurface, 0.05) : "transparent",
+      opacity: state.disabled ? 0.5 : 1,
+    }
+    const hint = withAlpha(m.onSurface, 0.38)
     return {
       box,
+      glass: false,
       frame,
-      gap: 16,
-      text: { fontSize: type.fontSize, lineHeight: type.lineHeight, color: state.disabled ? off : m.onSurface },
-      placeholder: m.onSurfaceVariant,
-      // A leading icon keeps its color in error; a trailing one turns to the error color
-      icon: state.disabled ? off : m.onSurfaceVariant,
-      trailingIcon: state.disabled ? off : state.invalid ? m.error : m.onSurfaceVariant,
-      caret: state.invalid ? m.error : m.primary,
+      gap: 12,
+      text: { fontSize: 17, lineHeight: 20, color: m.onSurface },
+      placeholder: hint,
+      icon: m.onSurfaceVariant,
+      trailingIcon: state.invalid ? dangerText(theme) : m.onSurfaceVariant,
+      // A card's bare field takes the caret in the text color (a card's edit row), the others the accent
+      caret: state.invalid ? dangerText(theme) : ghost ? m.onSurface : m.primary,
       iconSize: 24,
       clearSize: 24,
+      // A 48dp touch slot for a trailing icon
+      clearTarget: 48,
+      adornmentOffset: 0,
+      height,
+      // A card's bare field stands 21dp in, as a card's edit row; the others 14
+      gutter: ghost ? 21 : 14,
     }
   }
-  const height = theme.length(`--control-size-${size}`, 44)
-  const radius = pill ? height / 2 : theme.length(`--control-radius-${size}`, 10)
+  if (bar) {
+    // A Toolbar's search field (Toolbar.module.css, iOS 26 kit Search Top and Bottom): the bar's item height, the
+    // glass of its buttons, the bar's magnifier in the label color, its text Regular at the bar's label size
+    const gutter = theme.length("--toolbar-search-gutter", 10.54)
+    return {
+      box: {
+        minHeight: bar.height,
+        borderRadius: bar.height / 2,
+        paddingHorizontal: gutter,
+        borderCurve: "continuous",
+        opacity: state.disabled ? 0.5 : 1,
+      } as ViewStyle,
+      glass: true,
+      gap: theme.length("--toolbar-search-icon-gap", 6.43),
+      text: {
+        fontSize: theme.length("--toolbar-label-font-size", 17),
+        lineHeight: theme.length("--toolbar-label-line-height", 22),
+        color: theme.color("--input-text-color", theme.colors.text),
+      },
+      placeholder: theme.color("--toolbar-search-placeholder-color", theme.colors.textTertiary),
+      icon: theme.color("--color-text", theme.colors.text),
+      frame: null as FieldFrame | null,
+      trailingIcon: theme.color("--mobile-label-secondary"),
+      caret: theme.color("--color-background-accent-solid"),
+      iconSize: theme.length("--toolbar-search-icon-size", 23.75),
+      clearSize: 17 * 1.2,
+      clearTarget: theme.length("--input-clear-target-size", 44),
+      adornmentOffset: 0,
+      height: bar.height,
+      gutter,
+    }
+  }
+  const row = IOS_FIELD[size] ?? IOS_FIELD.md
+  const height = theme.length(`--control-size-${row.height}`, 44)
+  const radius = pill ? height / 2 : theme.length(`--control-radius-${row.radius}`, IOS_RADIUS[row.radius])
+  const gutter = startAdornment ? 11 : 14
   const border =
     variant === "outline"
       ? state.invalid
@@ -93,25 +250,33 @@ export function fieldLook(theme: Theme, { variant, size, pill }: { variant: Inpu
         ? theme.color("--input-border-color-invalid")
         : "transparent"
   return {
+    glass: false,
     box: {
       minHeight: height,
       borderRadius: radius,
       borderWidth: 1,
       borderColor: border,
       backgroundColor: variant === "soft" ? theme.color("--input-soft-background-color") : "transparent",
-      paddingHorizontal: theme.length(`--control-gutter-${size}`, 14) - 1,
+      // The CSS draws the line inside the box (an inset shadow); a border takes its 1 from the gutter
+      paddingHorizontal: gutter - 1,
       borderCurve: "continuous",
       opacity: state.disabled ? 0.5 : 1,
     } as ViewStyle,
-    gap: theme.length(`--input-gap-${size}`, 8),
-    text: { fontSize: theme.length(`--control-font-size-${size}`, 17), lineHeight: 22, color: theme.color("--input-text-color", theme.colors.text) },
+    gap: theme.length(`--input-gap-${row.gap}`, IOS_GAP[row.gap]),
+    text: { fontSize: 17, lineHeight: 22, color: theme.color("--input-text-color", theme.colors.text) },
     placeholder: theme.color("--input-placeholder-text-color", theme.colors.textTertiary),
     icon: theme.color("--mobile-label-secondary"),
     frame: null as FieldFrame | null,
     trailingIcon: theme.color("--mobile-label-secondary"),
     caret: theme.color("--color-background-accent-solid"),
     iconSize: 20,
-    clearSize: 17,
+    // xmark.circle.fill's 17pt circle: XCircleFilled draws its circle 20 of 24, so the glyph is 17 x 1.2
+    clearSize: 17 * 1.2,
+    clearTarget: theme.length("--input-clear-target-size", 44),
+    /** How far an adornment reaches into the gutter (`--input-adornment-offset` of the size table). */
+    adornmentOffset: row.adornmentOffset,
+    height,
+    gutter,
   }
 }
 
@@ -128,17 +293,21 @@ export function FieldOutline({ frame, cut }: { frame: FieldFrame | null; cut?: {
   if (!frame.outlined) return <View pointerEvents="none" style={[styles.underline, { height: frame.width, backgroundColor: frame.color }]} />
   const line = { borderWidth: frame.width, borderColor: frame.color, borderRadius: frame.radius }
   if (!cut) return <View pointerEvents="none" style={[StyleSheet.absoluteFill, line]} />
-  const end = typeof cut.width === "number" ? cut.start + cut.width : Animated.add(cut.start, cut.width)
+  // Yoga rounds each view's offset from its parent on its own: a window at 10.5px (4dp at 2.625) and its copy at
+  // -10.5px round to 11 and -10, a 1px step in the bottom line. On whole pixels the copies line up.
+  const depth = PixelRatio.roundToNearestPixel(CUT_DEPTH)
+  const start = PixelRatio.roundToNearestPixel(cut.start)
+  const end = typeof cut.width === "number" ? start + PixelRatio.roundToNearestPixel(cut.width) : Animated.add(start, cut.width)
   const back = typeof end === "number" ? -end : Animated.multiply(end, -1)
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      <View style={[styles.window, { start: 0, width: cut.start, top: 0, bottom: 0 }]}>
+      <View style={[styles.window, { start: 0, width: start, top: 0, bottom: 0 }]}>
         <View style={[styles.copy, line, { start: 0, end: FAR, top: 0, bottom: 0 }]} />
       </View>
-      <View style={[styles.window, { start: cut.start, end: 0, top: CUT_DEPTH, bottom: 0 }]}>
-        <View style={[styles.copy, line, { start: -cut.start, end: 0, top: -CUT_DEPTH, bottom: 0 }]} />
+      <View style={[styles.window, { start, end: 0, top: depth, bottom: 0 }]}>
+        <View style={[styles.copy, line, { start: -start, end: 0, top: -depth, bottom: 0 }]} />
       </View>
-      <Animated.View style={[styles.window, { start: end, end: 0, top: 0, height: CUT_DEPTH }]}>
+      <Animated.View style={[styles.window, { start: end, end: 0, top: 0, height: depth }]}>
         {/* Only its top line and the start of its corner show: it may run past the field's bottom */}
         <Animated.View style={[styles.copy, line, { start: back, end: 0, top: 0, bottom: FAR }]} />
       </Animated.View>
@@ -146,15 +315,147 @@ export function FieldOutline({ frame, cut }: { frame: FieldFrame | null; cut?: {
   )
 }
 
+/** Hands a node to a caller's ref, a callback or an object. */
+function passRef<T>(ref: Ref<T> | undefined, node: T | null) {
+  if (typeof ref === "function") ref(node)
+  else if (ref) (ref as { current: T | null }).current = node
+}
+
+/** The accent of a focused Android field: the accent blue, lighter in dark mode (the Plex accent text). */
+function focusAccent(theme: Theme): string {
+  return theme.scheme === "dark" ? theme.colors.textAccent : theme.material.primary
+}
+
+/** Android's ease-out quint, cubic-bezier(0.23, 1, 0.32, 1) (the easeOutQuint curve). */
+const EASE_OUT_QUINT = Easing.bezier(0.23, 1, 0.32, 1)
+
+/**
+ * Android's clear button of a search field, a 24dp cross kept in place and shown while the field has text. In a
+ * bar's search it fades in, grows from 0 and turns from 45° over 180ms, decelerating; in a screen's search field it
+ * fades in, grows from 0.4 and turns from 90° over 380ms, ease-out quint. At once with reduced motion. Hidden, its
+ * place is the field's: a tap there sets the caret in the field.
+ */
+function AndroidClear({
+  visible,
+  kind,
+  color,
+  target,
+  style,
+  onPress,
+  onHiddenPress,
+}: {
+  visible: boolean
+  kind: "bar" | "field"
+  color: string
+  target: number
+  style?: StyleProp<ViewStyle>
+  onPress: () => void
+  onHiddenPress: () => void
+}) {
+  const theme = useTheme()
+  const [shown] = useState(() => new Animated.Value(visible ? 1 : 0))
+  useEffect(() => {
+    const bar = kind === "bar"
+    Animated.timing(shown, {
+      toValue: visible ? 1 : 0,
+      duration: theme.reducedMotion ? 0 : bar ? 180 : 380,
+      easing: bar ? Easing.out(Easing.quad) : EASE_OUT_QUINT,
+      useNativeDriver: false,
+    }).start()
+  }, [visible, kind, shown, theme.reducedMotion])
+  const scale = kind === "bar" ? shown : shown.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] })
+  const rotate = shown.interpolate({ inputRange: [0, 1], outputRange: [kind === "bar" ? "45deg" : "90deg", "0deg"] })
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Clear"
+      accessibilityElementsHidden={!visible}
+      importantForAccessibility={visible ? "auto" : "no-hide-descendants"}
+      aria-hidden={visible ? undefined : true}
+      focusable={visible}
+      onPress={visible ? onPress : onHiddenPress}
+      style={[styles.clear, styles.clearStretch, { width: target, minHeight: target }, style]}
+    >
+      <Animated.View style={{ opacity: shown, transform: [{ scale }, { rotate }] }}>
+        <MaterialClose size={24} color={color} />
+      </Animated.View>
+    </Pressable>
+  )
+}
+
+/** Android's floating label: 16 at rest, scaled to 0.75 once it floats. */
+const LABEL = { rest: { fontSize: 16, lineHeight: 20 }, floated: { fontSize: 12, lineHeight: 16 } }
+
 /** A clipped copy of the outline reaches this far past its window, so only its own edges show. */
 const FAR = -2000
-/** The cut removes the top line only: deeper than the 2dp focused line. */
+/** The cut removes the top line only: deeper than the 2dp focused line (then snapped to the pixel grid). */
 const CUT_DEPTH = 4
 
-/** A single-line text field: Plex UI's Input. iOS 26 draws a 44pt field in 17pt type, Android Material 3's text field. */
+/** A single-line text field: Plex UI's Input. iOS 26 draws a 44pt field in 17pt type, Android an outlined field. */
 export function Input(props: InputProps) {
   return <InputField {...props} />
 }
+
+/** Where an adornment stands, for the button in it. */
+type AdornmentPlace = { side: "start" | "end"; row: boolean }
+const AdornmentContext = createContext<AdornmentPlace | null>(null)
+
+export type InputAdornmentButtonProps = Omit<PressableProps, "children" | "style"> & {
+  /** The icon, an element of `@plexui/react-native/icons`: it takes the button's color and size. */
+  children: ReactNode
+  /** Names the button for screen readers; an icon alone has no name. */
+  accessibilityLabel: string
+  /** A toggle's state (a password's visibility), read as selected. */
+  selected?: boolean
+  style?: StyleProp<ViewStyle>
+}
+
+/**
+ * A button in a field's adornment (a password's eye), as the web's `Input.AdornmentButton`: the icon in the tertiary
+ * text on its 44pt target. iOS: at a row's end a 19pt glyph whose ink keeps the row's edge, its target reaching past
+ * it and over the row's line; in a field the target stands at the field's edge. Android: a 24dp icon in the
+ * field's icon color on a 48dp target, as Android's field icons.
+ */
+export function InputAdornmentButton({ children, accessibilityLabel, selected, disabled, style, ...rest }: InputAdornmentButtonProps) {
+  const theme = useTheme()
+  const place = useContext(AdornmentContext)
+  const end = place?.side !== "start"
+  const android = theme.isAndroid
+  const target = android ? 48 : theme.length("--control-size-lg", 44)
+  const glyph = android ? 24 : place?.row ? 19 : 20
+  const reach = -(target - glyph) / 2
+  const line = theme.length("--field-row-label-line-height", 22)
+  return (
+    <Pressable
+      {...rest}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ selected, disabled: disabled ?? undefined }}
+      disabled={disabled}
+      style={({ pressed }) => [
+        styles.adornmentButton,
+        { width: target, height: target, opacity: pressed && !android ? 0.5 : disabled ? 0.5 : 1 },
+        end ? { marginEnd: reach } : { marginStart: reach },
+        place?.row && !android ? { marginVertical: (line - target) / 2 } : null,
+        style,
+      ]}
+    >
+      {({ pressed }) => (
+        <>
+          {/* Android's icon button: a 40dp circle of the icon's color at the pressed state's 10% */}
+          {android && pressed && !disabled ? (
+            <View pointerEvents="none" style={[styles.adornmentPressed, { backgroundColor: withAlpha(theme.material.onSurfaceVariant, stateLayer.pressed) }]} />
+          ) : null}
+          <IconDefaultsProvider size={glyph} color={android ? theme.material.onSurfaceVariant : theme.colors.textTertiary}>
+            {children}
+          </IconDefaultsProvider>
+        </>
+      )}
+    </Pressable>
+  )
+}
+
+Input.AdornmentButton = InputAdornmentButton
 
 type FieldExtras = { label?: ReactNode; required?: boolean }
 
@@ -177,6 +478,10 @@ export function InputField({
   onChangeText,
   onFocus,
   onBlur,
+  readOnly: readOnlyProp,
+  placeholderTextColor,
+  selectionColor,
+  cursorColor,
   ...rest
 }: InputProps & FieldExtras) {
   const theme = useTheme()
@@ -185,25 +490,104 @@ export function InputField({
   const text = value ?? own
   const filled = text.length > 0
   // A read-only field shows no clear button, as on the web
-  const readOnly = rest.readOnly === true
-  const look = fieldLook(theme, { variant, size, pill }, { focused, filled, disabled, invalid })
-  const floating = theme.isAndroid && label != null
+  const readOnly = readOnlyProp === true
+  // React Native takes `readOnly` over `editable` when both are set: one locked state feeds both, so
+  // `readOnly={false}` cannot unlock a disabled field
+  const locked = disabled || readOnly
+  const barField = useContext(BarFieldContext)
+  // At an iOS row's end the field is the row's value, as the web's field in a `[data-row]`: it fills the room after the
+  // label, with no frame (the row's error marks it invalid), its text at the end and the placeholder in the tertiary label
+  // (on Android it fills the room too, keeping its own field look)
+  const rowEnd = useContext(RowEndContext)
+  const fillsRow = rowEnd != null && !barField
+  const inRow = fillsRow && !theme.isAndroid
+  // The row's value stands at its end: the right, or the left in a right-to-left row (a phone turns "right" over
+  // itself, the web does not)
+  const { ref: textBox, rtl } = useRTL<ComponentRef<typeof View>>()
+  // The field's own handle, and a caller's ref passed through
+  const input = useRef<ComponentRef<typeof TextInput> | null>(null)
+  const callerRef = (rest as { ref?: Ref<ComponentRef<typeof TextInput>> }).ref
+  const setInput = useCallback(
+    (node: ComponentRef<typeof TextInput> | null) => {
+      input.current = node
+      passRef(callerRef, node)
+    },
+    [callerRef],
+  )
+  useEffect(() => {
+    if (!fillsRow || rowEnd == null) return
+    rowEnd.fill(true)
+    return () => rowEnd.fill(false)
+  }, [fillsRow, rowEnd])
+  // Android's search field: a filled field with a magnifier and no label, on a screen or a sheet; a field in a bar,
+  // in its own row or in a row under it, is the search of its bar
+  const search = theme.isAndroid && !barField && variant === "soft" && !!startAdornment && label == null
+  const barSearch = theme.isAndroid && !!barField
+  const androidGlass = useAndroidGlass("bar", barField?.canvas)
+  const fieldLookOf = fieldLook(
+    theme,
+    { variant, size, pill, startAdornment: !!startAdornment, bar: barField, label: label != null, search },
+    { focused, filled, disabled, invalid },
+  )
+  const look = barSearch
+    ? { ...fieldLookOf, box: { ...fieldLookOf.box, ...androidGlass } as ViewStyle }
+    : inRow
+    ? {
+        ...fieldLookOf,
+        box: { minHeight: theme.length("--field-row-label-line-height", 22), opacity: disabled ? 0.5 : 1 } as ViewStyle,
+        placeholder: theme.colors.labelTertiary,
+        text: { ...fieldLookOf.text, color: theme.colors.text },
+        adornmentOffset: 0,
+      }
+    : fieldLookOf
+  const floating = theme.isAndroid && label != null && !barField
   const outlined = variant === "outline"
   const [float] = useState(() => new Animated.Value(filled ? 1 : 0))
   const up = focused || filled
   useEffect(() => {
-    Animated.timing(float, { toValue: up ? 1 : 0, duration: theme.reducedMotion ? 0 : 150, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start()
+    // Android's label moves on a spring of stiffness 500 with no bounce (critically damped)
+    const motion = theme.reducedMotion
+      ? Animated.timing(float, { toValue: up ? 1 : 0, duration: 0, useNativeDriver: false })
+      : Animated.spring(float, { toValue: up ? 1 : 0, stiffness: 500, damping: 2 * Math.sqrt(500), mass: 1, overshootClamping: true, useNativeDriver: false })
+    motion.start()
   }, [up, float, theme.reducedMotion])
-  const m = theme.material
-  const labelColor = disabled ? withAlpha(m.onSurface, 0.38) : invalid ? m.error : focused ? m.primary : m.onSurfaceVariant
+  // Android's label is in the hint color at rest and in the accent while the field has focus
+  const labelColor = invalid ? dangerText(theme) : focused ? focusAccent(theme) : look.placeholder
   const showClear = !!onClear && filled && !disabled && !readOnly
-  // Compose places a 24dp icon in a 48dp slot at the field's edge (the icon 12 in) and the text 4 past the slot (52 in)
-  const sides: ViewStyle | null = theme.isAndroid ? { paddingStart: startAdornment ? 12 : 16, paddingEnd: endAdornment || showClear ? 12 : 16 } : null
-  const textStart = theme.isAndroid ? (startAdornment ? 52 : 16) : 0
-  // An outlined label floats to the field's start padding over the line (past a pill's round end), the cut 4 around it
-  const floatedStart = pill ? 28 : 16
+  // Android's search fields keep their clear button in place and show it with the text
+  const androidClear = (search || barSearch) && !!onClear && !disabled && !readOnly
+  // A 24dp icon stands 12 in, the text 12 past it (48 in); otherwise the text is 14 in (the outlined field), 21 in a
+  // card's bare field, or 20 in a bar's search field. Android's search field keeps its text 48 from the end
+  // (at a row's end the row sets the edge: a bare field keeps 14)
+  const edge = barField && !search ? 20 : fillsRow && variant === "ghost" ? 14 : look.gutter
+  const endEdge = search ? 48 : edge
+  const sides: ViewStyle | null = theme.isAndroid
+    ? { paddingStart: startAdornment ? 12 : edge, paddingEnd: endAdornment || showClear || androidClear ? 12 : endEdge }
+    : null
+  const textStart = theme.isAndroid ? (startAdornment ? 48 : edge) : 0
+  // An outlined label floats to the text's start over the line (past a pill's round end), the cut 4 around it
+  const floatedStart = pill ? look.height / 2 : 14
   const [labelWidth, setLabelWidth] = useState(0)
-  const cut = floating && outlined && look.frame ? { start: floatedStart - 4, width: float.interpolate({ inputRange: [0, 1], outputRange: [0, labelWidth + 8] }) } : null
+  // At rest the label stands where the text would
+  const labelRest = (look.height - LABEL.rest.lineHeight) / 2
+  const cut =
+    floating && outlined && look.frame
+      ? { start: floatedStart - 4, width: float.interpolate({ inputRange: [0, 1], outputRange: [0, PixelRatio.roundToNearestPixel(labelWidth + 8)] }) }
+      : null
+  // The clear button's own box is its touch target (44pt, 48dp): Android centers the 24dp icon in it where the 24dp
+  // slot stood (12 over either side); iOS stands its circle half the field's height from the end, concentric with a
+  // round end (Input.module.css), or keeps its box beside an end adornment
+  const clearMargin: ViewStyle = theme.isAndroid
+    ? { marginHorizontal: -(look.clearTarget - look.clearSize) / 2 }
+    : { marginEnd: endAdornment ? theme.length("--input-clear-target-offset", 0) : look.height / 2 - look.clearTarget / 2 - look.gutter }
+  // An adornment stands in a View of its own, centered on the field: a Button in it keeps its own `alignSelf`
+  // ("flex-start", for a column) to that View, not to the field's row, where it would rise to the top of a field taller
+  // than itself (an IconButton's 40dp in a 50dp field)
+  const adornment = (node: ReactNode, side: "start" | "end") => (
+    <View style={look.adornmentOffset ? (side === "start" ? { marginStart: look.adornmentOffset } : { marginEnd: look.adornmentOffset }) : null}>
+      <AdornmentContext.Provider value={side === "start" ? (inRow ? ROW_START : FIELD_START) : inRow ? ROW_END : FIELD_END}>{node}</AdornmentContext.Provider>
+    </View>
+  )
   const labelText = (
     <>
       {label}
@@ -211,14 +595,20 @@ export function InputField({
     </>
   )
   return (
-    <View style={[styles.box, look.box, { gap: look.gap }, sides, style]} testID={testID}>
+    <FieldBox
+      glass={look.glass}
+      raised={!!barField?.raised}
+      radius={look.height / 2}
+      style={[styles.box, look.box, { gap: look.gap }, sides, style]}
+      testID={testID}
+    >
       {theme.isAndroid ? <FieldOutline frame={look.frame} cut={cut} /> : null}
       {startAdornment ? (
         <IconDefaultsProvider size={look.iconSize} color={look.icon}>
-          {startAdornment}
+          {adornment(startAdornment, "start")}
         </IconDefaultsProvider>
       ) : null}
-      <View style={styles.grow}>
+      <View ref={textBox} style={styles.grow}>
         {floating ? (
           <>
             {outlined ? (
@@ -229,7 +619,7 @@ export function InputField({
                 importantForAccessibility="no-hide-descendants"
                 numberOfLines={1}
                 onLayout={(event) => setLabelWidth(event.nativeEvent.layout.width)}
-                style={[styles.measure, { fontSize: materialType.bodySmall.fontSize, lineHeight: materialType.bodySmall.lineHeight, ...theme.font("regular") }]}
+                style={[styles.measure, { fontSize: LABEL.floated.fontSize, lineHeight: LABEL.floated.lineHeight, ...theme.font("regular") }]}
               >
                 {labelText}
               </NativeText>
@@ -240,17 +630,17 @@ export function InputField({
                 styles.floating,
                 outlined
                   ? {
-                      top: float.interpolate({ inputRange: [0, 1], outputRange: [16, -materialType.bodySmall.lineHeight / 2] }),
+                      top: float.interpolate({ inputRange: [0, 1], outputRange: [labelRest, -LABEL.floated.lineHeight / 2] }),
                       start: float.interpolate({ inputRange: [0, 1], outputRange: [0, floatedStart - textStart] }),
                     }
-                  : { top: float.interpolate({ inputRange: [0, 1], outputRange: [16, 8] }) },
+                  : { top: float.interpolate({ inputRange: [0, 1], outputRange: [labelRest, 8] }) },
               ]}
             >
               <Animated.Text
                 style={{
                   color: labelColor,
-                  fontSize: float.interpolate({ inputRange: [0, 1], outputRange: [materialType.bodyLarge.fontSize, materialType.bodySmall.fontSize] }),
-                  lineHeight: float.interpolate({ inputRange: [0, 1], outputRange: [materialType.bodyLarge.lineHeight, materialType.bodySmall.lineHeight] }),
+                  fontSize: float.interpolate({ inputRange: [0, 1], outputRange: [LABEL.rest.fontSize, LABEL.floated.fontSize] }),
+                  lineHeight: float.interpolate({ inputRange: [0, 1], outputRange: [LABEL.rest.lineHeight, LABEL.floated.lineHeight] }),
                   ...theme.font("regular"),
                 }}
                 numberOfLines={1}
@@ -262,11 +652,16 @@ export function InputField({
         ) : null}
         <TextInput
           {...rest}
+          ref={setInput}
           accessibilityLabel={rest.accessibilityLabel ?? (typeof label === "string" ? label : undefined)}
+          accessibilityState={disabled ? { ...rest.accessibilityState, disabled: true } : rest.accessibilityState}
+          aria-disabled={disabled || rest["aria-disabled"] || undefined}
           aria-invalid={invalid || undefined}
           aria-required={required || undefined}
           value={text}
           onChangeText={(next) => {
+            // A disabled field takes no text, whatever reaches it (a paste, an autofill)
+            if (locked) return
             if (value === undefined) setOwn(next)
             onChangeText?.(next)
           }}
@@ -278,42 +673,69 @@ export function InputField({
             setFocused(false)
             onBlur?.(event)
           }}
-          editable={!disabled}
+          editable={!locked}
+          readOnly={locked}
           placeholder={floating && !up ? undefined : rest.placeholder}
-          placeholderTextColor={look.placeholder}
-          selectionColor={look.caret}
-          cursorColor={look.caret}
+          // A caller's own colors win over the platform's
+          placeholderTextColor={placeholderTextColor ?? look.placeholder}
+          selectionColor={selectionColor ?? look.caret}
+          cursorColor={cursorColor ?? look.caret}
           style={[
             styles.input,
             look.text,
             theme.font("regular"),
-            floating && !outlined ? { paddingTop: 24, paddingBottom: 8 } : { paddingVertical: theme.isAndroid ? 16 : 10 },
+            // A label floated inside the field (8 to 24) sets the text under it
+            floating && !outlined ? { paddingTop: 26, paddingBottom: 10 } : { paddingVertical: theme.isAndroid ? (look.height - look.text.lineHeight) / 2 : inRow ? 0 : 10 },
+            inRow ? { textAlign: Platform.OS === "web" && rtl ? "left" : "right" } : null,
           ]}
         />
       </View>
-      {showClear ? (
+      {androidClear ? (
+        <AndroidClear
+          visible={filled}
+          kind={barSearch ? "bar" : "field"}
+          color={look.trailingIcon}
+          target={look.clearTarget}
+          style={clearMargin}
+          onPress={() => {
+            if (value === undefined) setOwn("")
+            onChangeText?.("")
+            onClear?.()
+          }}
+          onHiddenPress={() => {
+            if (!locked) input.current?.focus()
+          }}
+        />
+      ) : showClear ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Clear"
-          hitSlop={theme.isAndroid ? 12 : 8}
           onPress={() => {
             if (value === undefined) setOwn("")
             onChangeText?.("")
             onClear()
           }}
-          style={styles.clear}
+          style={[styles.clear, { width: look.clearTarget, minHeight: look.clearTarget }, theme.isAndroid ? styles.clearStretch : null, clearMargin]}
         >
           {theme.isAndroid ? <MaterialCancel size={look.clearSize} color={look.trailingIcon} /> : <XCircleFilled size={look.clearSize} color={theme.color("--mobile-label-tertiary")} />}
         </Pressable>
       ) : null}
       {endAdornment ? (
         <IconDefaultsProvider size={look.iconSize} color={look.trailingIcon}>
-          {endAdornment}
+          {adornment(endAdornment, "end")}
         </IconDefaultsProvider>
       ) : null}
-    </View>
+    </FieldBox>
   )
 }
+
+/** The field's box: a View, or for a bar's search field the glass of the bar's buttons. */
+function FieldBox({ glass, raised, radius, ...rest }: ViewProps & { glass: boolean; raised: boolean; radius: number }) {
+  return glass ? <Glass radius={radius} elevation={raised ? "raised" : "regular"} {...rest} /> : <View {...rest} />
+}
+
+/** React Native Web's description link, which React Native's own types leave out. */
+type DescribedBy = { "aria-describedby"?: string }
 
 export type TextFieldProps = InputProps & {
   /** The field's name: over the field on iOS, floating inside it on Android. */
@@ -327,25 +749,35 @@ export type TextFieldProps = InputProps & {
 
 /**
  * A labelled text field: Plex UI's Field around an Input. iOS sets the label over the field (15/20 medium) and the
- * description or error under it (15/20, 4pt below, `--mobile-field-error-*`); Android is Material 3's text field with
- * its floating label and supporting text (Body S, 16dp in).
+ * description or error under it (15/20, 4pt below, `--mobile-field-error-*`); Android is the outlined field with its
+ * floating label (on the line of an outlined field) and the help under it (14, 14dp in).
  */
 export function TextField({ label, description, errorMessage, required, invalid, ...input }: TextFieldProps) {
   const theme = useTheme()
   const error = errorMessage != null && errorMessage !== false && errorMessage !== ""
   const bad = invalid || error
   const help = error ? errorMessage : description
+  // The help or the error describes the field: read after its label (a hint on a phone, `aria-describedby` on the
+  // web). A caller's own hint wins; its described-by ids are kept with this one.
+  const described = useDescription(help)
+  const describedBy = [(input as DescribedBy)["aria-describedby"], (described.props as DescribedBy)["aria-describedby"]].filter(Boolean).join(" ") || undefined
+  const describedProps = {
+    ...described.props,
+    ...(describedBy ? { "aria-describedby": describedBy } : null),
+    ...(input.accessibilityHint != null ? { accessibilityHint: input.accessibilityHint } : null),
+  }
   if (theme.isAndroid) {
-    const m = theme.material
-    const small = materialType.bodySmall
     return (
       <View style={styles.field}>
-        <InputField {...input} label={label} required={required} invalid={bad} />
+        <InputField {...input} {...describedProps} label={label} required={required} invalid={bad} />
         {help != null ? (
+          // Android's help under a field: 14 in the gray of secondary text, or in the error color, at the text's 14
+          // (dimmed with a disabled field)
           <Text
-            color={input.disabled ? withAlpha(m.onSurface, 0.38) : bad ? m.error : m.onSurfaceVariant}
+            nativeID={described.id}
+            color={bad ? dangerText(theme) : theme.colors.textSecondary}
             accessibilityLiveRegion={error ? "polite" : undefined}
-            style={{ fontSize: small.fontSize, lineHeight: small.lineHeight, paddingHorizontal: 16, paddingTop: 4 }}
+            style={{ fontSize: 14, lineHeight: 18, paddingHorizontal: 14, paddingTop: 6, opacity: input.disabled ? 0.5 : 1 }}
           >
             {help}
           </Text>
@@ -359,9 +791,16 @@ export function TextField({ label, description, errorMessage, required, invalid,
         {label}
         {required ? <Text color={theme.color("--color-text-danger")}> *</Text> : null}
       </Text>
-      <InputField {...input} accessibilityLabel={input.accessibilityLabel ?? (typeof label === "string" ? label : undefined)} required={required} invalid={bad} />
+      <InputField
+        {...input}
+        {...describedProps}
+        accessibilityLabel={input.accessibilityLabel ?? (typeof label === "string" ? label : undefined)}
+        required={required}
+        invalid={bad}
+      />
       {help != null ? (
         <Text
+          nativeID={described.id}
           color={bad ? theme.color("--color-text-danger") : "secondary"}
           accessibilityLiveRegion={error ? "polite" : undefined}
           style={{ fontSize: theme.length("--mobile-field-error-font-size", 15), lineHeight: theme.length("--mobile-field-error-line-height", 20), marginTop: theme.length("--mobile-field-error-offset", 4) - 8 }}
@@ -373,15 +812,25 @@ export function TextField({ label, description, errorMessage, required, invalid,
   )
 }
 
+const FIELD_START: AdornmentPlace = { side: "start", row: false }
+const FIELD_END: AdornmentPlace = { side: "end", row: false }
+const ROW_START: AdornmentPlace = { side: "start", row: true }
+const ROW_END: AdornmentPlace = { side: "end", row: true }
+
 const styles = StyleSheet.create({
+  adornmentButton: { alignItems: "center", justifyContent: "center" },
+  // Centered in the 48dp target
+  adornmentPressed: { position: "absolute", top: 4, start: 4, width: 40, height: 40, borderRadius: 20 },
   box: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
   grow: { flex: 1, minWidth: 0, justifyContent: "center" },
-  input: { margin: 0, padding: 0, outlineWidth: 0, minWidth: 0 },
+  // On the web a zero width leaves Chrome's `auto` focus ring drawn round the text: the field shows its focus itself
+  input: { margin: 0, padding: 0, outlineWidth: 0, outlineStyle: "none" as "solid", minWidth: 0 },
   floating: { position: "absolute", start: 0, maxWidth: "100%", flexDirection: "row" },
   measure: { position: "absolute", start: 0, top: 0, opacity: 0 },
   underline: { position: "absolute", left: 0, right: 0, bottom: 0 },
   window: { position: "absolute", overflow: "hidden" },
   copy: { position: "absolute" },
-  clear: { alignItems: "center", justifyContent: "center", minWidth: 24, alignSelf: "stretch" },
+  clear: { alignItems: "center", justifyContent: "center" },
+  clearStretch: { alignSelf: "stretch" },
   field: { alignSelf: "stretch" },
 })

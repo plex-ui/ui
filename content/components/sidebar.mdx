@@ -1,6 +1,6 @@
 ---
 title: Sidebar
-description: Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
+description: "A navigation sidebar for an app shell that folds to an icon rail and becomes a drawer on a phone."
 metaDescription: Composable React navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
 ---
 
@@ -25,9 +25,6 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 ## Examples
 
-The examples use local `ResponsiveSidebarProvider`, `ResponsiveSidebar` and `SidebarDemoPage` helpers from [Responsive composition](#responsive-composition). They keep the desktop rail and use the existing `SidebarMobile` drawer with a `Page` toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone. On a phone the examples leave out the controls that only change the desktop sidebar, `open`, `collapsible` and `labelSize`: the drawer is the same with each of them.
-
-
 {/* The examples App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions and Search Input
     are the settings of the Overview (owner 16.11: «Sidebar: Overview плюс Mobile Menu»); their anchors stay */}
 <span id="app-shell" />
@@ -40,7 +37,12 @@ The examples use local `ResponsiveSidebarProvider`, `ResponsiveSidebar` and `Sid
 
 ### Overview
 
-<ComponentPreview phonePresentation="screen" details={<>Use <code>variant</code> for the look of the whole shell: <code>"app"</code> is the sidebar of a product, 260px, pill rows on a grey ground and a page with no inset. <code>collapsible</code> sets how the sidebar folds, to an icon rail or off the canvas, and <code>open</code> folds it (or press <kbd>⌘B</kbd>). Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. <code>labelSize</code> sets the group labels, <code>icons</code> the icons of the rows (a sidebar without them does not fold to a rail).<br /><br /><code>badges</code> puts a <code>Badge</code> in <code>SidebarMenuBadge</code>: it sits as far from the row's edge as from its top and bottom, its digits end where plain counts and the chevron end, and in the folded rail it becomes a dot of its color above the icon. <code>submenus</code> turns Settings into a row with a submenu: a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it. Set <code>--sidebar-menu-sub-max-height</code> to a submenu's real height for an even fold. <code>search</code> adds a <code>SidebarInput</code>, an <code>Input</code> with a search icon that takes every Input prop, and narrows the rows to the ones that match. <code>footer</code> holds a dismissible <code>SidebarCard</code> or a person row whose <code>Menu</code> opens above it; the person row is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. <code>bordered</code> sets the inset page of the default variant against a flat one.<br /><br />On a phone the toolbar opens the same navigation tree in a full-screen drawer, so the Phone view leaves out <code>collapsible</code>, <code>open</code> and <code>labelSize</code>.</>} code={`// Inside the provider: a folded icon rail shows no submenu (its rows would be clipped and still focusable)
+<ComponentPreview phonePresentation="screen" details={<>
+  <p>The examples use local <code>ResponsiveSidebarProvider</code>, <code>ResponsiveSidebar</code> and <code>SidebarDemoPage</code> helpers from <a href="#responsive-composition">Responsive composition</a>. They keep the desktop rail and use the existing <code>SidebarMobile</code> drawer with a <code>Page</code> toolbar on phones. The mobile presentation is a navigation adaptation, not an iPad sidebar squeezed into a phone.</p>
+  <p>Use <code>variant</code> for the look of the whole shell: <code>"app"</code> is the sidebar of a product, 260px, pill rows on a grey ground and a page with no inset. <code>collapsible</code> sets how the sidebar folds, to an icon rail or off the canvas, and <code>open</code> folds it (or press <kbd>⌘B</kbd>). Rows keep their place as it folds, the labels fade, and along the rail the next tooltip opens at once. <code>labelSize</code> sets the group labels, <code>icons</code> the icons of the rows (a sidebar without them does not fold to a rail).</p>
+  <p><code>badges</code> puts a <code>Badge</code> in <code>SidebarMenuBadge</code>: it sits as far from the row's edge as from its top and bottom, its digits end where plain counts and the chevron end, and in the folded rail it becomes a dot of its color above the icon. <code>submenus</code> turns Settings into a row with a submenu: a <code>SidebarMenuItem</code> whose <code>SidebarMenuSub</code> holds the next level; <code>expanded</code> on the item turns its <code>SidebarMenuChevron</code> and <code>open</code> on the submenu shows it. Set <code>--sidebar-menu-sub-max-height</code> to a submenu's real height for an even fold. <code>search</code> adds a <code>SidebarInput</code>, an <code>Input</code> with a search icon that takes every Input prop, and narrows the rows to the ones that match. <code>footer</code> holds a dismissible <code>SidebarCard</code> or a person row whose <code>Menu</code> opens above it; the person row is 40px tall, so the round end of its highlight is concentric with the avatar on the icons' axis. <code>bordered</code> sets the inset page of the default variant against a flat one.</p>
+  <p>On a phone the toolbar opens the same navigation tree in a full-screen drawer, so the Phone view leaves out <code>collapsible</code>, <code>open</code> and <code>labelSize</code>.</p>
+</>} code={`// Inside the provider: a folded icon rail shows no submenu (its rows would be clipped and still focusable)
 function SettingsItem({ icons, shown, onToggle, children }) {
   const { state, isMobile } = useSidebar()
   const expanded = shown && (state !== "collapsed" || isMobile)

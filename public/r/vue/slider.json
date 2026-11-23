@@ -3,7 +3,7 @@
   "name": "slider",
   "type": "registry:ui",
   "title": "Slider",
-  "description": "Slider for fine-tuning numeric values with single or range thumbs, marks, an editable value input, and vertical orientation.",
+  "description": "\"A slider for choosing a number or a range on a scale, with marks and a value that can be typed.\"",
   "dependencies": [
     "@plexui/vue"
   ],

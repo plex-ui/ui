@@ -3,7 +3,7 @@
   "name": "accordion",
   "type": "registry:ui",
   "title": "Accordion",
-  "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time and full keyboard navigation.",
+  "description": "Vertically stacked panels that expand to reveal content, with one or several items open at a time.",
   "dependencies": [
     "@plexui/vue"
   ],

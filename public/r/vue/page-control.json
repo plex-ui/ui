@@ -3,7 +3,7 @@
   "name": "page-control",
   "type": "registry:ui",
   "title": "Page Control",
-  "description": "A row of dots, one for each page, the current one solid, that shows where a person is in a flat list of pages and moves between them, as the iOS 26 page control does.",
+  "description": "\"A row of dots, one per page, that shows where a person is in a flat list of pages and moves between them.\"",
   "dependencies": [
     "@plexui/vue"
   ],

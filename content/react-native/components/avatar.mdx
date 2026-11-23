@@ -1,93 +1,93 @@
 ---
 title: Avatar
-description: A person or an entity in a circle, with an initial, a picture, a symbol or an overflow count on a soft or solid fill, and AvatarGroup for overlapping stacks; drawn alike on iOS and Android.
+description: A person or an entity in a circle, with an initial, a picture, a symbol or a count, alone or in a group.
+metaDescription: A person or an entity in a circle, with an initial, a picture, a symbol or an overflow count on a soft, solid or gradient fill, and AvatarGroup for overlapping stacks; drawn alike on iOS and Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `import { User } from "@plexui/react-native/icons"
+export const overviewCode = `import { Avatar } from "@plexui/react-native"
+import { Robot } from "@plexui/react-native/icons"
 
-<Avatar name="Ada Lovelace" color="info" size={40} />
-<Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260…" size={40} />
-<Avatar Icon={User} color="discovery" size={40} accessibilityLabel="Guest" />
-<Avatar overflowCount={12} size={40} />`
+const [type, setType] = useState("text") // "text", "image", "icon" or "overflow": which of the props below it sets
+const [overflowCount, setOverflowCount] = useState(9)
+const [size, setSize] = useState(48)
+const [color, setColor] = useState("secondary")
+const [variant, setVariant] = useState("soft") // "soft", "solid" or "gradient"
+const [onPress, setOnPress] = useState(false)
 
-export const colorsCode = `const COLORS = ["secondary", "primary", "success", "info", "discovery", "danger"]
+<Avatar
+  name={type === "icon" ? "Tech support" : type === "overflow" ? \`\${overflowCount} more\` : "Tyler"}
+  imageUrl={type === "image" ? "https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" : undefined}
+  Icon={type === "icon" ? Robot : undefined}
+  overflowCount={type === "overflow" ? overflowCount : undefined}
+  size={size}
+  color={color}
+  variant={variant}
+  onPress={onPress ? saySup : undefined}
+/>`
 
-{COLORS.map((color) => <Avatar key={color} name={color} color={color} size={40} />)}
-{COLORS.map((color) => <Avatar key={color} name={color} color={color} variant="solid" size={40} />)}`
+export const groupCode = `import { Avatar, AvatarGroup } from "@plexui/react-native"
+import { Robot } from "@plexui/react-native/icons"
 
-export const sizesCode = `<Avatar name="Grace" color="primary" size={24} />
-<Avatar name="Grace" color="primary" />
-<Avatar name="Grace" color="primary" size={40} />
-<Avatar name="Grace" color="primary" size={56} />
-<Avatar name="Grace" color="primary" size={72} />`
+const [size, setSize] = useState(42)
 
-export const asButtonCode = `const [count, setCount] = useState(0)
-
-<Avatar name="Grace Hopper" color="primary" size={56} onPress={() => setCount((n) => n + 1)} />
-<Text variant="footnote" color="secondary">Presses: {count}</Text>`
-
-export const groupCode = `<AvatarGroup size={36}>
-  <Avatar name="Ada" color="info" />
-  <Avatar name="Grace" color="success" />
-  <Avatar name="Linus" color="discovery" />
-  <Avatar overflowCount={4} />
-</AvatarGroup>
-
-<AvatarGroup>
-  <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260…" />
-  <Avatar name="Margaret" color="primary" variant="solid" />
-  <Avatar overflowCount={128} />
+<AvatarGroup size={size}>
+  <Avatar name="Tyler" imageUrl="https://gravatar.com/avatar/9531b260b9693f3394bea8646c6ea141ce58fe5a138b7db7729d60a4c5dde552" />
+  <Avatar name="Jane" color="primary" variant="solid" />
+  <Avatar name="Tech support" Icon={Robot} variant="solid" />
+  <Avatar overflowCount={5} />
 </AvatarGroup>`
 
 <UsageBlock>{`import { Avatar, AvatarGroup } from "@plexui/react-native"`}</UsageBlock>
 
-The props follow `@plexui/ui`'s Avatar. Neither iOS nor Android has an avatar control of its own, so both platforms draw the Plex avatar from the same tokens: the initial at half the size in semibold, a picture with a hairline border inside its edge, and the semantic colors of the soft and solid fills. In a group, each avatar is cut out of the one before it by a 3pt ring of the surface: `--color-surface` on iOS, Material's `surface` on Android.
-
 ## Examples
+
+<span id="colors" />
+<span id="sizes" />
+<span id="as-a-button" />
 
 ### Overview
 
-Without other props an avatar shows the first letter of `name`. `imageUrl` puts a picture over it; while the picture loads, or when it fails, the initial stays. `Icon` shows a symbol instead of the initial, and `overflowCount` shows `+N`.
+<ComponentPreview details={<>
+  <p>The props follow <code>@plexui/ui</code>'s Avatar. Both platforms draw the Plex avatar from the same tokens: the initial at half the size in semibold, a picture with a hairline border inside its edge, and the semantic colors of the soft and solid fills. React Native adds a third fill, <code>gradient</code>.</p>
+  <p>An avatar shows one of four things. Without other props it shows the first letter of <code>name</code>. With <code>imageUrl</code>, an absolute URL, it shows the picture over the initial, and the initial stays while it loads or if it fails. With <code>Icon</code>, an icon component such as <code>Robot</code> from <code>@plexui/react-native/icons</code>, it shows the symbol at 70% of the size, as the web's; <code>name</code> is not shown, and only names the avatar for screen readers. With <code>overflowCount</code> it shows the count, formatted (+1k) and scaled to fit.</p>
+  <p><code>size</code> sets the width and height in points, and the initial, symbol and count scale with it; without it an avatar is 28. <code>color</code> and <code>variant</code> style every avatar except a loaded picture, which covers them. <code>onPress</code> makes the avatar a button, named by its <code>name</code>, that dims while pressed. iOS and Android draw the same avatar.</p>
+  <p><code>variant="gradient"</code> draws the avatar as a circle with a top-to-bottom gradient in one of seven colors (red, orange, violet, green, cyan, blue, pink) and up to two white initials in Medium: the first letters of the first and the last word of <code>name</code>. A <code>secondary</code> avatar takes its gradient from the name, the same each time; the other colors take the nearest one (<code>danger</code> red, <code>discovery</code> violet, <code>success</code> green, <code>info</code> and <code>primary</code> blue). A count keeps the soft fill. It draws the same on both platforms.</p>
+  <p>An avatar is always a circle, as avatars are on both platforms: the React page's <code>roundness</code> is a Tailwind class on the web avatar, and a React Native avatar has no such setting (a <code>style</code> radius would square the fill but not the picture), so this example does not offer it.</p>
+</>} code={overviewCode} previewMinHeight={228}>
+  <RNExample demo="avatar/Overview" />
+</ComponentPreview>
 
-<RNPreview demo="avatar/Overview" code={overviewCode} />
+## AvatarGroup
 
-### Colors
+<span id="group" />
 
-Six semantic colors, each with a soft and a solid fill.
+<ComponentPreview details={<>
+  <p>Put <code>Avatar</code>s inside an <code>AvatarGroup</code>: they overlap, each cutting the next one out by a 3 point ring of the screen's background, and an <code>overflowCount</code> avatar counts the rest. <code>size</code> on the group sets the size of every avatar in it that sets none of its own.</p>
+  <p>The first avatar lies on top and each cuts the next one out by a ring of the screen's background, as the web group's default <code>stack="start"</code>; a React Native group has no <code>stack</code>, so this example does not offer it. On a card, pass the card's color as <code>cutoutColor</code>.</p>
+</>} code={groupCode} previewMinHeight={168}>
+  <RNExample demo="avatar/Group" bare />
+</ComponentPreview>
 
-<RNPreview demo="avatar/Colors" code={colorsCode} />
+## Platforms
 
-### Sizes
-
-`size` sets the width and height in points; the initial, symbol and count scale with it. The default is 28.
-
-<RNPreview demo="avatar/Sizes" code={sizesCode} />
-
-### As a button
-
-`onPress` makes the avatar a button, named by `name` for screen readers. It dims while pressed.
-
-<RNPreview demo="avatar/AsButton" code={asButtonCode} />
-
-### Group
-
-`AvatarGroup` overlaps its avatars and gives each one its `size`. Put an avatar with `overflowCount` last for the people the group does not show.
-
-<RNPreview demo="avatar/Group" code={groupCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: drawn as in Contacts | None: drawn as in Google Contacts |
+| Look | An initial or a picture in a circle, groups cut out of each other | The same circles, cut out in the screen's background |
 
 ## API
 
 ### Avatar
 
 <PropsTable data={[
-  { prop: "name", type: "string", description: "The person's name: its first letter is the placeholder, and it names the avatar for screen readers" },
-  { prop: "imageUrl", type: "string", description: "A picture over the placeholder; when it fails to load, the placeholder stays" },
-  { prop: "color", type: '"primary" | "secondary" | "success" | "info" | "discovery" | "danger"', default: '"secondary"', description: "Semantic color of the fill and the initial" },
-  { prop: "variant", type: '"soft" | "solid"', default: '"soft"', description: "Fill style" },
+  { prop: "name", type: "string", description: "Display name: its first letter is the initial, and it names the avatar for screen readers" },
+  { prop: "imageUrl", type: "string", description: "Absolute URL of a picture over the initial; when it fails to load, the initial stays" },
+  { prop: "Icon", type: "ComponentType<IconProps>", description: "A symbol instead of the initial, at 70% of the size" },
   { prop: "size", type: "number", default: "28", description: "Width and height in points" },
-  { prop: "Icon", type: "ComponentType<IconProps>", description: "A symbol instead of the initial, at 60% of the size" },
+  { prop: "color", type: '"primary" | "secondary" | "success" | "info" | "discovery" | "danger"', default: '"secondary"', description: "Semantic color of the fill and the initial" },
+  { prop: "variant", type: '"soft" | "solid" | "gradient"', default: '"soft"', description: "Fill style: gradient is a gradient of one of seven colors with up to two white initials" },
   { prop: "overflowCount", type: "number", description: "Shows +N for the people a group does not show; large counts are compact (+1k)" },
   { prop: "onPress", type: "() => void", description: "Makes the avatar a button named by name" },
   { prop: "accessibilityLabel", type: "string", description: "Name for screen readers; defaults to name" },
@@ -98,8 +98,9 @@ Six semantic colors, each with a soft and a solid fill.
 ### AvatarGroup
 
 <PropsTable data={[
-  { prop: "children", type: "ReactNode", description: "The avatars, first one at the start" },
+  { prop: "children", type: "ReactNode", description: "The avatars, the first on top, each over the one after it" },
   { prop: "size", type: "number", default: "28", description: "The size of every Avatar in the group that sets none of its own" },
+  { prop: "cutoutColor", type: "string", description: "The ring that cuts each avatar out of the next one: the color the group stands on. Defaults to the screen's background" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the row" },
 ]} />

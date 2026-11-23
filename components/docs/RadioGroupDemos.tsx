@@ -180,9 +180,9 @@ export function RadioGroupWithFieldErrorDemo() {
               description="Select a plan to continue."
               footer={showError ? <FieldError id={errorId}>Please select a subscription plan.</FieldError> : undefined}
             >
-              <Field row label="Monthly ($9.99/month)"><RadioGroup.Item value="monthly" /></Field>
-              <Field row label="Yearly ($99.99/year)"><RadioGroup.Item value="yearly" /></Field>
-              <Field row label="Lifetime ($299.99)"><RadioGroup.Item value="lifetime" /></Field>
+              <Field row label="Pay monthly" description="$9.99/month"><RadioGroup.Item value="monthly" /></Field>
+              <Field row label="Pay yearly" description="$99.99/year"><RadioGroup.Item value="yearly" /></Field>
+              <Field row label="Pay once" description="$299.99 for lifetime access"><RadioGroup.Item value="lifetime" /></Field>
             </FieldGroup>
           </RadioGroup>
         </PhoneRowsStage>
@@ -202,9 +202,9 @@ export function RadioGroupWithFieldErrorDemo() {
                   aria-label="Subscription plan"
                   {...fieldProps}
                 >
-                  <RadioGroup.Item value="monthly">Monthly ($9.99/month)</RadioGroup.Item>
-                  <RadioGroup.Item value="yearly">Yearly ($99.99/year)</RadioGroup.Item>
-                  <RadioGroup.Item value="lifetime">Lifetime ($299.99)</RadioGroup.Item>
+                  <RadioGroup.Item value="monthly" description="$9.99/month">Pay monthly</RadioGroup.Item>
+                  <RadioGroup.Item value="yearly" description="$99.99/year">Pay yearly</RadioGroup.Item>
+                  <RadioGroup.Item value="lifetime" description="$299.99 for lifetime access">Pay once</RadioGroup.Item>
                 </RadioGroup>
               )}
             </Field>
@@ -276,18 +276,18 @@ export function RadioGroupChoiceCardDemo() {
 
 export function RadioGroupCardSelectionDemo() {
   return (
-    <RadioGroup className="flex-col w-full min-w-0 max-w-[390px] gap-4" onChange={() => { }} aria-label="Sample options">
+    <RadioGroup className="flex-col w-full min-w-0 max-w-[390px] gap-4" onChange={() => { }} aria-label="Plan">
       <RadioGroup.Item className="gap-2.5" value="basic">
         <div>
-          <h4 className="font-semibold mb-1">Basic Plan</h4>
+          <h4 className="font-semibold mb-1">Basic plan</h4>
           <p className="text-secondary text-sm">5 GB storage • Email support • Free</p>
         </div>
       </RadioGroup.Item>
       <hr className="border-default" />
       <RadioGroup.Item className="gap-2.5" value="standard">
         <div>
-          <h4 className="font-semibold mb-1">Standard Plan</h4>
-          <p className="text-secondary text-sm">100 GB storage • Priority email support • $9.99/m</p>
+          <h4 className="font-semibold mb-1">Standard plan</h4>
+          <p className="text-secondary text-sm">100 GB storage • Priority email support • $9.99/month</p>
         </div>
       </RadioGroup.Item>
       <hr className="border-default" />
@@ -303,7 +303,7 @@ export function RadioGroupCardSelectionDemo() {
         <Tooltip.Trigger>
           <RadioGroup.Item className="gap-2.5" value="enterprise" disabled>
             <div>
-              <h4 className="font-semibold mb-1">Enterprise Plan</h4>
+              <h4 className="font-semibold mb-1">Enterprise plan</h4>
               <p className="text-secondary text-sm">
                 Unlimited storage • 24/7 phone support • Custom pricing
               </p>

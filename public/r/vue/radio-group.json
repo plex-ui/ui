@@ -3,7 +3,7 @@
   "name": "radio-group",
   "type": "registry:ui",
   "title": "Radio Group",
-  "description": "Radio group for single-choice selection with row or column layout, right-aligned indicators, rich item content, and card-style options.",
+  "description": "\"A group of options from which a person chooses exactly one, as a list, a row, cards or settings rows.\"",
   "dependencies": [
     "@plexui/vue"
   ],

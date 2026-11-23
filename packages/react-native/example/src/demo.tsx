@@ -1,6 +1,12 @@
 import { Text, useTheme } from "@plexui/react-native"
+import { DotsHorizontal, DotsVertical } from "@plexui/react-native/icons"
 import type { ReactNode } from "react"
 import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+
+/** The More icon of the platform: the horizontal dots of iOS, the vertical ones of Android (Material). */
+export function MoreIcon() {
+  return useTheme().isAndroid ? <DotsVertical /> : <DotsHorizontal />
+}
 
 /** A titled block of a screen of the gallery. */
 export function Section({ title, note, children, testID }: { title: string; note?: string; children?: ReactNode; testID?: string }) {

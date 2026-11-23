@@ -3,7 +3,7 @@
   "name": "data-table",
   "type": "registry:ui",
   "title": "Data Table",
-  "description": "\"Table of your data on TanStack Table v8, with sorting, pagination, filtering, row selection, column visibility and cell helpers.\"",
+  "description": "\"Table of your data on TanStack Table v8, with sorting, pagination, filtering and row selection.\"",
   "dependencies": [
     "@plexui/vue"
   ],

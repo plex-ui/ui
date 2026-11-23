@@ -346,6 +346,10 @@ description: …
 
 Diff any new page against `card.mdx` / `separator.mdx` before shipping. Full record: [`.memory/decisions/0007-mdx-component-page-structure.md`](.memory/decisions/0007-mdx-component-page-structure.md)
 
+Keep the header short, so the first example is near the top: `description` is one sentence of about 110 characters at most (a longer SEO text goes in `metaDescription`), at most one sentence follows the `<UsageBlock>`, and `## Examples` goes straight to `### Overview`. Guidance on when and how to use the component is the first paragraph of the Overview's `details`. A pattern page without a `<UsageBlock>` (Forms: Auth, Forms: Settings) keeps one intro paragraph (what it shows and its links); notes on shared helpers, surfaces and state go in a `## Notes` section at the end.
+
+React Native pages (`content/react-native/components/*.mdx`) take the same skeleton without `## Styling`, plus `## Platforms` right before `## API`: a table of the component's native name and look on iOS 26 and Android, and a sentence or two where a name clashes between them (Android's Navigation bar is the Tab Bar, iOS's is the top Toolbar). The React Native index keeps the full table of names.
+
 ---
 
 ## No inline code (backticks) in headings

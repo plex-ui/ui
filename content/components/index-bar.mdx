@@ -1,6 +1,6 @@
 ---
 title: Index Bar
-description: "The section index of a phone list: a column of letters at the trailing edge that jumps to a section under the finger, as the iOS section index does. Desktop lists have no index, so an index bar never renders from 768px up."
+description: "The section index of a phone list: a column of letters at its trailing edge that jumps to a section."
 metaDescription: "React phone section index in the iOS style: a column of letters at the trailing edge of a list that jumps to a section on a press and moves through the sections while dragging, one slider for assistive technology."
 ---
 
@@ -8,15 +8,15 @@ import { IndexBarOverviewDemo } from "@/components/docs/IndexBarDemos"
 
 <UsageBlock>{`import { IndexBar } from "@plexui/ui/components/IndexBar";`}</UsageBlock>
 
-An index bar takes people through a long list that is sorted by its titles, such as countries or contacts, as the iOS section index does: a letter for each section down the trailing edge, and a press or a drag on a letter shows its section. Give a list one only when it is long and its sections are its letters. A desktop list has no index, so the bar renders under 768px only.
-
 ## Examples
-
-The example shows the phone view.
 
 ### Overview
 
-<ComponentPreview phoneOnly details={<>Put the bar in a <code>Page</code>, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as iOS centres its index, its letters semibold, 13.79px apart and centred about 7.4px from the edge, where iOS 27.2 centres its own, in the info color, as iOS 27.2 draws its index and its tint. A drag highlights nothing, as on iOS. The rows keep the margins of the list, and the letters sit in the trailing one, as in Contacts. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; <code>onSelect</code> receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.</>} code={`const content = useRef<HTMLDivElement>(null)
+<ComponentPreview phoneOnly details={<>
+  <p>An index bar takes people through a long list that is sorted by its titles, such as countries or contacts, as the iOS section index does: a letter for each section down the trailing edge, and a press or a drag on a letter shows its section. Give a list one only when it is long and its sections are its letters. A desktop list has no index, so the bar renders under 768px only.</p>
+  <p>The example shows the phone view.</p>
+  <p>Put the bar in a <code>Page</code>, or in any positioned container that holds the list: it runs down the trailing edge, centred between the bars of a Page (or the safe areas), as iOS centres its index, its letters semibold, 13.79px apart and centred about 7.4px from the edge, where iOS 27.2 centres its own, in the info color, as iOS 27.2 draws its index and its tint. A drag highlights nothing, as on iOS. The rows keep the margins of the list, and the letters sit in the trailing one, as in Contacts. A press shows the section of the letter under the finger, and a drag moves through the sections letter by letter; <code>onSelect</code> receives the title and its index, and the list scrolls itself there. Where the letters do not fit, as in a short sheet, every other letter gives way to a dot, as UIKit&apos;s index does, and a drag over a dot still reaches the letters behind it.</p>
+</>} code={`const content = useRef<HTMLDivElement>(null)
 
 <Page surface="grouped">
   <Toolbar>

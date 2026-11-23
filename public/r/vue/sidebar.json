@@ -3,7 +3,7 @@
   "name": "sidebar",
   "type": "registry:ui",
   "title": "Sidebar",
-  "description": "Composable navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu",
+  "description": "\"A navigation sidebar for an app shell that folds to an icon rail and becomes a drawer on a phone.\"",
   "dependencies": [
     "@plexui/vue"
   ],

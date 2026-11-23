@@ -6,6 +6,9 @@ export type { ColorScheme, TokenValue }
 /** The interface a component draws: iOS 26 or Material 3. */
 export type PlatformStyle = "ios" | "android"
 
+/** The on color of Switch, Checkbox and RadioGroup: the Plex primary (the ink, or a brand's) or the platform's accent. */
+export type SelectionColor = "primary" | "accent"
+
 export type FontWeightName = "regular" | "medium" | "semibold" | "bold"
 
 /**
@@ -104,6 +107,8 @@ export type Theme = {
   platform: PlatformStyle
   isIOS: boolean
   isAndroid: boolean
+  /** The on color of selection controls (`ThemeProvider`'s `selectionColor`). */
+  selectionColor: SelectionColor
   reducedMotion: boolean
   /** A token resolved for the scheme: a color string, a length in px, a time in ms, a number or text. */
   token(name: string): TokenValue | undefined

@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { compact, toast } from '@plexui/vue/components/Toast';
 import { VuePreview } from '../VuePreview';
 import { VueDemo } from './VueDemo';
-import { TOAST_LONG_DESCRIPTION, TOAST_MESSAGES } from '../toastMessages';
+import { TOAST_MESSAGES } from '../toastMessages';
 
 // A Vue template reads values from its setup scope, and MDX cannot pass functions to a client component: the
 // Overview's button calls `show(...)` with the settings chosen, so `show` (with `toast`, `compact`, the messages and
@@ -28,7 +28,7 @@ type OverviewSettings = {
 const show = ({ type, icon, description, action, closeButton, compact: centered, persistent }: OverviewSettings) => {
   const message = TOAST_MESSAGES[type === 'promise' ? 'default' : type];
   const options = {
-    description: description === 'none' ? undefined : description === 'short' ? message.description : TOAST_LONG_DESCRIPTION,
+    description: description === 'none' ? undefined : description === 'short' ? message.description : message.long,
     action: action === 'none' ? undefined : { label: message.action, onClick: () => {} },
     cancel: action === 'cancel' ? { label: 'Cancel', onClick: () => {} } : undefined,
     closeButton,

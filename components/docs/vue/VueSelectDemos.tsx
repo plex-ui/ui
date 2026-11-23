@@ -33,25 +33,25 @@ import { VuePhoneRowsDemo } from './VuePhoneRowsDemo';
 // render function) and the country helpers of the React demos
 // (components/docs/SelectDemos.tsx, PhoneInputDemos.tsx).
 
-const fruitsOptions = [
-  { label: 'Apple', value: 'apple' },
-  { label: 'Banana', value: 'banana' },
-  { label: 'Blueberry', value: 'blueberry' },
-  { label: 'Grapes', value: 'grapes' },
-  { label: 'Mango', value: 'mango' },
-  { label: 'Pineapple', value: 'pineapple' },
-  { label: 'Watermelon', value: 'watermelon' },
+const currencyOptions = [
+  { label: 'US dollar', value: 'usd' },
+  { label: 'Euro', value: 'eur' },
+  { label: 'British pound', value: 'gbp' },
+  { label: 'Japanese yen', value: 'jpy' },
+  { label: 'Swiss franc', value: 'chf' },
+  { label: 'Canadian dollar', value: 'cad' },
+  { label: 'Australian dollar', value: 'aud' },
 ];
 
-const items = [
-  { label: 'List item 1', value: '1' },
-  { label: 'List item 2', value: '2' },
-  { label: 'List item 3', value: '3', disabled: true },
-  { label: 'List item 4', value: '4' },
-  { label: 'List item 5', value: '5' },
-  { label: 'List item 6', value: '6' },
-  { label: 'List item 7', value: '7' },
-  { label: 'List item 8', value: '8' },
+const projects = [
+  { label: 'Website redesign', value: 'website' },
+  { label: 'Mobile app', value: 'mobile' },
+  { label: 'Spring campaign (archived)', value: 'spring', disabled: true },
+  { label: 'Q3 roadmap', value: 'roadmap' },
+  { label: 'Customer portal', value: 'portal' },
+  { label: 'Brand guidelines', value: 'brand' },
+  { label: 'Data migration', value: 'migration' },
+  { label: 'Help center', value: 'help' },
 ];
 
 const groupedItems = [
@@ -88,7 +88,7 @@ const groupedItems = [
     optionsLimit: { limit: 7, label: 'Show all' },
   },
   {
-    label: 'Custom Deployments',
+    label: 'Custom deployments',
     options: [
       { label: 'Production US-East (v2.4.1)', value: 'ft1' },
       { label: 'Production EU-West (v2.4.0)', value: 'ft2' },
@@ -107,19 +107,25 @@ const roles = [
   {
     value: 'owner',
     label: 'Owner',
-    description: roleDescription('Can modify project information and manage project members'),
+    description: roleDescription('Can manage members, billing and settings'),
   },
   {
-    value: 'reader',
-    label: 'Reader',
-    description: roleDescription('Can make API requests that read or modify data'),
+    value: 'editor',
+    label: 'Editor',
+    description: roleDescription('Can edit and comment'),
+  },
+  {
+    value: 'viewer',
+    label: 'Viewer',
+    description: roleDescription('Can view only'),
   },
 ];
 
 // A phone row passes its descriptions as text: the list sets them as an iOS menu does its subtitles (13pt, wrapped)
 const phoneRoles = [
-  { value: 'owner', label: 'Owner', description: 'Can modify project information and manage project members' },
-  { value: 'reader', label: 'Reader', description: 'Can make API requests that read or modify data' },
+  { value: 'owner', label: 'Owner', description: 'Can manage members, billing and settings' },
+  { value: 'editor', label: 'Editor', description: 'Can edit and comment' },
+  { value: 'viewer', label: 'Viewer', description: 'Can view only' },
 ];
 
 const allColumns = [
@@ -168,8 +174,8 @@ const scope = {
   UserLock,
   Workspace,
   // Option lists
-  fruitsOptions,
-  items,
+  currencyOptions,
+  projects,
   groupedItems,
   roles,
   phoneRoles,

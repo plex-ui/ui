@@ -3,7 +3,7 @@
   "name": "breadcrumb",
   "type": "registry:ui",
   "title": "Breadcrumb",
-  "description": "The trail of pages that leads to the current one, above a page title, with links, plain steps and the current page.",
+  "description": "The trail of pages that leads to the current one, above a page title, with links and the current page.",
   "dependencies": [
     "@plexui/vue"
   ],

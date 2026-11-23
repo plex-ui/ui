@@ -1,9 +1,17 @@
-import { ActionSheet, BottomSheet, Button, Dialog, Input, Menu, Text, toast, useTheme } from "@plexui/react-native"
-import { Copy, Pencil, RemoveTrash, Share } from "@plexui/react-native/icons"
+import { ActionSheet, Avatar, BottomSheet, Button, Dialog, Input, Menu, Text, toast, useTheme } from "@plexui/react-native"
+import { Copy, Download, Email, Link, Pencil, RemoveTrash, Share } from "@plexui/react-native/icons"
 import { useContext, useEffect, useState } from "react"
 import { StyleSheet, View } from "react-native"
-import { Row, Section } from "../demo"
+import { Labeled, Row, Section } from "../demo"
 import { LinkContext, type Settings } from "../settings"
+
+/** Recent contacts of the share sheet. */
+const CONTACTS = [
+  { name: "Anna Kim", color: "info" },
+  { name: "Liam Chen", color: "success" },
+  { name: "Sofia Martinez", color: "discovery" },
+  { name: "Noah Williams", color: "primary" },
+] as const
 
 export function OverlaysScreen() {
   const theme = useTheme()
@@ -12,6 +20,11 @@ export function OverlaysScreen() {
   const [actions, setActions] = useState(false)
   const [last, setLast] = useState("nothing yet")
   const [menu, setMenu] = useState(false)
+  // A share target runs and closes the sheet
+  const share = (target: string) => () => {
+    setLast(target)
+    setSheet(false)
+  }
   // A link opens an overlay by name (`open=dialog`), so a device can be checked without a finger
   const link = useContext(LinkContext)
   const [seen, setSeen] = useState<Settings | null>(null)
@@ -33,7 +46,7 @@ export function OverlaysScreen() {
   }, [link])
   return (
     <>
-      <Section title="Dialog" note={theme.isAndroid ? "Android 16 Settings dialog: the positive button filled, the cancel outlined" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
+      <Section title="Dialog" note={theme.isAndroid ? "Android alert: 20dp corners, text buttons in the accent" : "iOS 26 alert: glass, 320 wide, capsule actions"}>
         <Row>
           <Button color="secondary" variant="soft" onPress={() => setDialog("two")} testID="open-dialog">
             Two actions
@@ -46,7 +59,7 @@ export function OverlaysScreen() {
           </Button>
         </Row>
       </Section>
-      <Section title="Sheets" note={theme.isAndroid ? "Material 3 modal bottom sheets" : "iOS 26 sheet and action sheet"}>
+      <Section title="Sheets" note={theme.isAndroid ? "Android sheets: 24dp corners, no handle" : "iOS 26 sheet and action sheet"}>
         <Row>
           <Button color="secondary" variant="soft" onPress={() => setSheet(true)} testID="open-sheet">
             Bottom sheet
@@ -56,7 +69,7 @@ export function OverlaysScreen() {
           </Button>
         </Row>
       </Section>
-      <Section title="Menu" note={theme.isAndroid ? "Material 3 dropdown menu" : "iOS 26 glass menu, 250 wide"}>
+      <Section title="Menu" note={theme.isAndroid ? "Android: a popup over its trigger, unrolling row by row" : "iOS 26 glass menu, 250 wide"}>
         <Menu open={menu} onOpenChange={setMenu}>
           <Menu.Trigger>
             <Button color="secondary" variant="soft" testID="open-menu">
@@ -71,7 +84,7 @@ export function OverlaysScreen() {
             <Menu.Item icon={<Copy />} description="A copy in the same folder" onSelect={() => setLast("Duplicate")}>
               Duplicate
             </Menu.Item>
-            <Menu.Item icon={<Share />} disabled>
+            <Menu.Item icon={<Share />} description="Only the owner can share" disabled>
               Share
             </Menu.Item>
             <Menu.Separator />
@@ -84,7 +97,7 @@ export function OverlaysScreen() {
           Last: {last}
         </Text>
       </Section>
-      <Section title="Toast" note={theme.isAndroid ? "Material 3 snackbar, one at a time" : "iOS 26 glass banners from the top"}>
+      <Section title="Toast" note={theme.isAndroid ? "Android toast: dark, 16dp corners, swiped away sideways" : "iOS 26 glass banners from the top"}>
         <Row>
           <Button color="secondary" variant="soft" onPress={() => toast("Saved to Photos")} testID="toast-plain">
             Plain
@@ -149,9 +162,29 @@ export function OverlaysScreen() {
       </Dialog>
       <BottomSheet open={sheet} onOpenChange={setSheet} title="Share" testID="sheet">
         <View style={styles.sheet}>
-          <Text color="secondary">A sheet with content of its own. Drag it down or tap outside to close it.</Text>
-          <Button block onPress={() => setSheet(false)} testID="sheet-done">
-            Done
+          <Row gap={20}>
+            {CONTACTS.map(({ name, color }) => (
+              <Labeled key={name} label={name.split(" ")[0]}>
+                <Avatar name={name} color={color} size={56} onPress={share(`Shared with ${name}`)} />
+              </Labeled>
+            ))}
+          </Row>
+          <Row>
+            <Button color="secondary" variant="soft" onPress={share("Copy link")}>
+              <Link />
+              Copy link
+            </Button>
+            <Button color="secondary" variant="soft" onPress={share("Mail")}>
+              <Email />
+              Mail
+            </Button>
+            <Button color="secondary" variant="soft" onPress={share("Save to Files")}>
+              <Download />
+              Save to Files
+            </Button>
+          </Row>
+          <Button block color="secondary" variant="soft" onPress={() => setSheet(false)} testID="sheet-done">
+            Cancel
           </Button>
         </View>
       </BottomSheet>

@@ -1,6 +1,6 @@
 ---
 title: Checkbox
-description: Checkbox for binary on/off selection with solid, pill, and ghost variants, an indeterminate state, and rich labels with inline descriptions.
+description: Checkbox for binary on/off selection, with solid, pill and ghost variants and an indeterminate state.
 metaDescription: Vue 3 checkbox component built on Reka UI with solid, pill, and ghost variants, an indeterminate state, v-model:checked binding, and rich label slots.
 ---
 
@@ -14,9 +14,9 @@ export const stage = "flex-1 flex items-center justify-center py-12 w-full"
 export const overview = `<div :class="label ? (description ? 'flex flex-col gap-4 max-w-sm' : 'flex flex-col gap-3') : 'flex gap-4'">
   <Checkbox
     v-for="option in [
-      { label: 'Share usage data', description: 'Help improve the product with anonymous usage reports.', defaultChecked: true },
-      { label: 'Enable notifications', description: 'You can enable or disable notifications at any time from settings.', defaultChecked: false },
-      { label: 'Sync all folders', description: 'Some of its folders are synced.', defaultChecked: 'indeterminate' },
+      { label: 'Photos', description: 'Back up photos and videos over Wi-Fi.', defaultChecked: true },
+      { label: 'Messages', description: 'Include chats and attachments in each backup.', defaultChecked: false },
+      { label: 'Folders', description: '3 of 5 folders are backed up.', defaultChecked: 'indeterminate' },
     ]"
     :key="option.label"
     :variant="variant"
@@ -124,7 +124,7 @@ export const descriptions = `<div class="flex flex-col max-w-sm w-full divide-y 
 
 export const group = `<div class="flex flex-col gap-3">
   <Checkbox
-    label="Permissions"
+    label="Back up"
     :checked="items.every((i) => i.checked) ? true : items.some((i) => i.checked) ? 'indeterminate' : false"
     @update:checked="(next) => items.forEach((i) => (i.checked = next))"
   />
@@ -217,8 +217,6 @@ import { formScreenTemplate } from "@/components/docs/formScreenTemplate"
 
 <UsageBlock>{`import { Checkbox } from "@plexui/vue/components/Checkbox";`}</UsageBlock>
 
-On Phone, a single checkbox stays next to its label, while a list of options goes in the rows of a `FieldGroup`: each `Field row` names an option and ends with the checkbox, as in an iOS settings list.
-
 export const groupedSectionsMobile = formScreenTemplate("Notifications", `<FieldGroup title="Email notifications" description="Configure which emails you receive.">
         <Field row label="Marketing" description="Receive emails about new products and features."><Checkbox v-model:checked="settings.emailMarketing" /></Field>
         <Field row label="Security" description="Receive emails about account activity and security."><Checkbox v-model:checked="settings.emailSecurity" /></Field>
@@ -245,6 +243,7 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
 ### Overview
 
 <ComponentPreview language="vue" details={<>
+  <p>On Phone, a single checkbox stays next to its label, while a list of options goes in the rows of a <code>FieldGroup</code>: each <code>Field row</code> names an option and ends with the checkbox, as in an iOS settings list.</p>
   <p>A checkbox is checked, unchecked or indeterminate. Pass <code>checked="indeterminate"</code>, or <code>default-checked="indeterminate"</code>, for a partly selected state: a "select all" box whose items are only partly checked, as in <a href="#group-with-select-all">Group with select all</a>.</p>
   <p><code>solid</code> (default) fills the box; <code>ghost</code> renders only the checkmark, in the text color, without a border or background, for subtle inline selections or task lists. <code>pill</code> rounds the box (<code>border-radius: full</code>): the solid fill, and on a ghost box its hover tint and focus ring.</p>
   <p>Use <code>description</code> (or the <code>description</code> slot) for a second line under the label. It sits outside the label, so the checkbox keeps the label as its name and gets the description through <code>aria-describedby</code>. By default the box is on the left of its label; <code>orientation="right"</code> places it after the label. Both act only next to a label, so they are offered only with one. Without a <code>label</code> the checkbox is a standalone control: pass <code>aria-label</code> to name it.</p>
@@ -261,9 +260,9 @@ export const groupedSectionsMobile = formScreenTemplate("Notifications", `<Field
     template={group}
     state={{
       items: [
-        { id: "read", label: "Read", checked: true },
-        { id: "write", label: "Write", checked: false },
-        { id: "execute", label: "Execute", checked: false },
+        { id: "photos", label: "Photos", checked: true },
+        { id: "contacts", label: "Contacts", checked: true },
+        { id: "messages", label: "Messages", checked: false },
       ],
     }}
   />

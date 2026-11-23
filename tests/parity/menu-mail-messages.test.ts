@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 
-// Plan 175.2 (examples from plan 169m). Checkbox items is the View Options menu of a mailbox in Mail (iOS-menu IMG_5707),
+// Plan 175.2 (examples from plan 169m). Checkbox items is the View options menu of a mailbox in Mail (iOS-menu IMG_5707),
 // Grouped items the filter of the message list in Messages (IMG_5706). Both are 250pt panels, as every native iOS menu
-// is (IMG_5648 to 5720: 750px at @3x), and Mail wraps Show Contact Photos onto a second line; the phone menu takes that
+// is (IMG_5648 to 5720: 750px at @3x), and Mail wraps Show contact photos onto a second line; the phone menu takes that
 // width with touch.css instead of the kit's 238 and growing with its longest label.
 
 const touch = readFileSync('packages/styles/src/styles/touch.css', 'utf8');
@@ -59,17 +59,17 @@ describe('Menu on a phone is the 250pt panel of iOS', () => {
 });
 
 describe('Menu examples after Mail and Messages', () => {
-    test('Checkbox items is the View Options of Mail in the React demo, React code and Vue template', () => {
+    test('Checkbox items is the View options of Mail in the React demo, React code and Vue template', () => {
         for (const source of checkboxSources()) {
-            expect(source).toMatch(/Label>View Options</);
-            expect(source).toMatch(/<Storyboard \/> Show Categories/);
-            expect(source).toMatch(/<Atom \/> Show Priority/);
-            expect(source).toMatch(/<AvatarProfile \/> Show Contact Photos/);
-            expect(source).toMatch(/<InfoCircle \/> About Categories/);
-            // About Categories is a plain item under a separator, after the three options
+            expect(source).toMatch(/Label>View options</);
+            expect(source).toMatch(/<Storyboard \/> Show categories/);
+            expect(source).toMatch(/<Atom \/> Show priority/);
+            expect(source).toMatch(/<AvatarProfile \/> Show contact photos/);
+            expect(source).toMatch(/<InfoCircle \/> About categories/);
+            // About categories is a plain item under a separator, after the three options
             const separator = source.search(/<Menu\.?Separator \/>/);
             expect(separator).toBeGreaterThan(source.indexOf('<AvatarProfile />'));
-            expect(source.indexOf('<InfoCircle /> About Categories')).toBeGreaterThan(separator);
+            expect(source.indexOf('<InfoCircle /> About categories')).toBeGreaterThan(separator);
             expect(source).not.toMatch(/grid lines|Display labels|Enable shadows/);
         }
         // Categories and Priority on, Contact Photos off, as in Mail
@@ -78,20 +78,20 @@ describe('Menu examples after Mail and Messages', () => {
         expect(between(vueDocs, '### Checkbox items', '### Radio items')).toContain('state={{ view: { categories: true, priority: true, contactPhotos: false } }}');
     });
 
-    test('Grouped items is the filter of Messages: two radio groups of one value, Filter By, Manage Filtering', () => {
+    test('Grouped items is the filter of Messages: two radio groups of one value, Filter by, Manage filtering', () => {
         for (const source of groupedSources()) {
             expect(source).toMatch(/<Chats \/> Messages/);
             expect(source).toMatch(/<XSquare \/> Spam/);
-            expect(source).toMatch(/<Trash \/> Recently Deleted/);
-            expect(source).toMatch(/Label>Filter By</);
+            expect(source).toMatch(/<Trash \/> Recently deleted/);
+            expect(source).toMatch(/Label>Filter by</);
             expect(source).toMatch(/<Chat \/> Unread/);
             expect(source).toMatch(/<ChatTripleDots \/> Drafts/);
-            expect(source).toMatch(/>Manage Filtering</);
-            // Manage Filtering has no icon and comes last, under a separator
+            expect(source).toMatch(/>Manage filtering</);
+            // Manage filtering has no icon and comes last, under a separator
             const separators = [...source.matchAll(/<Menu\.?Separator \/>/g)].map((match) => match.index);
             expect(separators).toHaveLength(2);
             expect(separators[1]).toBeGreaterThan(source.indexOf('<ChatTripleDots /> Drafts'));
-            expect(source.indexOf('>Manage Filtering<')).toBeGreaterThan(separators[1]!);
+            expect(source.indexOf('>Manage filtering<')).toBeGreaterThan(separators[1]!);
             // Both groups hold the one filter
             expect(source.match(/RadioGroup (value=\{filter\} onChange=\{setFilter\}|v-model:value="filter")/g)).toHaveLength(2);
             expect(source).not.toMatch(/Welcome email|promo campaign/);

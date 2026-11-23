@@ -1,6 +1,6 @@
 ---
 title: Stats Card
-description: Stats card for dashboards displaying KPIs with trend deltas, an info tooltip, an icon, a progress bar, and an accent bar.
+description: "A dashboard card that shows one figure, such as a KPI, with its trend, an icon or a progress bar."
 metaDescription: Vue 3 stats card component for dashboards displaying KPIs with trend deltas, an info tooltip, icon and sparkline slots, a progress bar, and an accent bar.
 aliases: StatCard
 ---
@@ -31,8 +31,6 @@ export const overview = `<div style="max-width: 320px; width: 100%" class="mx-au
 
 <UsageBlock>{`import { StatsCard } from "@plexui/vue/components/StatsCard";`}</UsageBlock>
 
-Formerly `StatCard`. The old name and its import path `@plexui/vue/components/StatCard` still work but are deprecated.
-
 ## Examples
 
 {/* The examples Sizes, Trend position, Trend variant, Info tooltip, With icon, With progress, Accent border and
@@ -48,7 +46,10 @@ Formerly `StatCard`. The old name and its import path `@plexui/vue/components/St
 
 ### Overview
 
-<ComponentPreview language="vue" details={<>Dashboard-ready stats cards with trends, icons, and progress bars. Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography; it pairs well with <code>tooltip</code>, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (<code>trend-position</code>), as plain text or in a badge (<code>trend-variant</code>). Use <code>invert-trend</code> for metrics where a rise is bad, such as error rate or response time. An icon in the <code>icon</code> slot stands in a small soft tile at the end of the header, and <code>progress</code> draws a bar of completion or usage across the card. The <code>accent</code> variant adds a colored bar before the content in one of eight semantic colors (<code>accent-color</code>).</>} code={overview} previewMinHeight={120}>
+<ComponentPreview language="vue" details={<>
+  <p>Formerly <code>StatCard</code>. The old name and its import path <code>@plexui/vue/components/StatCard</code> still work but are deprecated.</p>
+  <p>Dashboard-ready stats cards with trends, icons, and progress bars. Use <code>size="sm"</code> for compact analytics rows with denser spacing and smaller typography; it pairs well with <code>tooltip</code>, a string that adds an info icon next to the label. The trend sits under the value with its label, or right-aligned in the header row (<code>trend-position</code>), as plain text or in a badge (<code>trend-variant</code>). Use <code>invert-trend</code> for metrics where a rise is bad, such as error rate or response time. An icon in the <code>icon</code> slot stands in a small soft tile at the end of the header, and <code>progress</code> draws a bar of completion or usage across the card. The <code>accent</code> variant adds a colored bar before the content in one of eight semantic colors (<code>accent-color</code>).</p>
+</>} code={overview} previewMinHeight={120}>
   <VueDemo
     template={overview}
     stageClassName={stage}

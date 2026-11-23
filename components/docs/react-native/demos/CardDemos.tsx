@@ -1,98 +1,91 @@
-import { Button, Card, IconButton, Text } from '@plexui/react-native';
-import { DotsHorizontal } from '@plexui/react-native/icons';
-import { useState } from 'react';
+import { useContext, useState, type ReactNode } from 'react';
+import { Button, Card, IconButton, Text, Toolbar, useTheme } from '@plexui/react-native';
+import { MoreIcon } from './MoreIcon';
+import { ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
+import { RNScreen, docsDemo } from '../RNScreen';
+import { NativeScreenTitleContext } from '../platform';
 
-const HILLS = { uri: 'https://picsum.photos/id/1018/800/600' };
-const FJORD = { uri: 'https://picsum.photos/id/1015/800/400' };
+const VARIANTS = ['outline', 'solid', 'ghost'] as const;
+const SIZES = ['sm', 'md', 'lg'] as const;
+const FOOTERS = ['none', 'one', 'two'] as const;
 
-export function Overview() {
-  return (
-    <Card>
-      <Card.Header>
-        <Card.Title>Weekly summary</Card.Title>
-        <Card.Description>12 new places this week.</Card.Description>
-        <Card.Action>
-          <IconButton icon={<DotsHorizontal />} size="sm" accessibilityLabel="More" />
-        </Card.Action>
-      </Card.Header>
-      <Card.Content>
-        <Text variant="subheadline">You saved 4 of them and visited 2. Your favorite was the market on the river.</Text>
-      </Card.Content>
-      <Card.Footer>
-        <Button size="sm">Open</Button>
-        <Button size="sm" variant="soft">
-          Later
-        </Button>
-      </Card.Footer>
-    </Card>
-  );
-}
-
-export function Variants() {
+/**
+ * A grouped screen of an app, as the React page's Phone view stands its card on a grouped Page: the screen's top bar
+ * without a title, then the content within the 16pt margins, from the top down.
+ */
+function GroupedScreen({ bar, children }: { bar: boolean; children: ReactNode }) {
+  const android = useTheme().isAndroid;
+  const insets = useSafeAreaInsets();
   return (
     <>
-      <Card>
-        <Card.Header>
-          <Card.Title>Outline</Card.Title>
-          <Card.Description>The default: a grouped section on iOS, an outlined card on Android.</Card.Description>
-        </Card.Header>
-      </Card>
-      <Card variant="solid">
-        <Card.Header>
-          <Card.Title>Solid</Card.Title>
-          <Card.Description>A gray fill that stands apart from list sections.</Card.Description>
-        </Card.Header>
-      </Card>
-      <Card variant="ghost">
-        <Card.Header>
-          <Card.Title>Ghost</Card.Title>
-          <Card.Description>No fill: only the padding and the layout.</Card.Description>
-        </Card.Header>
-      </Card>
+      {bar ? <Toolbar background="none" /> : null}
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: android ? 12 : 16, paddingBottom: insets.bottom + 16, gap: 12 }}>
+        {children}
+      </ScrollView>
     </>
   );
 }
 
-export function Sizes() {
+/**
+ * One card with every setting, as the React page's Overview: its look (`variant`, `size`), its parts (description,
+ * content, footer, action) and a card that is one button. A card that is a button holds no buttons of its own, so the
+ * footer and the action are offered without `onPress`. On iOS an outline card is a section of an inset grouped list
+ * on the grouped background; on Android a Material 3 card.
+ */
+export const Overview = docsDemo(function Overview() {
+  const { page } = useContext(NativeScreenTitleContext);
+  const [variant, setVariant] = useState<(typeof VARIANTS)[number]>('outline');
+  const [size, setSize] = useState<(typeof SIZES)[number]>('md');
+  const [description, setDescription] = useState(true);
+  const [content, setContent] = useState(false);
+  const [footer, setFooter] = useState<(typeof FOOTERS)[number]>('two');
+  const [action, setAction] = useState(false);
+  const [pressable, setPressable] = useState(false);
   return (
     <>
-      {(['sm', 'md', 'lg'] as const).map((size) => (
-        <Card key={size} size={size}>
-          <Card.Header>
-            <Card.Title>Size {size}</Card.Title>
-            <Card.Description>The padding grows with the size.</Card.Description>
-          </Card.Header>
-        </Card>
-      ))}
+      <div data-demo-controls style={controlsTableStyle}>
+        <Segments name="variant" options={VARIANTS} value={variant} onChange={setVariant} />
+        <Segments name="size" options={SIZES} value={size} onChange={setSize} />
+        <DemoControlBoolean name="description" value={description} onChange={setDescription} />
+        <DemoControlBoolean name="content" value={content} onChange={setContent} />
+        {!pressable && <Segments name="footer" options={FOOTERS} value={footer} onChange={setFooter} />}
+        {!pressable && <DemoControlBoolean name="action" value={action} onChange={setAction} />}
+        <DemoControlBoolean name="onPress" value={pressable} onChange={setPressable} />
+      </div>
+      <RNScreen screen grouped minHeight={168}>
+        <GroupedScreen bar={page}>
+          <Card variant={variant} size={size} onPress={pressable ? () => {} : undefined} accessibilityLabel={pressable ? 'Project activity' : undefined}>
+            <Card.Header>
+              <Card.Title>Project activity</Card.Title>
+              {description && <Card.Description>Your team opened 12 issues and closed 8 pull requests over the last 7 days.</Card.Description>}
+              {action && !pressable && (
+                <Card.Action>
+                  <IconButton icon={<MoreIcon />} color="secondary" variant="ghost" size="sm" accessibilityLabel="More" />
+                </Card.Action>
+              )}
+            </Card.Header>
+            {content && (
+              <Card.Content>
+                <Text variant="subheadline">Most of the work landed on Tuesday, in the release branch.</Text>
+              </Card.Content>
+            )}
+            {footer !== 'none' && !pressable && (
+              <Card.Footer>
+                <Button color="primary" variant="solid" size="sm">
+                  View report
+                </Button>
+                {footer === 'two' && (
+                  <Button color="secondary" variant="outline" size="sm">
+                    Dismiss
+                  </Button>
+                )}
+              </Card.Footer>
+            )}
+          </Card>
+        </GroupedScreen>
+      </RNScreen>
     </>
   );
-}
-
-export function Media() {
-  return (
-    <>
-      <Card>
-        <Card.Media source={HILLS} aspectRatio={4 / 3} accessibilityLabel="A road winding through green hills" title="A road through the hills" description="A caption over the picture" />
-      </Card>
-      <Card>
-        <Card.Media source={FJORD} aspectRatio={2} />
-        <Card.Header>
-          <Card.Title>Picture on top</Card.Title>
-          <Card.Description>The picture reaches the card&apos;s edges.</Card.Description>
-        </Card.Header>
-      </Card>
-    </>
-  );
-}
-
-export function AsButton() {
-  const [count, setCount] = useState(0);
-  return (
-    <Card onPress={() => setCount((n) => n + 1)} accessibilityLabel="Storage">
-      <Card.Header>
-        <Card.Title>Storage</Card.Title>
-        <Card.Description>The whole card is one button. Presses: {count}</Card.Description>
-      </Card.Header>
-    </Card>
-  );
-}
+});

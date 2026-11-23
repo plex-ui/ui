@@ -1,18 +1,20 @@
-import { useEffect, useState, type ReactNode } from "react"
+import { useContext, useEffect, useState, type ReactNode } from "react"
 import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
-import { stateLayer, withAlpha } from "../../theme/material"
-import { MaterialCheckSymbol, MaterialClose } from "../Icon/material"
+import { RowEndContext, RowHoldContext, rowHold } from "../../internal/row"
 import { useTheme } from "../../theme/ThemeProvider"
-import type { Theme } from "../../theme/types"
+import type { SelectionColor, Theme } from "../../theme/types"
 
 export type SwitchProps = {
   checked?: boolean
   defaultChecked?: boolean
   onCheckedChange?: (nextState: boolean) => void
-  /** The color of the on track: the Plex primary (the ink, or a brand's) or the accent. @default "primary" */
-  color?: "primary" | "accent"
+  /**
+   * The color of the on track: the Plex primary (the ink, or a brand's) or the accent. @default the ThemeProvider's
+   * `selectionColor`, `"primary"` unless set
+   */
+  color?: SelectionColor
   label?: ReactNode
   description?: ReactNode
   /** Where the label stands. A phone settings row puts it at the start. @default "end" */
@@ -23,21 +25,61 @@ export type SwitchProps = {
   style?: StyleProp<ViewStyle>
 }
 
-/** The on color of a switch, a checkbox and a radio: the Plex primary solid, or the accent (decision 0023). */
-export function selectionColor(theme: Theme, color: "primary" | "accent" = "primary") {
-  return theme.color(color === "accent" ? "--color-background-accent-solid" : "--color-background-primary-solid")
+/**
+ * The on color of a switch, a checkbox and a radio: the Plex primary solid, or the accent. A control's own `color`
+ * wins; without one it takes the ThemeProvider's `selectionColor` (the primary unless set).
+ */
+export function selectionColor(theme: Theme, color?: SelectionColor) {
+  const tone = color ?? theme.selectionColor
+  return theme.color(tone === "accent" ? "--color-background-accent-solid" : "--color-background-primary-solid")
 }
 
 /**
- * A switch: the iOS 26 switch of the phone layer (a 63x28 track, a 37x24 capsule thumb, `--switch-*`), or the switch of
- * Android 16's Settings (Material 3's 52x32 track, a 24dp thumb with a check on and an X off, 28 held). Props follow
+ * The checkmark of an iOS list row (a chosen radio, a ghost checkbox): the text color, as the web's
+ * (`--radio-group-checkmark-color`), or the accent, the iOS tint, when the ThemeProvider's `selectionColor` is the accent.
+ */
+export function iosCheckmarkColor(theme: Theme) {
+  return theme.selectionColor === "accent" ? selectionColor(theme) : theme.color("--radio-group-checkmark-color", theme.colors.text)
+}
+
+/**
+ * The gray of an Android off switch and of the dots past the choice of a stepped slider: #A6ADB3 on white, #606060 at
+ * night. The nearest neutral grays: --gray-300 (#AFAFAF) and, at night, --gray-500 (#5D5D5D).
+ */
+export function androidSwitchOff(theme: Theme) {
+  return theme.color(theme.scheme === "dark" ? "--gray-500" : "--gray-300")
+}
+
+/** Android's default ease-in-out (AccelerateDecelerateInterpolator), which an ObjectAnimator runs by default. */
+export const androidEaseInOut = Easing.inOut(Easing.sin)
+
+/** A List row on Android ends 20dp in from the card's edge: a control at its end moves in from there. */
+export const ANDROID_ROW_END = 20
+/** A switch row: the switch's 37dp view stands 22dp in from the row's end. */
+const ANDROID_SWITCH_END = 22
+
+/** The switch's place along its track, 0 off to 1 on: Android's 200ms ease-in-out, iOS's 200ms ease-out. */
+function useSwitchProgress(theme: Theme, checked: boolean) {
+  const [progress] = useState(() => new Animated.Value(checked ? 1 : 0))
+  const android = theme.isAndroid
+  useEffect(() => {
+    const easing = android ? androidEaseInOut : Easing.out(Easing.cubic)
+    Animated.timing(progress, { toValue: checked ? 1 : 0, duration: theme.reducedMotion ? 0 : 200, easing, useNativeDriver: false }).start()
+  }, [checked, progress, android, theme.reducedMotion])
+  return progress
+}
+
+/**
+ * A switch: the iOS 26 switch of the phone layer (a 63x28 track, a 37x24 capsule thumb, `--switch-*`), or Android's
+ * (a 31x14dp track and a 20dp thumb over it, a ring of the track's color around a 16dp knob of the card's color, the
+ * track's color changing as the thumb moves; a 50dp switch row, the label 11dp from the switch). Props follow
  * @plexui/ui.
  */
 export function Switch({
   checked: checkedProp,
   defaultChecked = false,
   onCheckedChange,
-  color = "primary",
+  color,
   label,
   description,
   labelPosition = "end",
@@ -49,20 +91,28 @@ export function Switch({
   const theme = useTheme()
   const [own, setOwn] = useState(defaultChecked)
   const checked = checkedProp ?? own
-  const [pressed, setPressed] = useState(false)
-  const [progress] = useState(() => new Animated.Value(checked ? 1 : 0))
-  useEffect(() => {
-    Animated.timing(progress, { toValue: checked ? 1 : 0, duration: theme.reducedMotion ? 0 : 200, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start()
-  }, [checked, progress, theme.reducedMotion])
+  const progress = useSwitchProgress(theme, checked)
+  // At the end of an Android List row with no text of its own: Android's switch stands 22dp from the row's end
+  const rowEnd = useContext(RowEndContext) != null
+  const hold = useContext(RowHoldContext)
   const toggle = () => {
     if (disabled) return
     if (checkedProp === undefined) setOwn(!checked)
     onCheckedChange?.(!checked)
   }
-  const control = theme.isAndroid ? <AndroidTrack theme={theme} checked={checked} pressed={pressed} disabled={disabled} color={color} progress={progress} /> : <IOSTrack theme={theme} checked={checked} disabled={disabled} color={color} progress={progress} />
   const described = useDescription(description)
   const hasText = label != null || description != null
-  const text = <ControlLabel label={label} description={description} disabled={disabled} descriptionId={described.id} />
+  // Android's switch has no press of its own (its thumb ripple is opt-in): a row shows the press, or nothing does.
+  // Disabled, the switch and its text fade to half (as a switch row's), each on its own
+  const control = (pressed: boolean) =>
+    theme.isAndroid ? (
+      <View style={[disabled ? styles.dim : null, rowEnd && !hasText ? styles.androidRowEnd : null]}>
+        <AndroidTrack theme={theme} checked={checked} disabled={disabled} color={color} progress={progress} />
+      </View>
+    ) : (
+      <IOSTrack theme={theme} checked={checked} disabled={disabled} color={color} progress={progress} held={pressed && !disabled} />
+    )
+  const text = <ControlLabel control="switch" label={label} description={description} disabled={disabled} descriptionId={described.id} />
   return (
     <Pressable
       {...described.props}
@@ -72,73 +122,113 @@ export function Switch({
       accessibilityState={{ checked, disabled }}
       aria-checked={checked}
       disabled={disabled}
+      {...rowHold(hold)}
       onPress={toggle}
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
       testID={testID}
-      style={[styles.row, { gap: theme.isAndroid ? 16 : theme.length("--switch-label-gap", 8), minHeight: theme.isAndroid ? 48 : 44 }, style]}
+      // Android's switch row: 50dp, the text ending 11dp before the switch's 37dp view
+      style={[styles.row, { gap: theme.isAndroid ? 11 : theme.length("--switch-label-gap", 8), minHeight: theme.isAndroid ? 50 : 44 }, style]}
     >
-      {/* A switch without a label hugs its track: an empty growing slot would push it away from a row's end */}
-      {labelPosition === "start" && hasText ? <View style={styles.grow}>{text}</View> : null}
-      {control}
-      {labelPosition === "end" && hasText ? <View style={styles.grow}>{text}</View> : null}
+      {({ pressed }) => (
+        <>
+          {/* A switch without a label hugs its track: an empty growing slot would push it away from a row's end */}
+          {labelPosition === "start" && hasText ? <View style={styles.grow}>{text}</View> : null}
+          {control(pressed)}
+          {labelPosition === "end" && hasText ? <View style={styles.grow}>{text}</View> : null}
+        </>
+      )}
     </Pressable>
   )
 }
 
-type TrackProps = { theme: Theme; checked: boolean; disabled: boolean; color: "primary" | "accent"; progress: Animated.Value }
+/**
+ * The track of a switch on its own, for a row that is the switch (a List row toggles as a whole, as a Settings
+ * preference): no press or accessibility of its own. `pressed` is the row's press; Android's switch draws none of
+ * its own (its thumb ripple is opt-in), so the row's press is all there is.
+ */
+export function SwitchTrack({ checked, disabled = false, color }: { checked: boolean; disabled?: boolean; pressed?: boolean; color?: "primary" | "accent" }) {
+  const theme = useTheme()
+  const progress = useSwitchProgress(theme, checked)
+  const rowEnd = useContext(RowEndContext) != null
+  return theme.isAndroid ? (
+    <View style={[disabled ? styles.dim : null, rowEnd ? styles.androidRowEnd : null]}>
+      <AndroidTrack theme={theme} checked={checked} disabled={disabled} color={color} progress={progress} />
+    </View>
+  ) : (
+    <IOSTrack theme={theme} checked={checked} disabled={disabled} color={color} progress={progress} />
+  )
+}
 
-function IOSTrack({ theme, checked, disabled, color, progress }: TrackProps) {
+type TrackProps = { theme: Theme; checked: boolean; disabled: boolean; color?: "primary" | "accent"; progress: Animated.Value; held?: boolean }
+
+/**
+ * iOS 26's knob held down: the lens, 58 x 38 over the 37 x 24 knob on its center, a faint white glass with a soft
+ * shadow and a light rim, growing in 200ms (the phone CSS's `--mobile-switch-knob-lens-*`, measured on the simulator).
+ */
+const LENS = { width: 58, height: 38, fill: "rgba(255, 255, 255, 0.09)", shadow: "0px 4.5px 8px rgba(0, 0, 0, 0.12), 0px 0px 0px 0.33px rgba(0, 0, 0, 0.2)" }
+
+function IOSTrack({ theme, checked, disabled, color, progress, held = false }: TrackProps) {
   const width = theme.length("--switch-track-width", 63)
   const height = theme.length("--switch-track-height", 28)
   const thumbWidth = theme.length("--switch-thumb-width", 37)
   const thumbHeight = theme.length("--switch-thumb-size", 24)
   const offset = theme.length("--switch-thumb-offset", 2)
-  const on = disabled ? theme.color("--switch-track-color-checked-disabled") : color === "accent" ? selectionColor(theme, "accent") : theme.color("--switch-track-color-checked")
-  const off = disabled ? theme.color("--switch-track-color-disabled") : theme.color("--switch-track-color")
+  // The accent switch (its own `color`, or the ThemeProvider's `selectionColor`) is the system green, as the web's
+  // (`--switch-accent-color`, #34C759 / #30D158). Disabled, the phone switch keeps its colors at half opacity (Is
+  // Enabled=False), as the web's phone layer
+  const on = (color ?? theme.selectionColor) === "accent" ? theme.color("--switch-accent-color", theme.scheme === "dark" ? "#30D158" : "#34C759") : theme.color("--switch-track-color-checked")
+  const off = theme.color("--switch-track-color")
+  const [lens] = useState(() => new Animated.Value(held ? 1 : 0))
+  useEffect(() => {
+    if (theme.reducedMotion) {
+      lens.setValue(held ? 1 : 0)
+      return
+    }
+    const animation = Animated.timing(lens, { toValue: held ? 1 : 0, duration: 200, easing: Easing.bezier(0.19, 1, 0.22, 1), useNativeDriver: false })
+    animation.start()
+    return () => animation.stop()
+  }, [held, lens, theme.reducedMotion])
   return (
-    <View style={{ width, height, borderRadius: height / 2, backgroundColor: checked ? on : off, justifyContent: "center" }}>
+    <View style={{ width, height, borderRadius: height / 2, backgroundColor: checked ? on : off, justifyContent: "center", opacity: disabled ? 0.5 : 1 }}>
       <Animated.View
         style={{
           position: "absolute",
-          left: progress.interpolate({ inputRange: [0, 1], outputRange: [offset, width - thumbWidth - offset] }),
+          // From the start of the track: on is at its end, the right in a left-to-right row and the left in a right-to-left one
+          start: progress.interpolate({ inputRange: [0, 1], outputRange: [offset, width - thumbWidth - offset] }),
           width: thumbWidth,
           height: thumbHeight,
           borderRadius: thumbHeight / 2,
-          backgroundColor: disabled ? theme.color("--switch-thumb-color-disabled") : theme.color("--switch-thumb-color"),
-          // The phone layer draws the thumb flat (`--switch-thumb-shadow: none`)
+          // The phone layer draws the thumb flat (`--switch-thumb-shadow: none`); held, it is the lens
+          backgroundColor: held ? LENS.fill : theme.color("--switch-thumb-color"),
+          boxShadow: held ? LENS.shadow : undefined,
+          transform: [
+            { scaleX: lens.interpolate({ inputRange: [0, 1], outputRange: [1, LENS.width / thumbWidth] }) },
+            { scaleY: lens.interpolate({ inputRange: [0, 1], outputRange: [1, LENS.height / thumbHeight] }) },
+          ],
         }}
       />
     </View>
   )
 }
 
-function AndroidTrack({ theme, checked, pressed, disabled, color, progress }: TrackProps & { pressed: boolean }) {
-  const m = theme.material
-  // Compose SwitchTokens: track 52x32, a 2dp outline off; a handle with an icon is 24 on and off, 28 held. Settings
-  // draws every switch with its thumb icon (settingslib_expressive_switch_thumb_icon): a check on, an X off
-  const held = pressed && !disabled
-  const handle = held ? 28 : 24
-  const selection = selectionColor(theme, color)
-  const trackOn = disabled ? withAlpha(m.onSurface, 0.12) : selection
-  const trackOff = disabled ? withAlpha(m.surfaceContainerHighest, 0.12) : m.surfaceContainerHighest
-  // A held handle takes the track color's container (primaryContainer) on, onSurfaceVariant off
-  const handleOn = disabled ? m.surface : held ? theme.color(color === "accent" ? "--color-background-accent-soft" : "--color-background-primary-soft") : theme.color(color === "accent" ? "--color-text-accent-solid" : "--color-text-primary-solid")
-  const handleOff = disabled ? withAlpha(m.onSurface, 0.38) : held ? m.onSurfaceVariant : m.outline
-  const border = checked ? "transparent" : disabled ? withAlpha(m.onSurface, 0.12) : m.outline
-  // The icon takes the track's color: the selection on, surfaceContainerHighest off (Compose's disabled alphas)
-  const icon = checked ? (disabled ? withAlpha(m.onSurface, 0.38) : selection) : disabled ? withAlpha(m.surfaceContainerHighest, 0.38) : m.surfaceContainerHighest
-  const Glyph = checked ? MaterialCheckSymbol : MaterialClose
-  // The handle's center travels from 16 to 36 of the track; children are placed inside its 2dp border
-  const center = (size: number) => progress.interpolate({ inputRange: [0, 1], outputRange: [16 - 2 - size / 2, 36 - 2 - size / 2] })
+/** Android's switch: its view 37x20dp, the track 31x14 in it, the thumb's center 7 to 24 along the track. */
+const ANDROID_VIEW = { width: 37, height: 20 }
+const ANDROID_TRACK = { width: 31, height: 14 }
+const ANDROID_START = (ANDROID_VIEW.width - ANDROID_TRACK.width) / 2
+
+function AndroidTrack({ theme, color, progress }: TrackProps) {
+  // The knob is the card's color (the white of a card); the track off the gray of an off switch, on the selection
+  // color (the switch's own, or the ThemeProvider's)
+  const card = theme.colors.groupedSurface
+  const off = androidSwitchOff(theme)
+  const on = selectionColor(theme, color)
+  const track = progress.interpolate({ inputRange: [0, 1], outputRange: [off, on] })
+  // The thumb's left edge: its 20dp circle centered 7 and 24 along the track (mirrored in a right-to-left row)
+  const start = progress.interpolate({ inputRange: [0, 1], outputRange: [ANDROID_START + 7 - 10, ANDROID_START + 24 - 10] })
   return (
-    <View style={{ width: 52, height: 32, borderRadius: 16, borderWidth: 2, borderColor: border, backgroundColor: checked ? trackOn : trackOff, justifyContent: "center" }}>
-      {held ? (
-        // The 40dp pressed layer around the handle: the selection color on, onSurface off
-        <Animated.View pointerEvents="none" style={[styles.layer, { left: center(40), backgroundColor: withAlpha(checked ? selection : m.onSurface, stateLayer.pressed) }]} />
-      ) : null}
-      <Animated.View style={[styles.handle, { left: center(handle), width: handle, height: handle, borderRadius: handle / 2, backgroundColor: checked ? handleOn : handleOff }]}>
-        <Glyph size={16} color={icon} />
+    <View style={styles.androidView}>
+      <Animated.View style={[styles.androidTrack, { backgroundColor: track }]} />
+      <Animated.View style={[styles.androidThumb, { start, backgroundColor: track }]}>
+        <View style={[styles.androidKnob, { backgroundColor: card }]} />
       </Animated.View>
     </View>
   )
@@ -147,6 +237,11 @@ function AndroidTrack({ theme, checked, pressed, disabled, color, progress }: Tr
 const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
   grow: { flex: 1, minWidth: 0 },
-  layer: { position: "absolute", top: 16 - 2 - 20, width: 40, height: 40, borderRadius: 20 },
-  handle: { position: "absolute", alignItems: "center", justifyContent: "center" },
+  dim: { opacity: 0.5 },
+  // The row ends 20dp in; Android's switch stands 22dp in
+  androidRowEnd: { marginEnd: ANDROID_SWITCH_END - ANDROID_ROW_END },
+  androidView: { width: ANDROID_VIEW.width, height: ANDROID_VIEW.height, justifyContent: "center" },
+  androidTrack: { position: "absolute", start: ANDROID_START, top: (ANDROID_VIEW.height - ANDROID_TRACK.height) / 2, width: ANDROID_TRACK.width, height: ANDROID_TRACK.height, borderRadius: ANDROID_TRACK.height / 2 },
+  androidThumb: { position: "absolute", top: 0, width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  androidKnob: { width: 16, height: 16, borderRadius: 8 },
 })

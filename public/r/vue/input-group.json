@@ -3,7 +3,7 @@
   "name": "input-group",
   "type": "registry:ui",
   "title": "Input Group",
-  "description": "Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as header and footer rows, in every input size and style.",
+  "description": "Input or textarea with icons, text, buttons and menus attached inside one frame, inline or as rows.",
   "dependencies": [
     "@plexui/vue"
   ],

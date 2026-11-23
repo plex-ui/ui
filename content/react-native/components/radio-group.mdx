@@ -1,81 +1,150 @@
 ---
-title: RadioGroup
-description: Radio group for choosing one option of several, with descriptions, a row layout and disabled options; the checkmark of a list row on iOS, Material 3's radio button on Android.
+title: Radio Group
+description: Radio group for picking one option from a short list, each option a row of a list.
+metaDescription: Radio group for single-choice selection in the rows of a list, with descriptions and disabled options; the checkmark of a list row on iOS, a 20dp radio button on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const [plan, setPlan] = useState("monthly")
+export const overviewCode = `import { List, ListItem, RadioGroup, ThemeProvider } from "@plexui/react-native"
 
-<RadioGroup aria-label="Plan" value={plan} onChange={setPlan}>
-  <RadioGroup.Item value="monthly">Monthly</RadioGroup.Item>
-  <RadioGroup.Item value="yearly">Yearly</RadioGroup.Item>
-  <RadioGroup.Item value="lifetime">Lifetime</RadioGroup.Item>
-</RadioGroup>
-<Text variant="footnote" color="secondary">Plan: {plan}</Text>`
+const frequencies = [
+  { value: "daily", label: "Daily", description: "A summary every morning." },
+  { value: "weekly", label: "Weekly", description: "A digest every Monday." },
+  { value: "monthly", label: "Monthly", description: "A recap on the first of the month." },
+  { value: "never", label: "Never", description: "Only security alerts." },
+]
 
-export const descriptionsCode = `<RadioGroup aria-label="Delivery" defaultValue="standard">
-  <RadioGroup.Item value="standard" description="3 to 5 working days, free">
-    Standard
-  </RadioGroup.Item>
-  <RadioGroup.Item value="express" description="Next working day">
-    Express
-  </RadioGroup.Item>
-  <RadioGroup.Item value="pickup" description="Not available in your area" disabled>
-    Pick up in store
-  </RadioGroup.Item>
+const [frequency, setFrequency] = useState("daily")
+const [description, setDescription] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [itemDisabled, setItemDisabled] = useState(false)
+// The app's on color, set once on its ThemeProvider: "primary" (the default) or "accent"
+const [selectionColor, setSelectionColor] = useState<"primary" | "accent">("primary")
+
+<ThemeProvider selectionColor={selectionColor}>
+  {/* Each option is a row; the chosen row ends with its mark */}
+  <RadioGroup aria-label="Notification frequency" value={frequency} onChange={setFrequency} disabled={disabled}>
+    <List header="Notification frequency">
+      {frequencies.map((option) => (
+        <ListItem
+          key={option.value}
+          label={option.label}
+          description={description ? option.description : undefined}
+          disabled={disabled || (itemDisabled && option.value === "monthly")}
+          trailing={
+            <RadioGroup.Item
+              value={option.value}
+              aria-label={option.label}
+              disabled={itemDisabled && option.value === "monthly"}
+            />
+          }
+        />
+      ))}
+    </List>
+  </RadioGroup>
+</ThemeProvider>`
+
+export const fieldCode = `<RadioGroup aria-label="Notification method" value={value} onChange={setValue}>
+  <List header="Notification method" description="Choose how you want to receive notifications.">
+    <ListItem label="Email" trailing={<RadioGroup.Item value="email" aria-label="Email" />} />
+    <ListItem label="SMS" trailing={<RadioGroup.Item value="sms" aria-label="SMS" />} />
+    <ListItem label="Push notification" trailing={<RadioGroup.Item value="push" aria-label="Push notification" />} />
+  </List>
 </RadioGroup>`
 
-export const rowCode = `<RadioGroup aria-label="Size" defaultValue="m" direction="row">
-  <RadioGroup.Item value="s">Small</RadioGroup.Item>
-  <RadioGroup.Item value="m">Medium</RadioGroup.Item>
-  <RadioGroup.Item value="l">Large</RadioGroup.Item>
+export const fieldErrorCode = `import { List, ListItem, RadioGroup } from "@plexui/react-native"
+
+const [value, setValue] = useState<string>()
+const [showError, setShowError] = useState(true)
+
+<RadioGroup aria-label="Subscription plan" value={value} onChange={setValue}>
+  <List
+    header="Subscription plan"
+    description="Select a plan to continue."
+    // Until a plan is chosen
+    error={showError && value == null ? "Please select a subscription plan." : undefined}
+  >
+    <ListItem label="Pay monthly" description="$9.99/month" trailing={<RadioGroup.Item value="monthly" aria-label="Pay monthly" />} />
+    <ListItem label="Pay yearly" description="$99.99/year" trailing={<RadioGroup.Item value="yearly" aria-label="Pay yearly" />} />
+    <ListItem label="Pay once" description="$299.99 for lifetime access" trailing={<RadioGroup.Item value="lifetime" aria-label="Pay once" />} />
+  </List>
 </RadioGroup>`
 
-export const markAtEndCode = `<RadioGroup aria-label="Sort by" defaultValue="recent">
-  <RadioGroup.Item value="recent" orientation="right">Most recent</RadioGroup.Item>
-  <RadioGroup.Item value="popular" orientation="right">Most popular</RadioGroup.Item>
-</RadioGroup>`
+export const sectionsCode = `import { List, ListItem, NavigationButton, RadioGroup, Toolbar } from "@plexui/react-native"
 
-export const disabledCode = `<RadioGroup aria-label="Theme" defaultValue="system" disabled>
-  <RadioGroup.Item value="light">Light</RadioGroup.Item>
-  <RadioGroup.Item value="dark">Dark</RadioGroup.Item>
-  <RadioGroup.Item value="system">System</RadioGroup.Item>
-</RadioGroup>`
+const [visibility, setVisibility] = useState("owners")
+const [view, setView] = useState("list")
+
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="back" onPress={goBack} />
+  </Toolbar.Leading>
+  <Toolbar.Title>Preferences</Toolbar.Title>
+</Toolbar>
+<ScrollView contentContainerStyle={{ paddingTop: 10, paddingHorizontal: 16, paddingBottom: 16, gap: 16.33 }}>
+  <RadioGroup aria-label="Visibility" value={visibility} onChange={setVisibility}>
+    <List header="Visibility" description="Control who can see project resources.">
+      <ListItem label="Hidden" trailing={<RadioGroup.Item value="hidden" aria-label="Hidden" />} />
+      <ListItem label="Visible to organization owners" trailing={<RadioGroup.Item value="owners" aria-label="Visible to organization owners" />} />
+      <ListItem label="Visible to everyone" trailing={<RadioGroup.Item value="everyone" aria-label="Visible to everyone" />} />
+    </List>
+  </RadioGroup>
+  <RadioGroup aria-label="Default view" value={view} onChange={setView}>
+    <List header="Default view" description="What opens first in a project.">
+      <ListItem label="Board" trailing={<RadioGroup.Item value="board" aria-label="Board" />} />
+      <ListItem label="List" trailing={<RadioGroup.Item value="list" aria-label="List" />} />
+      <ListItem label="Timeline" trailing={<RadioGroup.Item value="timeline" aria-label="Timeline" />} />
+    </List>
+  </RadioGroup>
+</ScrollView>`
 
 <UsageBlock>{`import { RadioGroup } from "@plexui/react-native"`}</UsageBlock>
 
-The props follow `@plexui/ui`'s RadioGroup, with `RadioGroup.Item` for each option. iOS has no radio button: the chosen option shows the checkmark of a list row in a 22pt column, and the others leave the column empty, in 44pt rows. Android draws Material 3's 20dp radio button, a 2dp ring with a dot in the Plex primary, in a 48dp touch target with the press's state layer. A phone stacks the options in a column by default.
-
 ## Examples
+
+<span id="direction" />
+<span id="orientation" />
+<span id="group-disabled" />
+<span id="item-disabled" />
+<span id="with-description" />
 
 ### Overview
 
-<RNPreview demo="radio-group/Overview" code={overviewCode} />
+<ComponentPreview details={<>
+  <p>On a phone, put the options in the rows of a <code>List</code> inside the <code>RadioGroup</code>: each <code>ListItem</code> names an option, and a <code>RadioGroup.Item</code> without children is its <code>trailing</code> mark, as in an iOS settings list or a section of a settings screen on Android. The list's header names the choice.</p>
+  <p>Each option is a row of a <code>List</code>, and its <code>RadioGroup.Item</code> without children ends the row. On iOS the chosen row ends with the checkmark of a list row, in the text color (the accent, the iOS tint, when the <code>ThemeProvider</code>&apos;s <code>selectionColor</code> is the accent), in a 22pt column, and the others leave the column empty: iOS has no radio button. On Android each row ends with a radio button, a 20dp ring of 2dp, light gray when empty and the selection color (the <code>ThemeProvider</code>&apos;s <code>selectionColor</code>: the Plex primary unless set to the accent) with a 10dp dot when chosen, 23dp in from the card's edge, in a 48dp touch target. Choosing takes 200ms: the gray fills the ring inward, then shrinks to the dot as it takes the selection color. A disabled option keeps its colors at half. Give each item the row's label as its <code>aria-label</code>.</p>
+  <p>A row's <code>description</code> puts a second line under its label, read after it by VoiceOver and TalkBack.</p>
+  <p><code>disabled</code> on <code>RadioGroup</code> disables every option; on a single <code>RadioGroup.Item</code> it disables only that one, here Monthly, so that setting is offered only while the group is enabled. Set <code>disabled</code> on the row too, so its label dims with the option.</p>
+  <p>A phone list is always a column and its mark always ends the row, so the example does not offer <code>direction</code> or <code>orientation</code>; a <code>RadioGroup.Item</code> with a label takes both outside a list.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="radio-group/Overview" />
+</ComponentPreview>
 
-### Descriptions
+### With Field
 
-A description sits under its option's label and is read after it by VoiceOver and TalkBack. A disabled option dims and takes no presses.
+<ComponentPreview details={<>The <code>List</code>'s <code>header</code> names the choice above its rows, and the group's <code>aria-label</code> names it for VoiceOver and TalkBack.</>} code={fieldCode} previewMinHeight={168}>
+  <RNExample demo="radio-group/WithField" grouped />
+</ComponentPreview>
 
-<RNPreview demo="radio-group/Descriptions" code={descriptionsCode} />
+### With Field error
 
-### Row
+<ComponentPreview details={<>An error shows under the rows, in the <code>List</code>'s <code>error</code>, until an option is chosen.</>} code={fieldErrorCode} previewMinHeight={168}>
+  <RNExample demo="radio-group/WithFieldError" />
+</ComponentPreview>
 
-`direction="row"` lays short options side by side, wrapping when they do not fit.
+### Grouped sections
 
-<RNPreview demo="radio-group/Row" code={rowCode} />
+<ComponentPreview details={<>Separate choices into sections of a settings screen: a <code>RadioGroup</code> around a <code>List</code> for each, with its own header. The screen has a top bar with a back button, as a pushed settings page does.</>} code={sectionsCode} previewMinHeight={168}>
+  <RNExample demo="radio-group/GroupedSections" screen grouped />
+</ComponentPreview>
 
-### Mark at the end
+## Platforms
 
-`orientation="right"` on an item puts its mark after the label.
-
-<RNPreview demo="radio-group/MarkAtEnd" code={markAtEndCode} />
-
-### Disabled
-
-`disabled` on the group disables every option.
-
-<RNPreview demo="radio-group/Disabled" code={disabledCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: a checkmark list or a menu picker | Radio button |
+| Look | The checkmark of the chosen row | A 20dp radio button at the row's end |
 
 ## API
 
@@ -88,7 +157,7 @@ A description sits under its option's label and is read after it by VoiceOver an
   { prop: "aria-label", type: "string", description: "Name of the group for assistive technology" },
   { prop: "direction", type: '"row" | "col"', default: '"col"', description: "Stacks the options, or lays them side by side" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disables every option" },
-  { prop: "children", type: "ReactNode", description: "RadioGroup.Item elements" },
+  { prop: "children", type: "ReactNode", description: "RadioGroup.Item elements, or a List of rows holding them" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the group" },
 ]} />
@@ -97,7 +166,7 @@ A description sits under its option's label and is read after it by VoiceOver an
 
 <PropsTable data={[
   { prop: "value", type: "string", description: "The option's value (required)" },
-  { prop: "children", type: "ReactNode", description: "The label" },
+  { prop: "children", type: "ReactNode", description: "The label; leave it out for the mark alone, at the end of a list row" },
   { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the option and takes no presses" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Where the mark stands against the label" },

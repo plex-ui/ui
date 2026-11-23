@@ -1,6 +1,6 @@
 ---
 title: Stepper
-description: Two segments that decrease and increase a number in steps, within a range or wrapping around, as the iOS 26 stepper does.
+description: "Two segments that decrease and increase a number in steps, as the iOS 26 stepper does."
 metaDescription: Vue 3 stepper component with minus and plus segments for small number changes, v-model:value, a min, max and step, wrapping, hold to repeat, and spin button keyboard support.
 ---
 
@@ -52,15 +52,16 @@ export const pillControl = [{ name: "pill", type: "boolean", default: true, desk
 
 <UsageBlock>{`import { Stepper } from "@plexui/vue/components/Stepper";`}</UsageBlock>
 
-A stepper changes a value by small amounts and shows no value of its own. Show the value beside it and name the stepper with the label of that value, or set `show-value` to put it between the minus and the plus, as a cart's quantity. For values that vary widely, pair it with an input. On a phone it is the 93 × 32 capsule of a native iOS 27.2 stepper with a 44px target; on a desktop it follows the PlexUI control size.
-
 ## Examples
 
 <span id="states" />
 
 ### Overview
 
-<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. With <code>show-value</code> the value stands between the minus and the plus on one fill, as a cart's quantity does, and the row's label only names it, such as Copies; on a phone it is a 96 × 36 capsule with round 36px segments and the value at 15px medium. On a desktop set <code>:pill="false"</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.</>} code={overview} previewMinHeight={240}>
+<ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>A stepper changes a value by small amounts and shows no value of its own. For values that vary widely, pair it with an input. On a phone it is the 93 × 32 capsule of a native iOS 27.2 stepper with a 44px target; on a desktop it follows the PlexUI control size.</p>
+  <p>Put a stepper in a <code>Field</code> row and name its value in the row's label, such as 3 copies: the stepper shows no value of its own. At the lowest value the minus turns tertiary and stops stepping, at the highest the plus, as 1 copy shows; the segment keeps its fill, as in iOS. Holding a segment keeps stepping, as a native stepper does. A disabled stepper takes no focus and shows both symbols tertiary. With <code>show-value</code> the value stands between the minus and the plus on one fill, as a cart's quantity does, and the row's label only names it, such as Copies; on a phone it is a 96 × 36 capsule with round 36px segments and the value at 15px medium. On a desktop set <code>:pill="false"</code> for square ends, as other controls in a dense layout have; on a phone the stepper stays the capsule of iOS, so the Phone preview does not offer it. On a phone the rows sit on the grouped background of an iOS settings screen.</p>
+</>} code={overview} previewMinHeight={240}>
   <VuePhoneRowsDemo template={overview} phoneTemplate={phoneRows(overview)} phoneStageClassName="w-full" controls={disabledControl} desktopControls={pillControl} state={{ copies: 1, nights: 3 }} />
 </ComponentPreview>
 

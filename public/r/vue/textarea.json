@@ -3,7 +3,7 @@
   "name": "textarea",
   "type": "registry:ui",
   "title": "Textarea",
-  "description": "Multi-line text input that can grow with its content, with a size scale, autofill extension control, and invalid state styling.",
+  "description": "\"A text field of several lines for longer input, which can grow with its content.\"",
   "dependencies": [
     "@plexui/vue"
   ],

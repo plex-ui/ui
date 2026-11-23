@@ -1,6 +1,6 @@
 ---
 title: Menu
-description: Dropdown menu for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts.
+description: Dropdown menu for structured actions, with grouped items, submenus, and checkbox and radio items.
 metaDescription: React dropdown menu component for structured actions with grouped items, submenus, checkbox and radio items, and horizontal layouts
 ---
 
@@ -29,7 +29,7 @@ import { menuPhoneOnlyReact, withMenuPhoneReact } from "@/components/docs/menuPh
 ### Overview
 
 <ComponentPreview details={<>
-  <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group By in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>pill</code> on <code>Menu.Content</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
+  <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group by in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>pill</code> on <code>Menu.Content</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
   <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out <code>width</code>, <code>minWidth</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
 </>} code={withMenuPhoneReact(`const [icons] = useState(true)
 const [checkmarks] = useState(true)
@@ -44,9 +44,9 @@ const [group, setGroup] = useState("date")
   </Menu.Trigger>
   <Menu.Content minWidth={220} pill={pill}>
     <Menu.Item onSelect={() => {}}>{icons && <CheckCircle />} Select</Menu.Item>
-    <Menu.Item onSelect={() => {}}>{icons && <FolderPlus />} New Folder</Menu.Item>
-    <Menu.Item onSelect={() => {}}>{icons && <FileDocument />} Scan Documents</Menu.Item>
-    <Menu.Item onSelect={() => {}}>{icons && <Desktop />} Connect to Server</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <FolderPlus />} New folder</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <FileDocument />} Scan documents</Menu.Item>
+    <Menu.Item onSelect={() => {}}>{icons && <Desktop />} Connect to server</Menu.Item>
     <Menu.Separator />
     {checkmarks && (
       <>
@@ -58,13 +58,13 @@ const [group, setGroup] = useState("date")
         <Menu.RadioGroup value={sort} onChange={setSort}>
           <Menu.RadioItem value="name">Name</Menu.RadioItem>
           <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
-          <Menu.RadioItem value="date" description={sort === "date" ? "Newest to Oldest" : undefined}>Date</Menu.RadioItem>
+          <Menu.RadioItem value="date" description={sort === "date" ? "Newest to oldest" : undefined}>Date</Menu.RadioItem>
           <Menu.RadioItem value="size">Size</Menu.RadioItem>
           <Menu.RadioItem value="tags">Tags</Menu.RadioItem>
         </Menu.RadioGroup>
         <Menu.Separator />
         <Menu.Sub>
-          <Menu.SubTrigger>Group By</Menu.SubTrigger>
+          <Menu.SubTrigger>Group by</Menu.SubTrigger>
           <Menu.SubContent>
             <Menu.RadioGroup value={group} onChange={setGroup}>
               <Menu.RadioItem value="none">None</Menu.RadioItem>
@@ -77,7 +77,7 @@ const [group, setGroup] = useState("date")
         </Menu.Sub>
       </>
     )}
-    <Menu.Item onSelect={() => {}}>View Options</Menu.Item>
+    <Menu.Item onSelect={() => {}}>View options</Menu.Item>
   </Menu.Content>
 </Menu>`, "Overview")} previewMinHeight={168}>
   <MenuBaseDemo />
@@ -144,7 +144,7 @@ const [filter, setFilter] = useState("all")
 ### Grouped items
 
 <ComponentPreview details={<>
-  <p>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter By, and Manage Filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown.</p>
+  <p>Use <code>Menu.Group</code> and <code>Menu.Label</code> to organize related items into labeled sections. The example is the filter of the message list, as Messages opens it on iOS: the mailboxes, a section labeled Filter by, and Manage filtering under a separator. Both radio groups hold one value, so one checkmark marks the list shown.</p>
   <p>On a phone a section label and a row without an icon start after the checkmark column, where the icons of the other rows start, as in iOS menus.</p>
 </>} code={withMenuPhoneReact(`const [filter, setFilter] = useState("messages")
 
@@ -156,18 +156,18 @@ const [filter, setFilter] = useState("all")
     <Menu.RadioGroup value={filter} onChange={setFilter}>
       <Menu.RadioItem value="messages"><Chats /> Messages</Menu.RadioItem>
       <Menu.RadioItem value="spam"><XSquare /> Spam</Menu.RadioItem>
-      <Menu.RadioItem value="deleted"><Trash /> Recently Deleted</Menu.RadioItem>
+      <Menu.RadioItem value="deleted"><Trash /> Recently deleted</Menu.RadioItem>
     </Menu.RadioGroup>
     <Menu.Separator />
     <Menu.Group>
-      <Menu.Label>Filter By</Menu.Label>
+      <Menu.Label>Filter by</Menu.Label>
       <Menu.RadioGroup value={filter} onChange={setFilter}>
         <Menu.RadioItem value="unread"><Chat /> Unread</Menu.RadioItem>
         <Menu.RadioItem value="drafts"><ChatTripleDots /> Drafts</Menu.RadioItem>
       </Menu.RadioGroup>
     </Menu.Group>
     <Menu.Separator />
-    <Menu.Item onSelect={() => {}}>Manage Filtering</Menu.Item>
+    <Menu.Item onSelect={() => {}}>Manage filtering</Menu.Item>
   </Menu.Content>
 </Menu>`, "Grouped items")} previewMinHeight={168}>
   <MenuGroupedDemo />
@@ -176,7 +176,7 @@ const [filter, setFilter] = useState("all")
 ### Submenus
 
 <ComponentPreview details={<>
-  <p>A list's menu, as Reminders opens it on iOS: Manage Sections and Sort By open submenus, and Sort By shows the order it has chosen under its label (<code>description</code> on <code>Menu.SubTrigger</code>). Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus.</p>
+  <p>A list's menu, as Reminders opens it on iOS: Manage sections and Sort by open submenus, and Sort by shows the order it has chosen under its label (<code>description</code> on <code>Menu.SubTrigger</code>). Use <code>Menu.Sub</code>, <code>Menu.SubTrigger</code>, and <code>Menu.SubContent</code> for nested menus.</p>
   <p>On a phone a submenu opens over its menu, as iOS 26 submenus do: its row heads it in Semibold with a separator under it and a chevron that points down, and the menu behind steps back, its rows at half strength and the panel slightly smaller, until the row is tapped again.</p>
   <p>The menu behind is out of reach while the submenu stands over it: a press on it closes the submenu and chooses nothing, and screen readers skip it, with focus in the submenu. The heading row stays in place and only the items under it scroll in a submenu taller than the screen, so the row that closes it is always in reach.</p>
 </>} code={withMenuPhoneReact(`const [sort, setSort] = useState("Manual")
@@ -188,32 +188,32 @@ const [filter, setFilter] = useState("all")
     </Button>
   </Menu.Trigger>
   <Menu.Content align="end" minWidth={220}>
-    <Menu.Item onSelect={() => {}}><Storyboard /> View as Columns</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Storyboard /> View as columns</Menu.Item>
     <Menu.Separator />
-    <Menu.Item onSelect={() => {}}><InfoCircle /> Show List Info</Menu.Item>
-    <Menu.Item onSelect={() => {}}><CheckCircle /> Select Items</Menu.Item>
+    <Menu.Item onSelect={() => {}}><InfoCircle /> Show list info</Menu.Item>
+    <Menu.Item onSelect={() => {}}><CheckCircle /> Select items</Menu.Item>
     <Menu.Sub>
-      <Menu.SubTrigger><List /> Manage Sections</Menu.SubTrigger>
+      <Menu.SubTrigger><List /> Manage sections</Menu.SubTrigger>
       <Menu.SubContent>
-        <Menu.Item onSelect={() => {}}><Plus /> New Section</Menu.Item>
+        <Menu.Item onSelect={() => {}}><Plus /> New section</Menu.Item>
       </Menu.SubContent>
     </Menu.Sub>
     <Menu.Sub>
-      <Menu.SubTrigger description={sort}><Sort /> Sort By</Menu.SubTrigger>
+      <Menu.SubTrigger description={sort}><Sort /> Sort by</Menu.SubTrigger>
       <Menu.SubContent>
         <Menu.RadioGroup value={sort} onChange={setSort}>
           <Menu.RadioItem value="Manual">Manual</Menu.RadioItem>
-          <Menu.RadioItem value="Due Date">Due Date</Menu.RadioItem>
-          <Menu.RadioItem value="Creation Date">Creation Date</Menu.RadioItem>
+          <Menu.RadioItem value="Due date">Due date</Menu.RadioItem>
+          <Menu.RadioItem value="Creation date">Creation date</Menu.RadioItem>
           <Menu.RadioItem value="Priority">Priority</Menu.RadioItem>
           <Menu.RadioItem value="Title">Title</Menu.RadioItem>
         </Menu.RadioGroup>
       </Menu.SubContent>
     </Menu.Sub>
-    <Menu.Item onSelect={() => {}}><EyeOff /> Hide Completed</Menu.Item>
-    <Menu.Item onSelect={() => {}}><UploadDocuments /> Save as Template</Menu.Item>
+    <Menu.Item onSelect={() => {}}><EyeOff /> Hide completed</Menu.Item>
+    <Menu.Item onSelect={() => {}}><UploadDocuments /> Save as template</Menu.Item>
     <Menu.Item onSelect={() => {}}><FileDocument /> Print</Menu.Item>
-    <Menu.Item onSelect={() => {}} danger><Trash /> Delete List</Menu.Item>
+    <Menu.Item onSelect={() => {}} danger><Trash /> Delete list</Menu.Item>
   </Menu.Content>
 </Menu>`, "Submenus")} previewMinHeight={168}>
   <MenuSubmenuDemo />
@@ -222,7 +222,7 @@ const [filter, setFilter] = useState("all")
 ### Checkbox items
 
 <ComponentPreview details={<>
-  <p>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About Categories under a separator.</p>
+  <p>Use <code>Menu.CheckboxItem</code> with <code>checked</code>, <code>onCheckedChange</code>, and <code>{"onSelect={(evt) => evt.preventDefault()}"}</code> to keep the menu open. The example is the view options of a mailbox, as Mail opens them on iOS: three options that are each on or off, and About categories under a separator.</p>
   <p>On a phone with <code>touch.css</code> the checkmark leads the row, as in iOS menus, whatever <code>indicatorPosition</code> and <code>indicatorVariant</code> say, so the phone view leaves out those controls. A row without a checkmark keeps its column, so every icon and label lines up, and a long label wraps under itself.</p>
 </>} code={withMenuPhoneReact(`const [view, setView] = useState({
   categories: true,
@@ -238,7 +238,7 @@ return (
       </Button>
     </Menu.Trigger>
     <Menu.Content minWidth={220}>
-      <Menu.Label>View Options</Menu.Label>
+      <Menu.Label>View options</Menu.Label>
       <Menu.CheckboxItem
         checked={view.categories}
         onCheckedChange={(checked) => setView((v) => ({ ...v, categories: checked }))}
@@ -246,7 +246,7 @@ return (
         indicatorPosition="end"
         indicatorVariant="solid"
       >
-        <Storyboard /> Show Categories
+        <Storyboard /> Show categories
       </Menu.CheckboxItem>
       <Menu.CheckboxItem
         checked={view.priority}
@@ -255,7 +255,7 @@ return (
         indicatorPosition="end"
         indicatorVariant="solid"
       >
-        <Atom /> Show Priority
+        <Atom /> Show priority
       </Menu.CheckboxItem>
       <Menu.CheckboxItem
         checked={view.contactPhotos}
@@ -264,10 +264,10 @@ return (
         indicatorPosition="end"
         indicatorVariant="solid"
       >
-        <AvatarProfile /> Show Contact Photos
+        <AvatarProfile /> Show contact photos
       </Menu.CheckboxItem>
       <Menu.Separator />
-      <Menu.Item onSelect={() => {}}><InfoCircle /> About Categories</Menu.Item>
+      <Menu.Item onSelect={() => {}}><InfoCircle /> About categories</Menu.Item>
     </Menu.Content>
   </Menu>
 )`, "Checkbox items")} previewMinHeight={168}>
@@ -284,7 +284,7 @@ return (
 <Menu>
   <Menu.Trigger>
     <Button color="primary" variant="ghost">
-      Radio menu <ChevronDownMd />
+      Date modified <ChevronDownMd />
     </Button>
   </Menu.Trigger>
   <Menu.Content align="start" minWidth="auto" width="auto">
@@ -331,10 +331,10 @@ return (
   </Menu.Trigger>
   <Menu.Content minWidth="auto">
     <Menu.Item onSelect={() => {}}><Functions height={18} width={18} /> Function</Menu.Item>
-    <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File Search</Menu.Item>
-    <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web Search</Menu.Item>
-    <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code Interpreter</Menu.Item>
-    <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image Generation</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Search height={18} width={18} /> File search</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Globe height={18} width={18} /> Web search</Menu.Item>
+    <Menu.Item onSelect={() => {}}><Code height={18} width={18} /> Code interpreter</Menu.Item>
+    <Menu.Item onSelect={() => {}}><ImageSquare height={18} width={18} /> Image generation</Menu.Item>
   </Menu.Content>
 </Menu>`} previewMinHeight={168}>
   <MenuNaturalSizingDemo />
@@ -367,19 +367,19 @@ return (
   </Menu.Trigger>
   <Menu.Content width={270}>
     <Menu.Item onSelect={() => {}}>
-      <span className="flex-1 truncate">Sample thread title</span>
+      <span className="flex-1 truncate">Trip to Lisbon</span>
       <Menu.ItemActions>
         <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
       </Menu.ItemActions>
     </Menu.Item>
     <Menu.Item onSelect={() => {}}>
-      <span className="flex-1 truncate">Another sample thread title</span>
+      <span className="flex-1 truncate">Q3 roadmap review</span>
       <Menu.ItemActions>
         <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
       </Menu.ItemActions>
     </Menu.Item>
     <Menu.Item onSelect={() => {}}>
-      <span className="flex-1 truncate">Long thread title that is going to be clipped off</span>
+      <span className="flex-1 truncate">Ideas for the onboarding emails we send to new workspace members</span>
       <Menu.ItemActions>
         <Menu.ItemAction onClick={() => {}}><Trash /></Menu.ItemAction>
       </Menu.ItemActions>

@@ -3,7 +3,7 @@
   "name": "markdown-editor",
   "type": "registry:ui",
   "title": "Markdown Editor",
-  "description": "Compact rich text editor powered by Tiptap, embedded in a form field, with a markdown formatting toolbar, variants, and an invalid state.",
+  "description": "Compact rich text editor powered by Tiptap, for a form field, with a markdown formatting toolbar.",
   "dependencies": [
     "@plexui/vue"
   ],

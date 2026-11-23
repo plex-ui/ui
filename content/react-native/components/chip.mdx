@@ -1,77 +1,99 @@
 ---
 title: Chip
-description: Compact chip for filters, actions and removable tags, with an optional symbol; the filter capsules of iOS apps on iOS, Material 3's filter, assist and input chips on Android.
+description: A compact chip for a filter, an action or a removable tag, with an optional symbol.
+metaDescription: Compact chip for filters, actions and removable tags, with an optional symbol; the filter capsules of iOS apps on iOS, 32dp capsules on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const FILTERS = ["Nearby", "Open now", "Top rated"]
-const [filters, setFilters] = useState(["Nearby"])
-const toggle = (name) => (on) => setFilters((list) => (on ? [...list, name] : list.filter((item) => item !== name)))
+export const overviewCode = `import { Button, Chip } from "@plexui/react-native"
+import { AtSign, AvatarProfile, Email, Star } from "@plexui/react-native/icons"
 
-<View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 8 }}>
-  {FILTERS.map((name) => (
-    <Chip key={name} selected={filters.includes(name)} onSelectedChange={toggle(name)}>
-      {name}
+const CHIPS = [
+  { value: "unread", label: "Unread", icon: <Email /> },
+  { value: "starred", label: "Starred", icon: <Star /> },
+  { value: "mentions", label: "Mentions", icon: <AtSign /> },
+]
+// Input chips: the recipients of a message
+const RECIPIENTS = [
+  { value: "anna", label: "Anna Kim", icon: <AvatarProfile /> },
+  { value: "ben", label: "Ben Carter", icon: <AvatarProfile /> },
+  { value: "maya", label: "Maya Patel", icon: <AvatarProfile /> },
+]
+
+const [type, setType] = useState<"filter" | "action" | "input">("filter") // which of the props below the chips set
+const [icon, setIcon] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [selected, setSelected] = useState(["unread"])
+const [shown, setShown] = useState(RECIPIENTS.map((chip) => chip.value))
+
+<View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", columnGap: 8 }}>
+  {(type === "input" ? RECIPIENTS.filter((chip) => shown.includes(chip.value)) : CHIPS).map((chip) => (
+    <Chip
+      key={chip.value}
+      icon={icon ? chip.icon : undefined}
+      disabled={disabled}
+      selected={type === "filter" ? selected.includes(chip.value) : undefined}
+      onSelectedChange={type === "filter" ? (on) => setSelected((list) => (on ? [...list, chip.value] : list.filter((value) => value !== chip.value))) : undefined}
+      onPress={type === "action" ? () => markAs(chip.value) : undefined}
+      onRemove={type === "input" ? () => setShown((list) => list.filter((value) => value !== chip.value)) : undefined}
+      removeLabel={\`Remove \${chip.label}\`}
+    >
+      {chip.label}
     </Chip>
   ))}
+</View>
+{type === "input" && shown.length === 0 && (
+  <Button color="secondary" variant="outline" size="sm" onPress={() => setShown(RECIPIENTS.map((chip) => chip.value))}>
+    Show again
+  </Button>
+)}`
+
+export const disabledCode = `import { Chip, Text } from "@plexui/react-native"
+
+<View style={{ alignItems: "flex-start", gap: 12 }}>
+  <Text size="md">Notify me by</Text>
+  <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: 8 }}>
+    <Chip disabled defaultSelected>Email</Chip>
+    <Chip defaultSelected>Push</Chip>
+    <Chip disabled defaultSelected={false}>SMS</Chip>
+  </View>
+  <Text size="sm" color="secondary">Account emails are always on. Add a phone number to get SMS.</Text>
 </View>`
-
-export const iconsCode = `import { MapPin, Star } from "@plexui/react-native/icons"
-
-<Chip icon={<MapPin />} defaultSelected>Nearby</Chip>
-<Chip icon={<Star />} selected={starred} onSelectedChange={setStarred}>Starred</Chip>`
-
-export const actionsCode = `import { Calendar, Filter } from "@plexui/react-native/icons"
-
-<Chip icon={<Filter />} onPress={() => setLast("Filters")}>Filters</Chip>
-<Chip icon={<Calendar />} onPress={() => setLast("Add to calendar")}>Add to calendar</Chip>`
-
-export const removableCode = `const [tags, setTags] = useState(["Design", "Mobile", "Plex"])
-
-{tags.map((tag) => (
-  <Chip key={tag} onRemove={() => setTags((list) => list.filter((item) => item !== tag))} removeLabel={\`Remove \${tag}\`}>
-    {tag}
-  </Chip>
-))}`
-
-export const disabledCode = `<Chip disabled defaultSelected>Selected</Chip>
-<Chip disabled onSelectedChange={() => {}}>Not selected</Chip>
-<Chip icon={<Star />} disabled onPress={() => {}}>Action</Chip>`
 
 <UsageBlock>{`import { Chip } from "@plexui/react-native"`}</UsageBlock>
 
-Chip is a React Native component: the web has none, so its props follow the toggles of `@plexui/ui` (`selected`, `onSelectedChange`) and Badge's `onRemove`. iOS has no chip control, so a chip is drawn as the filter capsules of iOS apps: a 34pt capsule in 15/20 medium on the soft gray fill, filled in the Plex primary when selected, as a selected Button. Android draws Material 3's chips: 32dp tall with 8dp corners, a 1dp outline and Label L; a selected filter chip fills with `secondaryContainer` and leads with a check. On both, the chip stands in a 44pt (iOS) or 48dp (Android) touch target.
+The web has no chip; a filter chip does what [Toggle Group](/components/toggle-group) does with items of text.
 
 ## Examples
 
-### Filter chips
+<span id="filter-chips" />
+<span id="with-a-symbol" />
+<span id="action-chips" />
+<span id="removable" />
 
-A chip with `selected`, `defaultSelected` or `onSelectedChange` is a filter chip: a press toggles it, and it is read as a checkbox by VoiceOver and TalkBack.
+### Overview
 
-<RNPreview demo="chip/Overview" code={overviewCode} />
-
-### With a symbol
-
-`icon` puts a symbol before the label. On Android it takes the place of the check of a selected filter chip.
-
-<RNPreview demo="chip/Icons" code={iconsCode} />
-
-### Action chips
-
-A chip with `onPress` alone is an action chip (Material's assist chip): it runs the action and keeps no state.
-
-<RNPreview demo="chip/Actions" code={actionsCode} />
-
-### Removable
-
-`onRemove` adds a cross after the label (Material's input chip). The cross is a button of its own beside the chip, named by `removeLabel`.
-
-<RNPreview demo="chip/Removable" code={removableCode} />
+<ComponentPreview details={<>
+  <p>Chip's examples follow the Toggle Group page's, and its props follow the toggles of <code>@plexui/ui</code> (<code>selected</code>, <code>onSelectedChange</code>) and Badge's <code>onRemove</code>. iOS has no chip control, so a chip is drawn as the filter capsules of iOS apps: a 34pt capsule in 15/20 medium on the soft gray fill, filled in the Plex primary when selected, as a selected Button. On Android a chip is a 32dp capsule filled with the text color at 5%, its label 14sp Regular, pressed in the press color of a List row (black at 6%, white at 5% in dark mode); a selected filter chip fills in the Plex primary, as on iOS. On both, the chip stands in a 44pt (iOS) or 48dp (Android) touch target.</p>
+  <p>Chips of text take the width of their label, 8 points apart, here the filters of a mailbox that can be on together, as the Toggle Group's Text example. <code>type</code> says which props they take. A chip with <code>selected</code>, <code>defaultSelected</code> or <code>onSelectedChange</code> is a filter chip: a press toggles it, and VoiceOver and TalkBack read it as a checkbox. A chip with <code>onPress</code> alone is an action chip (Material's assist chip): it runs the action and keeps no state. <code>onRemove</code> makes an input chip: a cross after the label, a button of its own named by <code>removeLabel</code>; here the chips are the recipients of a message, the cross removes one, and Show again brings them back.</p>
+  <p><code>icon</code> puts a symbol before the label, 18dp on Android. <code>disabled</code> dims a chip (on Android to half, its fill with it; on iOS the label of an off chip turns the disabled gray and a selected chip's primary fades to 40%) and takes no presses; a selected chip stays selected. On iOS a chip is a capsule as wide as its label, selected in the Plex primary; on Android a 32dp capsule, selected in the Plex primary too.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="chip/Overview" />
+</ComponentPreview>
 
 ### Disabled
 
-<RNPreview demo="chip/Disabled" code={disabledCode} />
+<ComponentPreview details={<><code>disabled</code> on a chip keeps it as it is: Email stays selected, as account emails cannot be turned off, and SMS stays off until there is a phone number. A disabled chip can be neither pressed nor focused, and its state still reads to VoiceOver and TalkBack.</>} code={disabledCode} previewMinHeight={168}>
+  <RNExample demo="chip/Disabled" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: drawn as the filter capsules of iOS apps | Chip (assist, filter, input) |
+| Look | A 34pt capsule, filled in the Plex primary when selected | A 32dp capsule in a light gray fill, filled in the Plex primary when selected |
 
 ## API
 

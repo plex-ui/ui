@@ -1,6 +1,6 @@
 ---
 title: Rolling Number
-description: A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.
+description: "A number whose digits roll to a new value, as an odometer's do, for a count that changes while it is watched."
 metaDescription: React rolling number component that animates each digit like an odometer, written by Intl.NumberFormat as a currency, a percent or a plain number, read by screen readers as text
 ---
 
@@ -11,13 +11,14 @@ import {
 
 <UsageBlock>{`import { RollingNumber } from "@plexui/ui/components/RollingNumber";`}</UsageBlock>
 
-A rolling number turns each changed digit to its new value, as the wheels of an odometer do, so a total or a count that changes in front of the reader shows the change. Use it where a number moves while it is watched, such as a total as items are added; a number that only loads once needs none.
-
 ## Examples
 
 ### Overview
 
-<ComponentPreview details={<>Pass the number as <code>value</code>; a new value rolls each digit that changes, and the digits that stay still do not move. <code>format</code> and <code>locales</code> write it as <code>Intl.NumberFormat</code> does: here as a currency, a percent or a plain number, with its grouping. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. It is read out as the written number, and with reduced motion the digits change at once.</>} code={`const [value, setValue] = useState(1284)
+<ComponentPreview details={<>
+  <p>A rolling number turns each changed digit to its new value, as the wheels of an odometer do, so a total or a count that changes in front of the reader shows the change. Use it where a number moves while it is watched, such as a total as items are added; a number that only loads once needs none.</p>
+  <p>Pass the number as <code>value</code>; a new value rolls each digit that changes, and the digits that stay still do not move. <code>format</code> and <code>locales</code> write it as <code>Intl.NumberFormat</code> does: here as a currency, a percent or a plain number, with its grouping. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. It is read out as the written number, and with reduced motion the digits change at once.</p>
+</>} code={`const [value, setValue] = useState(1284)
 
 <RollingNumber
   value={value}

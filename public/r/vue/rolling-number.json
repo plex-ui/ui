@@ -3,7 +3,7 @@
   "name": "rolling-number",
   "type": "registry:ui",
   "title": "Rolling Number",
-  "description": "A number whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched.",
+  "description": "\"A number whose digits roll to a new value, as an odometer's do, for a count that changes while it is watched.\"",
   "dependencies": [
     "@plexui/vue"
   ],

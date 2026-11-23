@@ -1,6 +1,6 @@
 ---
 title: Switch
-description: Toggle switch for turning settings on or off, with an optional label, a supporting description linked for screen readers, and a configurable label position.
+description: "A switch that turns a setting on or off, with an optional label and description."
 metaDescription: Vue 3 switch component built on Reka UI for toggling settings, with v-model:checked, an optional label and description, and a configurable label position.
 ---
 
@@ -55,8 +55,6 @@ export const settingsPhone = formScreenTemplate("Preferences", groups)
 
 <UsageBlock>{`import { Switch } from "@plexui/vue/components/Switch";`}</UsageBlock>
 
-On Phone, put switches in labelled rows with a trailing control. Use compact previews to compare controls, and the settings screen to see them in context.
-
 ## Examples
 
 <span id="label-and-description" />
@@ -64,6 +62,7 @@ On Phone, put switches in labelled rows with a trailing control. Use compact pre
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>On Phone, put switches in labelled rows with a trailing control. Use compact previews to compare controls, and the settings screen to see them in context.</p>
   <p>One setting on and one off. Click either the label or the control. Choose <code>accent</code> for the configured application accent (platform green by default), or <code>primary</code> for the default Switch style. A <code>description</code> is linked with <code>aria-describedby</code>. On a desktop <code>label-position</code> sets the label before or after the switch; on a phone the label stays at the start of its row and the switch trails it, so the Phone preview does not offer it. <code>disabled</code> keeps a switch as it is: on retains a muted accent, off uses the neutral track.</p>
   <p>Use <code>default-checked</code> for an initial value and <code>name</code> for form submission.</p>
 </>} code={`<!-- Desktop -->

@@ -1,101 +1,142 @@
 ---
 title: Slider
-description: Slider for choosing a value in a range, with a label and value, steps, a reset, two thumbs, marks and a vertical orientation; the iOS 26 slider on iOS, Material 3's slider on Android.
+description: Slider for picking a value or a range on a scale, in a cell of a settings list.
+metaDescription: Slider for fine-tuning numeric values with one thumb or several, steps, marks, colors and adornments, in a cell of a settings list; the iOS 26 slider on iOS, a 3dp track with a round thumb on Android.
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const [volume, setVolume] = useState(60)
+export const overviewCode = `import { Button, List, Slider, Text } from "@plexui/react-native"
 
-<Slider label="Volume" value={volume} onChange={setVolume} unit="%" />`
+const scaleMarks = [0, 25, 50, 75, 100].map((value) => ({ value, label: String(value) }))
+// The slider is named after what it sets: a value in percent, in dollars or bare; a range or tiers of them
+const names = {
+  one: { none: "Brightness", unit: "Volume", prefixUnit: "Max price" },
+  two: { none: "Age range", unit: "Humidity range", prefixUnit: "Price range" },
+  three: { none: "Age groups", unit: "Discount tiers", prefixUnit: "Price tiers" },
+}
 
-export const adornmentsCode = `import { SoundOffSpeaker, SoundOnSpeaker } from "@plexui/react-native/icons"
+const [thumbs, setThumbs] = useState("one") // or "two", "three"
+const [values, setValues] = useState({ one: 50, two: [25, 75], three: [10, 40, 70] })
+const [minStepsBetweenThumbs, setMinStepsBetweenThumbs] = useState(5) // with two or three thumbs
+const [step, setStep] = useState("1") // or "5", "10", "25"; with one thumb
+const [resetValue, setResetValue] = useState(true) // with one thumb
+const [unit, setUnit] = useState("unit") // or "none", "prefixUnit"
+const [marks, setMarks] = useState(false)
+const [colors, setColors] = useState(false)
+const [adornments, setAdornments] = useState(false)
+const [disabled, setDisabled] = useState(false)
 
-const theme = useTheme()
-const [volume, setVolume] = useState(30)
+// A small and a large letter at the ends size text
+const name = adornments && thumbs === "one" ? "Text size" : names[thumbs][unit]
+const text = (value) => (unit === "prefixUnit" ? "$" : "") + value + (unit === "unit" ? "%" : "")
+const shared = {
+  min: 0,
+  max: 100,
+  step: thumbs === "one" ? Number(step) : 1,
+  marks: marks ? scaleMarks : undefined,
+  // One hue: the fill in green and the track in a light tint of it
+  trackColor: colors ? "#61C45433" : undefined,
+  rangeColor: colors ? "#61C454" : undefined,
+  // A small and a large letter at the ends, as Settings draws a text size slider
+  startAdornment: adornments ? <Text variant="subheadline">A</Text> : undefined,
+  endAdornment: adornments ? <Text variant="title2">A</Text> : undefined,
+  disabled,
+  "aria-label": name,
+}
 
-<Slider
-  label="Volume"
-  value={volume}
-  onChange={setVolume}
-  unit="%"
-  resetValue={60}
-  startAdornment={<SoundOffSpeaker size={20} color={theme.colors.textSecondary} />}
-  endAdornment={<SoundOnSpeaker size={20} color={theme.colors.textSecondary} />}
-/>`
-
-export const stepsCode = `<Slider label="Brightness" value={brightness} onChange={setBrightness} step={10} unit="%" />
-<Slider label="Opacity" value={opacity} onChange={setOpacity} min={0} max={1} step={0.05} />`
-
-export const rangeCode = `const [price, setPrice] = useState([100, 350])
-
-<Slider range label="Price" value={price} onChange={setPrice} min={0} max={500} step={10} prefixUnit="$" minStepsBetweenThumbs={5} />`
-
-export const marksCode = `<Slider
-  label="Text size"
-  value={size}
-  onChange={setSize}
-  step={25}
-  hideValue
-  marks={[
-    { value: 0, label: "Small" },
-    { value: 50, label: "Default" },
-    { value: 100, label: "Large" },
-  ]}
-/>`
-
-export const verticalCode = `<View style={{ flexDirection: "row", gap: 32 }}>
-  <Slider orientation="vertical" label="Bass" value={bass} onChange={setBass} />
-  <Slider orientation="vertical" label="Treble" value={treble} onChange={setTreble} />
+// The list's header names the slider; one value ends the cell, a range goes under the track, and marks show the
+// scale in its place. The reset is a row of its own under the list.
+<View style={{ gap: 35 }}>
+  <List header={name}>
+    {thumbs === "one" && !marks ? (
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, minHeight: 52 }}>
+        <View style={{ flex: 1 }}>
+          <Slider {...shared} value={values.one} onChange={(one) => setValues({ ...values, one })} />
+        </View>
+        {/* The letters stand where the value would */}
+        {!adornments && (
+          <View style={{ minWidth: 43 }}>
+            <Text tabularNums align="right" color={disabled ? "disabled" : "secondary"}>{text(values.one)}</Text>
+          </View>
+        )}
+      </View>
+    ) : (
+      <View style={{ paddingHorizontal: 20, paddingBottom: 4 }}>
+        {thumbs === "one" ? (
+          <Slider {...shared} value={values.one} onChange={(one) => setValues({ ...values, one })} />
+        ) : (
+          <Slider {...shared} range value={values[thumbs]} onChange={(value) => setValues({ ...values, [thumbs]: value })} minStepsBetweenThumbs={minStepsBetweenThumbs} />
+        )}
+        {!marks && (
+          <Text variant="subheadline" align="center" tabularNums color={disabled ? "disabled" : "primary"}>
+            {values[thumbs].map(text).join(" – ")}
+          </Text>
+        )}
+      </View>
+    )}
+  </List>
+  {thumbs === "one" && resetValue && (
+    <List>
+      <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 20, minHeight: 52 }}>
+        <View style={{ flex: 1 }}>
+          <Button block color="info" variant="ghost" disabled={disabled} onPress={() => setValues({ ...values, one: 50 })}>
+            Reset to default
+          </Button>
+        </View>
+      </View>
+    </List>
+  )}
 </View>`
 
-export const disabledCode = `<Slider label="Disabled" value={40} onChange={() => {}} disabled />`
+export const settingCode = `const [zoom, setZoom] = useState(100)
+
+<List header="Zoom" footer="Makes text and images on the page larger or smaller.">
+  <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, minHeight: 52 }}>
+    <View style={{ flex: 1 }}>
+      <Slider aria-label="Zoom" min={50} max={200} step={10} value={zoom} onChange={setZoom} />
+    </View>
+    <View style={{ minWidth: 43 }}>
+      <Text tabularNums align="right" color="secondary">{zoom}%</Text>
+    </View>
+  </View>
+</List>`
 
 <UsageBlock>{`import { Slider } from "@plexui/react-native"`}</UsageBlock>
 
-The props follow `@plexui/ui`'s Slider. On iOS the slider is the phone layer's: a 6pt track filled in the range color, a 38x24 white capsule thumb with a soft shadow, in a 52pt row, with the label and the value at 17/22 over it. On Android it is Material 3's slider: a 16dp track, the active part in the accent and the rest in `secondaryContainer`, a 4x44dp handle that narrows while held, 6dp from either part, and a stop at each free end. A press anywhere on the track moves the nearest thumb there, and each thumb is an adjustable element for VoiceOver and TalkBack.
-
 ## Examples
+
+<span id="disabled" />
+<span id="marks" />
+<span id="range" />
+<span id="multiple-thumbs" />
 
 ### Overview
 
-`label` puts a label over the track, with the value at its end; `unit` follows the value (or `prefixUnit` comes before it).
+<ComponentPreview details={<>
+  <p>On a phone, each slider stands in a cell of a <code>List</code>, as in iOS Settings: the list's header names the slider and the slider fills the cell. One value ends the cell, a range goes under the track, and with marks the cell shows the scale instead of a value. A reset is a row of its own under the list. Outside a list a slider takes a <code>label</code> of its own, with the value and a round reset at its end.</p>
+  <p>Set <code>range</code> and give <code>value</code> two numbers for a range, or three or more for several thumbs; <code>onChange</code> then receives an array. <code>step</code> is how far a drag moves the value at a time: 25 here stops it on the marks. <code>minStepsBetweenThumbs</code> keeps the thumbs that many steps apart, and a thumb never passes its neighbor. A press anywhere on the track moves the nearest thumb there, and each thumb is an adjustable element for VoiceOver and TalkBack.</p>
+  <p>On iOS the slider is the phone layer's: a 6pt track filled in the range color, a 38x24 white capsule thumb with a soft shadow, in a 52pt row. On Android it is a 3dp track in a light gray, the part up to the thumb in the accent, and a 12dp round thumb of the accent that grows to 16dp (1dp of radius every 60ms) with a soft halo while held and glides to a new step in 60ms; steps snap on a plain track, and a range fills the track between its thumbs. With <code>ticks</code> the track is a stepped picker: a 6dp dot at each step, the chosen one 12dp, 2dp bars between them, the dots up to the thumb in the accent and the rest gray. A disabled slider fades to half.</p>
+  <p>The cell ends with the value, in the secondary label; a range writes its values under the track. <code>marks</code> label points of the scale under the track (on Android over it in 13dp, the one a thumb stands on in the accent, as in the stepped picker) and take the value's place, so with marks the example shows no unit either. <code>trackColor</code> and <code>rangeColor</code> color the track and its fill. <code>startAdornment</code> and <code>endAdornment</code> stand at the ends of the track, as Settings puts a small and a large letter at the ends of a text size slider, and take the place of the value. They are decoration, so the slider's <code>aria-label</code> has to say what it sets.</p>
+  <p>The cell has no label row for a reset button, so the reset is a row of its own under the slider's list, its label centered in the accent, as Settings resets a size; a disabled slider dims the row with it. A slider with a <code>label</code> of its own takes <code>resetValue</code> instead, a small round button beside its value. A phone list has no tooltip or vertical slider, so the example leaves those out; <code>orientation="vertical"</code> still stands a slider up outside a list.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="slider/Overview" />
+</ComponentPreview>
 
-<RNPreview demo="slider/Overview" code={overviewCode} />
+### In a settings group
 
-### Adornments and reset
+<ComponentPreview details={<>
+  <p>A slider that is one setting of a screen. The list's header names it, one cell of the row's height holds the track and its value, and the list's footer says what the setting does.</p>
+</>} code={settingCode} previewMinHeight={168}>
+  <RNExample demo="slider/Setting" grouped headerFirst />
+</ComponentPreview>
 
-`startAdornment` and `endAdornment` stand at either end of the track. `resetValue` adds a small round reset button before the value while the value is another; a press sets it back.
+## Platforms
 
-<RNPreview demo="slider/Adornments" code={adornmentsCode} />
-
-### Steps
-
-`step` snaps the value; the value shows as many decimals as the step has.
-
-<RNPreview demo="slider/Steps" code={stepsCode} />
-
-### Range
-
-`range` gives the slider a thumb for each value of an array. A thumb never passes its neighbor, and `minStepsBetweenThumbs` keeps them apart. On Android this is Material's range slider.
-
-<RNPreview demo="slider/Range" code={rangeCode} />
-
-### Marks
-
-`marks` puts labels under the track, each under the thumb's place at its value. Marks that would crowd each other all hide. `hideValue` hides the value beside the label.
-
-<RNPreview demo="slider/Marks" code={marksCode} />
-
-### Vertical
-
-`orientation="vertical"` stands the slider upright, 200pt tall with its label over the track, the minimum at the bottom. iOS has no vertical slider, so the same track and capsule stand upright; Android draws Material's vertical slider. Marks and adornments are for horizontal sliders only.
-
-<RNPreview demo="slider/Vertical" code={verticalCode} />
-
-### Disabled
-
-<RNPreview demo="slider/Disabled" code={disabledCode} />
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Slider | Slider |
+| Look | A thin track with a white capsule thumb | A 3dp track with a small round thumb in the accent |
 
 ## API
 
@@ -107,6 +148,7 @@ The props follow `@plexui/ui`'s Slider. On iOS the slider is the phone layer's: 
   { prop: "min", type: "number", default: "0", description: "The least value" },
   { prop: "max", type: "number", default: "100", description: "The greatest value" },
   { prop: "step", type: "number", default: "1", description: "The value snaps to multiples of it from min" },
+  { prop: "ticks", type: "boolean", default: "false", description: "Android: a stepped picker, a 6dp dot at each step (the chosen one 12dp) with 2dp bars between them, when the steps are 13dp or more apart; iOS draws none" },
   { prop: "minStepsBetweenThumbs", type: "number", default: "0", description: "With range: the fewest steps between two thumbs" },
   { prop: "label", type: "ReactNode", description: "The label over the slider, with the value at its end" },
   { prop: "unit", type: "string", description: "A unit after the value (%)" },
@@ -114,7 +156,7 @@ The props follow `@plexui/ui`'s Slider. On iOS the slider is the phone layer's: 
   { prop: "hideValue", type: "boolean", default: "false", description: "Hides the value beside the label" },
   { prop: "resetValue", type: "number", description: "One thumb only: a value offered back by a reset button beside the value, shown while the value is another" },
   { prop: "resetTooltip", type: "string", default: '"Reset to default"', description: "Accessible name of the reset button" },
-  { prop: "marks", type: "{ value: number; label: string }[]", description: "Labels under the track. Horizontal only" },
+  { prop: "marks", type: "{ value: number; label: string }[]", description: "Labels under the track on iOS, over it on Android. Horizontal only" },
   { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "A vertical slider is 200pt tall, label included, the minimum at the bottom" },
   { prop: "startAdornment", type: "ReactNode", description: "A symbol at the start of the track. Horizontal only" },
   { prop: "endAdornment", type: "ReactNode", description: "A symbol at the end of the track. Horizontal only" },

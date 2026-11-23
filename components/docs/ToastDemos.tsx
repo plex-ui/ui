@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@plexui/ui/components/Button';
 import { Toaster, toast, compact as compactOptions } from '@plexui/ui/components/Toast';
 import { controlsTableStyle, DemoControlBoolean, Segments } from './ButtonDemos';
-import { TOAST_LONG_DESCRIPTION, TOAST_MESSAGES } from './toastMessages';
+import { TOAST_MESSAGES } from './toastMessages';
 
 export function ToastDemosHost() {
   return <div data-preview-support><Toaster /></div>;
@@ -54,7 +54,7 @@ export function ToastOverviewDemo() {
   const message = TOAST_MESSAGES[type === 'promise' ? 'default' : type];
   const show = () => {
     const options = {
-      description: description === 'none' ? undefined : description === 'short' ? message.description : TOAST_LONG_DESCRIPTION,
+      description: description === 'none' ? undefined : description === 'short' ? message.description : message.long,
       action: action === 'none' ? undefined : { label: message.action, onClick: () => {} },
       cancel: action === 'cancel' ? { label: 'Cancel', onClick: () => {} } : undefined,
       closeButton,

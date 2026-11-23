@@ -115,8 +115,6 @@ ${overviewPhone}
 
 <UsageBlock>{`import { DateInput } from "@plexui/vue/components/DateInput";`}</UsageBlock>
 
-On Phone, put a date input in a row of a `FieldGroup`, as the [Input](/vue/components/input) examples and the [Forms: Settings](/vue/components/settings-forms) do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the `variant`, `size`, `pill` and `invalid` controls (a row shows its error as [Validation](#validation) does). To pick a date rather than type it, use the compact date of a [Date Picker](/vue/components/date-picker) in the row.
-
 ## Examples
 
 <span id="disabled" />
@@ -129,6 +127,7 @@ On Phone, put a date input in a row of a `FieldGroup`, as the [Input](/vue/compo
 ### Overview
 
 <ComponentPreview className={phoneRowsStyles.PhoneRowsPreview} language="vue" details={<>
+  <p>On Phone, put a date input in a row of a <code>FieldGroup</code>, as the <a href="/vue/components/input">Input</a> examples and the <a href="/vue/components/settings-forms">Forms: Settings</a> do. The row is its frame and sets its height, insets and type, so the Phone previews show rows without the <code>variant</code>, <code>size</code>, <code>pill</code> and <code>invalid</code> controls (a row shows its error as <a href="#validation">Validation</a> does). To pick a date rather than type it, use the compact date of a <a href="/vue/components/date-picker">Date Picker</a> in the row.</p>
   <p>Bind a Luxon <code>DateTime</code> (or <code>null</code>) with <code>v-model:value</code>. It updates once a complete, valid date is typed, and becomes <code>null</code> when the field is emptied or cleared; <code>@change</code> carries the same value. Leaving the field with a partly typed date shows the value again.</p>
   <p><code>mode</code> orders the day, month and year (<code>"mm/dd/yyyy"</code> in the US, <code>"yyyy/mm/dd"</code> for ISO 8601 with <code>separator="-"</code>), and <code>separator</code> is the character between them. <code>time-mode</code> adds a time to the date in one field, <code>"HH:MM"</code>, <code>"HH:MM:SS"</code> for seconds or <code>"HH:MM AA"</code> for a 12-hour time, whose AM or PM completes the date; with a time, <code>date-time-separator</code> stands between the date and the time, and <code>time-step</code> lets the arrow keys step the time segment under the caret.</p>
   <p><code>min</code> and <code>max</code> restrict the dates: a date typed past one becomes that limit (here 30 days around today, <code>DateTime.local()</code>). The placeholder follows the format unless you set <code>placeholder</code>.</p>

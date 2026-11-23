@@ -36,16 +36,16 @@ describe('demo controls by the part of the screen they change', () => {
     const { container } = render(<TabBarDemo />);
     const tabs = () => [...container.querySelectorAll('nav[aria-label="Tabs"] [data-value]')].map((item) => item.getAttribute('data-value'));
     fireEvent.click(option('tabs', '5'));
-    expect(tabs()).toEqual(['home', 'calendar', 'photos', 'settings', 'files']);
+    expect(tabs()).toEqual(['home', 'new', 'radio', 'library', 'charts']);
     fireEvent.click(screen.getByRole('switch', { name: 'search' }));
-    expect(tabs()).toEqual(['home', 'calendar', 'photos', 'settings', 'search']);
+    expect(tabs()).toEqual(['home', 'new', 'radio', 'library', 'search']);
     expect(option('tabs', '5').disabled).toBe(true);
     fireEvent.click(screen.getByRole('switch', { name: 'prominent' }));
-    expect(tabs()).toEqual(['home', 'calendar', 'photos', 'search', 'bag']);
+    expect(tabs()).toEqual(['home', 'new', 'radio', 'search', 'store']);
     expect(option('tabs', '4').disabled).toBe(true);
     fireEvent.click(screen.getByRole('switch', { name: 'search' }));
     fireEvent.click(screen.getByRole('switch', { name: 'prominent' }));
-    expect(tabs()).toEqual(['home', 'calendar', 'photos', 'settings', 'files']);
+    expect(tabs()).toEqual(['home', 'new', 'radio', 'library', 'charts']);
   });
 
   test('the phone view sync keeps the count asked for when it gives back the shown one', () => {

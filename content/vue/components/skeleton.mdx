@@ -1,7 +1,7 @@
 ---
 title: Skeleton
-description: Loading placeholders that match the shape of the content they stand in for, from avatars and text to cards, forms, and tables.
-metaDescription: Vue 3 skeleton loading placeholder component for avatars, text, cards, forms, and tables, with circle and custom dimensions.
+description: "Loading placeholders in the shape of the content they stand in for, from avatars and text to cards and lists."
+metaDescription: Vue 3 skeleton loading placeholder component for avatars, text, cards, lists, and feeds, with circle and custom dimensions.
 ---
 
 import { VueDemo } from "@/components/docs/vue/VueDemo"
@@ -27,41 +27,39 @@ export const text = `<div class="flex flex-col gap-2 w-[300px]">
   <Skeleton class="h-4 w-4/5" />
 </div>`
 
-export const form = `<div class="flex flex-col gap-4 w-[300px]">
-  <div class="flex flex-col gap-2">
-    <Skeleton class="h-4 w-[80px]" />
-    <Skeleton class="h-8 w-full rounded-lg" />
+export const list = `<div class="flex flex-col w-[300px]">
+  <div v-for="i in 3" :key="i" class="flex items-center gap-3 py-3">
+    <Skeleton circle class="size-10" />
+    <div class="flex flex-1 flex-col gap-2">
+      <Skeleton class="h-4 w-3/5" />
+      <Skeleton class="h-3 w-4/5" />
+    </div>
   </div>
-  <div class="flex flex-col gap-2">
-    <Skeleton class="h-4 w-[100px]" />
-    <Skeleton class="h-8 w-full rounded-lg" />
-  </div>
-  <Skeleton class="h-8 w-[120px] rounded-lg" />
 </div>`
 
-export const table = `<div class="flex flex-col gap-2 w-full min-w-0 max-w-[400px]">
-  <div class="flex gap-4 pb-2 border-b border-default">
-    <Skeleton class="h-4 w-[100px]" />
-    <Skeleton class="h-4 w-[150px]" />
-    <Skeleton class="h-4 w-[80px]" />
+export const feed = `<div class="flex flex-col gap-3 w-[300px] p-4 border border-default rounded-xl">
+  <div class="flex items-center gap-3">
+    <Skeleton circle class="size-8" />
+    <div class="flex flex-col gap-1.5">
+      <Skeleton class="h-3.5 w-[120px]" />
+      <Skeleton class="h-3 w-[72px]" />
+    </div>
   </div>
-  <div v-for="i in 4" :key="i" class="flex gap-4 py-2">
-    <Skeleton class="h-4 w-[100px]" />
-    <Skeleton class="h-4 w-[150px]" />
-    <Skeleton class="h-4 w-[80px]" />
-  </div>
+  <Skeleton class="h-4 w-full" />
+  <Skeleton class="h-4 w-4/5" />
+  <Skeleton class="h-[150px] w-full rounded-lg" />
 </div>`
 
 export const overviewControls = [
-  { name: "content", type: "select", options: ["profile", "card", "text", "form", "table"], default: "profile" },
+  { name: "content", type: "select", options: ["profile", "card", "text", "list", "feed"], default: "profile" },
   { name: "circle", type: "boolean", default: true, when: { content: "profile" } },
 ]
 
 export const overview = `<template v-if="content === 'profile'">${profile}</template>
 <template v-else-if="content === 'card'">${card}</template>
 <template v-else-if="content === 'text'">${text}</template>
-<template v-else-if="content === 'form'">${form}</template>
-<template v-else>${table}</template>`
+<template v-else-if="content === 'list'">${list}</template>
+<template v-else>${feed}</template>`
 
 export const overviewCode = `<template>
 [[#content=profile]]
@@ -73,14 +71,14 @@ ${indentCode(card, 2)}
 [[#content=text]]
 ${indentCode(text, 2)}
 [[/content=text]]
-[[#content=form]]
-  <!-- Inputs and a button at the control height -->
-${indentCode(form, 2)}
-[[/content=form]]
-[[#content=table]]
-  <!-- A header and rows -->
-${indentCode(table, 2)}
-[[/content=table]]
+[[#content=list]]
+  <!-- Rows of a list, as a chat list loads: an avatar and two lines -->
+${indentCode(list, 2)}
+[[/content=list]]
+[[#content=feed]]
+  <!-- A post in a feed: its author, its text and a picture -->
+${indentCode(feed, 2)}
+[[/content=feed]]
 </template>`
 
 <UsageBlock>{`import { Skeleton } from "@plexui/vue/components/Skeleton";`}</UsageBlock>
@@ -94,7 +92,7 @@ ${indentCode(table, 2)}
 
 ### Overview
 
-<ComponentPreview phonePresentation="none" language="vue" details={<>A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with <code>class</code>. <code>content</code> shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), a form (inputs and buttons at the control height, 32px) and a table (its header and rows).<br /><br /><code>circle</code> rounds a skeleton, for the avatar of a profile; without it a skeleton keeps its own radius, as for a square picture.</>} code={overviewCode} codeValues={{ content: "profile", circle: true }} previewMinHeight={168}>
+<ComponentPreview phonePresentation="none" language="vue" details={<>A skeleton stands in for content while it loads, in its shape: compose skeletons as the content is laid out, and set each one's size and shape with <code>class</code>. <code>content</code> shows the placeholders of a profile, a card with a picture, a paragraph (lines of varying widths read as natural text), the rows of a list (an avatar and two lines each) and a post in a feed (its author, its text and a picture).<br /><br /><code>circle</code> rounds a skeleton, for the avatar of a profile, a list row or a post; without it a skeleton keeps its own radius, as for a square picture.</>} code={overviewCode} codeValues={{ content: "profile", circle: true }} previewMinHeight={168}>
   <VueDemo template={overview} controls={overviewControls} stageClassName="flex-1 w-full py-12 px-4 flex items-center justify-center" />
 </ComponentPreview>
 

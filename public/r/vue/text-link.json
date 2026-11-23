@@ -3,7 +3,7 @@
   "name": "text-link",
   "type": "registry:ui",
   "title": "Text Link",
-  "description": "Text link for inline internal and external links with router integration, color inheritance, underline control, and weight options.",
+  "description": "\"A link in running text, to a page of the app or another site, that takes the color of the text around it.\"",
   "dependencies": [
     "@plexui/vue"
   ],

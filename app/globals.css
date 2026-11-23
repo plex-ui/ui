@@ -613,6 +613,14 @@ body:has([data-plex-dialog]) #plex-global-nav {
   z-index: 40;
 }
 
+/* A React Native example's overlay (react-native-web's Modal: a fixed layer of
+   z-index 9999 in a div of its own under the body) covers the page as it covers
+   a phone's screen. On a narrow page, where the example is the page itself, a
+   menu opened near the top would otherwise slip under the navbar. */
+body:has([data-demo-stage]):has(> div > div [aria-modal='true']) #plex-global-nav {
+  z-index: 40;
+}
+
 /* The popover rule further down keeps menus under the navbar at z-index 5;
    inside an open dialog that would put a Select or Menu list behind the
    panel (z-index 50), so lift them over it. Popovers already open outside
@@ -810,6 +818,61 @@ html[data-docs-width='centered'] #nd-page.plex-docs-page {
   line-height: 26px;
   letter-spacing: -0.16px;
   color: var(--color-fd-muted-foreground);
+}
+
+/* An example's heading and its bar on one line: when a preview comes right after an h3 (anchor spans between them
+   allowed), its bar (platform, view, reset) rises to the heading's row, at its end, so the heading reads as the
+   title of the bordered example under it. The heading keeps clear of the bar and wraps before it. The heading's
+   12px bottom margin, half its 24px line and half the 26px bar: the bar's top is 37px above the preview. From 1024px
+   up, where the column leaves the heading room beside the bar */
+@media (min-width: 1024px) {
+  :is(
+    #nd-page.plex-docs-page .plex-docs-body h3 + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + span + span + span + [data-component-preview]
+  ) {
+    position: relative;
+  }
+
+  :is(
+    #nd-page.plex-docs-page .plex-docs-body h3 + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + span + span + [data-component-preview],
+    #nd-page.plex-docs-page .plex-docs-body h3 + span + span + span + span + span + span + span + span + [data-component-preview]
+  ) > [data-preview-bar] {
+    position: absolute;
+    inset-inline-end: 0;
+    top: -37px;
+    margin: 0;
+  }
+
+  #nd-page.plex-docs-page .plex-docs-body h3:has(
+      + [data-component-preview],
+      + span + [data-component-preview],
+      + span + span + [data-component-preview],
+      + span + span + span + [data-component-preview],
+      + span + span + span + span + [data-component-preview],
+      + span + span + span + span + span + [data-component-preview],
+      + span + span + span + span + span + span + [data-component-preview],
+      + span + span + span + span + span + span + span + [data-component-preview],
+      + span + span + span + span + span + span + span + span + [data-component-preview]
+    ) {
+    margin-top: 40px;
+    margin-bottom: 12px;
+    line-height: 24px;
+    padding-inline-end: 380px;
+  }
 }
 
 #nd-page.plex-docs-page .plex-docs-nav-top {

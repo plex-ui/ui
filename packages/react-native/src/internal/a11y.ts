@@ -34,3 +34,26 @@ export function spaceToggles(toggle: () => void) {
     },
   }
 }
+
+type Listening = { addEventListener: (type: string, listener: (event: { metaKey?: boolean; ctrlKey?: boolean; altKey?: boolean }) => void, capture: boolean) => void }
+
+let keyboardLast = false
+let listening = false
+
+/**
+ * Whether the page's last input was the keyboard (the web). A focus that code moves shows as `:focus-visible` while
+ * nothing has been pressed yet, so a menu open on load looked opened from the keyboard; this follows the input itself,
+ * as the browser's own heuristic does once a person acts: a key (with no modifier) sets it, a pointer clears it, and
+ * a page nobody has touched yet counts as a pointer's. Call it once early (a menu's mount) so it is listening.
+ */
+export function lastInputKeyboard() {
+  const page = (globalThis as { document?: Listening }).document
+  if (Platform.OS === "web" && page && !listening) {
+    listening = true
+    page.addEventListener("keydown", (event) => {
+      if (!event.metaKey && !event.ctrlKey && !event.altKey) keyboardLast = true
+    }, true)
+    for (const type of ["pointerdown", "mousedown", "touchstart"]) page.addEventListener(type, () => (keyboardLast = false), true)
+  }
+  return keyboardLast
+}

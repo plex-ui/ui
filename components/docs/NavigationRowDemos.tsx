@@ -47,7 +47,7 @@ function SettingsDemo({ columns }: { columns?: boolean }) {
         ) : (
           <Page surface="grouped">
             <Toolbar>
-              <Toolbar.Title>General</Toolbar.Title>
+              <Toolbar.Title>Calendar</Toolbar.Title>
             </Toolbar>
             <Page.Content>
               <div className={r.Groups}>

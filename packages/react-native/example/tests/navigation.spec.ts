@@ -5,13 +5,13 @@ for (const platform of ["ios", "android"] as const) {
   test(`a tab bar selects a tab and names its badge (${platform})`, async ({ page }) => {
     await openGallery(page, { platform, scheme: "light", screen: "tab-bar" })
     const bar = page.getByTestId("tab-bar-interactive")
-    const chats = bar.getByRole("tab", { name: "Chats, 3" })
+    const chats = bar.getByRole("tab", { name: "New, 3" })
     await expect(bar.getByRole("tab", { name: "Home" })).toHaveAttribute("aria-selected", "true")
     await chats.click()
     await expect(chats).toHaveAttribute("aria-selected", "true")
-    await expect(page.getByTestId("tab-bar-value")).toHaveText("Selected: chats")
+    await expect(page.getByTestId("tab-bar-value")).toHaveText("Selected: new")
     // A disabled tab stays unselected
-    const calendar = page.getByRole("tab", { name: "Calendar" }).and(page.locator("[aria-disabled=true]"))
+    const calendar = page.getByRole("tab", { name: "Radio" }).and(page.locator("[aria-disabled=true]"))
     await expect(calendar).toHaveCount(1)
   })
 }
@@ -20,7 +20,7 @@ test("a minimized tab bar shows the selected tab alone and expands on a tap", as
   await openGallery(page, { platform: "ios", scheme: "light", screen: "tab-bar" })
   const bar = page.getByTestId("tab-bar-minimized")
   await expect(bar.getByRole("tab")).toHaveCount(2) // the selected tab and the search circle
-  const chats = bar.getByRole("tab", { name: "Chats, 3" })
+  const chats = bar.getByRole("tab", { name: "New, 3" })
   expect((await chats.boundingBox())!.width).toBe(40)
   await chats.click()
   await expect(bar.getByRole("tab")).toHaveCount(5)
@@ -37,7 +37,7 @@ for (const platform of ["ios", "android"] as const) {
     const search = bar.getByRole("tab", { name: "Search" })
     await search.click()
     await expect(search).toHaveAttribute("aria-selected", "true")
-    await expect(bar.getByRole("tab", { name: "New" })).toBeVisible()
+    await expect(bar.getByRole("tab", { name: "New playlist" })).toBeVisible()
   })
 }
 
@@ -71,7 +71,7 @@ for (const platform of ["ios", "android"] as const) {
     const bar = page.getByTestId("tab-bar-interactive")
     await bar.getByRole("tab", { name: "Home" }).focus()
     await page.keyboard.press("ArrowRight")
-    await expect(page.getByTestId("tab-bar-value")).toHaveText("Selected: chats")
+    await expect(page.getByTestId("tab-bar-value")).toHaveText("Selected: new")
   })
 }
 
@@ -85,8 +85,9 @@ for (const platform of ["ios", "android"] as const) {
     await expect(month).toHaveAttribute("aria-selected", "true")
     await expect(page.getByTestId("segmented-week")).toHaveAttribute("aria-selected", "false")
     // The badge is read with the name, not drawn
-    await expect(control.getByRole("tab", { name: "Year, 2" })).toBeVisible()
-    await expect(control.getByText("2", { exact: true })).toHaveCount(0)
+    const mailbox = page.getByTestId("segmented-mailbox")
+    await expect(mailbox.getByRole("tab", { name: "Unread, 2" })).toBeVisible()
+    await expect(mailbox.getByText("2", { exact: true })).toHaveCount(0)
     // Equal segments, as UISegmentedControl
     const widths = await control.getByRole("tab").evaluateAll((tabs) => tabs.map((tab) => Math.round(tab.getBoundingClientRect().width)))
     expect(new Set(widths).size).toBe(1)
@@ -115,17 +116,15 @@ test("the large control is 48 high, the small 32 and the bar's row 40", async ({
   expect(sizes).toEqual([48, 32, 32, 48, 49])
 })
 
-test("a toolbar's title is a header and its Android title starts at the leading edge", async ({ page }) => {
-  await openGallery(page, { platform: "android", scheme: "light", screen: "bars" })
-  const inbox = page.getByRole("heading", { name: "Inbox", exact: true })
-  await expect(inbox).toBeVisible()
-  const back = page.getByRole("button", { name: "Back" }).first()
-  const gap = (await inbox.boundingBox())!.x - ((await back.boundingBox())!.x + (await back.boundingBox())!.width)
-  expect(gap).toBeLessThan(24)
-  await page.getByTestId("platform-ios").click()
-  const frame = (await page.getByRole("heading", { name: "Inbox", exact: true }).boundingBox())!
-  // Centered on iOS: the middle of the title is the middle of the bar (393 wide, 16 + 16 around the frame)
-  expect(Math.abs(frame.x + frame.width / 2 - 393 / 2)).toBeLessThan(2)
+test("a toolbar's title is a header, centered on both platforms", async ({ page }) => {
+  for (const platform of ["android", "ios"] as const) {
+    await openGallery(page, { platform, scheme: "light", screen: "bars" })
+    const inbox = page.getByRole("heading", { name: "Inbox", exact: true })
+    await expect(inbox).toBeVisible()
+    const frame = (await inbox.boundingBox())!
+    // The middle of the title is the middle of the bar (393 wide): iOS 26, and Android's centered title
+    expect(Math.abs(frame.x + frame.width / 2 - 393 / 2)).toBeLessThan(2)
+  }
 })
 
 test("a link scrolls a screen and opens an overlay, and the address keeps both", async ({ page }) => {

@@ -1,11 +1,29 @@
 import { Avatar, AvatarGroup, Badge, Button, Chip, EmptyMessage, Skeleton, Text, useTheme } from "@plexui/react-native"
-import { Filter, Heart, Search, Star, User } from "@plexui/react-native/icons"
+import { Archive, Filter, Heart, Search, User } from "@plexui/react-native/icons"
 import { useState } from "react"
 import { StyleSheet, View } from "react-native"
 import { Row, Section } from "../demo"
 
-const COLORS = ["secondary", "primary", "success", "info", "discovery", "danger"] as const
+/** People of a team, each with an avatar color. */
+const PEOPLE = [
+  { name: "Sofia Martinez", color: "secondary" },
+  { name: "Priya Patel", color: "primary" },
+  { name: "Liam Chen", color: "success" },
+  { name: "Noah Williams", color: "info" },
+  { name: "Emma Novak", color: "discovery" },
+  { name: "Omar Haddad", color: "danger" },
+] as const
 const BADGE_COLORS = ["secondary", "success", "warning", "danger", "info", "discovery", "caution"] as const
+/** A status that suits each badge color. */
+const STATUSES: Record<(typeof BADGE_COLORS)[number], string> = {
+  secondary: "Draft",
+  success: "Paid",
+  warning: "Pending",
+  danger: "Failed",
+  info: "New",
+  discovery: "Beta",
+  caution: "On hold",
+}
 
 export function ContentScreen() {
   const theme = useTheme()
@@ -16,20 +34,20 @@ export function ContentScreen() {
     <>
       <Section title="Avatar" note="An initial, a symbol or +N on a soft or solid fill; a picture over it">
         <Row gap={10} style={styles.center}>
-          {COLORS.map((color) => (
-            <Avatar key={color} name={color} color={color} size={40} />
+          {PEOPLE.map(({ name, color }) => (
+            <Avatar key={name} name={name} color={color} size={40} />
           ))}
         </Row>
         <Row gap={10} style={styles.center}>
-          {COLORS.map((color) => (
-            <Avatar key={color} name={color} color={color} variant="solid" size={40} />
+          {PEOPLE.map(({ name, color }) => (
+            <Avatar key={name} name={name} color={color} variant="solid" size={40} />
           ))}
         </Row>
         <Row gap={10} style={styles.center}>
           <Avatar name="Ada" size={28} />
           <Avatar Icon={User} size={40} color="info" />
           <Avatar overflowCount={12} size={40} />
-          <Avatar name="Picture" imageUrl="not-a-picture" size={40} color="discovery" accessibilityLabel="A picture that fails to load" />
+          <Avatar name="Jordan Lee" imageUrl="not-a-picture" size={40} color="discovery" />
           <Avatar name="Grace Hopper" size={56} color="primary" onPress={() => {}} testID="avatar-button" />
         </Row>
         <AvatarGroup size={36}>
@@ -43,37 +61,55 @@ export function ContentScreen() {
         <Row gap={6}>
           {BADGE_COLORS.map((color) => (
             <Badge key={color} color={color}>
-              {color}
+              {STATUSES[color]}
             </Badge>
           ))}
         </Row>
         <Row gap={6}>
           {BADGE_COLORS.map((color) => (
             <Badge key={color} color={color} variant="solid">
-              {color}
+              {STATUSES[color]}
             </Badge>
           ))}
         </Row>
         <Row gap={6}>
           {BADGE_COLORS.slice(0, 4).map((color) => (
             <Badge key={color} color={color} variant="outline">
-              {color}
+              {STATUSES[color]}
             </Badge>
           ))}
         </Row>
         <Row gap={6} style={styles.center}>
-          <Badge size="sm">Small</Badge>
-          <Badge size="md">Medium</Badge>
-          <Badge size="lg">Large</Badge>
+          <Badge size="sm">Pro</Badge>
+          <Badge size="md">Pro</Badge>
+          <Badge size="lg">Pro</Badge>
           <Badge size="xl" pill color="success">
-            XL pill
+            +12%
           </Badge>
           <Badge pill color="info" onRemove={() => {}}>
-            Removable
+            Design
           </Badge>
         </Row>
       </Section>
-      <Section title="Chip" note={theme.isAndroid ? "Material 3 filter, input and assist chips" : "iOS filter capsules"}>
+      <Section title="Gradient avatars, counters" note={'variant="gradient": two initials; variant="counter": an unread count'}>
+        <Row gap={10} style={styles.center}>
+          {PEOPLE.map(({ name }) => (
+            <Avatar key={name} name={name} variant="gradient" size={40} />
+          ))}
+        </Row>
+        <Row gap={6} style={styles.center}>
+          <Badge variant="counter">3</Badge>
+          <Badge variant="counter">27</Badge>
+          <Badge variant="counter">128</Badge>
+          <Badge variant="counter" color="danger">
+            1
+          </Badge>
+          <Badge variant="counter" color="success">
+            New
+          </Badge>
+        </Row>
+      </Section>
+      <Section title="Chip" note={theme.isAndroid ? "Android chips: pills at 5%, the selected one solid" : "iOS filter capsules"}>
         <Row gap={8}>
           {["Nearby", "Open now", "Top rated"].map((name) => (
             <Chip key={name} selected={filters.includes(name)} onSelectedChange={toggle(name)} testID={`chip-${name.toLowerCase().replace(" ", "-")}`}>
@@ -83,8 +119,8 @@ export function ContentScreen() {
           <Chip icon={<Filter />} onPress={() => {}}>
             Filters
           </Chip>
-          <Chip icon={<Star />} disabled>
-            Disabled
+          <Chip icon={<Archive />} disabled>
+            Archived
           </Chip>
         </Row>
         <Row gap={8}>
@@ -98,7 +134,7 @@ export function ContentScreen() {
           Filters: {filters.join(", ") || "none"}
         </Text>
       </Section>
-      <Section title="Skeleton" note="Pulses between full and half opacity; still with reduced motion">
+      <Section title="Skeleton" note={theme.isAndroid ? "Android shimmer: one band moves down across every block; still with reduced motion" : "Pulses between full and half opacity; still with reduced motion"}>
         <View style={styles.skeletonRow} accessibilityState={{ busy: true }} accessibilityLabel="Loading">
           <Skeleton circle height={44} />
           <View style={styles.skeletonText}>
@@ -108,7 +144,7 @@ export function ContentScreen() {
           </View>
         </View>
       </Section>
-      <Section title="Empty message" note="The phone layer's: a 48 symbol, the title 20/25 bold, the description 17/25">
+      <Section title="Empty message" note={theme.isAndroid ? "The Android empty view: a Medium 20 title, the description 14 gray, a full-width button" : "The phone layer's: a 48 symbol, the title 20/25 bold, the description 17/25"}>
         <EmptyMessage>
           <EmptyMessage.Icon>
             <Search />

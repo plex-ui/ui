@@ -26,7 +26,7 @@ function Week({ size, material, block, width, disabled, value = "week", testID }
       <SegmentedControl.Tab value="month" disabled={disabled === "month"} testID={testID ? `${testID}-month` : undefined}>
         Month
       </SegmentedControl.Tab>
-      <SegmentedControl.Tab value="year" badge={2} testID={testID ? `${testID}-year` : undefined}>
+      <SegmentedControl.Tab value="year" testID={testID ? `${testID}-year` : undefined}>
         Year
       </SegmentedControl.Tab>
     </SegmentedControl>
@@ -37,13 +37,14 @@ export function SegmentedScreen() {
   const theme = useTheme()
   const [view, setView] = useState("grid")
   const [scheme, setScheme] = useState("light")
+  const [mailbox, setMailbox] = useState("all")
   return (
     <>
-      <Section title="Interactive" note={theme.isAndroid ? "Material 3 connected button group: 40dp, 2dp apart" : "The thumb slides to the selection"}>
+      <Section title="Interactive" note={theme.isAndroid ? "Android segmented capsule: the accent pill slides to the selection" : "The thumb slides to the selection"}>
         <Week testID="segmented" />
       </Section>
       {theme.isAndroid ? (
-        <Section title="Sizes" note="One 40dp group at every size">
+        <Section title="Sizes" note="32, 36, 40 and 44dp by size">
           <Week size="sm" />
           <Week size="lg" />
         </Section>
@@ -67,7 +68,7 @@ export function SegmentedScreen() {
         <Week width="content" />
         <Week block />
       </Section>
-      <Section title="Disabled" note="One segment, then the whole control">
+      <Section title="Disabled" note="One segment (no data for Month yet), then the whole control">
         <Week disabled="month" />
         <Week disabled />
       </Section>
@@ -80,8 +81,17 @@ export function SegmentedScreen() {
           <SegmentedControl.Tab value="light" aria-label="Light" icon={<Sun />} />
           <SegmentedControl.Tab value="dark" aria-label="Dark" icon={<Moon />} />
         </SegmentedControl>
+      </Section>
+      <Section title="Badge">
+        <SegmentedControl aria-label="Mailbox" value={mailbox} onChange={setMailbox} testID="segmented-mailbox">
+          <SegmentedControl.Tab value="all">All</SegmentedControl.Tab>
+          <SegmentedControl.Tab value="unread" badge={2}>
+            Unread
+          </SegmentedControl.Tab>
+          <SegmentedControl.Tab value="flagged">Flagged</SegmentedControl.Tab>
+        </SegmentedControl>
         <Text variant="footnote" color="tertiary">
-          A badge is read with the segment&apos;s name, not drawn (Year, 2)
+          A badge is read with the segment&apos;s name, not drawn (Unread, 2)
         </Text>
       </Section>
     </>

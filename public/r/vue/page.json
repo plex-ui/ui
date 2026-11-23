@@ -3,7 +3,7 @@
   "name": "page",
   "type": "registry:ui",
   "title": "Page",
-  "description": "\"The frame of an app page: header and content share one column, a line comes as the content scrolls, and on a phone the header becomes a floating glass bar.\"",
+  "description": "\"The frame of an app page: a header and its content in one column, the header a glass bar on a phone.\"",
   "dependencies": [
     "@plexui/vue"
   ],

@@ -1,10 +1,12 @@
-import { useContext } from "react"
+import { useContext, type ComponentRef } from "react"
+import { View } from "react-native"
 import { useTheme } from "../../theme/ThemeProvider"
-import ArrowLeftLg from "../../icons/plex/ArrowLeftLg"
 import CheckMd from "../../icons/plex/CheckMd"
 import ChevronLeftMd from "../../icons/plex/ChevronLeftMd"
+import { mirrored, useRTL } from "../../internal/direction"
 import { BarItemContext, Button, type ButtonProps } from "../Button/Button"
 import { createIcon } from "../Icon/createIcon"
+import { MaterialArrowBack, MaterialCheckSymbol, MaterialClose } from "../Icon/material"
 
 export type NavigationAction = "back" | "close" | "confirm"
 
@@ -30,15 +32,28 @@ const LABELS: Record<NavigationAction, string> = { back: "Back", close: "Close",
 
 /**
  * Back, close and confirm: on iOS the 44pt circle of a bar, glass for back and close and the accent for confirm (in a
- * Toolbar), with the kit's glyphs at their sizes (`--navigation-button-*`); on Android a Material icon button, the
- * back arrow and close in the app bar's color and confirm filled.
+ * Toolbar), with the kit's glyphs at their sizes (`--navigation-button-*`); on Android Material's glyphs (`arrow_back`,
+ * `close`, `check`) at 24dp: in a bar back and close take Android's 46dp glass circle and confirm the accent one,
+ * outside a bar they are plain icon buttons.
+ * Back points the way the screen reads: right to left it turns over.
  */
 export function NavigationButton({ action, color, variant, mobileMaterial, size = "lg", accessibilityLabel, ...rest }: NavigationButtonProps) {
   const theme = useTheme()
   const bar = useContext(BarItemContext)
   const confirm = action === "confirm"
   const iconSize = theme.isAndroid ? 24 : theme.length(`--navigation-button-${action}-icon-size`, 30)
-  const Glyph = action === "close" ? Close : confirm ? CheckMd : theme.isAndroid ? ArrowLeftLg : ChevronLeftMd
+  const Glyph = theme.isAndroid
+    ? action === "close"
+      ? MaterialClose
+      : confirm
+        ? MaterialCheckSymbol
+        : MaterialArrowBack
+    : action === "close"
+      ? Close
+      : confirm
+        ? CheckMd
+        : ChevronLeftMd
+  const { ref, rtl } = useRTL<ComponentRef<typeof View>>()
   const button = (
     <Button
       {...rest}
@@ -49,7 +64,9 @@ export function NavigationButton({ action, color, variant, mobileMaterial, size 
       size={size}
       accessibilityLabel={accessibilityLabel ?? LABELS[action]}
     >
-      <Glyph size={iconSize} />
+      <View ref={ref} style={action === "back" ? mirrored(rtl) : null}>
+        <Glyph size={iconSize} />
+      </View>
     </Button>
   )
   if (bar || theme.isAndroid) return button

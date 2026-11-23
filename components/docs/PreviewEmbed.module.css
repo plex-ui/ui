@@ -32,6 +32,12 @@
 
 /* Outside the frame, in a phone's own browser (PreviewEmbed): the device's safe areas, as on any page. Safari keeps
    its status bar and toolbar out of the page, so these are 0 there and the frame's insets would double them. */
+/* The Android frame: its 52dp status bar and the 24dp band of the gesture handle */
+:global(:root[data-preview-platform="android"]:has([data-preview-presentation="screen"])) {
+  --safe-area-inset-top: 52px;
+  --safe-area-inset-bottom: 24px;
+}
+
 :global(:root[data-preview-standalone]:has([data-preview-presentation="screen"])) {
   --safe-area-inset-top: env(safe-area-inset-top, 0px);
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);

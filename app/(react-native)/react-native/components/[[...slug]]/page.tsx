@@ -61,15 +61,15 @@ export default async function Page(props: {
       full={page.data.full}
       className={pageClassName}
       footer={{ enabled: false }}
-      phoneViews={false}
     >
       <DocsViewportState showLeftSidebar={showLeftSidebar} showRightSidebar={showRightToc} />
       <div className="plex-docs-title-row">
         <DocsTitle className="plex-docs-title">{page.data.title}</DocsTitle>
         {showPageNav && <PageNav compact className="plex-docs-nav plex-docs-nav-top" />}
       </div>
-      <DocsDescription className="plex-docs-description">{page.data.description}</DocsDescription>
+      {/* The switch above the description, so it stays in place when you change framework */}
       <FrameworkSwitch framework="react-native" slug={params.slug?.join('/') ?? ''} available={available} />
+      <DocsDescription className="plex-docs-description">{page.data.description}</DocsDescription>
       <DocsBody className="plex-docs-body">
         <MDX components={getMDXComponents()} />
       </DocsBody>

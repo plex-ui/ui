@@ -3,7 +3,7 @@
   "name": "empty-message",
   "type": "registry:ui",
   "title": "Empty Message",
-  "description": "Empty state for telling users there's nothing to show, with error, warning, no-results, and onboarding compositions.",
+  "description": "Empty state that tells users there's nothing to show, for errors, warnings, no results and onboarding.",
   "dependencies": [
     "@plexui/vue"
   ],

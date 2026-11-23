@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from "react"
-import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from "react-native"
+import { Platform, StyleSheet, Text as RNText, type StyleProp, type TextProps as RNTextProps, type TextStyle } from "react-native"
+import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { FontWeightName, Theme } from "../../theme/types"
 import { typeStyle, type HeadingSize, type TextSize, type TextVariant } from "../../theme/typography"
@@ -19,7 +20,10 @@ export type TextColor =
   | "discovery"
 
 export type TextProps = RNTextProps & {
-  /** A text style of the platform (iOS names; Material 3 roles on Android). @default "body" */
+  /**
+   * A text style of the platform (iOS names; on Android Material 3 roles, the Android look's own sizes for `title3`
+   * and `footnote`). @default "body"
+   */
   variant?: TextVariant
   /** A size of the Plex UI scale instead of a platform style (`--font-text-*`). */
   size?: TextSize
@@ -34,15 +38,19 @@ export type TextProps = RNTextProps & {
   children?: ReactNode
 }
 
-/** The color of a text on Android follows Material's roles; on iOS the label roles of the phone layer. */
+/**
+ * The color of a text: on iOS the label roles of the phone layer (decision 0019): secondary and tertiary are the
+ * ink at 50% and 25% (`--mobile-label-secondary` / `-tertiary`), not the opaque grays of the desktop. Android takes
+ * its own grays: secondary the gray text (#808384, the ink at 50% too), tertiary the hint (#A8A8A8, about 35%).
+ */
 export function textColor(theme: Theme, color: TextColor | (string & {}) = "primary"): string {
   switch (color) {
     case "primary":
       return theme.isAndroid ? theme.material.onSurface : theme.colors.text
     case "secondary":
-      return theme.isAndroid ? theme.material.onSurfaceVariant : theme.colors.textSecondary
+      return theme.colors.labelSecondary
     case "tertiary":
-      return theme.isAndroid ? theme.material.outline : theme.colors.textTertiary
+      return theme.isAndroid ? withAlpha(theme.material.onSurface, 0.35) : theme.colors.labelTertiary
     case "disabled":
       return theme.colors.textDisabled
     case "inverse":
@@ -90,7 +98,22 @@ export function textStyle(
   }
 }
 
-const weightNumber = (weight: FontWeightName) => ({ regular: "400", medium: "500", semibold: "600", bold: "700" })[weight] as TextStyle["fontWeight"]
+/**
+ * The tracking of a size a style sets over the variant's (a badge's 12, a row's 15): the kit's tracking is taken at
+ * the size the text is drawn at, unless the style sets its own.
+ */
+function trackingFor(theme: Theme, style: StyleProp<TextStyle>, mono: boolean | undefined): TextStyle | null {
+  if (mono || !style) return null
+  const flat = StyleSheet.flatten(style)
+  return typeof flat?.fontSize === "number" && flat.letterSpacing === undefined ? { letterSpacing: theme.tracking(flat.fontSize) } : null
+}
+
+// On the web (react-native-web) the type is Inter's variable font, which the Plex UI tokens set at SF's own Medium and
+// Semibold strokes, 510 and 590 (touch.css); a device's system font takes the named weights
+const weightNumber = (weight: FontWeightName) =>
+  (Platform.OS === "web"
+    ? { regular: "400", medium: "510", semibold: "590", bold: "700" } as Record<FontWeightName, string>
+    : { regular: "400", medium: "500", semibold: "600", bold: "700" })[weight] as TextStyle["fontWeight"]
 
 /**
  * Text in the faces, sizes and colors of Plex UI. `variant` takes the platform's text styles (Body 17 on iOS, Body
@@ -108,6 +131,7 @@ export function Text({ variant, size, weight, color, align, mono, tabularNums, s
         align ? { textAlign: align } : null,
         tabularNums ? { fontVariant: ["tabular-nums"] } : null,
         style,
+        trackingFor(theme, style, mono),
       ]}
     >
       {children}
@@ -136,6 +160,7 @@ export function Heading({ size = "md", weight = "semibold", color, align, mono, 
         { color: textColor(theme, color ?? "primary") },
         align ? { textAlign: align } : null,
         style,
+        trackingFor(theme, style, mono),
       ]}
     >
       {children}

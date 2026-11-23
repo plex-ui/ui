@@ -15,7 +15,7 @@ for (const platform of ["ios", "android"] as const) {
     await openGallery(page, { platform, scheme: "light", screen: "overlays" })
     await page.getByTestId("open-dialog").click()
     const dialog = page.getByTestId("dialog")
-    await expect(dialog.getByRole("alert")).toBeVisible()
+    await expect(page.getByRole("alertdialog")).toBeVisible()
     await expect(dialog.getByText("Delete this photo?")).toBeVisible()
     await expectOverlay(page, `dialog-${platform}-light.png`)
     await page.getByTestId("dialog-delete").click()
@@ -49,7 +49,7 @@ for (const platform of ["ios", "android"] as const) {
     await expect(page.getByTestId("overlay-last")).toHaveText("Last: Share")
   })
 
-  test(`a menu opens under its trigger and runs an item (${platform})`, async ({ page }) => {
+  test(`a menu opens over its trigger and runs an item (${platform})`, async ({ page }) => {
     await page.setViewportSize(PHONE)
     await openGallery(page, { platform, scheme: "light", screen: "overlays" })
     const trigger = page.getByTestId("open-menu")
@@ -60,7 +60,9 @@ for (const platform of ["ios", "android"] as const) {
     const triggerBox = (await trigger.boundingBox())!
     const menuBox = (await menu.boundingBox())!
     expect(Math.round(menuBox.x)).toBe(Math.round(triggerBox.x))
-    expect(menuBox.y).toBeGreaterThan(triggerBox.y + triggerBox.height - 1)
+    // Over its trigger (Android's popup, the web's phone menu): the panel covers the trigger's line
+    expect(menuBox.y).toBeLessThan(triggerBox.y + triggerBox.height)
+    expect(menuBox.y + menuBox.height).toBeGreaterThan(triggerBox.y)
     if (platform === "ios") expect(Math.round(menuBox.width)).toBe(250)
     await expectOverlay(page, `menu-${platform}-light.png`)
     await page.getByTestId("menu-rename").click()

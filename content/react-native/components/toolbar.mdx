@@ -1,187 +1,239 @@
 ---
 title: Toolbar
-description: "The top and bottom bars of a phone screen: navigation, a title and actions, in glass on iOS 26 and as Material 3 app bars and docked toolbars on Android. NavigationButton gives a bar its back, close and confirm buttons."
+description: "The top and bottom bars of a phone screen: navigation, a title, a search field and actions."
+metaDescription: "The top and bottom bars of a phone screen: navigation, a title, a search field and actions over the content, in glass on iOS 26 and as glass circles and capsules on Android. NavigationButton gives a bar its back, close and confirm buttons."
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `<Toolbar>
-  <Toolbar.Leading>
-    <NavigationButton action="back" />
-  </Toolbar.Leading>
-  <Toolbar.Title>Inbox</Toolbar.Title>
+export const overviewCode = `import { Button, IconButton, Input, NavigationButton, SegmentedControl, Toolbar } from "@plexui/react-native"
+import { DotsHorizontal, Filter, Plus, PlusLg, Search, SearchSm, Share } from "@plexui/react-native/icons"
+
+const [search, setSearch] = useState("none") // where the search waits: "row" (a field under the controls) or "button" (in the bar)
+const [searching, setSearching] = useState(false) // a tap opens it: its field in place of the title, with Close
+const [field, setField] = useState("top") // where a Search button opens its field: "top" (in the bar) or "bottom"
+const [title, setTitle] = useState(true) // false: the bar holds its controls alone
+const [titleStyle, setTitleStyle] = useState("inline") // or "large" (iOS; Android keeps the title in the row)
+const [titleAlign, setTitleAlign] = useState("center") // or "start"; an inline title only
+const [subtitle, setSubtitle] = useState(false)
+const [group, setGroup] = useState(false)
+const [segmented, setSegmented] = useState(false) // a row of the bar with the views, under the search field
+const [rowSize, setRowSize] = useState("md") // "sm": the small plain control, "lg": the large glass one
+const [view, setView] = useState("all") // the segmented row shows the orders of its view
+const [topBackground, setTopBackground] = useState("glass") // or "soft" (Android's default), "hard"
+const [bottom, setBottom] = useState("none") // or "buttons", "search" (one search field to a screen), "action"
+const [bottomBackground, setBottomBackground] = useState("soft") // or "hard", "glass"
+const open = searching && search !== "none"
+const below = open && search === "button" && field === "bottom" // the field at the bottom; the top bar keeps its rows alone
+const named = !open && title
+const topSearch = search !== "none" // one search to a screen
+const shownBottom = topSearch && bottom === "search" ? "none" : bottom
+const searchField = <Input variant="soft" pill placeholder="Search" accessibilityLabel="Search orders" startAdornment={<SearchSm />} />
+const closeSearch = <NavigationButton action="close" accessibilityLabel="Close search" onPress={() => setSearching(false)} />
+
+// The content scrolls under both bars; scrolled tells a bar that content is under it
+<ScrollView onScroll={onScroll} contentContainerStyle={{ padding: 16, paddingTop: topBarHeight + 16, paddingBottom: bottomBarHeight + 16 }}>
+  <List>...</List>
+</ScrollView>
+<Toolbar
+  titleStyle={named ? titleStyle : undefined}
+  titleAlign={named && titleStyle === "inline" ? titleAlign : undefined}
+  background={topBackground}
+  scrolled={scrolledUnderTop}
+  style={{ position: "absolute", top: 0, left: 0, right: 0 }}
+>
+  {open ? (
+    !below && <Toolbar.Content fill>{searchField}</Toolbar.Content>
+  ) : (
+    <>
+      <Toolbar.Leading>
+        <NavigationButton action="back" />
+      </Toolbar.Leading>
+      {named && <Toolbar.Title subtitle={subtitle ? "24 orders" : undefined}>Orders</Toolbar.Title>}
+    </>
+  )}
+  {!below && (
+    <Toolbar.Trailing>
+      {open ? (
+        closeSearch
+      ) : (
+        <>
+          {search === "button" && <IconButton icon={<Search />} accessibilityLabel="Search" onPress={() => setSearching(true)} />}
+          {group ? (
+            <Toolbar.Group aria-label="Order actions">
+              <IconButton icon={<Share />} accessibilityLabel="Share" />
+              <IconButton icon={<DotsHorizontal />} accessibilityLabel="More" />
+            </Toolbar.Group>
+          ) : (
+            <IconButton icon={<DotsHorizontal />} accessibilityLabel="More" />
+          )}
+        </>
+      )}
+    </Toolbar.Trailing>
+  )}
+  {search === "row" && !open && (
+    <Toolbar.Row>
+      <Input variant="soft" pill placeholder="Search" accessibilityLabel="Search orders" startAdornment={<SearchSm />} onFocus={() => setSearching(true)} />
+    </Toolbar.Row>
+  )}
+  {segmented && (
+    <Toolbar.Row>
+      <SegmentedControl aria-label="Orders" size={rowSize} value={view} onChange={setView} block>
+        <SegmentedControl.Tab value="all">All</SegmentedControl.Tab>
+        <SegmentedControl.Tab value="paid">Paid</SegmentedControl.Tab>
+        <SegmentedControl.Tab value="unpaid" badge={{ content: 3 }}>Unpaid</SegmentedControl.Tab>
+        <SegmentedControl.Tab value="refunded">Refunds</SegmentedControl.Tab>
+      </SegmentedControl>
+    </Toolbar.Row>
+  )}
+</Toolbar>
+{below && (
+  <Toolbar placement="bottom" background={shownBottom === "none" ? "soft" : bottomBackground} scrolled={continuesBelow} style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+    <Toolbar.Content fill>{searchField}</Toolbar.Content>
+    <Toolbar.Trailing>{closeSearch}</Toolbar.Trailing>
+  </Toolbar>
+)}
+{!below && shownBottom === "buttons" && (
+  <Toolbar placement="bottom" background={bottomBackground} scrolled={continuesBelow} style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+    <Toolbar.Leading>
+      <IconButton icon={<Filter />} accessibilityLabel="Filter" />
+    </Toolbar.Leading>
+    <Toolbar.Content>
+      <Button color="primary">New order</Button>
+    </Toolbar.Content>
+    {!topSearch && (
+      <Toolbar.Trailing>
+        <IconButton icon={<Search />} accessibilityLabel="Search" />
+      </Toolbar.Trailing>
+    )}
+  </Toolbar>
+)}
+{!below && shownBottom === "search" && (
+  <Toolbar placement="bottom" background={bottomBackground} scrolled={continuesBelow} style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+    <Toolbar.Content fill>{searchField}</Toolbar.Content>
+    <Toolbar.Trailing>
+      <IconButton icon={<PlusLg />} iconSize="sm" accessibilityLabel="New order" />
+    </Toolbar.Trailing>
+  </Toolbar>
+)}
+{!below && shownBottom === "action" && (
+  <Toolbar placement="bottom" background={bottomBackground} scrolled={continuesBelow} style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
+    <Toolbar.Content fill>
+      <Button color="primary" block><Plus /> New order</Button>
+    </Toolbar.Content>
+  </Toolbar>
+)}`
+
+export const searchCode = `const [query, setQuery] = useState("")
+
+<Toolbar titleStyle="large"> {/* or "inline" (titleAlign "center" or "start") */}
+  <Toolbar.Title subtitle="24 orders">Orders</Toolbar.Title>
   <Toolbar.Trailing>
-    <IconButton icon={<Search />} accessibilityLabel="Search" />
+    <IconButton icon={<DotsHorizontal />} accessibilityLabel="More" />
   </Toolbar.Trailing>
+  <Toolbar.Row>
+    <Input
+      variant="soft"
+      pill
+      inputMode="search"
+      returnKeyType="search"
+      placeholder="Search"
+      accessibilityLabel="Search orders"
+      startAdornment={<SearchSm />}
+      value={query}
+      onChangeText={setQuery}
+      onClear={() => setQuery("")}
+    />
+  </Toolbar.Row>
 </Toolbar>`
 
-export const navigationCode = `<Toolbar>
-  <Toolbar.Leading>
-    <NavigationButton action="close" onPress={close} />
-  </Toolbar.Leading>
-  <Toolbar.Title subtitle="12 unread">Mailboxes</Toolbar.Title>
-  <Toolbar.Trailing>
-    <NavigationButton action="confirm" onPress={save} />
-  </Toolbar.Trailing>
-</Toolbar>`
+export const disabledCode = `const [disabled, setDisabled] = useState(true)
 
-export const groupCode = `<Toolbar titleAlign="start">
+<Toolbar>
   <Toolbar.Leading>
-    <NavigationButton action="back" />
+    <Button variant="ghost">Cancel</Button>
   </Toolbar.Leading>
-  <Toolbar.Title>Photos</Toolbar.Title>
+  <Toolbar.Title>New order</Toolbar.Title>
   <Toolbar.Trailing>
-    <Toolbar.Group>
-      <IconButton icon={<Share />} accessibilityLabel="Share" />
+    <NavigationButton action="confirm" disabled={disabled} />
+  </Toolbar.Trailing>
+</Toolbar>
+
+<Toolbar placement="bottom">
+  <Toolbar.Leading>
+    <IconButton icon={<Tag />} accessibilityLabel="Add discount" disabled={disabled} />
+  </Toolbar.Leading>
+  <Toolbar.Content>
+    <Button color="primary" disabled={disabled}>Place order</Button>
+  </Toolbar.Content>
+  <Toolbar.Trailing>
+    <Toolbar.Group aria-label="Order actions">
+      <IconButton icon={<Share />} accessibilityLabel="Share" disabled={disabled} />
       <IconButton icon={<DotsHorizontal />} accessibilityLabel="More" />
     </Toolbar.Group>
   </Toolbar.Trailing>
 </Toolbar>`
 
-export const largeTitleCode = `<Toolbar titleStyle="large">
-  <Toolbar.Leading>
-    <Button variant="ghost">Edit</Button>
-  </Toolbar.Leading>
-  <Toolbar.Title subtitle="Updated just now">Notes</Toolbar.Title>
-  <Toolbar.Trailing>
-    <Toolbar.Group>
-      <IconButton icon={<Filter />} accessibilityLabel="Filter" />
-      <IconButton icon={<ChatCompose />} accessibilityLabel="New note" />
-    </Toolbar.Group>
-  </Toolbar.Trailing>
-</Toolbar>`
-
-export const contentCode = `const [period, setPeriod] = useState("week")
-
-<Toolbar>
-  <Toolbar.Leading>
-    <NavigationButton action="close" />
-  </Toolbar.Leading>
-  <Toolbar.Content>
-    <SegmentedControl aria-label="Period" value={period} onChange={setPeriod}>
-      <SegmentedControl.Tab value="day">Day</SegmentedControl.Tab>
-      <SegmentedControl.Tab value="week">Week</SegmentedControl.Tab>
-      <SegmentedControl.Tab value="month">Month</SegmentedControl.Tab>
-    </SegmentedControl>
-  </Toolbar.Content>
-  <Toolbar.Trailing>
-    <NavigationButton action="confirm" />
-  </Toolbar.Trailing>
-</Toolbar>`
-
-export const rowCode = `<Toolbar>
-  <Toolbar.Title>Chats</Toolbar.Title>
-  <Toolbar.Trailing>
-    <IconButton icon={<ChatCompose />} accessibilityLabel="New chat" />
-  </Toolbar.Trailing>
-  <Toolbar.Row>
-    <SegmentedControl aria-label="Filter" value={filter} onChange={setFilter} block>
-      <SegmentedControl.Tab value="all">All</SegmentedControl.Tab>
-      <SegmentedControl.Tab value="unread">Unread</SegmentedControl.Tab>
-      <SegmentedControl.Tab value="groups">Groups</SegmentedControl.Tab>
-    </SegmentedControl>
-  </Toolbar.Row>
-</Toolbar>`
-
-export const scrolledCode = `const [scrolled, setScrolled] = useState(false)
-const [background, setBackground] = useState("glass") // "hard", "soft" or "none"
-
-<View style={{ flex: 1 }}>
-  <ScrollView
-    onScroll={(event) => setScrolled(event.nativeEvent.contentOffset.y > 0)}
-    scrollEventThrottle={16}
-    contentContainerStyle={{ paddingTop: 72 }}
-  >
-    {content}
-  </ScrollView>
-  <Toolbar scrolled={scrolled} background={background} style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
-    <Toolbar.Leading>
-      <NavigationButton action="back" />
-    </Toolbar.Leading>
-    <Toolbar.Title>Inbox</Toolbar.Title>
-    <Toolbar.Trailing>
-      <IconButton icon={<Search />} accessibilityLabel="Search" />
-    </Toolbar.Trailing>
-  </Toolbar>
-</View>`
-
-export const bottomCode = `<Toolbar placement="bottom">
-  <Toolbar.Leading>
-    <IconButton icon={<Filter />} accessibilityLabel="Filter" />
-  </Toolbar.Leading>
-  <Toolbar.Content>
-    <Toolbar.Group>
-      <IconButton icon={<Share />} accessibilityLabel="Share" />
-      <IconButton icon={<Search />} accessibilityLabel="Search" />
-    </Toolbar.Group>
-  </Toolbar.Content>
-  <Toolbar.Trailing>
-    <IconButton variant="solid" icon={<PlusLg />} accessibilityLabel="New" />
-  </Toolbar.Trailing>
-</Toolbar>`
-
 <UsageBlock>{`import { NavigationButton, Toolbar } from "@plexui/react-native"`}</UsageBlock>
 
-The parts follow `@plexui/ui`'s Toolbar: `Toolbar.Leading`, `Toolbar.Title`, `Toolbar.Content`, `Toolbar.Group`, `Toolbar.Trailing` and `Toolbar.Row`. On iOS the items of the bar stand in glass over the content, 44pt at the top and 48 at the bottom, with a centered 17pt title or a 34pt large title under them. On Android the top bar is Material 3's small top app bar (64dp, a Title L title at the start, the navigation icon in `onSurface` and the actions in `onSurfaceVariant`) or its large flexible one, and the bottom bar a docked toolbar in `surfaceContainer`. A neutral Button or IconButton in a bar takes the bar's size, in glass on iOS. By default the bar pads itself for the status bar or the home indicator; the examples turn that off with `safeArea={false}`.
+Move between an app's top-level sections with a [Tab Bar](/react-native/components/tab-bar).
 
 ## Examples
 
-### Inline title
+### Overview
 
-<RNPreview demo="toolbar/Overview" minHeight={120} code={overviewCode} />
+<span id="titles" />
+<span id="group" />
+<span id="search" />
+<span id="bottom" />
+<span id="background" />
 
-### Navigation buttons
+<ComponentPreview details={<>
+  <p>A toolbar holds a screen's navigation, its title and its actions, at the top of the screen or at its bottom. Its parts follow <code>@plexui/ui</code>&apos;s Toolbar: <code>Toolbar.Leading</code>, <code>Toolbar.Title</code>, <code>Toolbar.Content</code>, <code>Toolbar.Group</code>, <code>Toolbar.Trailing</code> and <code>Toolbar.Row</code>, and NavigationButton gives a bar its back, close and confirm buttons. A neutral Button or IconButton in a bar takes the bar&apos;s size, in glass on iOS. By default the bar pads itself for the status bar or the home indicator. Each example is a whole screen: a top bar, a list under it (orders, or the rows of a new order), and a bottom bar where the example has one.</p>
+  <p>Leading and trailing items take 44pt targets on iOS and 46dp circles on Android; an inline title is centered across the whole width, 17pt semibold on iOS and Medium 17 on Android, where it stands between the circles. <code>titleStyle</code> sets the size and place of the title: <code>inline</code> in the row of controls, or <code>large</code> on a row of its own below them (34pt bold). Android keeps the title in the row, so the example offers <code>titleStyle</code> on iOS only. <code>subtitle</code> adds a second line under the title, 14 in the secondary gray on Android. <code>titleAlign</code> moves an inline title: <code>start</code> puts it after the leading items (on Android 76dp in after Back and 24dp with none), <code>center</code> centers it. Scroll the content: the bar's background meets the rows under it.</p>
+  <p><code>Toolbar.Group</code> puts related actions in one capsule: of glass on iOS, and on Android a glass capsule with its icons in 38dp slots, as for Search and More, its glass following a change of its buttons over 320ms; a single action, as Back or Close, keeps a capsule or a circle of its own. Without <code>Toolbar.Title</code> the bar holds its controls alone. Name each icon button with <code>accessibilityLabel</code>; on Android More is the vertical dots. <code>Toolbar.Content fill</code> stretches a search field across the row in the place of the title, up to the trailing items. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (<code>search</code> row, iOS) or behind a Search button in the bar (<code>search</code> button), and Close puts it back on iOS; on Android the open search is Back and a bare field (no magnifier) whose × grows and turns in with the first letter; a field in a row is the 40dp search field under the bar. A segmented row stays under the open field. A Search button can open its field at the bottom instead (<code>field</code> bottom): the field takes a bottom bar of its own, the top bar's title and buttons go, and a segmented row moves up in their place.</p>
+  <p><code>Toolbar.Row</code> adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, or a search field. It spans the bar between its gutters, 10pt under the controls on iOS and 8dp on Android, and several rows stand in their order. A segmented control in it fills the row with <code>block</code>: on iOS it is glass at its default size, a 40pt capsule; <code>size="sm"</code> gives the small plain one (32pt) and <code>size="lg"</code> the large glass one (48pt). A search field in a row is, on Android, the capsule of the bar's own search: the bar's glass at its 46dp height, 18sp text 18dp in, between the bar's 6dp gutters. A segmented control on Android is a white 36dp capsule (32 at <code>sm</code>, 40 at <code>lg</code>) whose selected segment is a pill of the accent at 12% that slides to a new selection. A badge is not drawn on a phone: its count stays in the segment's accessible name.</p>
+  <p><code>placement="bottom"</code> sets the bar at the bottom of the screen with 48pt targets on iOS and pads it for the home indicator; on Android its circles stand 8dp above the gesture bar. <code>Toolbar.Content</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. A solid primary button in a bar is its prominent action, in the accent on both platforms. A search field holds <code>SearchSm</code>; a plus next to it takes <code>iconSize="sm"</code> on iOS, while Android keeps a bar's icons at 24dp. On Android the bottom holds a field with its circles or one wide action, never a bar of buttons, so the example offers the bottom bar's search and action there. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button.</p>
+  <p><code>background</code> sets how a bar meets the content under it. <code>glass</code>, the default of a top bar on iOS, is a translucent, blurred bar with a hairline; on Android the blur alone parts it from the content, as Android's bars draw no line. <code>soft</code>, the default of a bottom bar and of both bars on Android, is a veil of the canvas color with no line; on Android, under the top bar, it is the screen's color at 63% over the blurred content, eased out over the bar's last 56dp (82% over the last 48dp where nothing blurs, as on a device), and under the bottom bar the color fading in over 60dp to 81%. <code>hard</code> is an opaque bar of the canvas color with a hairline (on Android the light divider of a card's rows). Each shows while <code>scrolled</code> says content is under the bar: under the top bar after the content has scrolled, under the bottom bar while it continues below. <code>canvasColor</code> gives the edge the screen's own color, a grouped screen's canvas. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="toolbar/Overview" />
+</ComponentPreview>
 
-`NavigationButton` is a bar's back, close or confirm button with the kit's glyphs: on iOS a 44pt circle, glass for back and close and the accent for confirm in a bar; on Android a Material icon button, confirm filled. It names itself ("Back", "Close", "Confirm") and leaves the navigation to its `onPress`. `subtitle` adds a second line under the title.
+<span id="search-in-the-content" />
 
-<RNPreview demo="toolbar/Navigation" minHeight={120} code={navigationCode} />
+### Search under the title
 
-### Grouped actions
+<ComponentPreview details={<>On iOS a search field under the title is a row of the bar: <code>Toolbar.Row</code> holding an <code>Input</code> with <code>variant="soft" pill</code> and the magnifier as its <code>startAdornment</code>; <code>inputMode="search"</code> and <code>returnKeyType="search"</code> give it the keyboard of a search. Under a large title the row stands under the title and the list starts 10pt under the field, as iOS starts a list under the search field of a large title; the bar keeps the title and the field while the list scrolls under them. With an inline title, which the controls switch, the row stands under the controls and the list starts 16pt under the bar. With <code>onClear</code> the field shows the platform's clear button while it holds text. On Android the field is the capsule of the bar's own search, the glass of its buttons at their 46dp height, with 18sp text 18dp in and the hint in a field's gray, its × growing in as it turns. Android has no large title, so the title stays in the bar's row and the controls offer only its alignment. A Search button in the bar, the other way to wait (the Overview's <code>search</code> button), opens as Back and a bare field in place of the title.</>} code={searchCode} previewMinHeight={168}>
+  <RNExample demo="toolbar/SearchUnderTitle" />
+</ComponentPreview>
 
-`Toolbar.Group` puts related actions in one capsule of glass on iOS; on Android they stand side by side. `titleAlign="start"` puts the title after the leading items, as Android does by default; `titleAlign="center"` gives Android Material's center-aligned app bar.
+### Disabled
 
-<RNPreview demo="toolbar/Group" minHeight={120} code={groupCode} />
+<ComponentPreview details={<>A disabled bar button keeps its glass capsule on iOS and draws its symbol or label in the tertiary label color, as the iOS 26 bar buttons do; on Android it keeps its glass circle and dims its symbol or label to 38%. Inside <code>Toolbar.Group</code> the capsule belongs to the group, so the enabled actions next to it keep their look. A prominent action, <code>NavigationButton action="confirm"</code> or a solid primary Button, drops its color for a gray capsule on iOS and the glass one on Android. On Android a form goes Back and confirms with Save, a label in a glass capsule with no accent, and keeps one wide main action at the bottom, so the Android example does that where iOS writes Cancel and shows the check. Cancel, Back and More stay enabled.</>} code={disabledCode} previewMinHeight={168}>
+  <RNExample demo="toolbar/Disabled" />
+</ComponentPreview>
 
-### Large title
+## Platforms
 
-`titleStyle="large"` sets the title on a row of its own under the controls: 34pt bold on iOS, Material's large flexible app bar (36/44) on Android.
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component, top | Navigation bar | Action bar, drawn as glass circles and capsules |
+| Native component, bottom | Toolbar | A bottom row: a field with its circles, or one wide action |
+| Look | Glass items over the content, 44pt at the top and 48pt at the bottom; a centered 17pt title or a 34pt large title | 46dp circles and capsules of see-through glass (the card at 80%, a 0.55dp rim, a soft shadow in light) 6dp from the edges, a centered Medium 17 title in a 62dp bar, the screen's color fading under them |
 
-<RNPreview demo="toolbar/LargeTitle" minHeight={180} code={largeTitleCode} />
-
-### Content in the bar
-
-`Toolbar.Content` takes the place of the title: a segmented control, a single centered action or, with `fill`, a search field across the row. A segmented control in a bar is the large glass one on iOS.
-
-<RNPreview demo="toolbar/Content" minHeight={120} code={contentCode} />
-
-### A row under the controls
-
-`Toolbar.Row` adds a row under the controls, part of the bar, whose control fills it: a segmented control that switches the screen's views, or a search field. Several rows stand in their order.
-
-<RNPreview demo="toolbar/Row" minHeight={140} code={rowCode} />
-
-### Scrolled content
-
-`scrolled` says content is under the bar, and `background` sets how the bar meets it on iOS: `glass` (the top bar's default) a translucent blurred bar with a line, `hard` an opaque one, `soft` (the bottom bar's default) a veil with no line, `none` nothing. On Android the top app bar takes `surfaceContainer` once scrolled. Scroll the list, and switch the background.
-
-<RNPreview demo="toolbar/Scrolled" minHeight={320} code={scrolledCode} />
-
-### Bottom toolbar
-
-`placement="bottom"` is the bar at the bottom of the screen: 48pt items on iOS, a solid button there the prominent one; Material's docked toolbar on Android.
-
-<RNPreview demo="toolbar/Bottom" minHeight={120} code={bottomCode} />
+iOS calls only the bottom bar a toolbar; here `Toolbar` is both bars, and `placement` picks one.
 
 ## API
 
 ### Toolbar
 
 <PropsTable data={[
-  { prop: "placement", type: '"top" | "bottom"', default: '"top"', description: "The bar at the top of the screen or at the bottom" },
-  { prop: "titleStyle", type: '"inline" | "large"', default: '"inline"', description: "A title in the row of the controls, or the large title under them" },
-  { prop: "titleAlign", type: '"center" | "start"', default: '"center" on iOS, "start" on Android', description: "Where an inline title stands; a large one starts at the leading edge" },
-  { prop: "background", type: '"soft" | "glass" | "hard" | "none"', default: '"glass" at the top, "soft" at the bottom', description: "How the bar meets content under it on iOS, once scrolled says it is there" },
+  { prop: "placement", type: '"top" | "bottom"', default: '"top"', description: "Top bar with 44pt targets, or bottom bar with 48pt targets" },
+  { prop: "titleStyle", type: '"inline" | "large"', default: '"inline"', description: "A title in the row of the controls, or the large title on a row of its own under them (iOS; Android keeps it in the row)" },
+  { prop: "titleAlign", type: '"center" | "start"', default: '"center"', description: "Where an inline title stands; a large one starts at the leading edge" },
+  { prop: "background", type: '"soft" | "hard" | "glass" | "none"', default: '"glass" at the top on iOS, "soft" at the bottom and on Android', description: "How the bar meets content under it, once scrolled says it is there" },
   { prop: "scrolled", type: "boolean", default: "false", description: "Content is under the bar: scrolled under a top bar, running on under a bottom one" },
+  { prop: "canvasColor", type: "string", default: "the theme's background", description: "The color of the screen under the bar, which its scroll edge takes (a grouped screen's canvas)" },
   { prop: "safeArea", type: "boolean", default: "true", description: "Pads the bar for the status bar or the home indicator" },
   { prop: "children", type: "ReactNode", description: "The parts of the bar" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the bar (all of View's props pass through)" },
@@ -195,14 +247,18 @@ The parts follow `@plexui/ui`'s Toolbar: `Toolbar.Leading`, `Toolbar.Title`, `To
   { prop: "numberOfLines", type: "number", default: "1", description: "Lines of the title before it truncates" },
 ]} />
 
-### Toolbar.Content
+### Compound parts
 
-<PropsTable data={[
-  { prop: "fill", type: "boolean", default: "false", description: "Stretches between the leading and trailing items, as a search field does" },
-  { prop: "children", type: "ReactNode", description: "Middle content: a segmented control, a single action, a search field" },
-]} />
+| Part | Purpose |
+|------|---------|
+| `Toolbar.Leading` | Back, Close or menu controls at the leading edge |
+| `Toolbar.Title` | Title of the screen, with an optional subtitle |
+| `Toolbar.Content` | Middle content: a search field, a main action or a segmented control. `fill` stretches it between the leading and trailing items |
+| `Toolbar.Group` | Related buttons in one capsule: of glass on iOS and on Android |
+| `Toolbar.Trailing` | Actions at the trailing edge |
+| `Toolbar.Row` | A row under the controls, part of the bar: a segmented control or a search field across its width; several stand in their order |
 
-`Toolbar.Leading`, `Toolbar.Trailing`, `Toolbar.Group` and `Toolbar.Row` take a View's props, `Toolbar.Content` too.
+`Toolbar.Leading`, `Toolbar.Trailing`, `Toolbar.Group`, `Toolbar.Content` and `Toolbar.Row` take a View's props.
 
 ### NavigationButton
 
@@ -211,7 +267,7 @@ The parts follow `@plexui/ui`'s Toolbar: `Toolbar.Leading`, `Toolbar.Title`, `To
   { prop: "accessibilityLabel", type: "string", default: '"Back", "Close" or "Confirm"', description: "Accessible name of the button" },
   { prop: "color", type: "ButtonColor", default: '"primary" for confirm and on Android, "secondary" on iOS', description: "Semantic color, as Button's" },
   { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid" for confirm, "soft" on iOS, "ghost" on Android', description: "Fill style, as Button's" },
-  { prop: "mobileMaterial", type: '"glass" | "flat"', default: '"glass" for back and close', description: "iOS 26 glass; Android has none" },
+  { prop: "mobileMaterial", type: '"glass" | "flat"', default: '"glass" for back and close', description: "iOS 26 glass; on Android the glass circle in a bar" },
   { prop: "size", type: "ControlSize", default: '"lg"', description: "Size step, as Button's; in an iOS bar the bar's item size wins" },
   { prop: "onPress", type: "(event) => void", description: "Called on a press" },
 ]} />

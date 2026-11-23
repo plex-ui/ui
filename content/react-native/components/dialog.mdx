@@ -1,77 +1,96 @@
 ---
 title: Dialog
-description: "A dialog that asks for a decision: the iOS 26 alert on iOS, the dialog of Android 16's Settings on Android, with a title, a message, actions and an optional field."
+description: "An alert that asks for a decision: a title, a message, up to three actions and an optional field."
+metaDescription: "A React Native dialog that asks for a decision: the iOS 26 alert on iOS, an alert with text buttons on Android, with a title, a message, actions and an optional field."
 ---
 
-import { RNPreview } from "@/components/docs/react-native/RNPreview"
+import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `const [open, setOpen] = useState(false)
+export const overviewCode = `import { Button, Dialog, Input } from "@plexui/react-native"
 
-<Button color="secondary" variant="soft" onPress={() => setOpen(true)}>
-  Delete photo
+const [open, setOpen] = useState(false)
+const [actions, setActions] = useState("2") // or "1", "3"
+const [destructive, setDestructive] = useState(false) // with two actions
+const [preferred, setPreferred] = useState(true) // the main action is filled
+const [message, setMessage] = useState(true)
+const [field, setField] = useState(false) // with two actions, not destructive
+const [stacked, setStacked] = useState(false) // iOS: two actions, one under the other
+const [name, setName] = useState("Untitled")
+
+// What the alert says for each kind
+function alertText(field, actions, destructive) {
+  if (field) return { title: "Rename document", message: "Enter a new name for this document.", action: "Rename" }
+  if (actions === "1") return { title: "Unable to save", message: "Check your connection and try again.", action: "OK" }
+  if (destructive) return { title: "Delete document?", message: "This document will be deleted. You can’t undo this.", action: "Delete" }
+  return { title: "Save changes?", message: "Do you want to save the changes you made to this document?", action: "Save" }
+}
+const text = alertText(field, actions, destructive)
+
+const main = {
+  label: text.action,
+  variant: destructive ? "destructive" : "default",
+  preferred: !destructive && preferred,
+  disabled: field && !name.trim(),
+}
+const cancel = { label: "Cancel", variant: "cancel" }
+
+<Button color="secondary" variant="outline" onPress={() => setOpen(true)}>
+  Open alert
 </Button>
 <Dialog
   open={open}
   onOpenChange={setOpen}
-  title="Delete this photo?"
-  description="It will be removed from all your devices."
-  actions={[
-    { label: "Cancel", variant: "cancel" },
-    { label: "Delete", variant: "destructive", onPress: deletePhoto },
-  ]}
-/>`
-
-export const threeActionsCode = `<Dialog
-  open={open}
-  onOpenChange={setOpen}
-  title="Unsaved changes"
-  description="Save the changes to this document before closing?"
-  actions={[
-    { label: "Save", preferred: true, onPress: save },
-    { label: "Don't Save", variant: "destructive", onPress: discard },
-    { label: "Cancel", variant: "cancel" },
-  ]}
-/>`
-
-export const withFieldCode = `const theme = useTheme()
-const [name, setName] = useState("Untitled folder")
-
-<Dialog
-  open={open}
-  onOpenChange={setOpen}
-  title="New folder"
-  description="Enter a name for this folder."
-  actions={[
-    { label: "Cancel", variant: "cancel" },
-    { label: "Save", preferred: true, disabled: !name.trim(), onPress: () => create(name) },
-  ]}
+  title={text.title}
+  description={message ? text.message : undefined}
+  actions={
+    actions === "1" ? [main]
+    : actions === "2" ? [cancel, main]
+    : [main, { label: "Don’t save", variant: "destructive" }, cancel]
+  }
+  mobileLayout={stacked ? "stacked" : undefined}
 >
-  <Input variant="soft" size="3xl" pill={theme.isIOS} value={name} onChangeText={setName} accessibilityLabel="Name" />
+  {field && (
+    <Input
+      accessibilityLabel="Document name"
+      variant="soft"
+      size="3xl"
+      pill // iOS
+      value={name}
+      onChangeText={setName}
+      selectTextOnFocus
+    />
+  )}
 </Dialog>`
 
 <UsageBlock>{`import { Dialog } from "@plexui/react-native"`}</UsageBlock>
 
-Dialog is one call with props: the web Dialog's `mobileVariant="alert"`. A sheet from the bottom edge is a [BottomSheet](/react-native/components/bottom-sheet). On iOS it is the alert of iOS 26: a 320pt glass panel with radius 34, the title and message over 48pt capsule actions, the preferred action semibold on the primary fill and a destructive one in red. Two actions stand side by side with the cancel first, three or more stack with the cancel last, and a tap outside does nothing. On Android it is the dialog of Android 16's Settings: Material 3's basic dialog (radius 28, `surfaceContainerHigh`, a Headline S title) whose positive action is a filled button, a cancel an outlined one and any other a text button at the start of the bar. A tap outside or Back closes it there.
+For a sheet use [Bottom Sheet](/react-native/components/bottom-sheet), for a choice of actions [Action Sheet](/react-native/components/action-sheet).
 
 ## Examples
 
-### Two actions
+### Overview
 
-The button opens the dialog in place of the page; any action closes it and runs its `onPress`. On Android the action that is not a cancel is the filled button, in the error color when it is destructive.
+<span id="destructive-confirmation" />
+<span id="three-actions" />
+<span id="text-field" />
 
-<RNPreview demo="dialog/Overview" code={overviewCode} minHeight={520} />
+<ComponentPreview details={<>
+  <p>Dialog is the web Dialog's <code>mobileVariant="alert"</code> as one call with props: a short question and its answers. On iOS it is the alert of iOS 26 and UIAlertController, a 320pt glass panel with radius 34 whose actions are 48pt capsules, and a tap outside does nothing. On Android it is a white panel (dark gray at night) at most 356dp wide with 20dp corners over a 50% dim, and a tap outside or Back closes it. It comes in growing from 90% of its size over 220ms as it fades in over 150ms, and leaves the same way back.</p>
+  <p>One alert with every setting. One, two or three actions: two stand side by side with Cancel first, as iOS sets them, and three or more stack in the order written, as the web's alert does; <code>mobileLayout="stacked"</code> stacks two, for long labels. The main action is <code>preferred</code> (semibold white on the accent, with the edge of a bar's prominent button), plain (on the alert's fill), or <code>variant="destructive"</code> (a red label on the alert's fill). A title without a message stands centered. A field, the dialog's children, asks for one short value: a 48pt capsule on iOS, its text selected when it takes focus, and Rename unavailable (<code>disabled</code>) while it is empty. On the web the alert itself takes the first focus as it opens, so the field raises no keyboard and no button shows a focus ring. Label actions in title case, as iOS does.</p>
+  <p>On Android the title stands at the start in Medium 20 and the message in 16sp, and every action is a text button in the accent, Medium 16, red when it is destructive and faded to half when disabled. The <code>preferred</code> action, or else the last that is not a cancel, stands last at the end of the row with a cancel before it, and any other action stands at the start of the row. Buttons that do not fit side by side stack at the end, the preferred one on top, so <code>mobileLayout</code> is iOS's alone. A field is Input's outlined field.</p>
+  <p>Any action closes the dialog after its <code>onPress</code>, unless it sets <code>keepOpen</code>. As the React page's phone preview, the alert here opens with the phone's screen.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="dialog/Overview" />
+</ComponentPreview>
 
-### Three actions
+## Platforms
 
-Three actions stack on iOS, the cancel last. On Android the `preferred` action is the filled button, the cancel outlined and the other a text button at the start. `mobileLayout="stacked"` stacks two actions on iOS too, `"inline"` keeps three in a row.
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Alert | Dialog |
+| Look | Glass panel with capsule actions | A white (night: dark gray) panel with 20dp corners, text buttons in the accent at the end |
 
-<RNPreview demo="dialog/ThreeActions" code={threeActionsCode} minHeight={520} />
-
-### With a field
-
-Children stand between the text and the actions, as a text field. The dialog rises over the keyboard, and long content scrolls inside it. A `disabled` action takes no presses until the field has a name.
-
-<RNPreview demo="dialog/WithField" code={withFieldCode} minHeight={520} />
+iOS calls its sheets dialogs too; for a sheet use [Bottom Sheet](/react-native/components/bottom-sheet).
 
 ## API
 
@@ -84,8 +103,8 @@ Children stand between the text and the actions, as a text field. The dialog ris
   { prop: "description", type: "ReactNode", description: "The message under the title" },
   { prop: "actions", type: "DialogAction[]", default: "[]", description: "The actions; two stand side by side on iOS, three or more stack" },
   { prop: "children", type: "ReactNode", description: "Content between the text and the actions, as a text field" },
-  { prop: "mobileLayout", type: '"inline" | "stacked"', description: "On iOS, stacked stacks two actions too and inline keeps more in a row; by default the count decides" },
-  { prop: "dismissible", type: "boolean", default: "true on Android, false on iOS", description: "A tap outside, Android's back and Escape close it, as Material's dialogs do and an iOS alert does not" },
+  { prop: "mobileLayout", type: '"inline" | "stacked"', description: "On iOS, stacked stacks two actions too and inline keeps more in a row; by default the count decides. Android stacks its buttons when they do not fit" },
+  { prop: "dismissible", type: "boolean", default: "true on Android, false on iOS", description: "A tap outside, Android's back and Escape close it, as Android's dialogs do and an iOS alert does not" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />
 
@@ -94,8 +113,8 @@ Children stand between the text and the actions, as a text field. The dialog ris
 <PropsTable data={[
   { prop: "label", type: "string", description: "The action's label (required)" },
   { prop: "onPress", type: "() => void", description: "Called when the action is pressed, before the dialog closes" },
-  { prop: "variant", type: '"default" | "cancel" | "destructive"', default: '"default"', description: "A cancel stands where the platform puts it; a destructive action is red" },
-  { prop: "preferred", type: "boolean", default: "false", description: "The preferred action: semibold on the primary fill on iOS, the filled button on Android" },
+  { prop: "variant", type: '"default" | "cancel" | "destructive"', default: '"default"', description: "A cancel stands first of two side by side on iOS, and just before the preferred action on Android; a destructive action is red" },
+  { prop: "preferred", type: "boolean", default: "false", description: "The preferred action: semibold white on the accent on iOS, the last button at the end on Android" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the action and takes no presses" },
   { prop: "keepOpen", type: "boolean", default: "false", description: "Keeps the dialog open after the action" },
   { prop: "testID", type: "string", description: "Test id" },

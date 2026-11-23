@@ -147,7 +147,7 @@ export function DialogOverviewDemo() {
               {actions === '3' && (
                 <>
                   {main}
-                  <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t Save</Button>
+                  <Button color="danger" variant="soft" onClick={() => setOpen(false)}>Don’t save</Button>
                   {cancel}
                 </>
               )}
@@ -299,7 +299,7 @@ export function DialogStepsDemo() {
             <Dialog.Steps step={step} direction={direction}>
               {step === 'email' ? (
                 <div className={note}>
-                  <p>We send a code to this address.</p>
+                  <p>We’ll send a code to this address.</p>
                   <Input aria-label="Email" type="email" autoComplete="email" placeholder="Email address" variant="soft" size="3xl" pill
                     value={email} onChange={(event) => setEmail(event.target.value)} />
                 </div>
@@ -394,7 +394,7 @@ export function DialogConfirmCloseDemo() {
           confirmClose={dirty && { message: 'Are you sure you want to discard this new note?' }}
         >
           <Dialog.Header>
-            <Dialog.Title>New Note</Dialog.Title>
+            <Dialog.Title>New note</Dialog.Title>
             {phone && (
               <Dialog.HeaderAction>
                 <NavigationButton action="confirm" aria-label="Save" disabled={!dirty} onClick={() => setOpen(false)} />

@@ -3,7 +3,7 @@
   "name": "markdown",
   "type": "registry:ui",
   "title": "Markdown",
-  "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks, and KaTeX math expressions out of the box.",
+  "description": "Markdown renderer for rich formatted content, with headings, lists, tables, code blocks and KaTeX math.",
   "dependencies": [
     "@plexui/vue"
   ],

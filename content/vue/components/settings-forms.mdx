@@ -1,6 +1,6 @@
 ---
 title: "Forms: Settings"
-description: "Settings and editing forms: grouped rows, choices, tags, account actions, payout details, selection pages, sliders and every kind of settings row built with Plex UI."
+description: "Settings and editing forms built with Plex UI: grouped rows, choices, tags, selection pages and sliders."
 metaDescription: "Vue 3 settings forms: grouped rows, choices, tags, account actions, payout details, selection pages, sliders and every kind of settings row built with Plex UI for Vue."
 ---
 
@@ -502,14 +502,6 @@ export const rowState = {
 
 Settings and editing forms composed from [Field](/vue/components/field), [Input](/vue/components/input), [Select](/vue/components/select), [File Upload](/vue/components/file-upload), and [Button](/vue/components/button). Sign-up, log-in and verification screens are on [Forms: Auth](/vue/components/auth-forms). The examples render small helpers from their setup scope with <code>{'<component :is>'}</code>, such as <code>FormScreen</code> and <code>AuthFormStage</code>.
 
-Row forms use the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts) and [shared form styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css) for Page and Dialog. The form owner holds every value above that presentation boundary.
-
-Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/MobileTagRow.ts) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks in the tint. Tap anywhere on a row to select it; search from the bar at the bottom; Clear all ends the list while something is selected. Apply saves the draft; Close discards it. Desktop keeps removable badges.
-
-Keep both the options and selected values in the form's state, bound with `v-model:options` and `v-model`. The desktop fields use the same options, so labels added there survive switching between Phone and Desktop.
-
-Screens default to Grouped. The `surface` control switches to Plain without changing fields or values. Page uses base colors; Dialog uses elevated colors. Changes to presentation preserve entered values and selections.
-
 <span id="form-in-a-dialog" />
 
 ## Several groups
@@ -719,3 +711,13 @@ Every header and footer of a group: a header over a footer of one line; a promin
 <ComponentPreview phonePresentation="screen" language="vue" code={settingsFootersVueCode} previewMinHeight={720}>
   <VueSettingsFootersDemo />
 </ComponentPreview>
+
+## Notes
+
+Row forms use the [FormScreen helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/FormScreen.ts) and [shared form styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css) for Page and Dialog. The form owner holds every value above that presentation boundary.
+
+Phone tag rows use the [MobileTagRow helper](https://github.com/plex-ui/ui/blob/master/components/docs/vue/MobileTagRow.ts) and its [shared styles](https://github.com/plex-ui/ui/blob/master/components/docs/FormRowsDemos.module.css). Copy both files with the examples. The row opens a draft editor with a list of options and trailing checkmarks in the tint. Tap anywhere on a row to select it; search from the bar at the bottom; Clear all ends the list while something is selected. Apply saves the draft; Close discards it. Desktop keeps removable badges.
+
+Keep both the options and selected values in the form's state, bound with `v-model:options` and `v-model`. The desktop fields use the same options, so labels added there survive switching between Phone and Desktop.
+
+Screens default to Grouped. The `surface` control switches to Plain without changing fields or values. Page uses base colors; Dialog uses elevated colors. Changes to presentation preserve entered values and selections.
