@@ -7,10 +7,13 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## Unreleased
+## 0.62.0 (2026-11-23)
+
+Released together with Vue 0.42.0 and styles 0.17.0. React 0.62.0 and Vue 0.42.0 need `@plexui/styles` ^0.17.0 (the spring tokens).
 
 ### Added
 
+- **Android look on a phone.** Phone components get the Plex Android look: `PlexUIProvider` takes `platform` (`"auto"` | `"ios"` | `"android"`, React and Vue) and sets `data-platform` on `<html>`; `"auto"` picks Android in an Android browser. There, sheets, top and bottom bars, menus, rows, fields, checkboxes, radios and switches take the Android look (glass 46px circles and pills, 16px cards 12px from the screen, the accent for selection); iOS is unchanged.
 - **Spring tokens.** `--spring-smooth`, `--spring-snappy`, `--spring-sheet` and `--spring-menu`, each with a `-duration`: SwiftUI's `spring(duration:bounce:)` sampled into `linear()`, with a close cubic Bézier for browsers without `linear()`. Durations are 0 with reduced motion.
 
 ### Changed
