@@ -81,10 +81,16 @@ export function Markdown({
       return acc
     }, baseComponents) ?? baseComponents
 
+  // The directives this Markdown renders as elements: its own and the components' tags
+  const directiveNames = [
+    ...(directives?.map((directive) => directive.directiveName) ?? []),
+    ...Object.keys(propsComponents ?? {}),
+  ].join("\n")
+
   const mergedRemarkPlugins = useMemo(() => {
-    const baseRemarkPlugins = [
+    const baseRemarkPlugins: NonNullable<MarkdownProps["remarkPlugins"]> = [
       remarkDirective,
-      reactMarkdownRemarkDirective,
+      [reactMarkdownRemarkDirective, { names: directiveNames.split("\n") }],
       ...mathPlugins.remarkPlugins,
     ]
 
@@ -101,7 +107,7 @@ export function Markdown({
     }
 
     return [...baseRemarkPlugins, ...(remarkPlugins ?? [])]
-  }, [mathPlugins.remarkPlugins, remarkPlugins, breakNewLines])
+  }, [mathPlugins.remarkPlugins, remarkPlugins, breakNewLines, directiveNames])
 
   return (
     <ReactMarkdown

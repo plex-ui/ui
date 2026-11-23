@@ -167,7 +167,16 @@ export const Markdown = defineComponent({
     const mergedRemarkPlugins = computed(() => {
       const baseRemarkPlugins: PluggableList = [
         remarkDirective,
-        markdownRemarkDirective,
+        // The directives this Markdown renders as elements: its own and the components' tags
+        [
+          markdownRemarkDirective,
+          {
+            names: [
+              ...(props.directives?.map((directive) => directive.directiveName) ?? []),
+              ...Object.keys(props.components ?? {}),
+            ],
+          },
+        ],
         ...mathPlugins.value.remarkPlugins,
       ]
 

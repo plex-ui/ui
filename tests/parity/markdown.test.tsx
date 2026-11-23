@@ -483,6 +483,12 @@ describe("Markdown parity: component overrides", () => {
 })
 
 describe("Markdown parity: directives", () => {
+  /** The element lines of a serialized tree: its text lines start with a quote. */
+  const elementsOf = (html: string) =>
+    html
+      .split("\n")
+      .filter((line) => line.trim().startsWith("<"))
+      .join("\n")
   const make = () => {
     const rBadge = rCreateMarkdownDirective<{ children?: string; color?: string }>({
       name: "badge",
@@ -522,11 +528,60 @@ describe("Markdown parity: directives", () => {
     expect(vBadge({ children: "x" })).toMatch(/^ :OaiMdDirective_badge_[a-z0-9]{5}\[x\]\{attrs="e30"\}$/)
   })
 
-  test("unregistered directives become elements named after them", async () => {
+  test("unregistered directives stay the text that was written; a container keeps its content in a plain div", async () => {
     const pair = await pairOf("Meet at 10:30, see:here and :abbr[HTML]{title=\"Hyper\"}\n\n::leaf\n\n:::note\nbody\n:::")
     expect(pair.vue).toBe(pair.react)
-    expect(pair.react).toContain("<here>")
-    expect(pair.react).toContain("<note>")
+    expect(pair.react).toContain('":here"')
+    expect(pair.react).toContain('":abbr[HTML]{title=\\"Hyper\\"}"')
+    expect(pair.react).toContain('"::leaf"')
+    expect(pair.react).toMatch(/<div>\s*<p>\s*"body"/)
+    expect(elementsOf(pair.react)).not.toMatch(/<(?:here|leaf|note|abbr)\b/)
+  })
+
+  test("text can't make a script, a frame or an event handler through a directive", async () => {
+    const attack = [
+      ':span[hi]{onmouseover="alert(2)"}',
+      '::img{src=x onerror="alert(1)"}',
+      '::script{src="https://example.com/x.js"}',
+      '::iframe{srcdoc="<script>alert(3)</script>"}',
+      ":::object{data=x}\ninside\n:::",
+    ].join("\n\n")
+    const pair = await pairOf(attack)
+    expect(pair.vue).toBe(pair.react)
+    const elements = elementsOf(pair.react)
+    expect(elements).not.toMatch(/<(?:span|img|script|iframe|object)\b/)
+    expect(elements).not.toMatch(/\son\w+=|srcdoc=/)
+    expect(pair.react).toContain('"::script{src=\\"https://example.com/x.js\\"}"')
+  })
+
+  test("a directive named after a components key renders through it, without handlers, style or srcdoc", async () => {
+    const markdown = ':kbd[K]{data-key=k onclick="alert(1)" style="color:red" title=Key}'
+    const pair = await renderPair(
+      createElement(RMd, { components: { kbd: "kbd" } }, markdown),
+      () => h(Markdown, { components: { kbd: "kbd" }, source: markdown }),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toMatch(/<kbd data-key="k" title="Key">\s*"K"/)
+    expect(pair.react).not.toMatch(/onclick|style=/)
+  })
+})
+
+describe("Markdown parity: directive attributes", () => {
+  test("a components-key directive gets no DOM property, React prop or unsafe URL", async () => {
+    const markdown = [
+      ':kbd[a]{innerHTML="<b id=pwn>x</b>" textContent=REPLACED dangerouslySetInnerHTML=x title=ok}',
+      ':kbd[b]{href="javascript:alert(1)" src="data:text/html,x" data-ok=1}',
+      ':kbd[c]{href="https://example.com/x" is=x}',
+    ].join(" ")
+    const pair = await renderPair(
+      createElement(RMd, { components: { kbd: "kbd" } }, markdown),
+      () => h(Markdown, { components: { kbd: "kbd" }, source: markdown }),
+    )
+    expect(pair.vue).toBe(pair.react)
+    expect(pair.react).toMatch(/<kbd title="ok">\s*"a"/)
+    expect(pair.react).toMatch(/<kbd data-ok="1">\s*"b"/)
+    expect(pair.react).toMatch(/<kbd href="https:\/\/example.com\/x">\s*"c"/)
+    expect(pair.react).not.toMatch(/pwn|REPLACED|javascript:|data:text/)
   })
 })
 

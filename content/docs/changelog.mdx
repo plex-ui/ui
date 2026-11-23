@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Security
+
+- **Markdown directives.** A directive in Markdown text became an element named after it with any attributes, so text from a server or a user could add a script, a frame or an event handler. Now a directive becomes an element only when the Markdown knows its name, from `directives` or a `components` key, and keeps only plain lowercase attributes: no event handlers, `style`, `srcdoc`, DOM properties such as `innerHTML`, or URLs with an unsafe protocol. An unknown inline or leaf directive stays the text that was written; an unknown container keeps its content in a plain `div`. React and Vue.
+
 ## @plexui/react-native 0.1.1 (2026-11-23)
 
 ### Changed
