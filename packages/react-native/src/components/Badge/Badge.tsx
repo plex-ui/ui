@@ -1,11 +1,12 @@
-import type { ReactNode } from "react"
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react"
+import { Animated, Pressable, StyleSheet, Text as NativeText, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
 import CloseBold from "../../icons/plex/CloseBold"
 import { flattenChildren } from "../../internal/children"
+import { curves } from "../../internal/motion"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
-import { Text, TextColorProvider } from "../Text/Text"
+import { Text, TextColorProvider, type TextProps } from "../Text/Text"
 
 export type BadgeColor = "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"
 export type BadgeVariant = "solid" | "soft" | "outline" | "counter"
@@ -15,7 +16,8 @@ export type BadgeProps = {
   children: ReactNode
   /**
    * The fill: `soft`, `solid` or `outline` in the color, or `counter`, a solid capsule of one size, as an unread count
-   * (`size` and `pill` do not change it). @default "soft"
+   * (`size` and `pill` do not change it). On Android a counter of a whole number moves as its count changes, and a
+   * count of 0 hides it. @default "soft"
    */
   variant?: BadgeVariant
   /** 20, 22, 24 or 32 tall (36 on a phone for `xl`). @default "sm" */
@@ -57,8 +59,116 @@ export function badgeColors(theme: Theme, variant: BadgeVariant, color: BadgeCol
  * type of each size; soft, solid and outline fills of the semantic colors). Material 3's badge is a dot or a count on
  * an icon (TabBar draws that), so Android draws the Plex badge too, in the same tokens. With
  * `variant="counter"` a badge is a counter, as an unread count: solid, a capsule, one size (`size` and `pill` aside).
+ * On Android a counter of a whole number grows in from 0, shrinks away at 0 and rolls its changed digits.
  */
-export function Badge({ children, variant = "soft", size = "sm", pill = false, color = "secondary", onRemove, removeLabel = "Remove", removable = false, testID, style }: BadgeProps) {
+export function Badge(props: BadgeProps) {
+  const theme = useTheme()
+  return props.variant === "counter" && theme.isAndroid ? <AndroidCounter {...props} /> : <BadgeView {...props} />
+}
+
+/** A counter's count: its label when that is a whole number ("12" or 12), or null ("99+", "New"). */
+function countOf(children: ReactNode): string | null {
+  const parts = flattenChildren(children)
+  const only = parts.length === 1 ? parts[0] : null
+  const text = typeof only === "string" || typeof only === "number" ? String(only).trim() : ""
+  return /^\d+$/.test(text) ? text : null
+}
+
+const isZero = (count: string | null) => count != null && Number(count) === 0
+
+/** How far a changed digit rolls: in from below and out above as the count rises, the other way as it falls. */
+const ROLL = 17
+
+/** A change of count: 430ms, the width and the digits over its first half. */
+const CHANGE = { duration: 430, easing: curves.ease }
+/** 0 to a count: the counter grows in from nothing, overshooting at 2. */
+const APPEAR = { duration: 220, easing: curves.overshoot(2) }
+/** A count to 0: the counter shrinks away, then is gone. */
+const HIDE = { duration: 150, easing: curves.ease }
+
+/**
+ * The pulse of a change on its (eased) progress: up to 1.1 over the first half easing out, back over the second easing
+ * in. Followed through these points, as the two halves take two curves.
+ */
+const PULSE_STEPS = Array.from({ length: 21 }, (_, index) => index / 20)
+const PULSE = PULSE_STEPS.map((progress) => 1 + 0.1 * (progress <= 0.5 ? curves.easeOut(progress * 2) : curves.easeIn(2 - progress * 2)))
+
+/** A counter's count on the move: the one drawn, the one rolling out (and which way), and its progress. */
+type CountMotion = { count: string; from: string | null; up: boolean; change: Animated.Value; scale: Animated.AnimatedMultiplication }
+
+/**
+ * How a counter moves from one label to the next: at once for a label that is not a count (or with reduced motion), else
+ * it hides at 0, appears from 0, or rolls from one count to another.
+ */
+function changeOf(from: string | null, to: string | null, reducedMotion: boolean) {
+  if (from == null || to == null || reducedMotion) return "instant"
+  if (isZero(to)) return "hide"
+  if (isZero(from)) return "appear"
+  return "roll"
+}
+
+/** Android's counter: a whole-number count moves as it changes; any other label is drawn as it is. */
+function AndroidCounter(props: BadgeProps) {
+  const theme = useTheme()
+  const count = countOf(props.children)
+  const zero = isZero(count)
+  const [presence] = useState(() => new Animated.Value(zero ? 0 : 1))
+  const [change] = useState(() => new Animated.Value(1))
+  // The last change of label (`from` the one before); the count drawn: the old one while it shrinks away, none once a 0
+  // has hidden the counter; the count rolling out
+  const [step, setStep] = useState({ count, from: count })
+  const [shown, setShown] = useState<string | null>(zero ? null : count)
+  const [roll, setRoll] = useState<{ from: string; up: boolean } | null>(null)
+  if (step.count !== count) {
+    setStep({ count, from: step.count })
+    const kind = changeOf(step.count, count, theme.reducedMotion)
+    // A hiding counter keeps its old count as it shrinks
+    if (kind !== "hide") setShown(zero ? null : count)
+    setRoll(kind === "roll" && step.count != null ? { from: step.count, up: Number(count) > Number(step.count) } : null)
+  }
+  const moved = useRef(step)
+  // Before the paint, so a new count never shows a frame at rest before it moves
+  useLayoutEffect(() => {
+    if (moved.current === step) return
+    moved.current = step
+    const kind = changeOf(step.from, step.count, theme.reducedMotion)
+    if (kind === "instant") {
+      presence.setValue(isZero(step.count) ? 0 : 1)
+      change.setValue(1)
+    } else if (kind === "hide") {
+      Animated.timing(presence, { toValue: 0, ...HIDE, useNativeDriver: false }).start(({ finished }) => {
+        if (finished) setShown(null)
+      })
+    } else if (kind === "appear") {
+      // From where it stands, should it be still shrinking away
+      change.setValue(1)
+      Animated.timing(presence, { toValue: 1, ...APPEAR, useNativeDriver: false }).start()
+    } else {
+      change.setValue(0)
+      Animated.timing(change, { toValue: 1, ...CHANGE, useNativeDriver: false }).start(({ finished }) => {
+        if (finished) setRoll(null)
+      })
+    }
+  }, [step, theme.reducedMotion, presence, change])
+  if (count == null) return <BadgeView {...props} />
+  if (shown == null) return null
+  const pulse = change.interpolate({ inputRange: PULSE_STEPS, outputRange: PULSE })
+  return <BadgeView {...props} motion={{ count: shown, from: roll?.from ?? null, up: roll?.up ?? true, change, scale: Animated.multiply(presence, pulse) }} />
+}
+
+function BadgeView({
+  children,
+  variant = "soft",
+  size = "sm",
+  pill = false,
+  color = "secondary",
+  onRemove,
+  removeLabel = "Remove",
+  removable = false,
+  testID,
+  style,
+  motion,
+}: BadgeProps & { motion?: CountMotion }) {
   const theme = useTheme()
   const counter = variant === "counter"
   const colors = badgeColors(theme, variant, color)
@@ -71,6 +181,14 @@ export function Badge({ children, variant = "soft", size = "sm", pill = false, c
   const paddingHorizontal = counter ? COUNTER.padding : pill ? gutter * theme.length("--control-gutter-pill-scaling", 1.25) : gutter
   // The cross takes touches 44 (48 on Android) around it, the platform's least target
   const slop = Math.max(0, ((theme.isAndroid ? 48 : 44) - iconSize) / 2)
+  // A badge's label scales with the text size up to 130%: past that it would crowd what it labels
+  const label: TextProps = {
+    weight: counter ? "medium" : "semibold",
+    numberOfLines: 1,
+    maxFontSizeMultiplier: 1.3,
+    color: colors.text,
+    style: { fontSize, lineHeight: Math.round(fontSize * 1.34), flexShrink: 1 },
+  }
   const cross = onRemove ? (
     <Pressable accessibilityRole="button" accessibilityLabel={removeLabel} hitSlop={slop} onPress={onRemove} style={({ pressed }) => [styles.remove, pressed ? styles.pressed : null]}>
       <CloseBold size={iconSize} color={colors.text} />
@@ -80,39 +198,121 @@ export function Badge({ children, variant = "soft", size = "sm", pill = false, c
       <CloseBold size={iconSize} color={colors.text} />
     </View>
   ) : null
+  const Root = motion ? Animated.View : View
   return (
-    <View
+    <Root
       testID={testID}
       style={[
         styles.badge,
         // A least height: a large text size grows the badge rather than cutting its label
         { minHeight: height, minWidth: counter ? height : undefined, justifyContent: counter ? "center" : undefined, paddingHorizontal, borderRadius: radius, backgroundColor: colors.background },
         colors.border ? { borderWidth: 1, borderColor: colors.border } : null,
+        // Around its center, as it grows in, pulses and shrinks away
+        motion ? { transform: [{ scale: motion.scale }] } : null,
         style,
       ]}
     >
       <TextColorProvider value={colors.text}>
         <IconDefaultsProvider size={iconSize} color={colors.text}>
-          {/* Text runs take the badge's type; a symbol beside them stays a symbol (`<Badge><Star />New</Badge>`) */}
-          {flattenChildren(children).map((child, index) =>
-            typeof child === "string" || typeof child === "number" ? (
-              // A badge's label scales with the text size up to 130%: past that it would crowd what it labels
-              <Text key={index} weight={counter ? "medium" : "semibold"} numberOfLines={1} maxFontSizeMultiplier={1.3} color={colors.text} style={{ fontSize, lineHeight: Math.round(fontSize * 1.34), flexShrink: 1 }}>
-                {child}
-              </Text>
-            ) : (
-              child
-            ),
+          {motion ? (
+            <RollingCount motion={motion} label={label} />
+          ) : (
+            /* Text runs take the badge's type; a symbol beside them stays a symbol (`<Badge><Star />New</Badge>`) */
+            flattenChildren(children).map((child, index) =>
+              typeof child === "string" || typeof child === "number" ? (
+                <Text key={index} {...label}>
+                  {child}
+                </Text>
+              ) : (
+                child
+              ),
+            )
           )}
         </IconDefaultsProvider>
       </TextColorProvider>
       {cross}
-    </View>
+    </Root>
   )
 }
+
+/** The characters of a count, those `hidden` keeping their place unseen. */
+function spell(count: string, hidden: (index: number) => boolean) {
+  return [...count].map((digit, index) => (
+    <NativeText key={index} style={hidden(index) ? styles.unseen : null}>
+      {digit}
+    </NativeText>
+  ))
+}
+
+/**
+ * A count, and a change of it: over the first half of the change the label's width moves from the old count's to the
+ * new one's, and the digits that changed roll (in from below and out above as the count rises, the other way as it
+ * falls) and fade, while those that stayed stand still. A count of another length rolls whole.
+ */
+function RollingCount({ motion, label }: { motion: CountMotion; label: TextProps }) {
+  const { count, from, up, change } = motion
+  // The counts' widths as laid out: the one drawn, and while it rolls in the old one's to start from
+  const [widths, setWidths] = useState<Record<string, number>>({})
+  const measure = (of: string) => (event: LayoutChangeEvent) => {
+    const width = event.nativeEvent.layout.width
+    setWidths((known) => (known[of] === width ? known : { ...(from != null && known[from] != null ? { [from]: known[from] } : null), [of]: width }))
+  }
+  if (from == null) {
+    return (
+      <Text {...label} onLayout={measure(count)}>
+        {count}
+      </Text>
+    )
+  }
+  const same = [...count].map((digit, index) => from.length === count.length && from[index] === digit)
+  const half = change.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 1, 1] })
+  const fromWidth = widths[from]
+  const toWidth = widths[count]
+  const width = fromWidth != null && toWidth != null ? change.interpolate({ inputRange: [0, 0.5, 1], outputRange: [fromWidth, toWidth, toWidth] }) : fromWidth
+  return (
+    <Animated.View style={[styles.roll, { width }]}>
+      {/* The new count, unseen, holds the label's height (and is what a screen reader reads) */}
+      <Text {...label} style={[label.style, styles.holder]}>
+        {count}
+      </Text>
+      <View aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" pointerEvents="none" style={StyleSheet.absoluteFill}>
+        <Animated.View
+          style={[styles.layer, { opacity: half, transform: [{ translateY: half.interpolate({ inputRange: [0, 1], outputRange: [up ? ROLL : -ROLL, 0] }) }] }]}
+        >
+          <Text {...label} onLayout={measure(count)}>
+            {spell(count, (index) => same[index])}
+          </Text>
+        </Animated.View>
+        {same.some(Boolean) ? (
+          <View style={styles.layer}>
+            <Text {...label}>{spell(count, (index) => !same[index])}</Text>
+          </View>
+        ) : null}
+        <Animated.View
+          style={[
+            styles.layer,
+            {
+              opacity: half.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+              transform: [{ translateY: half.interpolate({ inputRange: [0, 1], outputRange: [0, up ? -ROLL : ROLL] }) }],
+            },
+          ]}
+        >
+          <Text {...label}>{spell(from, (index) => !!same[index])}</Text>
+        </Animated.View>
+      </View>
+    </Animated.View>
+  )
+}
+
+/** A count's layers reach this far past the label each side, so a wider count is never cut to the label's width. */
+const SPREAD = 100
 
 const styles = StyleSheet.create({
   badge: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", gap: 4, maxWidth: "100%", borderCurve: "continuous" },
   remove: { marginEnd: -1, alignItems: "center", justifyContent: "center" },
   pressed: { opacity: 0.6 },
+  roll: { alignItems: "center", justifyContent: "center" },
+  holder: { opacity: 0 },
+  layer: { position: "absolute", top: 0, bottom: 0, start: -SPREAD, end: -SPREAD, alignItems: "center", justifyContent: "center" },
+  unseen: { color: "transparent" },
 })

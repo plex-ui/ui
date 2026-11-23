@@ -1,7 +1,8 @@
-import { createContext, Fragment, isValidElement, useContext, useEffect, useRef, useState, type ReactNode } from "react"
+import { createContext, Fragment, isValidElement, useContext, useEffect, useState, type ReactNode } from "react"
 import {
   ActivityIndicator,
   Animated,
+  Easing,
   Platform,
   Pressable,
   StyleSheet,
@@ -11,9 +12,11 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native"
+import Svg, { Circle } from "react-native-svg"
 import { flattenChildren } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
 import { useAndroidGlass } from "../../internal/BarBackdrop"
+import { curves } from "../../internal/motion"
 import { barShadow, stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -287,6 +290,77 @@ export function useMaterialPress(theme: Theme) {
   return theme.isAndroid && Platform.OS === "android"
 }
 
+/** Android's list selector, the press of a filled button: black at 0x0F of 255, white at 0x0D at night. */
+const listSelector = (scheme: Theme["scheme"]) => (scheme === "dark" ? "rgba(255, 255, 255, 0.051)" : "rgba(0, 0, 0, 0.059)")
+
+/** Material's standard curve, on which the spinner's arc surges. */
+const standard = Easing.bezier(0.4, 0, 0.2, 1)
+/**
+ * Android's spinner over one 5400ms cycle: the arc's head turns 1520° and makes four surges of 250°, 667ms each,
+ * 1350ms apart; its tail turns 20° behind the head's steady turn and makes the same surges 667ms later.
+ */
+const SPIN = { cycle: 5400, turn: 1520, lag: 20, surge: 250, surgeTime: 667, surgeEvery: 1350, surges: 4 }
+/** The spinner's 2.25dp stroke runs on a circle 18dp across plus half the stroke, as Android lays its drawable out. */
+const SPINNER_STROKE = 2.25
+const SPINNER_RING = 18 + SPINNER_STROKE / 2
+const SPINNER_BOX = SPINNER_RING + SPINNER_STROKE
+const SPINNER_LENGTH = Math.PI * SPINNER_RING
+
+/** The spinner at `t` ms into its cycle: how far its tail has turned and how long its arc is, in degrees. */
+function spinnerAt(t: number) {
+  const surges = (delay: number) => {
+    let total = 0
+    for (let index = 0; index < SPIN.surges; index++) {
+      const from = delay + index * SPIN.surgeEvery
+      total += standard(Math.min(1, Math.max(0, (t - from) / SPIN.surgeTime))) * SPIN.surge
+    }
+    return total
+  }
+  const head = (t / SPIN.cycle) * SPIN.turn + surges(0)
+  // The tail stands still until the head is 20° on
+  const lagTime = (SPIN.lag * SPIN.cycle) / SPIN.turn
+  const tail = Math.max(0, (t - lagTime) / (SPIN.cycle - lagTime)) * (SPIN.turn - SPIN.lag) + surges(SPIN.surgeTime)
+  return { tail, arc: head - tail }
+}
+
+/**
+ * Android's loading spinner: the arc's start and its length run on one clock that loops every 5.4s. The arc is redrawn
+ * from the clock on each frame (an animated SVG prop does not reach the element on the web).
+ */
+function Spinner({ color }: { color: string }) {
+  const [t, setT] = useState(0)
+  useEffect(() => {
+    const time = new Animated.Value(0)
+    const id = time.addListener(({ value }) => setT(value))
+    const loop = Animated.loop(Animated.timing(time, { toValue: SPIN.cycle, duration: SPIN.cycle, easing: Easing.linear, useNativeDriver: false }))
+    loop.start()
+    return () => {
+      loop.stop()
+      time.removeListener(id)
+    }
+  }, [])
+  const { tail, arc } = spinnerAt(t)
+  return (
+    // The circle's stroke starts at 3 o'clock and runs clockwise, as Android's arcs
+    <View style={{ width: SPINNER_BOX, height: SPINNER_BOX, transform: [{ rotate: `${tail}deg` }] }}>
+      <Svg width={SPINNER_BOX} height={SPINNER_BOX}>
+        <Circle
+          cx={SPINNER_BOX / 2}
+          cy={SPINNER_BOX / 2}
+          r={SPINNER_RING / 2}
+          fill="none"
+          stroke={color}
+          strokeWidth={SPINNER_STROKE}
+          strokeLinecap="round"
+          // One dash as long as the arc, the rest of the circle a gap
+          strokeDasharray={[SPINNER_LENGTH, SPINNER_LENGTH]}
+          strokeDashoffset={SPINNER_LENGTH * (1 - arc / 360)}
+        />
+      </Svg>
+    </View>
+  )
+}
+
 /** Strings and numbers in a row make one label ("Pressed {count}"); an element (an icon) stands on its own. */
 function renderChildren(children: ReactNode, metrics: Metrics) {
   const out: ReactNode[] = []
@@ -394,36 +468,92 @@ export function Button({
     }
   }
   const nativeRipple = useMaterialPress(theme)
+  const android = theme.isAndroid
+  const still = theme.reducedMotion
   const [pressed, setPressed] = useState(false)
-  // The corners at rest: a selected Android button has morphed to its checked shape
-  const resting = theme.isAndroid && selected ? metrics.selectedRadius : metrics.radius
-  const [radius] = useState(() => new Animated.Value(resting))
-  const animateRadius = (to: number) => {
-    if (!theme.isAndroid) return
-    Animated.timing(radius, { toValue: to, duration: theme.reducedMotion ? 0 : 150, useNativeDriver: false }).start()
+  // The corners: a selected Android button keeps its checked shape. The radii at rest, pressed and selected are the
+  // same on both platforms, so the corners never morph
+  const corners = android && selected ? metrics.selectedRadius : metrics.radius
+  // An icon in a group's capsule takes the group's 38dp slot, a circle of its own the bar's height
+  const width = uniform ? (android && bar?.inGroup ? 38 : metrics.height) : undefined
+  // Android's press on a bar's icon: its borderless ripple, a 40dp circle (20dp radius) centered on the icon, a little
+  // wider than a group's slot; a label in a bar takes the press in its own shape
+  const dot = android && bar && uniform && width ? 40 : 0
+  // Android's press of a button standing on its own (a bar's have none): it shrinks to 0.98 in 80ms on the default
+  // curve and comes back on release in 350ms on an overshoot of 1.2, just past its size and back
+  const scales = android && !bar
+  const [scale] = useState(() => new Animated.Value(1))
+  const scaleTo = (down: boolean) => {
+    if (!scales) return
+    scale.stopAnimation()
+    if (still) return scale.setValue(down ? 0.98 : 1)
+    Animated.timing(
+      scale,
+      down
+        ? { toValue: 0.98, duration: 80, easing: curves.accelerateDecelerate, useNativeDriver: false }
+        : { toValue: 1, duration: 350, easing: curves.overshoot(1.2), useNativeDriver: false },
+    ).start()
   }
-  // A change of selection or size sets the corners at once
-  const wasSelected = useRef(selected)
-  useEffect(() => {
-    const morph = theme.isAndroid && wasSelected.current !== selected
-    wasSelected.current = selected
-    if (morph) Animated.timing(radius, { toValue: resting, duration: theme.reducedMotion ? 0 : 150, useNativeDriver: false }).start()
-    else radius.setValue(resting)
-  }, [radius, resting, selected, theme.isAndroid, theme.reducedMotion])
+  // The web's stand-in for a bar icon's borderless ripple fades in over 80ms, linear, rather than appearing at once
+  const [glow] = useState(() => new Animated.Value(1))
   const handleIn = (event: GestureResponderEvent) => {
     setPressed(true)
-    if (metrics.pressedRadius !== resting) animateRadius(metrics.pressedRadius)
+    scaleTo(true)
+    if (dot && !nativeRipple) {
+      glow.stopAnimation()
+      glow.setValue(still ? 1 : 0)
+      if (!still) Animated.timing(glow, { toValue: 1, duration: 80, easing: Easing.linear, useNativeDriver: false }).start()
+    }
     onPressIn?.(event)
   }
   const handleOut = (event: GestureResponderEvent) => {
     setPressed(false)
-    if (metrics.pressedRadius !== resting) animateRadius(resting)
+    scaleTo(false)
     onPressOut?.(event)
   }
   const inert = disabled || inertProp
   const background = pressed && theme.isIOS ? colors.pressed : colors.background
   // A glass button keeps its own press: only its glass changes
   const text = pressed && !inert && theme.isIOS && !glass && colors.pressedText ? colors.pressedText : colors.text
+  // Android fades a button on its own between enabled and disabled in 300ms on its default curve: its fill stays and
+  // its label goes to half, so the label keeps its enabled color under an opacity. A bar's buttons change at once
+  const fades = android && !bar
+  const ink = fades && disabled ? buttonColors(theme, color, variant, false, selected, uniform).text : text
+  const [dim] = useState(() => new Animated.Value(fades && disabled ? 0.5 : 1))
+  useEffect(() => {
+    const to = fades && disabled ? 0.5 : 1
+    if (still || !fades) {
+      dim.stopAnimation()
+      dim.setValue(to)
+      return
+    }
+    const animation = Animated.timing(dim, { toValue: to, duration: 300, easing: curves.accelerateDecelerate, useNativeDriver: false })
+    animation.start()
+    return () => animation.stop()
+  }, [dim, disabled, fades, still])
+  // Android's loading, both ways in 320ms on an ease-out quint: the label rises 24dp, flattens to 60% toward the
+  // button's top and fades out, as the spinner rises 24dp into its place and fades in
+  const [swap] = useState(() => new Animated.Value(loading ? 1 : 0))
+  // The spinner stays while it leaves
+  const [leaving, setLeaving] = useState(false)
+  const [wasLoading, setWasLoading] = useState(loading)
+  if (wasLoading !== loading) {
+    setWasLoading(loading)
+    setLeaving(!loading && android && !still)
+  }
+  useEffect(() => {
+    const to = loading ? 1 : 0
+    if (!android || still) {
+      swap.stopAnimation()
+      swap.setValue(to)
+      return
+    }
+    const animation = Animated.timing(swap, { toValue: to, duration: 320, easing: curves.easeOutQuint, useNativeDriver: false })
+    animation.start(({ finished }) => {
+      if (finished && !loading) setLeaving(false)
+    })
+    return () => animation.stop()
+  }, [android, loading, still, swap])
   const shadow =
     prominent && !disabled
       ? theme.token("--toolbar-prominent-shadow")
@@ -434,11 +564,6 @@ export function Button({
   const hitSlop = Math.max(0, (minTarget - metrics.height) / 2)
   // Button.module.css: the gutter, or for an icon alone the space beside its icon
   const inset = uniform ? (metrics.height - metrics.iconSize) / 2 : metrics.gutter
-  // An icon in a group's capsule takes the group's 38dp slot, a circle of its own the bar's height
-  const width = uniform ? (theme.isAndroid && bar?.inGroup ? 38 : metrics.height) : undefined
-  // Android's press on a bar's icon: its borderless ripple, a 40dp circle (20dp radius) centered on the icon, a little
-  // wider than a group's slot; a label in a bar takes the press in its own shape
-  const dot = theme.isAndroid && bar && uniform && width ? 40 : 0
   const body: ViewStyle = {
     // A least height, not a fixed one: a label at a large text size grows the button rather than being cut
     minHeight: metrics.height,
@@ -461,23 +586,40 @@ export function Button({
     borderCurve: "continuous",
     boxShadow: typeof shadow === "string" ? shadow : undefined,
   }
+  // The label scales from the button's top edge: on Android its row spans the button's height
+  const labelMotion = android
+    ? {
+        opacity: Animated.multiply(dim, swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })),
+        transform: [{ translateY: swap.interpolate({ inputRange: [0, 1], outputRange: [0, -24] }) }, { scaleY: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0.6] }) }],
+      }
+    : { opacity: loading ? 0 : 1 }
+  const spinner = android ? (
+    loading || leaving ? (
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.row, { opacity: swap, transform: [{ translateY: swap.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] }]}>
+        <Spinner color={ink} />
+      </Animated.View>
+    ) : null
+  ) : loading ? (
+    <ActivityIndicator style={StyleSheet.absoluteFill} color={text} size={metrics.indicator > 20 ? "large" : "small"} />
+  ) : null
   const content = (
-    <TextColorProvider value={text}>
-      <IconDefaultsProvider size={metrics.iconSize} color={text}>
-        <View style={[styles.row, { gap: metrics.gap, opacity: loading ? 0 : 1 }]}>{renderChildren(children, metrics)}</View>
-        {loading ? <ActivityIndicator style={StyleSheet.absoluteFill} color={text} size={metrics.indicator > 20 ? "large" : "small"} /> : null}
+    <TextColorProvider value={ink}>
+      <IconDefaultsProvider size={metrics.iconSize} color={ink}>
+        <Animated.View style={[styles.row, android ? styles.fromTop : null, { gap: metrics.gap }, labelMotion]}>{renderChildren(children, metrics)}</Animated.View>
+        {spinner}
       </IconDefaultsProvider>
     </TextColorProvider>
   )
-  // Android's press in a bar is its ink at 7% (#121A1D21); elsewhere Material's pressed state layer
-  const pressLayer = withAlpha(colors.text, theme.isAndroid && bar ? 0.07 : stateLayer.pressed)
+  // Android's press in a bar is its ink at 7% (#121A1D21); a filled button's is the list selector; any other's
+  // Material's pressed state layer of its label
+  const pressLayer = android && bar ? withAlpha(colors.text, 0.07) : android && variant === "solid" ? listSelector(theme.scheme) : withAlpha(colors.text, stateLayer.pressed)
   const layer =
     theme.isAndroid && !nativeRipple && pressed && !inert ? (
-      <View
+      <Animated.View
         pointerEvents="none"
         style={[
           dot && width
-            ? { position: "absolute", width: dot, height: dot, borderRadius: dot / 2, top: (metrics.height - dot) / 2, start: (width - dot) / 2 }
+            ? { position: "absolute", width: dot, height: dot, borderRadius: dot / 2, top: (metrics.height - dot) / 2, start: (width - dot) / 2, opacity: glow }
             : StyleSheet.absoluteFill,
           { backgroundColor: pressLayer },
         ]}
@@ -511,7 +653,7 @@ export function Button({
       android_ripple={
         nativeRipple ? { color: pressLayer, foreground: true, ...(dot ? { borderless: true, radius: dot / 2 } : null) } : undefined
       }
-      style={[body, card ? androidGlass : null, { borderRadius: theme.isAndroid ? radius : metrics.radius }, style]}
+      style={[body, card ? androidGlass : null, { borderRadius: corners }, scales ? { transform: [{ scale }] } : null, style]}
     >
       {layer}
       {content}
@@ -523,4 +665,5 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
+  fromTop: { alignSelf: "stretch", transformOrigin: "top" },
 })

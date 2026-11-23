@@ -58,6 +58,11 @@ const RELEASE = {
 /** Android's sheet goes back to its place over 250ms for each 0.8cm of the drag, on the default ease curve. */
 const ANDROID_SETTLE = { duration: 250, distance: 50, easing: Easing.bezier(0.25, 0.1, 0.25, 1) }
 
+/** Android's sheet opens from, and leaves for, 10dp under the screen's edge. */
+const ANDROID_OFFSCREEN = 10
+/** Android's touch slop: a drag down this far takes the sheet. */
+const ANDROID_SLOP = 8
+
 type GestureState = { dismissible: boolean; height: number; onOpenChange: (open: boolean) => void; android: boolean; reduced: boolean }
 
 /**
@@ -81,13 +86,14 @@ function sheetGesture(drag: Animated.Value) {
     } else Animated.spring(drag, { toValue: 0, useNativeDriver: false, bounciness: 0 }).start()
   }
   const vertical = (dx: number, dy: number) => Math.abs(dy) > 4 && Math.abs(dy) > Math.abs(dx)
-  // Android's sheet starts tracking a drag down three times as far as sideways
-  const androidDown = (dx: number, dy: number) => dy > 4 && dy / 3 > Math.abs(dx) && (!onContent || scrollY <= 0)
+  // Android's sheet starts tracking a drag down past its slop, three times as far as sideways
+  const androidDown = (dx: number, dy: number) => dy >= ANDROID_SLOP && dy / 3 > Math.abs(dx) && (!onContent || scrollY <= 0)
   const responder = PanResponder.create({
     // A sheet that cannot be dismissed does not follow the finger
     onMoveShouldSetPanResponder: (_, gesture) => state.dismissible && !state.android && vertical(gesture.dx, gesture.dy),
     // Android takes the drag from the content (its rows and its scroll) as it starts down at the content's top
     onMoveShouldSetPanResponderCapture: (_, gesture) => state.dismissible && state.android && androidDown(gesture.dx, gesture.dy),
+    // The drag counts from where it took the sheet (PanResponder starts it there), so the sheet does not jump by the slop
     onPanResponderMove: (_, gesture) => drag.setValue(Math.max(0, gesture.dy)),
     onPanResponderRelease: (_, gesture) => {
       onContent = false
@@ -127,7 +133,32 @@ function sheetGesture(drag: Animated.Value) {
   }
 }
 
-function BottomSheetRoot({ open, onOpenChange, title, children, dismissible = true, "aria-label": ariaLabel, testID, contentStyle, closeLabel = "Close" }: BottomSheetProps) {
+/** What ActionSheet asks of its sheet: an exit of its own time, and word once the sheet has gone. */
+type SheetExit = {
+  /** The time of the exit in ms, in place of the platform's. */
+  exit?: number
+  /** Called once the sheet has left. */
+  onExited?: () => void
+}
+
+function BottomSheetRoot(props: BottomSheetProps) {
+  return <BottomSheetBase {...props} />
+}
+
+/** The sheet with an exit of its own (ActionSheet's item tap); not part of the public API. */
+export function BottomSheetBase({
+  open,
+  onOpenChange,
+  title,
+  children,
+  dismissible = true,
+  "aria-label": ariaLabel,
+  testID,
+  contentStyle,
+  closeLabel = "Close",
+  exit,
+  onExited,
+}: BottomSheetProps & SheetExit) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const { width, height: screen } = useWindowDimensions()
@@ -206,8 +237,23 @@ function BottomSheetRoot({ open, onOpenChange, title, children, dismissible = tr
   // ends 16 over a footer, or over the home indicator
   const bottom = keyboard || footer ? 16 : Math.max(16, insets.bottom)
   const iosContent = { paddingTop: theme.length("--page-bar-soft-tail", 32), paddingHorizontal: margin, paddingBottom: bottom }
+  // The sheet's way in and out, under the drag. Android's starts and ends 10 under the screen's edge, and leaves from
+  // where a drag let it go: the drag shrinks with the progress, so the sheet goes from there to its place under the edge
+  const slide = (progress: Animated.Value) =>
+    android
+      ? Animated.add(progress.interpolate({ inputRange: [0, 1], outputRange: [(height || screen) + ANDROID_OFFSCREEN, 0] }), Animated.multiply(drag, progress))
+      : Animated.add(progress.interpolate({ inputRange: [0, 1], outputRange: [height || screen, 0] }), drag)
   return (
-    <Overlay open={open} onDismiss={close} scrim={android ? ANDROID_DIM.sheet : iosDim(theme)} dismissible={dismissible} motion="sheet" testID={testID}>
+    <Overlay
+      open={open}
+      onDismiss={close}
+      scrim={android ? ANDROID_DIM.sheet : iosDim(theme)}
+      dismissible={dismissible}
+      motion="sheet"
+      exit={exit}
+      onExited={onExited}
+      testID={testID}
+    >
       {(progress, _opening, focus) => (
         <View pointerEvents="box-none" style={styles.bottom}>
           <Animated.View
@@ -232,7 +278,7 @@ function BottomSheetRoot({ open, onOpenChange, title, children, dismissible = tr
                 paddingBottom: android ? insets.bottom + keyboard : keyboard,
                 // With reduced motion it fades in place, and follows only the finger
                 opacity: reduced ? progress : undefined,
-                transform: [{ translateY: reduced ? drag : Animated.add(progress.interpolate({ inputRange: [0, 1], outputRange: [height || screen, 0] }), drag) }],
+                transform: [{ translateY: reduced ? drag : slide(progress) }],
               },
             ]}
           >

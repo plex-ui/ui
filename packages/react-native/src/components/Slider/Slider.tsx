@@ -87,7 +87,10 @@ const MARK_SPACING = 16
 const MIN_TICK_SPACING = 13
 /** Android's slider: a 3dp track, a 12dp thumb (16 while held) whose center runs 16 in from either end. */
 const ANDROID_TRACK = 3
-/** The slider: a thumb glides to its new place in 60ms (an ease-out, cubic-bezier(0, 0, 0.58, 1)). */
+/**
+ * The slider: a thumb glides to its new place in 60ms (an ease-out, cubic-bezier(0, 0, 0.58, 1)) on a stepped track
+ * or when the value is set from outside; under a finger on a fine track it follows at once.
+ */
 const SEEK_GLIDE = { duration: 60, easing: Easing.bezier(0, 0, 0.58, 1) }
 /** The stepped picker: the choice moves to the next step in 120ms (cubic-bezier(0.25, 0.1, 0.25, 1)). */
 const CHOOSE_GLIDE = { duration: 120, easing: Easing.bezier(0.25, 0.1, 0.25, 1) }
@@ -191,11 +194,15 @@ export function Slider(props: SliderProps) {
       const bestDistance = Math.abs(values[best] - value)
       return distance < bestDistance || (distance === bestDistance && current === values[best] && value > current) ? index : best
     }, 0)
+  // The values a finger set last: on Android's plain track the thumb stands on them at once
+  const [fingerSet, setFingerSet] = useState<string | null>(null)
   const move = (event: GestureResponderEvent, index: number | null) => {
     // A slider disabled during a drag stops changing
     if (disabled) return values
     const raw = valueAt(along(event))
-    return set(index ?? nearest(raw), raw)
+    const next = set(index ?? nearest(raw), raw)
+    if (next !== values) setFingerSet(next.join(" "))
+    return next
   }
   const nudge = (index: number, by: number) => {
     if (disabled) return
@@ -364,10 +371,15 @@ export function Slider(props: SliderProps) {
       )}
     </View>
   )
+  // Android's plain track: the thumb follows the finger 1:1 and a tap puts it there at once. Steps far enough apart to
+  // see (as far as the stepped picker's dots need) make it glide 60ms to each step, as Android's seek bar with
+  // separators; a value set from outside glides on any track
+  const stepped = (travel * step) / Math.max(1e-9, max - min) >= MIN_TICK_SPACING
+  const follow = !discrete && !stepped && fingerSet === values.join(" ")
   // Android's thumbs glide to their places, and the marks take the accent as a thumb nears them: the scope holds a
   // glide for each thumb (a new count of thumbs starts a new scope)
   return android ? (
-    <GlideScope key={values.length} centers={values.map(center)} length={length} still={theme.reducedMotion} glide={discrete ? CHOOSE_GLIDE : SEEK_GLIDE}>
+    <GlideScope key={values.length} centers={values.map(center)} length={length} still={theme.reducedMotion || follow} glide={discrete ? CHOOSE_GLIDE : SEEK_GLIDE}>
       {body}
     </GlideScope>
   ) : (

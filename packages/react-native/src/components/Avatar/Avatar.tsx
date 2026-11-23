@@ -1,5 +1,5 @@
 import { Children, isValidElement, useId, useState, type ComponentType, type ReactNode } from "react"
-import { Image, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -159,7 +159,8 @@ export function Avatar({ name, imageUrl, color = "secondary", variant = "soft", 
       {fill ? <View pointerEvents="none">{placeholder}</View> : placeholder}
       {showImage ? (
         <View style={[StyleSheet.absoluteFill, { borderRadius: size / 2, overflow: "hidden" }]}>
-          <Image source={{ uri: imageUrl }} onError={() => setFailed(true)} style={StyleSheet.absoluteFill} accessibilityIgnoresInvertColors />
+          {/* A picture of its own for each address, so a new one fades in afresh */}
+          <Picture key={imageUrl} uri={imageUrl} fade={theme.isAndroid ? (theme.reducedMotion ? 0 : 150) : undefined} onError={() => setFailed(true)} />
           {/* The hairline over the picture, inside its edge, so it does not change the size */}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: size / 2, borderWidth: 1, borderColor: theme.color("--avatar-image-border-color") }]} />
         </View>
@@ -186,6 +187,25 @@ export function Avatar({ name, imageUrl, color = "secondary", variant = "soft", 
     <View accessible={!!(accessibilityLabel ?? name)} accessibilityRole="image" accessibilityLabel={accessibilityLabel ?? name} testID={testID} style={box}>
       {body}
     </View>
+  )
+}
+
+/**
+ * The picture. Android fades it in over `fade` ms, linear, once it has loaded: a device's Image does it itself (its
+ * own fade is 300ms), elsewhere the picture's opacity runs. Left out, the platform's own way stays.
+ */
+function Picture({ uri, fade, onError }: { uri: string; fade?: number; onError: () => void }) {
+  const fades = fade != null && fade > 0 && Platform.OS !== "android"
+  const [opacity] = useState(() => new Animated.Value(fades ? 0 : 1))
+  return (
+    <Animated.Image
+      source={{ uri }}
+      onError={onError}
+      fadeDuration={Platform.OS === "android" ? fade : undefined}
+      onLoad={fades ? () => Animated.timing(opacity, { toValue: 1, duration: fade, easing: Easing.linear, useNativeDriver: false }).start() : undefined}
+      style={[StyleSheet.absoluteFill, { opacity }]}
+      accessibilityIgnoresInvertColors
+    />
   )
 }
 

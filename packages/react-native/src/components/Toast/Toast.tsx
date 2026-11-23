@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
-import { AccessibilityInfo, Animated, Easing, PanResponder, Platform, Pressable, StyleSheet, View } from "react-native"
+import { AccessibilityInfo, Animated, Easing, PanResponder, PixelRatio, Platform, Pressable, StyleSheet, View, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import CheckCircle from "../../icons/plex/CheckCircle"
 import InfoCircle from "../../icons/plex/InfoCircle"
@@ -8,6 +8,7 @@ import XCircle from "../../icons/plex/XCircle"
 import { Glass } from "../../internal/Glass"
 import { glassOpacity } from "../../internal/Overlay"
 import { textOf } from "../../internal/children"
+import { curves, stiffSpring } from "../../internal/motion"
 import { mix, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -185,21 +186,29 @@ const cardFill = (scheme: "light" | "dark") => (scheme === "dark" ? "rgba(24, 24
 /** The toast card's action (#85CAFF / #6CB7FF): the accent half white, 40% in dark mode. */
 const cardAction = (theme: Theme) => mix("#FFFFFF", theme.material.primary, theme.scheme === "dark" ? 0.4 : 0.5)
 /**
- * Android's toast card rises by its own height on a spring and goes back down the same way, with no fade
- * (its spring: damping ratio 0.8, stiffness 400; at mass 1 a damping of 0.8 × 2√400).
+ * Android's toast card rises from under its place (its height and the 8 above and under it) on a spring of damping
+ * ratio 0.8 and stiffness 400, and drops back over 175ms on an ease-in quad, with no fade.
  */
-const CARD_SPRING = { stiffness: 400, damping: 32, mass: 1 }
-/** A swiped toast card goes past a third of its width, or on a flick of 2000 px/s (about 0.76dp per ms). */
-const CARD_FLING = 0.76
+const CARD_SPRING = stiffSpring(400, 0.8)
+const CARD_EXIT = { duration: 175, easing: curves.easeInQuad }
+/** The toast card's place: the card, 8 above and under it, 16 at each side (the host's padding). */
+const CARD_INSET = { block: 8, inline: 16 }
+/**
+ * A swiped toast card goes on past a third of its place's width; a flick of 2000 px/s (about 0.76dp per ms, the unit
+ * of PanResponder's velocity) throws it on a spring of stiffness 100 and no bounce toward twice its width.
+ */
+const CARD_FLING = { velocity: 0.76, spring: stiffSpring(100) }
 
 function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; theme: Theme; hidden: boolean; replaced?: boolean }) {
-  // iOS: the banner's slide and fade; Android: the toast card's spring up. `scale` is Android's press (2% down)
+  // iOS: the banner's slide and fade; Android: the toast card's spring up
   const [progress] = useState(() => new Animated.Value(0))
-  const [scale] = useState(() => new Animated.Value(1))
   // iOS: the drag up; Android: the swipe sideways
   const [drag] = useState(() => new Animated.Value(0))
   const android = theme.isAndroid
-  // The toast card's size: it rises by its height, and fades as it is swiped across its width
+  // A tablet (600dp at its narrowest) or a screen in landscape
+  const viewport = useWindowDimensions()
+  const wide = viewport.width >= viewport.height || viewport.width >= 600
+  // The toast card's size: it rises by its height, and is swiped across its width
   const [card, setCard] = useState({ width: 360, height: 56 })
   // Android: a touch holds the toast card's time, which starts again in full as it ends
   const hold = useRef<{ pause: () => void; resume: () => void } | null>(null)
@@ -217,36 +226,65 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
     const done = ({ finished }: { finished: boolean }) => {
       if (finished) dismiss(item.id)
     }
-    if (android && !theme.reducedMotion) Animated.spring(progress, { toValue: 0, ...CARD_SPRING, useNativeDriver: false }).start(done)
+    if (android && !theme.reducedMotion) Animated.timing(progress, { toValue: 0, ...CARD_EXIT, useNativeDriver: false }).start(done)
     else Animated.timing(progress, { toValue: 0, duration: theme.reducedMotion ? 0 : 200, easing: Easing.in(Easing.cubic), useNativeDriver: false }).start(done)
   }
-  // Swiped away, a toast card goes on to the side, fading, and is gone (the swipe: 200ms, accelerating)
+  // The width a toast card is swiped across: its place, the card and the 16 at each side, so at its end it is off the
+  // screen
+  const span = card.width + 2 * CARD_INSET.inline
+  // Swiped away, a toast card goes on to the side and is gone (200ms, accelerating)
   const swipeAway = (direction: number) => {
     if (left.current === version.current) return
     left.current = version.current
     setLeavingVersion(version.current)
-    Animated.timing(drag, { toValue: direction * card.width, duration: theme.reducedMotion ? 0 : 200, easing: Easing.quad, useNativeDriver: false }).start(({ finished }) => {
+    Animated.timing(drag, { toValue: direction * span, duration: theme.reducedMotion ? 0 : 200, easing: curves.accelerate, useNativeDriver: false }).start(({ finished }) => {
       if (finished) dismiss(item.id)
     })
   }
+  // Flung, it springs on toward twice its width from the finger's speed, and is gone once it has crossed its width
+  const fling = (velocity: number) => {
+    if (theme.reducedMotion) return swipeAway(Math.sign(velocity))
+    if (left.current === version.current) return
+    left.current = version.current
+    setLeavingVersion(version.current)
+    const width = span
+    let gone = false
+    const away = () => {
+      if (gone) return
+      gone = true
+      dismiss(item.id)
+    }
+    const crossed = drag.addListener(({ value }) => {
+      if (Math.abs(value) > width) {
+        drag.removeListener(crossed)
+        drag.stopAnimation()
+        away()
+      }
+    })
+    // PanResponder's velocity is per ms, a spring's per second. An update stops it (the toast stays)
+    Animated.spring(drag, { toValue: Math.sign(velocity) * 2 * width, velocity: velocity * 1000, ...CARD_FLING.spring, useNativeDriver: false }).start(({ finished }) => {
+      drag.removeListener(crossed)
+      if (finished) away()
+    })
+  }
+  // Back in its place over 200ms, on the default accelerate-decelerate curve
+  const back = () => Animated.timing(drag, { toValue: 0, duration: theme.reducedMotion ? 0 : 200, easing: curves.accelerateDecelerate, useNativeDriver: false }).start()
   // The gesture is made once: it reads the platform and the exit of the current render
-  const live = useRef({ android, leave, swipeAway, width: card.width })
+  const live = useRef({ android, leave, swipeAway, fling, back, width: span })
   useLayoutEffect(() => {
-    live.current = { android, leave, swipeAway, width: card.width }
+    live.current = { android, leave, swipeAway, fling, back, width: span }
   })
   useEffect(() => {
     version.current = item.version
     // An update brings back a toast that was being swiped away
     drag.setValue(0)
-    if (android && !theme.reducedMotion) Animated.spring(progress, { toValue: 1, ...CARD_SPRING, useNativeDriver: false }).start()
-    else Animated.timing(progress, { toValue: 1, duration: theme.reducedMotion ? 0 : 300, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start()
     // The toaster is a polite live region, which Android and the web read; VoiceOver is told
     const text = [textOf(item.title), textOf(item.description)].filter(Boolean).join(". ")
     if (text && Platform.OS === "ios") AccessibilityInfo.announceForAccessibility(text)
     // An update in place starts its time again; `Infinity` stays until it is dismissed, as sonner. Android keeps a
     // a toast 2750ms (its long duration), 5000 with an action (a prolonged one)
     const duration = item.duration ?? (android ? (item.action ? 5000 : 2750) : 4000)
-    if (!Number.isFinite(duration)) return
+    const timed = Number.isFinite(duration)
     let active = true
     let held = false
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -255,6 +293,7 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
       if (active && !held) timer = setTimeout(() => live.current.leave(), ms)
     }
     const arm = () => {
+      if (!timed) return
       // Android lengthens a timeout to the person's "Time to take action" (getRecommendedTimeoutMillis)
       if (Platform.OS === "android" && AccessibilityInfo.getRecommendedTimeoutMillis) {
         AccessibilityInfo.getRecommendedTimeoutMillis(duration).then(start, () => start(duration))
@@ -262,7 +301,19 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
         start(duration)
       }
     }
-    arm()
+    if (android && !theme.reducedMotion) {
+      // The toast card's time starts once it has risen: the spring rests within 0.75 of a pixel and under 46.875
+      // pixels a second (in the progress, over the card's way up)
+      const pixels = PixelRatio.get() * (card.height + 2 * CARD_INSET.block)
+      Animated.spring(progress, { toValue: 1, ...CARD_SPRING, restDisplacementThreshold: 0.75 / pixels, restSpeedThreshold: 46.875 / pixels, useNativeDriver: false }).start(
+        ({ finished }) => {
+          if (finished) arm()
+        },
+      )
+    } else {
+      Animated.timing(progress, { toValue: 1, duration: theme.reducedMotion ? 0 : 300, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start()
+      arm()
+    }
     // Android's toast card keeps still while it is touched, then takes its full time again
     hold.current = {
       pause: () => {
@@ -288,22 +339,22 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
   const [responder] = useState(() =>
     PanResponder.create({
       // The banner moves up; the toast card sideways, as on Android
-      onMoveShouldSetPanResponder: (_, gesture) => (live.current.android ? Math.abs(gesture.dx) > 4 && Math.abs(gesture.dx) > Math.abs(gesture.dy) : Math.abs(gesture.dy) > 4),
+      onMoveShouldSetPanResponder: (_, gesture) => (live.current.android ? Math.abs(gesture.dx) >= 8 && Math.abs(gesture.dx) > Math.abs(gesture.dy) : Math.abs(gesture.dy) > 4),
       // The banner follows the finger up, and resists the other way; the toast card follows it either way
       onPanResponderMove: (_, gesture) => drag.setValue(live.current.android ? gesture.dx : Math.min(0, gesture.dy)),
       onPanResponderRelease: (_, gesture) => {
         if (live.current.android) {
-          // Past a third of its width, or on a flick, it goes on that way; else it comes back over 200ms
-          const flick = Math.abs(gesture.vx) > CARD_FLING
-          if (flick || Math.abs(gesture.dx) > live.current.width / 3) live.current.swipeAway(Math.sign(flick ? gesture.vx : gesture.dx) || 1)
-          else Animated.timing(drag, { toValue: 0, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: false }).start()
+          // A flick throws it; past a third of its width it goes on that way; else it comes back
+          if (Math.abs(gesture.vx) > CARD_FLING.velocity) live.current.fling(gesture.vx)
+          else if (Math.abs(gesture.dx) > live.current.width / 3) live.current.swipeAway(Math.sign(gesture.dx) || 1)
+          else live.current.back()
           return
         }
         if (gesture.dy < -24 || Math.abs(gesture.vy) > 0.8) live.current.leave()
         else Animated.spring(drag, { toValue: 0, useNativeDriver: false, bounciness: 0 }).start()
       },
       onPanResponderTerminate: () => {
-        if (live.current.android) Animated.timing(drag, { toValue: 0, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: false }).start()
+        if (live.current.android) live.current.back()
       },
     }),
   )
@@ -321,21 +372,16 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
     // A typed toast card shows its symbol in white, as Android's icons on the dark card
     const icon = item.icon !== undefined ? item.icon : symbol ? <symbol.Icon size={24} color="#FFFFFF" /> : null
     const action = cardAction(theme)
-    const press = (to: number) => Animated.timing(scale, { toValue: to, duration: theme.reducedMotion ? 0 : 120, useNativeDriver: false }).start()
-    const release = () => {
-      press(1)
-      hold.current?.resume()
-    }
+    // The card itself never presses down: on Android only a card that is one big button does, and the toast's action is
+    // its own button
+    const release = () => hold.current?.resume()
     return (
       <Animated.View
         {...responder.panHandlers}
         accessibilityRole="alert"
         pointerEvents={touches}
-        // A touch presses the whole card 2% down, as on Android, and holds its time
-        onTouchStart={() => {
-          press(0.98)
-          hold.current?.pause()
-        }}
+        // A touch holds its time
+        onTouchStart={() => hold.current?.pause()}
         onTouchEnd={release}
         onTouchCancel={release}
         onLayout={(event) => {
@@ -347,10 +393,10 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
           {
             backgroundColor: cardFill(theme.scheme),
             paddingEnd: item.action || item.closeButton ? 0 : 16,
-            // It fades only as it is swiped across
-            opacity: drag.interpolate({ inputRange: [-card.width, 0, card.width], outputRange: [0, 1, 0], extrapolate: "clamp" }),
-            // From under the host's clipped edge: its height and the 8 under it
-            transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [card.height + 8, 0] }) }, { translateX: drag }, { scale }],
+            // It fades as it is swiped across only on a wide screen (a tablet, or landscape); a phone's keeps opaque
+            opacity: wide ? drag.interpolate({ inputRange: [-span, 0, span], outputRange: [0, 1, 0], extrapolate: "clamp" }) : 1,
+            // From under the host's clipped edge: its height and the 8 above and under it
+            transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [card.height + 2 * CARD_INSET.block, 0] }) }, { translateX: drag }],
             display,
           },
         ]}

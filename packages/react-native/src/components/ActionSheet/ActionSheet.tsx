@@ -1,11 +1,11 @@
-import { useId, type ReactNode } from "react"
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react"
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Glass } from "../../internal/Glass"
 import { glassOpacity, iosDim, Overlay } from "../../internal/Overlay"
 import { dangerText } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
-import { BottomSheet } from "../BottomSheet/BottomSheet"
+import { BottomSheetBase } from "../BottomSheet/BottomSheet"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text } from "../Text/Text"
 
@@ -47,12 +47,42 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
     action.onPress?.()
     close()
   }
+  // Android: an item's tap takes the sheet away faster (180ms on its ease-out, Back and a tap outside keep the sheet's
+  // 250) and runs the item once the sheet has gone. An item still waiting when the sheet opens again or goes with its
+  // screen runs then, so a tap is never lost
+  const picked = useRef<ActionSheetAction | null>(null)
+  const [quick, setQuick] = useState(false)
+  if (open && quick) setQuick(false)
+  const runPicked = useCallback(() => {
+    const action = picked.current
+    picked.current = null
+    action?.onPress?.()
+  }, [])
+  useEffect(() => {
+    if (open) runPicked()
+  }, [open, runPicked])
+  useEffect(() => runPicked, [runPicked])
+  const pick = (action: ActionSheetAction) => {
+    if (action.disabled || !open || picked.current) return
+    picked.current = action
+    setQuick(true)
+    close()
+  }
   const ids = { title: useId(), message: useId() }
   if (theme.isAndroid) {
     const m = theme.material
     const icons = actions.some((action) => action.icon)
     return (
-      <BottomSheet open={open} onOpenChange={onOpenChange} testID={testID} contentStyle={styles.androidList} aria-label={typeof title === "string" ? title : undefined}>
+      <BottomSheetBase
+        open={open}
+        onOpenChange={onOpenChange}
+        testID={testID}
+        contentStyle={styles.androidList}
+        aria-label={typeof title === "string" ? title : undefined}
+        // With reduced motion the exit is at once either way
+        exit={quick && !theme.reducedMotion ? ANDROID_PICK_EXIT : undefined}
+        onExited={runPicked}
+      >
         {/* Android's plain sheet title: Regular 16 in its secondary gray (#757575, #7D7D7D at night), 16 around it; a
             message under it in 14 */}
         {title != null || message != null ? (
@@ -78,7 +108,7 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
               accessibilityRole="button"
               accessibilityState={{ disabled: !!action.disabled }}
               disabled={action.disabled}
-              onPress={() => run(action)}
+              onPress={() => pick(action)}
               testID={action.testID}
               style={({ pressed }) => [
                 styles.androidRow,
@@ -103,7 +133,7 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
             </Pressable>
           )
         })}
-      </BottomSheet>
+      </BottomSheetBase>
     )
   }
   const height = theme.length("--dialog-alert-action-height", 48)
@@ -202,6 +232,9 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
     </Overlay>
   )
 }
+
+/** How fast Android's menu sheet leaves after an item's tap, in ms. */
+const ANDROID_PICK_EXIT = 180
 
 const styles = StyleSheet.create({
   bottom: { flex: 1, justifyContent: "flex-end" },

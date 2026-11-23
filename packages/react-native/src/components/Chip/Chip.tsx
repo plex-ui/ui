@@ -1,11 +1,11 @@
-import { useState, type ReactNode } from "react"
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { useEffect, useState, type ReactNode } from "react"
+import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import CloseBold from "../../icons/plex/CloseBold"
 import { spaceToggles } from "../../internal/a11y"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { IconDefaultsProvider } from "../Icon/createIcon"
-import { Text } from "../Text/Text"
+import { Text, textStyle } from "../Text/Text"
 
 export type ChipProps = {
   children: ReactNode
@@ -47,11 +47,14 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
   }
   const android = theme.isAndroid
   const m = theme.material
+  // Android: the label and the fill of either state, which a selection blends between
+  const androidColor = { off: m.onSurface, on: theme.color("--color-text-primary-solid") }
+  const androidFill = { off: withAlpha(m.onSurface, 0.05), on: theme.color("--color-background-primary-solid") }
   // Android dims a disabled chip to half, as its other controls
   const color = android
     ? selected
-      ? theme.color("--color-text-primary-solid")
-      : m.onSurface
+      ? androidColor.on
+      : androidColor.off
     : selected
       ? theme.color("--color-text-primary-solid")
       : disabled
@@ -59,12 +62,28 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
         : theme.colors.text
   const fill = android
     ? selected
-      ? theme.color("--color-background-primary-solid")
-      : withAlpha(m.onSurface, 0.05)
+      ? androidFill.on
+      : androidFill.off
     : selected
       ? // A disabled selected chip stays selected: its fill fades to 40%, so it still stands apart from an off one
         withAlpha(theme.color("--color-background-primary-solid"), disabled ? 0.4 : 1)
       : theme.color("--color-background-secondary-soft-alpha")
+  // Android blends the fill and the label from one state to the other in 120ms, linear; iOS changes at once
+  const [blend] = useState(() => new Animated.Value(selected ? 1 : 0))
+  const blends = android && !theme.reducedMotion
+  useEffect(() => {
+    const to = selected ? 1 : 0
+    if (!blends) {
+      blend.stopAnimation()
+      blend.setValue(to)
+      return
+    }
+    const animation = Animated.timing(blend, { toValue: to, duration: 120, easing: Easing.linear, useNativeDriver: false })
+    animation.start()
+    return () => animation.stop()
+  }, [blend, blends, selected])
+  const fillPaint = blends ? blend.interpolate({ inputRange: [0, 1], outputRange: [androidFill.off, androidFill.on] }) : fill
+  const labelPaint = blends ? blend.interpolate({ inputRange: [0, 1], outputRange: [androidColor.off, androidColor.on] }) : color
   const height = android ? 32 : 34
   const label = android ? { fontSize: 14, lineHeight: 18 } : { fontSize: 15, lineHeight: 20 }
   const leading = icon
@@ -78,13 +97,13 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
   const radius = 999
   const [pressed, setPressed] = useState(false)
   const layer = (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { top: inset, bottom: inset, borderRadius: radius, backgroundColor: fill, borderCurve: "continuous" }]}>
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { top: inset, bottom: inset, borderRadius: radius, backgroundColor: fillPaint, borderCurve: "continuous" }]}>
       {/* Android's press: the list selector over the chip, 6% black and 5% white at night (the dark theme's); over a
           selected chip's solid fill its label's color at 12%, which shows on either scheme */}
       {android && pressed && !disabled ? (
         <View style={[StyleSheet.absoluteFill, { borderRadius: radius, backgroundColor: selected ? withAlpha(color, 0.12) : theme.scheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.06)" }]} />
       ) : null}
-    </View>
+    </Animated.View>
   )
   const box = {
     // The label's own air inside the chip, then the target's outside it: 48 (44) at the regular size, and taller
@@ -107,9 +126,19 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
           </IconDefaultsProvider>
         </View>
       ) : null}
-      <Text color={color} weight={android ? "regular" : "medium"} numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight }}>
-        {children}
-      </Text>
+      {android ? (
+        // Text's own face and tracking, in a color that blends
+        <Animated.Text
+          numberOfLines={1}
+          style={[textStyle(theme, { weight: "regular" }), { fontSize: label.fontSize, lineHeight: label.lineHeight, letterSpacing: theme.tracking(label.fontSize), color: labelPaint }]}
+        >
+          {children}
+        </Animated.Text>
+      ) : (
+        <Text color={color} weight="medium" numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight }}>
+          {children}
+        </Text>
+      )}
     </>
   )
   const interactive = filter || !!onPress

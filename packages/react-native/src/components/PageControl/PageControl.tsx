@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
-import { Animated, Easing, Platform, StyleSheet, View, type AccessibilityActionEvent, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Platform, StyleSheet, View, type AccessibilityActionEvent, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
 import { isRTL } from "../../internal/direction"
+import { curves } from "../../internal/motion"
 import { useTheme } from "../../theme/ThemeProvider"
 
 export type PageControlDotSize = "full" | "small" | "smaller" | "hidden"
@@ -193,12 +194,16 @@ export function PageControl({ count, value: valueProp, defaultValue = 0, onChang
 /** Android's page dots: 5dp, 11dp from one to the next. */
 const ANDROID_DOT = 5
 const ANDROID_GAP = 6
-const WORM_IN = Easing.bezier(0.23, 1, 0.32, 1)
+/**
+ * A page change the pager settles on its own (a tap, a change from code): one page in 200ms, on an ease-out quint
+ * standing in for the pager's 1 + (t − 1)⁵.
+ */
+const WORM_SETTLE = { duration: 200, easing: curves.easeOutQuint }
 
 /**
  * The current page's dot on Android, over the gray ones: it stretches to the next page and then lets go of the last
- * one (the leading edge moves first, the trailing edge after it). Android's dot follows the pages' scroll; the
- * 180ms, 90ms later for the trailing edge, are our own.
+ * one. On a change the far edge is on the new page at once and the near edge follows it through the settle, as when
+ * the pages' scroll draws the dot.
  */
 function AndroidCurrent({ start, color, reduced }: { start: number; color: string; reduced: boolean }) {
   const [head] = useState(() => new Animated.Value(start))
@@ -211,10 +216,8 @@ function AndroidCurrent({ start, color, reduced }: { start: number; color: strin
       tail.setValue(start)
       return
     }
-    const animation = Animated.parallel([
-      Animated.timing(head, { toValue: start, duration: 180, easing: WORM_IN, useNativeDriver: false }),
-      Animated.timing(tail, { toValue: start, duration: 180, delay: 90, easing: WORM_IN, useNativeDriver: false }),
-    ])
+    head.setValue(start)
+    const animation = Animated.timing(tail, { toValue: start, ...WORM_SETTLE, useNativeDriver: false })
     animation.start()
     return () => animation.stop()
   }, [start, reduced, head, tail])

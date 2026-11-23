@@ -18,12 +18,13 @@ import { BarBackdrop, SoftBottomEdge, ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, gl
 import { childrenOfType, textOf } from "../../internal/children"
 import { physicalPadding } from "../../internal/direction"
 import { Glass } from "../../internal/Glass"
+import { curves } from "../../internal/motion"
 import { useTabKeys } from "../../internal/tabKeys"
 import { barSurface, mix, stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
-import { Text } from "../Text/Text"
+import { Text, textStyle } from "../Text/Text"
 
 export type TabBarBackground = "soft" | "glass" | "hard" | "none"
 
@@ -238,38 +239,171 @@ const iosBadgeText = (theme: Theme) => ({
   ...theme.font("regular"),
 })
 
+/** A badge grows from nothing about its point and shrinks back into it: 380ms on an ease-out quint. */
+const BADGE_SCALE = { duration: 380, easing: curves.easeOutQuint }
+/** A new count: the digits that change slide down 0.3 of the text's size (3dp at 10) and cross-fade, in 320ms. */
+const COUNT_CHANGE = { duration: 320, easing: curves.easeOutQuint }
+const COUNT_SLIDE = 3
+
 /**
  * Android's counter on a tab: a 16dp capsule in the accent, at least 16 wide and 8 wider than its
  * count, its text 10 Medium in white, centered 11 past the tab's middle and 10 under its top (a wider one keeps that
  * start and grows toward the end, off the symbol), cut out of the symbol by a 1.33dp ring (here the ring takes the color
- * behind it). `true` draws a dot of the accent there.
+ * behind it). `true` draws a dot of the accent there. It scales in and out about that point (the center of a dot or a
+ * one-digit count), staying drawn as it shrinks away.
  */
-function AndroidBadge({ badge, ring }: { badge: ReactNode; ring: string }) {
+function AndroidBadge({ badge, ring }: { badge: ReactNode; ring: string | Animated.AnimatedInterpolation<string> }) {
   const theme = useTheme()
   const m = theme.material
-  if (!hasBadge(badge)) return null
-  const dot = badge === true
+  const reduced = theme.reducedMotion
+  const visible = hasBadge(badge)
+  // The badge last shown, drawn while it shrinks away, and whether it is still drawn
+  const [last, setLast] = useState<ReactNode>(visible ? badge : null)
+  if (visible && badge !== last) setLast(badge)
+  const [drawn, setDrawn] = useState(visible)
+  if (visible && !drawn) setDrawn(true)
+  const [scale] = useState(() => new Animated.Value(visible ? 1 : 0))
+  const first = useRef(true)
+  useEffect(() => {
+    if (first.current) {
+      first.current = false
+      return
+    }
+    if (reduced) {
+      scale.stopAnimation()
+      scale.setValue(visible ? 1 : 0)
+      return
+    }
+    const animation = Animated.timing(scale, { toValue: visible ? 1 : 0, ...BADGE_SCALE, useNativeDriver: false })
+    animation.start(({ finished }) => {
+      if (finished && !visible) setDrawn(false)
+    })
+    return () => animation.stop()
+  }, [visible, reduced, scale])
+  if (!drawn || (!visible && reduced)) return null
+  const shown = visible ? badge : last
+  const dot = shown === true
   return (
-    <View pointerEvents="none" style={styles.androidBadgeFrame}>
-      <View style={[dot ? styles.androidDot : styles.androidBadge, { backgroundColor: m.primary, borderColor: ring }]}>
-        {dot ? null : (
-          <Text color={m.onPrimary} numberOfLines={1} allowFontScaling={false} style={{ fontSize: 10, lineHeight: 13, ...theme.font("medium") }}>
-            {badge}
-          </Text>
-        )}
+    <Animated.View pointerEvents="none" style={[styles.androidBadgeFrame, { transform: [{ scale }] }]}>
+      <Animated.View style={[dot ? styles.androidDot : styles.androidBadge, { backgroundColor: m.primary, borderColor: ring }]}>
+        {dot ? null : <BadgeCount value={shown} color={m.onPrimary} reduced={reduced} />}
+      </Animated.View>
+    </Animated.View>
+  )
+}
+
+type CountChange = { from: string; to: string; progress: Animated.Value }
+
+/**
+ * The text of an Android badge. When a count changes, the characters it shares with the last one (from either end)
+ * stay and the others cross-fade, the old ones sliding down out of the capsule and the new ones down into it.
+ */
+function BadgeCount({ value, color, reduced }: { value: ReactNode; color: string; reduced: boolean }) {
+  const theme = useTheme()
+  const text = typeof value === "number" || typeof value === "string" ? String(value) : null
+  const [current, setCurrent] = useState(text)
+  const [change, setChange] = useState<CountChange | null>(null)
+  if (text !== current) {
+    setCurrent(text)
+    setChange(text != null && current != null && !reduced ? { from: current, to: text, progress: new Animated.Value(0) } : null)
+  }
+  useEffect(() => {
+    if (!change) return
+    const animation = Animated.timing(change.progress, { toValue: 1, ...COUNT_CHANGE, useNativeDriver: false })
+    animation.start(({ finished }) => {
+      if (finished) setChange((now) => (now === change ? null : now))
+    })
+    return () => animation.stop()
+  }, [change])
+  const style = [textStyle(theme, { weight: "medium" }), { fontSize: 10, lineHeight: 13, letterSpacing: theme.tracking(10), color }]
+  if (!change) {
+    return (
+      <Text color={color} numberOfLines={1} allowFontScaling={false} style={{ fontSize: 10, lineHeight: 13, ...theme.font("medium") }}>
+        {value}
+      </Text>
+    )
+  }
+  const { from, to, progress } = change
+  const shared = Math.min(from.length, to.length)
+  let head = 0
+  while (head < shared && from[head] === to[head]) head++
+  let tail = 0
+  while (tail < shared - head && from[from.length - 1 - tail] === to[to.length - 1 - tail]) tail++
+  const leaving = from.slice(head, from.length - tail)
+  const coming = to.slice(head, to.length - tail)
+  const slide = (fromY: number, toY: number) => ({ transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [fromY, toY] }) }] })
+  return (
+    <View style={styles.countRow}>
+      {head > 0 ? (
+        <Animated.Text allowFontScaling={false} style={style}>
+          {to.slice(0, head)}
+        </Animated.Text>
+      ) : null}
+      <View>
+        <Animated.Text allowFontScaling={false} style={[style, { opacity: progress }, slide(-COUNT_SLIDE, 0)]}>
+          {coming}
+        </Animated.Text>
+        {leaving ? (
+          // Centered over the new characters, in a box wide enough that it never wraps
+          <View style={styles.countLeaving}>
+            <Animated.Text allowFontScaling={false} style={[style, { opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }, slide(0, COUNT_SLIDE)]}>
+              {leaving}
+            </Animated.Text>
+          </View>
+        ) : null}
       </View>
+      {tail > 0 ? (
+        <Animated.Text allowFontScaling={false} style={style}>
+          {to.slice(to.length - tail)}
+        </Animated.Text>
+      ) : null}
     </View>
   )
 }
 
 /** Android's decelerate ease, 1 - (1 - t)² (DecelerateInterpolator). */
-const DECELERATE = Easing.out(Easing.quad)
+const DECELERATE = curves.decelerate
+/** The symbol turns from its outline to its filled look in about 100ms (six frames). */
+const ICON_FILL_MS = 100
+
+/**
+ * The symbol of an Android tab in a color between `from` and `to` as `shown` runs, drawn again on each step (an icon
+ * takes its color as a string), its filled look fading in over its outline as the tab is selected and out as it is
+ * left (the thicker strokes cover the outline, so the selected symbol looks filled alone).
+ */
+function AndroidTabIcon({ icon, shown, selected, from, to }: { icon: ReactNode; shown: Animated.Value; selected: boolean; from: string; to: string }) {
+  const theme = useTheme()
+  const [amount, setAmount] = useState(selected ? 1 : 0)
+  useEffect(() => {
+    const id = shown.addListener(({ value }) => setAmount(value))
+    return () => shown.removeListener(id)
+  }, [shown])
+  const [filled] = useState(() => new Animated.Value(selected ? 1 : 0))
+  useEffect(() => {
+    const animation = Animated.timing(filled, { toValue: selected ? 1 : 0, duration: theme.reducedMotion ? 0 : ICON_FILL_MS, easing: Easing.linear, useNativeDriver: false })
+    animation.start()
+    return () => animation.stop()
+  }, [selected, theme.reducedMotion, filled])
+  const color = from === to || amount <= 0 ? from : amount >= 1 ? to : mix(to, from, amount)
+  return (
+    <View style={styles.androidIconBox}>
+      <IconDefaultsProvider size={24} color={color}>
+        {icon}
+      </IconDefaultsProvider>
+      <Animated.View pointerEvents="none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[StyleSheet.absoluteFill, { opacity: filled }]}>
+        <IconDefaultsProvider size={24} color={color} weight="semibold">
+          {icon}
+        </IconDefaultsProvider>
+      </Animated.View>
+    </View>
+  )
+}
 
 /**
  * A destination of the Android tab bar: its 24dp symbol over its label (Medium 12, ExtraBold
  * when selected) in a 48dp pill of the width the bar gives it. Selected, the symbol takes the accent and the label its
- * darker text, and the tab's own pill of the accent at 9% fades in and grows from 0.6 over 320ms, decelerating. No
- * ripple on a press, as the Android tab bar draws none.
+ * darker text, both blending there with the tab's own pill of the accent at 9%, which fades in and grows from 0.6
+ * over 320ms, decelerating. No ripple on a press, as the Android tab bar draws none.
  */
 function AndroidTab({
   value,
@@ -290,9 +424,12 @@ function AndroidTab({
   useEffect(() => {
     Animated.timing(shown, { toValue: selected ? 1 : 0, duration: theme.reducedMotion ? 0 : 320, easing: DECELERATE, useNativeDriver: false }).start()
   }, [selected, shown, theme.reducedMotion])
-  const color = disabled ? withAlpha(m.onSurface, 0.38) : selected ? m.primary : m.onSurface
-  // The selected label is a little darker than its symbol in light (#0D7FCF under #1A91E6), the same in dark mode
-  const text = disabled || !selected || theme.scheme === "dark" ? color : theme.colors.textAccent
+  // The selected label is a little darker than its symbol in light (#0D7FCF under #1A91E6), the same in dark mode; a
+  // disabled tab keeps the ink at 38%
+  const off = withAlpha(m.onSurface, 0.38)
+  const iconTo = disabled ? off : m.primary
+  const iconFrom = disabled ? off : m.onSurface
+  const text = disabled ? off : shown.interpolate({ inputRange: [0, 1], outputRange: [m.onSurface, theme.scheme === "dark" ? m.primary : theme.colors.textAccent] })
   const card = barSurface(m, theme.scheme)
   return (
     <Pressable
@@ -319,15 +456,16 @@ function AndroidTab({
           },
         ]}
       />
-      <View style={styles.androidIconBox}>
-        <IconDefaultsProvider size={24} color={color} weight={selected ? "semibold" : undefined}>
-          {icon}
-        </IconDefaultsProvider>
-      </View>
-      <Text numberOfLines={1} color={text} weight={selected ? "bold" : "medium"} style={{ fontSize, lineHeight: 16, maxWidth: "100%" }}>
+      <AndroidTabIcon icon={icon} shown={shown} selected={selected} from={iconFrom} to={iconTo} />
+      {/* An Animated text, so its color can blend: the face, size and tracking of the kit's Text */}
+      <Animated.Text
+        numberOfLines={1}
+        style={[textStyle(theme, { weight: selected ? "bold" : "medium" }), { fontSize, lineHeight: 16, letterSpacing: theme.tracking(fontSize), maxWidth: "100%", color: text }]}
+      >
         {label}
-      </Text>
-      <AndroidBadge badge={badge} ring={selected ? mix(m.primary, card, 0.09) : card} />
+      </Animated.Text>
+      {/* The ring takes the pill's color as the pill fades in under it */}
+      <AndroidBadge badge={badge} ring={shown.interpolate({ inputRange: [0, 1], outputRange: [card, mix(m.primary, card, 0.09)], easing: DECELERATE })} />
     </Pressable>
   )
 }
@@ -701,6 +839,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   androidDot: { position: "absolute", width: 6 + 2 * 1.33, height: 6 + 2 * 1.33, borderRadius: 3 + 1.33, borderWidth: 1.33 },
+  countRow: { flexDirection: "row" },
+  countLeaving: { position: "absolute", top: 0, bottom: 0, start: -20, end: -20, alignItems: "center" },
   measureBox: { position: "absolute", top: 0, left: 0, width: 0, height: 0, overflow: "hidden", opacity: 0 },
   measureRow: { position: "absolute", top: 0, left: 0, width: 2000, flexDirection: "row", alignItems: "flex-start" },
   androidBar: { paddingTop: 8, gap: 8 },

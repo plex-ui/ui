@@ -9,6 +9,7 @@ import ChevronRightMd from "../../icons/plex/ChevronRightMd"
 import { lastInputKeyboard, spaceToggles } from "../../internal/a11y"
 import { textOf } from "../../internal/children"
 import { isRTL, mirrored } from "../../internal/direction"
+import { curves } from "../../internal/motion"
 import { RowFrameContext, type RowFrame } from "../../internal/row"
 import { Glass } from "../../internal/Glass"
 import { ACCELERATE_DECELERATE, canTransformGlass, glassOpacity, Overlay, overlayTiming } from "../../internal/Overlay"
@@ -433,7 +434,7 @@ const CascadeContext = createContext<Cascade | null>(null)
 const ROW_IN = 180
 const ROW_SLIDE = 6
 /** Android's DecelerateInterpolator. */
-const DECELERATE = Easing.out(Easing.quad)
+const DECELERATE = curves.decelerate
 
 /** The rows of a menu, through fragments: the unroll takes 16ms more for each. */
 function countRows(children: ReactNode): number {
@@ -476,7 +477,7 @@ function CascadeRow({ children }: { children: ReactNode }) {
 
 /** Android's move between a popup's pages: 300ms on the default ease curve. */
 const SWIPE_BACK = 300
-const SWIPE_EASING = Easing.bezier(0.25, 0.1, 0.25, 1)
+const SWIPE_EASING = curves.ease
 /** A flick back to the menu: Android's 600 px/s, about 0.23dp per ms on a 420dpi phone. */
 const SWIPE_FLING = 0.23
 
@@ -860,7 +861,7 @@ const ROW_MENU_GAP = 8
  * The entrance of a popup from a List row: a fade over 150ms (accelerate-decelerate) and a scale from 0.95 over 200ms
  * on an overshoot of tension 2 (Android's OvershootInterpolator(2), which peaks near 1.007).
  */
-const ROW_POP = { fade: 150, scale: 200, easing: Easing.out(Easing.back(2)) } as const
+const ROW_POP = { fade: 150, scale: 200, easing: curves.overshoot(2) } as const
 
 /**
  * Android's dim around the List row a menu opens from: black at 40% over a light screen and 20% over a dark one, the

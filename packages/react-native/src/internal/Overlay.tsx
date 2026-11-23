@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type ReactNode } from "react"
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
 import { Animated, Easing, Modal, Platform, StyleSheet, View, type BlurEvent, type EasingFunction, type ViewStyle } from "react-native"
 import { useTheme } from "../theme/ThemeProvider"
 import type { Theme } from "../theme/types"
@@ -7,7 +7,14 @@ import { liquidGlassModule } from "./optional"
 /** How an overlay moves: a dialog, a sheet (a panel that crosses the screen) or a menu. */
 export type OverlayMotion = "dialog" | "sheet" | "menu"
 
-export type OverlayTiming = { enter: number; exit: number; enterEasing: EasingFunction; exitEasing: EasingFunction }
+export type OverlayTiming = {
+  enter: number
+  exit: number
+  enterEasing: EasingFunction
+  exitEasing: EasingFunction
+  /** A wait before the entrance in ms. @default 0 */
+  enterDelay?: number
+}
 
 /**
  * The times and curves of an overlay, as the CSS motion tokens give them (variables-semantic.css, Dialog.module.css,
@@ -35,10 +42,11 @@ export function overlayTiming(theme: Theme, motion: OverlayMotion = "dialog"): O
     return { enter: ANDROID_DIALOG.scale, exit: ANDROID_DIALOG.scale, enterEasing: Easing.linear, exitEasing: Easing.linear }
   }
   if (theme.isAndroid) {
-    // Android: a sheet opens in 400ms on an ease-out quint and leaves in 250 on an ease-out; a popup unrolls on its
-    // own clock (Menu) and leaves in 150, fading as it lifts (with ObjectAnimator's accelerate-decelerate curve)
+    // Android: a sheet opens in 400ms on an ease-out quint after a 20ms wait and leaves in 250 on an ease-out; a popup
+    // unrolls on its own clock (Menu) and leaves in 150, fading as it lifts (with ObjectAnimator's accelerate-decelerate
+    // curve)
     return large
-      ? { enter: 400, exit: 250, enterEasing: bezier(0.23, 1, 0.32, 1), exitEasing: bezier(0, 0, 0.58, 1) }
+      ? { enter: 400, exit: 250, enterEasing: bezier(0.23, 1, 0.32, 1), exitEasing: bezier(0, 0, 0.58, 1), enterDelay: 20 }
       : { enter: 200, exit: 150, enterEasing: bezier(0, 0, 0.2, 1), exitEasing: ACCELERATE_DECELERATE }
   }
   return {
@@ -103,7 +111,7 @@ function bezier(x1: number, y1: number, x2: number, y2: number): EasingFunction 
 export function usePresence(open: boolean, timing: Partial<OverlayTiming> = {}) {
   const theme = useTheme()
   const base = overlayTiming(theme)
-  const { enter = base.enter, exit = base.exit, enterEasing = base.enterEasing, exitEasing = base.exitEasing } = timing
+  const { enter = base.enter, exit = base.exit, enterEasing = base.enterEasing, exitEasing = base.exitEasing, enterDelay = base.enterDelay ?? 0 } = timing
   const [exiting, setExiting] = useState(false)
   const [wasOpen, setWasOpen] = useState(open)
   if (wasOpen !== open) {
@@ -116,13 +124,14 @@ export function usePresence(open: boolean, timing: Partial<OverlayTiming> = {}) 
       toValue: open ? 1 : 0,
       duration: open ? enter : exit,
       easing: open ? enterEasing : exitEasing,
+      delay: open ? enterDelay : 0,
       useNativeDriver: false,
     })
     animation.start(({ finished }) => {
       if (finished && !open) setExiting(false)
     })
     return () => animation.stop()
-  }, [open, progress, enter, exit, enterEasing, exitEasing])
+  }, [open, progress, enter, exit, enterEasing, exitEasing, enterDelay])
   return { mounted: open || exiting, progress }
 }
 
@@ -140,6 +149,8 @@ export type OverlayProps = {
   enter?: number
   /** The time of the exit in ms, in place of the token's. */
   exit?: number
+  /** Called once it has left: its exit has ended and it is gone. */
+  onExited?: () => void
   /** The scrim's opacity from the progress, when it does not follow the progress itself (an Android dialog's fade). */
   scrimOpacity?: (progress: Animated.Value, open: boolean) => Animated.AnimatedInterpolation<number>
   testID?: string
@@ -164,7 +175,7 @@ export type OverlayFocus = { tabIndex?: -1; onBlur?: (event: BlurEvent) => void;
  * The layer of every overlay (dialog, sheet, menu): a transparent RN `Modal` over the app with an optional scrim that
  * fades with the overlay. One host for all of them, so focus, the back button and the screen reader behave alike.
  */
-export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = true, motion, enter, exit, scrimOpacity, testID, children }: OverlayProps) {
+export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = true, motion, enter, exit, onExited, scrimOpacity, testID, children }: OverlayProps) {
   const theme = useTheme()
   // On iOS an overlay that opens while another one leaves waits for it: a Modal presented while another is dismissed
   // is presented from it, and UIKit takes it away with it (a menu item that opens a dialog showed no dialog). It looks
@@ -206,6 +217,11 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
       : NO_FOCUS
   const timing = overlayTiming(theme, motion)
   const { mounted, progress } = usePresence(show, { ...timing, enter: enter ?? timing.enter, exit: exit ?? timing.exit })
+  const wasMounted = useRef(mounted)
+  useEffect(() => {
+    if (wasMounted.current && !mounted) onExited?.()
+    wasMounted.current = mounted
+  }, [mounted, onExited])
   // An iOS overlay leaves when UIKit has dismissed its Modal, not when it fades out: the Modal stays, hidden, until
   // its `onDismiss` (UIKit's completion), so the next one is not presented during the dismissal
   const [presented, setPresented] = useState(false)

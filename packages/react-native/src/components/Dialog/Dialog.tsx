@@ -3,7 +3,7 @@ import { Animated, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleS
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Glass } from "../../internal/Glass"
 import { useKeyboardHeight } from "../../internal/keyboard"
-import { androidDialogMotion, canTransformGlass, glassOpacity, iosDim, Overlay, ANDROID_DIM } from "../../internal/Overlay"
+import { androidDialogMotion, canTransformGlass, glassOpacity, iosDim, Overlay, ANDROID_DIALOG, ANDROID_DIM } from "../../internal/Overlay"
 import { withAlpha, dangerText } from "../../theme/material"
 import { ThemeProvider, useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -125,8 +125,8 @@ type FrameProps = {
 /**
  * The window of an Android dialog: centred over a 50% dim, rising over the keyboard, and moving as Android's dialog
  * animation (Animation.Dialog, which the alert keeps as it is): the scale 0.9 to 1 over 220ms on a decelerate quint
- * and the fade over 150ms on a decelerate cubic, the same curves both ways. The dim fades with it.
- * With reduced motion it only fades.
+ * and the fade over 150ms on a decelerate cubic, the same curves both ways. The dim fades on its own, at an even
+ * pace over 110ms both ways (the window's dim). With reduced motion it only fades, with the dim.
  */
 function AndroidFrame({ open, onClose, dismissible, a11y, testID, children }: FrameProps) {
   const theme = useTheme()
@@ -142,7 +142,7 @@ function AndroidFrame({ open, onClose, dismissible, a11y, testID, children }: Fr
       scrim={ANDROID_DIM.dialog}
       dismissible={dismissible}
       motion="dialog"
-      scrimOpacity={reduced ? undefined : (progress, opening) => androidDialogMotion(progress, opening).opacity}
+      scrimOpacity={reduced ? undefined : androidDim}
       testID={testID}
     >
       {(progress, opening, focus) => {
@@ -166,6 +166,16 @@ function AndroidFrame({ open, onClose, dismissible, a11y, testID, children }: Fr
       }}
     </Overlay>
   )
+}
+
+/** The share of the dialog animation's even 220ms the dim takes, from its start: 110ms. */
+const DIM_END = 110 / ANDROID_DIALOG.scale
+
+/** The dim of an Android dialog from the overlay's even progress: in over the first 110ms, out over the first 110 of the exit. */
+function androidDim(progress: Animated.Value, opening: boolean) {
+  return opening
+    ? progress.interpolate({ inputRange: [0, DIM_END], outputRange: [0, 1], extrapolate: "clamp" })
+    : progress.interpolate({ inputRange: [1 - DIM_END, 1], outputRange: [0, 1], extrapolate: "clamp" })
 }
 
 export type ChoiceDialogProps = {

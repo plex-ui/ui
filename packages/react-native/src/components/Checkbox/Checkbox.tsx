@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState, type ReactNode } from "react"
 import { Animated, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import Svg, { Path } from "react-native-svg"
 import CheckMd from "../../icons/plex/CheckMd"
 import Minus from "../../icons/plex/Minus"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel, controlLabelLine } from "../../internal/ControlLabel"
 import { RowEndContext, RowHoldContext, rowHold } from "../../internal/row"
-import { withAlpha } from "../../theme/material"
+import { mix } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { ANDROID_ROW_END, androidEaseInOut, iosCheckmarkColor, selectionColor } from "../Switch/Switch"
 
@@ -106,7 +107,7 @@ export function Checkbox({
     box = (
       <View style={[styles.androidTarget, reach]}>
         <View style={disabled ? styles.half : null}>
-          <AndroidBox progress={progress} ring={ring} fill={fill} markColor={markColor} indeterminate={state === "indeterminate"} />
+          <AndroidBox progress={progress} initial={on ? 1 : 0} ring={ring} fill={fill} markColor={markColor} indeterminate={state === "indeterminate"} />
         </View>
       </View>
     )
@@ -209,24 +210,54 @@ function CheckArm({ grow, length, angle, color }: { grow: Animated.AnimatedInter
   )
 }
 
+/** A rounded rectangle from `from` to `to` on both axes, as a path of fixed shape (its numbers alone change). */
+const roundedSquare = (from: number, to: number, corner: number) => {
+  const n = (value: number) => value.toFixed(4)
+  const [a, b, r] = [from, to, corner]
+  return (
+    `M ${n(a + r)} ${n(a)} H ${n(b - r)} A ${n(r)} ${n(r)} 0 0 1 ${n(b)} ${n(a + r)} V ${n(b - r)} A ${n(r)} ${n(r)} 0 0 1 ${n(b - r)} ${n(b)} ` +
+    `H ${n(a + r)} A ${n(r)} ${n(r)} 0 0 1 ${n(a)} ${n(b - r)} V ${n(a + r)} A ${n(r)} ${n(r)} 0 0 1 ${n(a + r)} ${n(a)} Z`
+  )
+}
+
+/** The outline's width, at rest and around the hole. */
+const ANDROID_RING = 1.33
+
+/**
+ * The box at `progress`, a 4dp-cornered square with the hole it cuts. Over the first half the box shrinks 1dp on each
+ * side while the hole, fixed in the 18dp frame, closes 16dp per unit of progress (to 7dp in from the outline) with
+ * corners of 3dp, or of half its width once it is under 6dp; past the middle the box is solid and grows back.
+ */
+function androidBoxPath(progress: number) {
+  const half = Math.min(1, progress * 2)
+  const box = progress <= 0.5 ? half : 2 - progress * 2
+  const holed = progress <= 0.5
+  const closed = ANDROID_RING + Math.min(7, 8 * half)
+  const hole = holed ? ANDROID_BOX - 2 * closed : 0
+  const from = holed ? closed : ANDROID_BOX / 2
+  return `${roundedSquare(box, ANDROID_BOX - box, 4)} ${roundedSquare(from, from + hole, Math.min(3, hole / 2))}`
+}
+
+
 /**
  * Android's square checkbox, drawn from its numbers. Over the first half of `progress` the box shrinks 1dp on each
- * side while its 1.33dp outline (inner corners 3dp) closes inward and turns from the outline's color to the fill's;
- * over the second half the box grows back and the mark grows from its corner. A View's inner corners are its outer
- * 4dp less the outline, 2.67dp.
+ * side while its 1.33dp outline closes inward and turns from the outline's color to the fill's; over the second half
+ * the box grows back and the mark grows from its corner. One path draws the box and its hole, redrawn from the
+ * progress on each frame (an animated path's props do not reach an SVG element on the web).
  */
-function AndroidBox({ progress, ring, fill, markColor, indeterminate }: { progress: Animated.Value; ring: string; fill: string; markColor: string; indeterminate: boolean }) {
-  const size = progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [ANDROID_BOX, ANDROID_BOX - 2, ANDROID_BOX] })
-  // The hole the box cuts stays where it is in the 18dp box while the box shrinks around it: it closes 14dp per unit
-  // of progress until it is 1.33dp wide, then stays as the box finishes shrinking; filled past the middle
-  const borderWidth = progress.interpolate({ inputRange: [0, 0.4375, 0.5, 1], outputRange: [1.33, 7.455, 7.33, 7.33] })
-  const color = progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [ring, fill, fill] })
-  const solid = progress.interpolate({ inputRange: [0, 0.5, 0.5001, 1], outputRange: [withAlpha(fill, 0), withAlpha(fill, 0), fill, fill] })
+function AndroidBox({ progress, initial, ring, fill, markColor, indeterminate }: { progress: Animated.Value; initial: number; ring: string; fill: string; markColor: string; indeterminate: boolean }) {
+  const [at, setAt] = useState(initial)
+  useEffect(() => {
+    const id = progress.addListener(({ value }) => setAt(value))
+    return () => progress.removeListener(id)
+  }, [progress])
   const grow = progress.interpolate({ inputRange: [0.5, 1], outputRange: [0, 1], extrapolate: "clamp" })
   const shown = progress.interpolate({ inputRange: [0.5, 0.5001], outputRange: [0, 1], extrapolate: "clamp" })
   return (
     <View style={styles.androidFrame}>
-      <Animated.View style={[styles.androidBox, { width: size, height: size, borderWidth, borderColor: color, backgroundColor: solid }]} />
+      <Svg width={ANDROID_BOX} height={ANDROID_BOX} style={StyleSheet.absoluteFill}>
+        <Path d={androidBoxPath(at)} fill={mix(fill, ring, Math.min(1, at * 2))} fillRule="evenodd" />
+      </Svg>
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: shown }]}>
         {indeterminate ? (
           // The box has no indeterminate look: a 2dp dash with round ends across the middle, growing from its center
@@ -254,6 +285,5 @@ const styles = StyleSheet.create({
   androidTarget: { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
   half: { opacity: 0.5 },
   androidFrame: { width: ANDROID_BOX, height: ANDROID_BOX, alignItems: "center", justifyContent: "center" },
-  androidBox: { borderRadius: 4 },
   arm: { position: "absolute", height: 2, borderRadius: 1 },
 })

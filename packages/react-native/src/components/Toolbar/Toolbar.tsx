@@ -1,5 +1,5 @@
-import { cloneElement, createContext, isValidElement, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
-import { Animated, Easing, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewProps, type ViewStyle } from "react-native"
+import { cloneElement, createContext, isValidElement, memo, useContext, useEffect, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
+import { Animated, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewProps, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import {
   BarBackdrop,
@@ -11,8 +11,9 @@ import {
   glassBarBlur,
   useAndroidGlass,
 } from "../../internal/BarBackdrop"
-import { physicalPadding } from "../../internal/direction"
+import { physicalPadding, useRTL } from "../../internal/direction"
 import { Glass } from "../../internal/Glass"
+import { curves } from "../../internal/motion"
 import { divider, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -99,33 +100,47 @@ function ToolbarContent({ fill = false, children, style, ...rest }: ToolbarConte
 }
 ToolbarContent.displayName = "Toolbar.Content"
 
-/** Android's ease-out quint, cubic-bezier(0.23, 1, 0.32, 1) (the easeOutQuint curve). */
-const EASE_OUT_QUINT = Easing.bezier(0.23, 1, 0.32, 1)
+/** The Android capsule's width and its glass coming or going as its buttons change: 320ms on an ease-out quint. */
+const GROUP_CHANGE = { duration: 320, easing: curves.easeOutQuint }
+/** The capsule's padding on either end: a width of no more than both is a capsule with no buttons. */
+const GROUP_PADDING = 4
 
 /**
  * The Android capsule of actions: 46dp of the bar's glass, its icons in 38dp slots
  * 4 from its ends. When its buttons change, its glass follows their width over 320ms (ease-out quint), from the
- * trailing end.
+ * trailing end, never narrower than a circle; with no buttons left it fades out, and back in as they come.
  */
 function AndroidGroup({ item, children, style, onLayout, ...rest }: ViewProps & { item: BarItemStyle }) {
   const theme = useTheme()
   const glass = useAndroidGlass("bar", item.canvas)
   const [width] = useState(() => new Animated.Value(0))
+  const [opacity] = useState(() => new Animated.Value(1))
+  const filled = useRef<boolean | null>(null)
   const [measured, setMeasured] = useState(false)
   const handleLayout = (event: LayoutChangeEvent) => {
     const next = event.nativeEvent.layout.width
-    if (!measured || theme.reducedMotion) width.setValue(next)
-    else Animated.timing(width, { toValue: next, duration: 320, easing: EASE_OUT_QUINT, useNativeDriver: false }).start()
+    const hasItems = next > 2 * GROUP_PADDING + 0.5
+    const changed = filled.current !== hasItems
+    filled.current = hasItems
+    if (!measured || theme.reducedMotion) {
+      width.setValue(next)
+      opacity.setValue(hasItems ? 1 : 0)
+    } else {
+      Animated.timing(width, { toValue: next, ...GROUP_CHANGE, useNativeDriver: false }).start()
+      if (changed) Animated.timing(opacity, { toValue: hasItems ? 1 : 0, ...GROUP_CHANGE, useNativeDriver: false }).start()
+    }
     if (!measured) setMeasured(true)
     onLayout?.(event)
   }
   const radius = item.height / 2
+  // The glass keeps at least a circle's width, so an emptied capsule shrinks to a circle as it fades
+  const glassWidth = width.interpolate({ inputRange: [item.height, item.height + 1], outputRange: [item.height, item.height + 1], extrapolateLeft: "clamp" })
   return (
     <BarItemContext.Provider value={{ ...item, inGroup: true }}>
-      <View accessibilityRole="toolbar" {...rest} onLayout={handleLayout} style={[styles.slot, { height: item.height, paddingHorizontal: 4 }, style]}>
+      <View accessibilityRole="toolbar" {...rest} onLayout={handleLayout} style={[styles.slot, { height: item.height, paddingHorizontal: GROUP_PADDING }, style]}>
         <Animated.View
           pointerEvents="none"
-          style={[styles.groupGlass, { borderRadius: radius }, measured ? { width } : { start: 0 }, glass]}
+          style={[styles.groupGlass, { borderRadius: radius, opacity }, measured ? { width: glassWidth } : { start: 0 }, glass]}
         />
         {children}
       </View>
@@ -452,36 +467,83 @@ function ToolbarRoot({
   // A search field in the bar or in a row of it: the bar's item height and the look of its buttons (one value to a
   // height, so the context does not change on each render)
   const field = (FIELD_OF_HEIGHT[`${item.height}${scrolled ? " raised" : ""} ${canvas}`] ??= { height: item.height, raised: scrolled, canvas })
-  // Android opens its search in the bar over 150ms: the field and what stands after it fade in
+  // Android swaps its bar and the search in it over 150ms: the field fades in as the title and the actions fade out
+  // where they stood, the title shrinking to 0.95, and the menu (the field and the actions) moves 5dp toward the end;
+  // closing runs it back. The parts are keyed, so a part that leaves keeps its state while it fades
   const searching = android && !!content?.props.fill
-  const fade = useSearchFade(searching, theme.reducedMotion)
-  const faded = android ? { opacity: fade } : null
-  const middle = content ? (
-    <Animated.View style={[content.props.fill ? styles.grow : styles.middle, faded]}>{content}</Animated.View>
-  ) : title && !large ? (
-    <View style={[start ? styles.grow : styles.middle]}>
-      <BarTitle title={title.props} large={false} start={start} plain={plain} afterLeading={!!leading} />
-    </View>
-  ) : (
-    <View style={styles.grow} />
-  )
+  const middleKey = content ? (content.props.fill ? "search" : "content") : title && !large ? "title" : "none"
+  const hasLeading = !!(leading || sideStyle)
+  const hasTrailing = !!(trailing || sideStyle)
+  const swap = useSearchSwap({ searching, middle: middleKey, trailing: hasTrailing, start }, android, theme.reducedMotion)
+  const { open, leaving } = swap
+  const shut = open.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })
+  const toEnd = swap.rtl ? -MENU_SHIFT : MENU_SHIFT
+  const shift = (from: number, to: number) => [{ translateX: open.interpolate({ inputRange: [0, 1], outputRange: [from * toEnd, to * toEnd] }) }]
+  // A part of the search's look or of the bar's own; on iOS nothing moves
+  const look = (search: boolean, menu: boolean) =>
+    android ? { opacity: search ? open : shut, transform: menu ? shift(search ? -1 : 0, search ? 0 : 1) : [] } : null
+  const track = (key: string) => (android ? swap.measure(key) : undefined)
+  const titleBox = (alignStart: boolean, hold: boolean) => {
+    const drawn = <Held hold={hold}>{title && !hold ? <BarTitle title={title.props} large={false} start={start} plain={plain} afterLeading={!!leading} /> : null}</Held>
+    // Android scales the title about its own middle, so it hugs its text
+    return android ? (
+      <Animated.View style={[{ alignSelf: alignStart ? "flex-start" : "center", maxWidth: "100%" }, { transform: [{ scale: open.interpolate({ inputRange: [0, 1], outputRange: [1, 0.95] }) }] }]}>
+        {drawn}
+      </Animated.View>
+    ) : (
+      drawn
+    )
+  }
+  const middle =
+    middleKey === "none" ? (
+      <View key="none" style={styles.grow} />
+    ) : (
+      <Animated.View
+        key={middleKey}
+        onLayout={track(middleKey)}
+        style={[(middleKey === "title" ? start : middleKey === "search") ? styles.grow : styles.middle, look(middleKey === "search", middleKey === "search")]}
+      >
+        {middleKey === "title" ? titleBox(start, false) : <Held hold={false}>{content}</Held>}
+      </Animated.View>
+    )
+  const leavingMiddle = leaving?.middle ? (
+    <Animated.View
+      key={leaving.middle.key}
+      {...LEFT_BEHIND}
+      style={[away(leaving.middle.place), styles.awayMiddle, look(leaving.middle.key === "search", leaving.middle.key === "search")]}
+    >
+      {leaving.middle.key === "title" ? titleBox(leaving.middle.start, true) : <Held hold>{null}</Held>}
+    </Animated.View>
+  ) : null
+  const trailingSide = hasTrailing ? (
+    <Animated.View key="trailing" onLayout={track("trailing")} style={[sideStyle, styles.sideEnd, sideMin(sideWidths.trailing), look(searching, true)]}>
+      <Held hold={false}>{measured("trailing", trailing)}</Held>
+    </Animated.View>
+  ) : leaving?.trailing ? (
+    <Animated.View key="trailing" {...LEFT_BEHIND} style={[away(leaving.trailing), styles.sideEnd, styles.awayTrailing, look(!searching, true)]}>
+      <Held hold>{null}</Held>
+    </Animated.View>
+  ) : null
   return (
     <ToolbarContext.Provider value={bar}>
       <BarItemContext.Provider value={item}>
         <BarFieldContext.Provider value={field}>
           <View accessibilityRole="toolbar" {...rest} style={[{ paddingTop, paddingBottom }, sides(gutter), style]}>
             {backdrop}
-            <View style={[styles.iosRow, { minHeight: item.height, gap: start || content?.props.fill ? slotGap(theme, bar) : 0 }]}>
+            <View
+              ref={swap.ref}
+              onLayout={android ? swap.onRow : undefined}
+              style={[styles.iosRow, { minHeight: item.height, gap: start || content?.props.fill ? slotGap(theme, bar) : 0 }]}
+            >
               {/* A row set from the start leaves out an empty side, which would push the rest a gap in */}
-              {leading || sideStyle ? (
-                <View style={[sideStyle, styles.sideStart, sideMin(sideWidths.leading)]}>{measured("leading", leading)}</View>
+              {hasLeading ? (
+                <View key="leading" style={[sideStyle, styles.sideStart, sideMin(sideWidths.leading)]}>
+                  {measured("leading", leading)}
+                </View>
               ) : null}
+              {leavingMiddle}
               {middle}
-              {trailing || sideStyle ? (
-                <Animated.View style={[sideStyle, styles.sideEnd, sideMin(sideWidths.trailing), faded]}>
-                  {measured("trailing", trailing)}
-                </Animated.View>
-              ) : null}
+              {trailingSide}
             </View>
             {large && title ? (
               <View style={{ marginTop: theme.length("--toolbar-large-title-gap", 13.3) }}>
@@ -501,21 +563,82 @@ function ToolbarRoot({
 }
 ToolbarRoot.displayName = "Toolbar"
 
+/** Android's swap of its bar and its search: 150ms, accelerating then decelerating. */
+const SEARCH_SWAP = { duration: 150, easing: curves.accelerateDecelerate }
+/** How far the menu (the search field and the actions) moves toward the end as the search opens. */
+const MENU_SHIFT = 5
+
 /**
- * The opacity of a bar's middle and trailing items as its search opens or closes: from 0 to 1 over 150ms, eased in and
- * out, as Android swaps its bar and its search; 1 at once with reduced motion.
+ * Its children as last drawn while `hold` is set: a part of the bar that has left keeps its look and its state (a
+ * search field its text) while it fades out.
  */
-function useSearchFade(searching: boolean, reduced: boolean) {
-  const [opacity] = useState(() => new Animated.Value(1))
-  const last = useRef(searching)
+const Held = memo(
+  function Held({ children }: { hold: boolean; children?: ReactNode }) {
+    return <>{children}</>
+  },
+  (_, next) => next.hold,
+)
+
+const LEFT_BEHIND = { pointerEvents: "none", "aria-hidden": true, accessibilityElementsHidden: true, importantForAccessibility: "no-hide-descendants" } as const
+
+/** A part of the row from its start edge, so it reads the same in a right-to-left row. */
+type Place = { start: number; width: number }
+/** A part that has left stays where it stood while it fades out. */
+const away = (place: Place): ViewStyle => ({ position: "absolute", top: 0, bottom: 0, start: place.start, width: place.width })
+
+/** The parts of the row: which middle (`search`, `content`, `title` or `none`), a trailing side, the title's side. */
+type RowParts = { searching: boolean; middle: string; trailing: boolean; start: boolean }
+type Leaving = { middle: { key: string; place: Place; start: boolean } | null; trailing: Place | null }
+
+/**
+ * The swap of an Android bar and its search: `open` runs to 1 as the search opens and back to 0 as it closes, from
+ * where it stands, over 150ms (at once with reduced motion); `leaving` holds the parts of the other look, where they
+ * were laid out, until it lands. The parts report their frames through `measure`, the row its width through `onRow`.
+ */
+function useSearchSwap(parts: RowParts, enabled: boolean, reduced: boolean) {
+  const { searching } = parts
+  const [open] = useState(() => new Animated.Value(searching ? 1 : 0))
+  const { ref, rtl } = useRTL<ComponentRef<typeof View>>()
+  const [frames, setFrames] = useState<Record<string, { x: number; width: number }>>({})
+  const [rowWidth, setRowWidth] = useState(0)
+  const [shown, setShown] = useState(parts)
+  const [leaving, setLeaving] = useState<Leaving | null>(null)
+  if (shown.searching !== searching || shown.middle !== parts.middle || shown.trailing !== parts.trailing || shown.start !== parts.start) {
+    setShown(parts)
+    if (shown.searching !== searching) {
+      // The frames are still those of the parts that leave (x from the left, as a layout reports it)
+      const place = (key: string): Place | null => {
+        const frame = frames[key]
+        return frame ? { start: rtl ? rowWidth - frame.x - frame.width : frame.x, width: frame.width } : null
+      }
+      const middle = shown.middle !== "none" ? place(shown.middle) : null
+      const trailing = shown.trailing && !parts.trailing ? place("trailing") : null
+      setLeaving(enabled && !reduced && (middle || trailing) ? { middle: middle && { key: shown.middle, place: middle, start: shown.start }, trailing } : null)
+    }
+  }
+  const first = useRef(true)
   useEffect(() => {
-    if (last.current === searching) return
-    last.current = searching
-    if (reduced) return
-    opacity.setValue(0)
-    Animated.timing(opacity, { toValue: 1, duration: 150, easing: Easing.inOut(Easing.sin), useNativeDriver: false }).start()
-  }, [searching, reduced, opacity])
-  return opacity
+    if (first.current) {
+      first.current = false
+      return
+    }
+    if (reduced) {
+      open.stopAnimation()
+      open.setValue(searching ? 1 : 0)
+      return
+    }
+    const animation = Animated.timing(open, { toValue: searching ? 1 : 0, ...SEARCH_SWAP, useNativeDriver: false })
+    animation.start(({ finished }) => {
+      if (finished) setLeaving(null)
+    })
+    return () => animation.stop()
+  }, [searching, reduced, open])
+  const measure = (key: string) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout
+    setFrames((prev) => (prev[key]?.x === x && prev[key]?.width === width ? prev : { ...prev, [key]: { x, width } }))
+  }
+  const onRow = (event: LayoutChangeEvent) => setRowWidth(event.nativeEvent.layout.width)
+  return { open, leaving, ref, rtl, measure, onRow }
 }
 
 /**
@@ -553,4 +676,6 @@ const styles = StyleSheet.create({
   middle: { flexShrink: 1, alignItems: "center", minWidth: 0 },
   grow: { flex: 1, minWidth: 0 },
   groupGlass: { position: "absolute", top: 0, bottom: 0, end: 0 },
+  awayMiddle: { justifyContent: "center" },
+  awayTrailing: { alignItems: "center" },
 })

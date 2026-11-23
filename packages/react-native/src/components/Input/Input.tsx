@@ -9,6 +9,7 @@ import {
   Text as NativeText,
   TextInput,
   View,
+  processColor,
   type PressableProps,
   type StyleProp,
   type TextInputProps,
@@ -20,6 +21,7 @@ import { useDescription } from "../../internal/a11y"
 import { useAndroidGlass } from "../../internal/BarBackdrop"
 import { Glass } from "../../internal/Glass"
 import { useRTL } from "../../internal/direction"
+import { springTo, stiffSpring } from "../../internal/motion"
 import { RowEndContext } from "../../internal/row"
 import { barShadow, barSurface, withAlpha, dangerText, stateLayer } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -80,6 +82,40 @@ const IOS_FIELD: Record<ControlSize, { height: ControlSize; radius: "sm" | "md" 
 /** The kit's own values of the tokens the table reads, for a theme without them. */
 const IOS_RADIUS = { sm: 6, md: 8, lg: 10, xl: 12 }
 const IOS_GAP = { md: 8, lg: 10 }
+
+/** Android's outlined line with focus. */
+const FOCUS_LINE = 1.667
+
+/** Android's idle outlined line: 0.5dp, at least 2 device pixels (1 on a 1x screen). */
+function hairline() {
+  const ratio = PixelRatio.get()
+  return Math.max(Math.min(2, ratio) / ratio, 0.5)
+}
+
+/** Android's field motion: the label's float, the line's width and the colors, a spring of stiffness 500 with no bounce. */
+const FIELD_SPRING = stiffSpring(500)
+
+/** A color's channels as Animated.Color springs them; undefined for one React Native cannot read. */
+function rgbaOf(color: string) {
+  const value = processColor(color)
+  if (typeof value !== "number") return undefined
+  const argb = value >>> 0
+  return { r: (argb >>> 16) & 255, g: (argb >>> 8) & 255, b: argb & 255, a: (argb >>> 24) / 255 }
+}
+
+/**
+ * A color that springs to each new `color` at `stiffness` with no bounce, every channel on the same spring, so a change
+ * on the way carries on from where it stands. At once when `instant` (reduced motion, or a color nothing draws).
+ */
+export function useSpringColor(color: string, stiffness: number, instant: boolean) {
+  const [value] = useState(() => new Animated.Color(color))
+  useEffect(() => {
+    const to = rgbaOf(color)
+    if (instant || !to) value.setValue(color)
+    else Animated.spring(value, { toValue: to, ...stiffSpring(stiffness), useNativeDriver: false }).start()
+  }, [color, stiffness, instant, value])
+  return value
+}
 
 /** The look of a field on this platform: its box, text and colors. Shared by Input, TextField and Select. */
 export function fieldLook(
@@ -163,12 +199,10 @@ export function fieldLook(
     const accent = state.invalid ? dangerText(theme) : state.focused ? focusAccent(theme) : null
     const height = label ? 56 : 50
     const radius = pill ? height / 2 : 8
-    // The idle line: 0.5dp, at least 2 device pixels (1 on a 1x screen) (the text at 16%, 24% in dark mode)
-    const ratio = PixelRatio.get()
-    const hairline = Math.max(Math.min(2, ratio) / ratio, 0.5)
+    // The idle line: a hairline in the text at 16%, 24% in dark mode
     const idle = withAlpha(m.onSurface, theme.scheme === "dark" ? 0.24 : 0.16)
     const frame: FieldFrame | null = outlined
-      ? { outlined: true, color: accent ?? idle, width: state.focused && !state.disabled ? 1.667 : hairline, radius }
+      ? { outlined: true, color: accent ?? idle, width: state.focused && !state.disabled ? FOCUS_LINE : hairline(), radius }
       : state.invalid
         ? // A field with no line of its own shows an error as Android's underline does: 2dp in the error color
           ghost
@@ -286,27 +320,35 @@ export function fieldLook(
  * line would darken where two did), each a clipped copy of the outline aligned with the field: before the cut (full
  * height), after it below the top line, and after it on the top line. So the cut animates with the label, needs no
  * fill behind the label, and keeps a pill's round ends. The windows are placed by `start` / `end`, so the cut
- * follows the label to the right in a right-to-left layout.
+ * follows the label to the right in a right-to-left layout. `motion` moves the line's color and width.
  */
-export function FieldOutline({ frame, cut }: { frame: FieldFrame | null; cut?: { start: number; width: Animated.AnimatedInterpolation<number> | number } | null }) {
+export function FieldOutline({
+  frame,
+  cut,
+  motion,
+}: {
+  frame: FieldFrame | null
+  cut?: { start: Animated.AnimatedInterpolation<number> | number; width: Animated.AnimatedInterpolation<number> | number } | null
+  motion?: FrameMotion | null
+}) {
   if (!frame) return null
   if (!frame.outlined) return <View pointerEvents="none" style={[styles.underline, { height: frame.width, backgroundColor: frame.color }]} />
-  const line = { borderWidth: frame.width, borderColor: frame.color, borderRadius: frame.radius }
-  if (!cut) return <View pointerEvents="none" style={[StyleSheet.absoluteFill, line]} />
+  const line = { borderWidth: motion?.width ?? frame.width, borderColor: motion?.color ?? frame.color, borderRadius: frame.radius }
+  if (!cut) return <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, line]} />
   // Yoga rounds each view's offset from its parent on its own: a window at 10.5px (4dp at 2.625) and its copy at
   // -10.5px round to 11 and -10, a 1px step in the bottom line. On whole pixels the copies line up.
   const depth = PixelRatio.roundToNearestPixel(CUT_DEPTH)
-  const start = PixelRatio.roundToNearestPixel(cut.start)
-  const end = typeof cut.width === "number" ? start + PixelRatio.roundToNearestPixel(cut.width) : Animated.add(start, cut.width)
+  const start = typeof cut.start === "number" ? PixelRatio.roundToNearestPixel(cut.start) : cut.start
+  const end = typeof start === "number" && typeof cut.width === "number" ? start + PixelRatio.roundToNearestPixel(cut.width) : Animated.add(start, cut.width)
   const back = typeof end === "number" ? -end : Animated.multiply(end, -1)
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      <View style={[styles.window, { start: 0, width: start, top: 0, bottom: 0 }]}>
-        <View style={[styles.copy, line, { start: 0, end: FAR, top: 0, bottom: 0 }]} />
-      </View>
-      <View style={[styles.window, { start, end: 0, top: depth, bottom: 0 }]}>
-        <View style={[styles.copy, line, { start: -start, end: 0, top: -depth, bottom: 0 }]} />
-      </View>
+      <Animated.View style={[styles.window, { start: 0, width: start, top: 0, bottom: 0 }]}>
+        <Animated.View style={[styles.copy, line, { start: 0, end: FAR, top: 0, bottom: 0 }]} />
+      </Animated.View>
+      <Animated.View style={[styles.window, { start, end: 0, top: depth, bottom: 0 }]}>
+        <Animated.View style={[styles.copy, line, { start: typeof start === "number" ? -start : Animated.multiply(start, -1), end: 0, top: -depth, bottom: 0 }]} />
+      </Animated.View>
       <Animated.View style={[styles.window, { start: end, end: 0, top: 0, height: depth }]}>
         {/* Only its top line and the start of its corner show: it may run past the field's bottom */}
         <Animated.View style={[styles.copy, line, { start: back, end: 0, top: 0, bottom: FAR }]} />
@@ -391,6 +433,31 @@ const FAR = -2000
 /** The cut removes the top line only: deeper than the 2dp focused line (then snapped to the pixel grid). */
 const CUT_DEPTH = 4
 
+/** The line's color and width on the move, for FieldOutline. */
+export type FrameMotion = { color: Animated.Color; width: Animated.AnimatedInterpolation<number> }
+
+/** The float's progress at which the cut's edges are worked out: they move on curves, followed through these points. */
+const CUT_STEPS = Array.from({ length: 11 }, (_, index) => index / 10)
+
+/**
+ * The cut in the top line around a label that floats to `at`, `width` wide once floated. It opens from about the label's
+ * middle, both edges moving apart (the start 4 past the label's half, the end 10 past it), and ends 5 either side of
+ * the label. On the way the label is still larger (4/3 at rest), so the edges keep to its size.
+ */
+function labelCut(float: Animated.Value, at: number, width: number) {
+  const edges = CUT_STEPS.map((progress) => {
+    const size = width * (1 + (1 - progress) / 3)
+    const start = PixelRatio.roundToNearestPixel(at - 1 + (size * (1 - progress)) / 2 - 4 * progress)
+    const end = PixelRatio.roundToNearestPixel(at - 5 + (size * (1 + progress)) / 2 + 10 * progress)
+    // Closed until the edges have passed each other
+    return { start, width: Math.max(0, end - start) }
+  })
+  return {
+    start: float.interpolate({ inputRange: CUT_STEPS, outputRange: edges.map((edge) => edge.start) }),
+    width: float.interpolate({ inputRange: CUT_STEPS, outputRange: edges.map((edge) => edge.width) }),
+  }
+}
+
 /** A single-line text field: Plex UI's Input. iOS 26 draws a 44pt field in 17pt type, Android an outlined field. */
 export function Input(props: InputProps) {
   return <InputField {...props} />
@@ -457,7 +524,8 @@ export function InputAdornmentButton({ children, accessibilityLabel, selected, d
 
 Input.AdornmentButton = InputAdornmentButton
 
-type FieldExtras = { label?: ReactNode; required?: boolean }
+/** `shift` moves the field sideways (TextField's shake on an error). */
+type FieldExtras = { label?: ReactNode; required?: boolean; shift?: Animated.Value }
 
 /** The field itself; TextField passes it a floating label on Android. */
 export function InputField({
@@ -473,6 +541,7 @@ export function InputField({
   testID,
   label,
   required,
+  shift,
   value,
   defaultValue,
   onChangeText,
@@ -548,11 +617,20 @@ export function InputField({
     // Android's label moves on a spring of stiffness 500 with no bounce (critically damped)
     const motion = theme.reducedMotion
       ? Animated.timing(float, { toValue: up ? 1 : 0, duration: 0, useNativeDriver: false })
-      : Animated.spring(float, { toValue: up ? 1 : 0, stiffness: 500, damping: 2 * Math.sqrt(500), mass: 1, overshootClamping: true, useNativeDriver: false })
+      : Animated.spring(float, { toValue: up ? 1 : 0, ...FIELD_SPRING, overshootClamping: true, useNativeDriver: false })
     motion.start()
   }, [up, float, theme.reducedMotion])
-  // Android's label is in the hint color at rest and in the accent while the field has focus
+  // Android's outlined line thickens with the focus and takes its color (the accent, the error color) on the label's
+  // spring; the color springs from wherever it stands, so the error's red blends in on a spring of its own
+  const lined = theme.isAndroid && outlined && look.frame?.outlined === true
+  const thick = focused && !disabled
+  const [line] = useState(() => new Animated.Value(thick ? 1 : 0))
+  useEffect(() => springTo(line, thick ? 1 : 0, FIELD_SPRING, theme.reducedMotion), [thick, line, theme.reducedMotion])
+  const lineColor = useSpringColor(look.frame?.color ?? "transparent", FIELD_SPRING.stiffness, !lined || theme.reducedMotion)
+  const lineMotion: FrameMotion | null = lined ? { color: lineColor, width: line.interpolate({ inputRange: [0, 1], outputRange: [hairline(), FOCUS_LINE] }) } : null
+  // Android's label is in the hint color at rest and in the accent while the field has focus, springing between them
   const labelColor = invalid ? dangerText(theme) : focused ? focusAccent(theme) : look.placeholder
+  const labelTint = useSpringColor(labelColor, FIELD_SPRING.stiffness, !floating || theme.reducedMotion)
   const showClear = !!onClear && filled && !disabled && !readOnly
   // Android's search fields keep their clear button in place and show it with the text
   const androidClear = (search || barSearch) && !!onClear && !disabled && !readOnly
@@ -565,15 +643,12 @@ export function InputField({
     ? { paddingStart: startAdornment ? 12 : edge, paddingEnd: endAdornment || showClear || androidClear ? 12 : endEdge }
     : null
   const textStart = theme.isAndroid ? (startAdornment ? 48 : edge) : 0
-  // An outlined label floats to the text's start over the line (past a pill's round end), the cut 4 around it
+  // An outlined label floats to the text's start over the line (past a pill's round end), the cut 5 around it
   const floatedStart = pill ? look.height / 2 : 14
   const [labelWidth, setLabelWidth] = useState(0)
   // At rest the label stands where the text would
   const labelRest = (look.height - LABEL.rest.lineHeight) / 2
-  const cut =
-    floating && outlined && look.frame
-      ? { start: floatedStart - 4, width: float.interpolate({ inputRange: [0, 1], outputRange: [0, PixelRatio.roundToNearestPixel(labelWidth + 8)] }) }
-      : null
+  const cut = floating && outlined && look.frame ? labelCut(float, floatedStart, labelWidth) : null
   // The clear button's own box is its touch target (44pt, 48dp): Android centers the 24dp icon in it where the 24dp
   // slot stood (12 over either side); iOS stands its circle half the field's height from the end, concentric with a
   // round end (Input.module.css), or keeps its box beside an end adornment
@@ -599,10 +674,11 @@ export function InputField({
       glass={look.glass}
       raised={!!barField?.raised}
       radius={look.height / 2}
+      shift={shift}
       style={[styles.box, look.box, { gap: look.gap }, sides, style]}
       testID={testID}
     >
-      {theme.isAndroid ? <FieldOutline frame={look.frame} cut={cut} /> : null}
+      {theme.isAndroid ? <FieldOutline frame={look.frame} cut={cut} motion={lineMotion} /> : null}
       {startAdornment ? (
         <IconDefaultsProvider size={look.iconSize} color={look.icon}>
           {adornment(startAdornment, "start")}
@@ -638,7 +714,7 @@ export function InputField({
             >
               <Animated.Text
                 style={{
-                  color: labelColor,
+                  color: labelTint,
                   fontSize: float.interpolate({ inputRange: [0, 1], outputRange: [LABEL.rest.fontSize, LABEL.floated.fontSize] }),
                   lineHeight: float.interpolate({ inputRange: [0, 1], outputRange: [LABEL.rest.lineHeight, LABEL.floated.lineHeight] }),
                   ...theme.font("regular"),
@@ -729,9 +805,13 @@ export function InputField({
   )
 }
 
-/** The field's box: a View, or for a bar's search field the glass of the bar's buttons. */
-function FieldBox({ glass, raised, radius, ...rest }: ViewProps & { glass: boolean; raised: boolean; radius: number }) {
-  return glass ? <Glass radius={radius} elevation={raised ? "raised" : "regular"} {...rest} /> : <View {...rest} />
+/**
+ * The field's box: a View, or for a bar's search field the glass of the bar's buttons. With `shift` it moves sideways
+ * (a caller's own transform wins).
+ */
+function FieldBox({ glass, raised, radius, shift, style, ...rest }: ViewProps & { glass: boolean; raised: boolean; radius: number; shift?: Animated.Value }) {
+  if (glass) return <Glass radius={radius} elevation={raised ? "raised" : "regular"} style={style} {...rest} />
+  return shift ? <Animated.View style={[{ transform: [{ translateX: shift }] }, style]} {...rest} /> : <View style={style} {...rest} />
 }
 
 /** React Native Web's description link, which React Native's own types leave out. */
@@ -766,10 +846,21 @@ export function TextField({ label, description, errorMessage, required, invalid,
     ...(describedBy ? { "aria-describedby": describedBy } : null),
     ...(input.accessibilityHint != null ? { accessibilityHint: input.accessibilityHint } : null),
   }
+  // Android shakes the field when an error message appears: flung left at 350dp/s on a spring of stiffness 600 at half
+  // its critical damping, it swings back and settles where it stood
+  const [shake] = useState(() => new Animated.Value(0))
+  const hadError = useRef(error)
+  useEffect(() => {
+    const appeared = error && !hadError.current
+    hadError.current = error
+    if (!appeared || !theme.isAndroid || theme.reducedMotion) return
+    shake.setValue(0)
+    Animated.spring(shake, { toValue: 0, velocity: -350, ...stiffSpring(600, 0.5), useNativeDriver: false }).start()
+  }, [error, shake, theme.isAndroid, theme.reducedMotion])
   if (theme.isAndroid) {
     return (
       <View style={styles.field}>
-        <InputField {...input} {...describedProps} label={label} required={required} invalid={bad} />
+        <InputField {...input} {...describedProps} label={label} required={required} invalid={bad} shift={shake} />
         {help != null ? (
           // Android's help under a field: 14 in the gray of secondary text, or in the error color, at the text's 14
           // (dimmed with a disabled field)

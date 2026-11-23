@@ -2,6 +2,7 @@ import { createContext, isValidElement, useContext, useEffect, useRef, useState,
 import { Animated, Easing, Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
 import { childrenOfType, isRenderable, textOf } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
+import { curves } from "../../internal/motion"
 import { useTabKeys } from "../../internal/tabKeys"
 import { barShadow, barSurface, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -368,10 +369,11 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
 /** The height of Android's segmented capsule under its bar (36dp, measured), a step smaller and larger by size. */
 const ANDROID_HEIGHT: Record<string, number> = { "3xs": 32, "2xs": 32, xs: 32, sm: 32, md: 36, lg: 40, xl: 44, "2xl": 44, "3xl": 44 }
 
-/** Android's tabs: the pill moves in 320ms on an ease-out quint, the labels' colors blending with it. */
-const ANDROID_MOVE = { duration: 320, easing: Easing.bezier(0.23, 1, 0.32, 1) }
-/** A pressed tab: the tab selector, the ink at 7%. */
-const ANDROID_PRESSED = 0.07
+/**
+ * Android's tabs: the pill moves in 320ms on an ease-out quint, the labels' colors blending with it. A press draws
+ * nothing: the pill moving is the feedback.
+ */
+const ANDROID_MOVE = { duration: 320, easing: curves.easeOutQuint }
 
 /**
  * Android's control is a segmented capsule, as the tabs under a bar and a settings row in the content draw it
@@ -488,12 +490,12 @@ function AndroidSegment({ option, selected, off, framed, height, size, keys, sel
       onPress={() => select(option)}
       testID={option.testID}
       onLayout={(event: LayoutChangeEvent) => onWidth(event.nativeEvent.layout.width)}
-      style={({ pressed }) => [
+      style={[
         styles.androidOption,
         { height, borderRadius: height / 2 },
         size,
         // Until the pill is placed the selected segment draws its own
-        selected && !framed ? { backgroundColor: withAlpha(m.primary, 0.12) } : !selected && pressed && !off ? { backgroundColor: withAlpha(m.onSurface, ANDROID_PRESSED) } : null,
+        selected && !framed ? { backgroundColor: withAlpha(m.primary, 0.12) } : null,
       ]}
     >
       {isRenderable(option.icon) ? (
