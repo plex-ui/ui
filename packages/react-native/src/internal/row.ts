@@ -29,6 +29,25 @@ export const RowEndContext = createContext<RowEnd | null>(null)
  */
 export const RowHoldContext = createContext<((held: boolean) => void) | null>(null)
 
+/**
+ * Inside the start of a List row: a RadioGroup option given as the row's `leading` (a list of choices with the mark
+ * first, as a language list). The option draws its mark alone, taking no more room than the mark.
+ */
+export const RowStartContext = createContext(false)
+
+/**
+ * A List row as a menu opened from inside it sees the row: Android dims the screen around the row, which stays lit, and
+ * sets the popup under it.
+ */
+export type RowFrame = {
+  /** The row's view, measured as the menu opens. */
+  node: { current: unknown }
+  /** The radius of the row's top and of its bottom corners: the card's, where the row meets the card's edge. */
+  radius: { top: number; bottom: number }
+}
+
+export const RowFrameContext = createContext<RowFrame | null>(null)
+
 /** A control's press handlers that hold its row while a finger is on it (none outside a pressable row). */
 export function rowHold(hold: ((held: boolean) => void) | null) {
   return hold ? { onPressIn: () => hold(true), onPressOut: () => hold(false) } : null

@@ -174,6 +174,19 @@ export const disabledCode = `const [disabled, setDisabled] = useState(true)
   </Toolbar.Trailing>
 </Toolbar>`
 
+export const opaqueCode = `<Toolbar background="hard" scrolled={scrolled}>
+  <Toolbar.Leading>
+    <NavigationButton action="back" />
+  </Toolbar.Leading>
+  <Toolbar.Title subtitle="24 orders">Orders</Toolbar.Title>
+  <Toolbar.Trailing>
+    <Toolbar.Group aria-label="Order actions">
+      <IconButton icon={<Search />} accessibilityLabel="Search" />
+      <IconButton icon={<DotsVertical />} accessibilityLabel="More" />
+    </Toolbar.Group>
+  </Toolbar.Trailing>
+</Toolbar>`
+
 <UsageBlock>{`import { NavigationButton, Toolbar } from "@plexui/react-native"`}</UsageBlock>
 
 Move between an app's top-level sections with a [Tab Bar](/react-native/components/tab-bar).
@@ -194,7 +207,7 @@ Move between an app's top-level sections with a [Tab Bar](/react-native/componen
   <p><code>Toolbar.Group</code> puts related actions in one capsule: of glass on iOS, and on Android a glass capsule with its icons in 38dp slots, as for Search and More, its glass following a change of its buttons over 320ms; a single action, as Back or Close, keeps a capsule or a circle of its own. Without <code>Toolbar.Title</code> the bar holds its controls alone. Name each icon button with <code>accessibilityLabel</code>; on Android More is the vertical dots. <code>Toolbar.Content fill</code> stretches a search field across the row in the place of the title, up to the trailing items. That is the open search: until a tap opens it, the search waits in a field across a row under the controls (<code>search</code> row, iOS) or behind a Search button in the bar (<code>search</code> button), and Close puts it back on iOS; on Android the open search is Back and a bare field (no magnifier) whose × grows and turns in with the first letter; a field in a row is the 40dp search field under the bar. A segmented row stays under the open field. A Search button can open its field at the bottom instead (<code>field</code> bottom): the field takes a bottom bar of its own, the top bar's title and buttons go, and a segmented row moves up in their place.</p>
   <p><code>Toolbar.Row</code> adds a row under the controls, part of the bar: a SegmentedControl that switches the screen's views, or a search field. It spans the bar between its gutters, 10pt under the controls on iOS and 8dp on Android, and several rows stand in their order. A segmented control in it fills the row with <code>block</code>: on iOS it is glass at its default size, a 40pt capsule; <code>size="sm"</code> gives the small plain one (32pt) and <code>size="lg"</code> the large glass one (48pt). A search field in a row is, on Android, the capsule of the bar's own search: the bar's glass at its 46dp height, 18sp text 18dp in, between the bar's 6dp gutters. A segmented control on Android is a white 36dp capsule (32 at <code>sm</code>, 40 at <code>lg</code>) whose selected segment is a pill of the accent at 12% that slides to a new selection. A badge is not drawn on a phone: its count stays in the segment's accessible name.</p>
   <p><code>placement="bottom"</code> sets the bar at the bottom of the screen with 48pt targets on iOS and pads it for the home indicator; on Android its circles stand 8dp above the gesture bar. <code>Toolbar.Content</code> centers a main action; with <code>fill</code> a search field or a single action takes the whole row. A solid primary button in a bar is its prominent action, in the accent on both platforms. A search field holds <code>SearchSm</code>; a plus next to it takes <code>iconSize="sm"</code> on iOS, while Android keeps a bar's icons at 24dp. On Android the bottom holds a field with its circles or one wide action, never a bar of buttons, so the example offers the bottom bar's search and action there. A screen holds one search field, so with one in the top bar the bottom bar offers neither its own field nor its Search button.</p>
-  <p><code>background</code> sets how a bar meets the content under it. <code>glass</code>, the default of a top bar on iOS, is a translucent, blurred bar with a hairline; on Android the blur alone parts it from the content, as Android's bars draw no line. <code>soft</code>, the default of a bottom bar and of both bars on Android, is a veil of the canvas color with no line; on Android, under the top bar, it is the screen's color at 63% over the blurred content, eased out over the bar's last 56dp (82% over the last 48dp where nothing blurs, as on a device), and under the bottom bar the color fading in over 60dp to 81%. <code>hard</code> is an opaque bar of the canvas color with a hairline (on Android the light divider of a card's rows). Each shows while <code>scrolled</code> says content is under the bar: under the top bar after the content has scrolled, under the bottom bar while it continues below. <code>canvasColor</code> gives the edge the screen's own color, a grouped screen's canvas. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.</p>
+  <p><code>background</code> sets how a bar meets the content under it. <code>glass</code>, the default of a top bar on iOS, is a translucent, blurred bar with a hairline; on Android the blur alone parts it from the content, as Android's bars draw no line. <code>soft</code>, the default of a bottom bar and of both bars on Android, is a veil of the canvas color with no line; on Android, under the top bar, it is the screen's color at 63% over the blurred content, eased out over the bar's last 56dp (82% over the last 48dp where nothing blurs, as on a device), and under the bottom bar the color fading in over 60dp to 81%. <code>hard</code> is an opaque bar of the canvas color with a hairline; at the bottom on Android the light divider of a card's rows, and at the top Android's classic bar (see Opaque bar). Each shows while <code>scrolled</code> says content is under the bar: under the top bar after the content has scrolled, under the bottom bar while it continues below. <code>canvasColor</code> gives the edge the screen's own color, a grouped screen's canvas. The top and the bottom bar each take their own; the bottom bar's controls stand under the preview.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="toolbar/Overview" />
 </ComponentPreview>
@@ -205,6 +218,12 @@ Move between an app's top-level sections with a [Tab Bar](/react-native/componen
 
 <ComponentPreview details={<>On iOS a search field under the title is a row of the bar: <code>Toolbar.Row</code> holding an <code>Input</code> with <code>variant="soft" pill</code> and the magnifier as its <code>startAdornment</code>; <code>inputMode="search"</code> and <code>returnKeyType="search"</code> give it the keyboard of a search. Under a large title the row stands under the title and the list starts 10pt under the field, as iOS starts a list under the search field of a large title; the bar keeps the title and the field while the list scrolls under them. With an inline title, which the controls switch, the row stands under the controls and the list starts 16pt under the bar. With <code>onClear</code> the field shows the platform's clear button while it holds text. On Android the field is the capsule of the bar's own search, the glass of its buttons at their 46dp height, with 18sp text 18dp in and the hint in a field's gray, its × growing in as it turns. Android has no large title, so the title stays in the bar's row and the controls offer only its alignment. A Search button in the bar, the other way to wait (the Overview's <code>search</code> button), opens as Back and a bare field in place of the title.</>} code={searchCode} previewMinHeight={168}>
   <RNExample demo="toolbar/SearchUnderTitle" />
+</ComponentPreview>
+
+### Opaque bar
+
+<ComponentPreview details={<><code>background="hard"</code> makes the bar opaque. On iOS the bar takes the canvas color and its hairline once the list scrolls under it. At the top on Android it is the platform's classic bar, there whether or not the list is under it: 56dp in the cards' color with a 3dp shadow over the content, its icons plain in 48dp targets with no circles (Back centered 28dp from the edge, a group's icons side by side with no capsule), and the title from the start, Medium 18, 72dp in after Back and 18dp with none, over a subtitle of 14 in the secondary gray. A prominent action in it is the accent's ink with no fill. <code>titleAlign="center"</code> still centers the title.</>} code={opaqueCode} previewMinHeight={168}>
+  <RNExample demo="toolbar/OpaqueBar" />
 </ComponentPreview>
 
 ### Disabled
@@ -220,6 +239,7 @@ Move between an app's top-level sections with a [Tab Bar](/react-native/componen
 | Native component, top | Navigation bar | Action bar, drawn as glass circles and capsules |
 | Native component, bottom | Toolbar | A bottom row: a field with its circles, or one wide action |
 | Look | Glass items over the content, 44pt at the top and 48pt at the bottom; a centered 17pt title or a 34pt large title | 46dp circles and capsules of see-through glass (the card at 80%, a 0.55dp rim, a soft shadow in light) 6dp from the edges, a centered Medium 17 title in a 62dp bar, the screen's color fading under them |
+| `background="hard"`, top | An opaque bar of the canvas color with a hairline, once content is under it | The classic bar: 56dp in the cards' color with a 3dp shadow, plain icons in 48dp targets, a Medium 18 title from 72dp |
 
 iOS calls only the bottom bar a toolbar; here `Toolbar` is both bars, and `placement` picks one.
 
@@ -230,7 +250,7 @@ iOS calls only the bottom bar a toolbar; here `Toolbar` is both bars, and `place
 <PropsTable data={[
   { prop: "placement", type: '"top" | "bottom"', default: '"top"', description: "Top bar with 44pt targets, or bottom bar with 48pt targets" },
   { prop: "titleStyle", type: '"inline" | "large"', default: '"inline"', description: "A title in the row of the controls, or the large title on a row of its own under them (iOS; Android keeps it in the row)" },
-  { prop: "titleAlign", type: '"center" | "start"', default: '"center"', description: "Where an inline title stands; a large one starts at the leading edge" },
+  { prop: "titleAlign", type: '"center" | "start"', default: '"center"; "start" in an opaque top bar on Android', description: "Where an inline title stands; a large one starts at the leading edge" },
   { prop: "background", type: '"soft" | "hard" | "glass" | "none"', default: '"glass" at the top on iOS, "soft" at the bottom and on Android', description: "How the bar meets content under it, once scrolled says it is there" },
   { prop: "scrolled", type: "boolean", default: "false", description: "Content is under the bar: scrolled under a top bar, running on under a bottom one" },
   { prop: "canvasColor", type: "string", default: "the theme's background", description: "The color of the screen under the bar, which its scroll edge takes (a grouped screen's canvas)" },

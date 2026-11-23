@@ -16,6 +16,7 @@ export const demoModules: Record<string, () => Promise<DemoModule>> = {
   checkbox: () => import('./CheckboxDemos'),
   'radio-group': () => import('./RadioGroupDemos'),
   input: () => import('./InputDemos'),
+  'otp-input': () => import('./OTPInputDemos'),
   select: () => import('./SelectDemos'),
   'segmented-control': () => import('./SegmentedControlDemos'),
   slider: () => import('./SliderDemos'),

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Button, Menu, Toolbar } from '@plexui/react-native';
+import { Button, IconButton, List as Rows, ListItem, Menu, NavigationButton, Toolbar } from '@plexui/react-native';
 import {
   Chat,
   ChatTripleDots,
@@ -19,6 +19,7 @@ import { DemoControlBoolean, controlsTableStyle } from '../../ButtonDemos';
 import { usePreviewEmbed } from '../../PreviewEmbed';
 import { RNScreen, docsDemo } from '../RNScreen';
 import { MoreIcon } from './MoreIcon';
+import { PhonePage } from './ToolbarDemos';
 
 /**
  * A menu example on a phone, as the React page's Phone preview draws it: a screen whose menu opens from the More
@@ -200,5 +201,60 @@ export const Destructive = docsDemo(function Destructive() {
         Delete project
       </Menu.Item>
     </MenuScreen>
+  );
+});
+
+const DEVICES = [
+  { id: 'laptop', name: 'Work laptop', detail: 'Last active today at 9:41' },
+  { id: 'phone', name: 'Phone', detail: 'Last active yesterday' },
+  { id: 'tablet', name: 'Tablet', detail: 'Last active 3 days ago' },
+];
+
+/**
+ * A menu from a List row: each signed-in device ends in More, whose menu renames it or signs it out. On Android the
+ * screen dims around the row, which stays lit, and the popup stands under it at its end; on iOS the menu opens at its
+ * button. In the phone preview the first device's menu stands open.
+ */
+export const FromRow = docsDemo(function FromRow() {
+  const embed = usePreviewEmbed() !== null;
+  const [open, setOpen] = useState<string | null>(embed ? DEVICES[0].id : null);
+  return (
+    <RNScreen screen grouped minHeight={560}>
+      <PhonePage
+        top={(scrolled, canvas) => (
+          <Toolbar scrolled={scrolled} canvasColor={canvas}>
+            <Toolbar.Leading>
+              <NavigationButton action="back" />
+            </Toolbar.Leading>
+            <Toolbar.Title>Devices</Toolbar.Title>
+          </Toolbar>
+        )}
+      >
+        <Rows footer="Sign out of a device you no longer use.">
+          {DEVICES.map((device) => (
+            <ListItem
+              key={device.id}
+              label={device.name}
+              description={device.detail}
+              trailing={
+                <Menu open={open === device.id} onOpenChange={(next: boolean) => setOpen(next ? device.id : null)}>
+                  <Menu.Trigger>
+                    <IconButton icon={<MoreIcon />} accessibilityLabel={`More for ${device.name}`} />
+                  </Menu.Trigger>
+                  <Menu.Content align="end" aria-label={`${device.name} actions`}>
+                    <Menu.Item icon={<EditPencil />} onSelect={noop}>
+                      Rename
+                    </Menu.Item>
+                    <Menu.Item icon={<RemoveTrash />} danger onSelect={noop}>
+                      Sign out
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu>
+              }
+            />
+          ))}
+        </Rows>
+      </PhonePage>
+    </RNScreen>
   );
 });

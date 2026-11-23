@@ -4,7 +4,7 @@ import CheckMd from "../../icons/plex/CheckMd"
 import { useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { isRTL, nextKey } from "../../internal/direction"
-import { RowEndContext, RowHoldContext, rowHold } from "../../internal/row"
+import { RowEndContext, RowHoldContext, RowStartContext, rowHold } from "../../internal/row"
 import { mix } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { ANDROID_ROW_END, androidEaseInOut, iosCheckmarkColor, selectionColor } from "../Switch/Switch"
@@ -81,6 +81,8 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
   const hasText = children != null || description != null
   // At a List row's end with no text of its own (the docs' pattern): the row is its label
   const inRow = useContext(RowEndContext) != null && !hasText
+  // Or at its start (a list with the marks first): the mark alone, as wide as its ring or its checkmark's column
+  const atStart = useContext(RowStartContext) && !hasText
   const hold = useContext(RowHoldContext)
   // The radio button runs 0 to 1 in 200ms on Android's default ease-in-out: the first half fills the ring inward
   // in its gray, the second shrinks the fill to the dot while it turns the on color; unchoosing runs it back. A
@@ -107,9 +109,11 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
     // the label's side the text starts 12dp after it. At a List row's end the ring stands Android's 23dp in
     const reach: ViewStyle = inRow
       ? { marginStart: -ANDROID_REACH, marginEnd: -(ANDROID_REACH - (ANDROID_ROW_INSET - ANDROID_ROW_END)) }
-      : orientation === "right"
-        ? { marginEnd: -ANDROID_REACH, marginStart: hasText ? -(ANDROID_REACH - ANDROID_LABEL_GAP) : 0 }
-        : { marginStart: -ANDROID_REACH, marginEnd: hasText ? -(ANDROID_REACH - ANDROID_LABEL_GAP) : 0 }
+      : atStart
+        ? { marginHorizontal: -ANDROID_REACH }
+        : orientation === "right"
+          ? { marginEnd: -ANDROID_REACH, marginStart: hasText ? -(ANDROID_REACH - ANDROID_LABEL_GAP) : 0 }
+          : { marginStart: -ANDROID_REACH, marginEnd: hasText ? -(ANDROID_REACH - ANDROID_LABEL_GAP) : 0 }
     // No press of its own: a row shows the press. Disabled, the ring keeps its colors at half (as a radio row's)
     mark = (
       <View style={[styles.androidTarget, reach]}>
@@ -148,8 +152,9 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
       ]}
     >
       {mark}
-      {/* iOS keeps the empty column of a mark alone; Android draws none, so the ring keeps its place at a row's end */}
-      {hasText || !theme.isAndroid ? (
+      {/* iOS keeps the empty column of a mark alone; Android draws none, so the ring keeps its place at a row's end.
+          At a row's start the row's own text follows the mark */}
+      {hasText || (!theme.isAndroid && !atStart) ? (
         <View style={[styles.text, orientation === "right" ? styles.fill : null]}>
           <ControlLabel control="radio-group" label={children} description={description} disabled={disabled} descriptionId={described.id} />
         </View>

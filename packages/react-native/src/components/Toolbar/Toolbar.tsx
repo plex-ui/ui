@@ -3,6 +3,7 @@ import { Animated, Easing, StyleSheet, View, type LayoutChangeEvent, type StyleP
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import {
   BarBackdrop,
+  BarShadow,
   SoftBottomEdge,
   SoftTopEdge,
   ANDROID_FADE_ALPHA,
@@ -30,12 +31,17 @@ export type ToolbarProps = ViewProps & {
   placement?: ToolbarPlacement
   /** A title in the row of the controls, or the large title under them. @default "inline" */
   titleStyle?: ToolbarTitleStyle
-  /** Where an inline title stands; a large one starts at the leading edge. @default "center" */
+  /**
+   * Where an inline title stands; a large one starts at the leading edge.
+   * @default "center"; "start" in an opaque (`hard`) top bar on Android
+   */
   titleAlign?: ToolbarTitleAlign
   /**
    * How the bar meets content under it: `glass` a translucent blurred bar with a line, `hard` an opaque one, `soft` a
    * veil that fades out (on Android the screen's color over a light blur), `none` nothing. Each shows once
-   * `scrolled` says content is under the bar; a bottom bar's soft edge stays.
+   * `scrolled` says content is under the bar; a bottom bar's soft edge stays. A `hard` top bar on Android is its
+   * classic bar, drawn at all times: 56dp in the cards' color with a 3dp shadow under it, its icons plain in 48dp
+   * targets with no circles, the title from the start (72dp in after a back button), 18 over a subtitle of 14.
    * @default "glass" at the top on iOS, "soft" at the bottom and on Android
    */
   background?: ToolbarBackground
@@ -52,7 +58,7 @@ export type ToolbarProps = ViewProps & {
   children?: ReactNode
 }
 
-type Placement = { placement: ToolbarPlacement }
+type Placement = { placement: ToolbarPlacement; plain?: boolean }
 const ToolbarContext = createContext<Placement>({ placement: "top" })
 
 /** The leading items: a back button. */
@@ -133,6 +139,14 @@ function ToolbarGroup({ children, style, ...rest }: ViewProps) {
   const bar = useContext(ToolbarContext)
   const { placement } = bar
   const item = useContext(BarItemContext)
+  // An opaque Android bar sets its icons side by side, plain, with no capsule
+  if (theme.isAndroid && item?.plain) {
+    return (
+      <View accessibilityRole="toolbar" {...rest} style={[styles.slot, style]}>
+        {children}
+      </View>
+    )
+  }
   if (theme.isAndroid && item) {
     return (
       <AndroidGroup item={item} {...rest} style={style}>
@@ -209,13 +223,15 @@ type BarField = { height: number; raised: boolean; row?: boolean; canvas?: strin
 const FIELD_OF_HEIGHT: Record<string, BarField> = {}
 const ROW_FIELD: Record<string, BarField> = {}
 
-function slotGap(theme: Theme, { placement }: Placement) {
-  // Android sets its circles, capsules and search field 6dp apart
-  if (theme.isAndroid) return 6
+function slotGap(theme: Theme, { placement, plain }: Placement) {
+  // Android sets its circles, capsules and search field 6dp apart, and the 48dp targets of an opaque bar side by side
+  if (theme.isAndroid) return plain ? 0 : 6
   return placement === "bottom" ? theme.length("--toolbar-bottom-item-gap", 12) : theme.length("--toolbar-top-item-gap", 10)
 }
 
-function barItem(theme: Theme, placement: ToolbarPlacement): BarItemStyle {
+function barItem(theme: Theme, placement: ToolbarPlacement, plain: boolean): BarItemStyle {
+  // Android's opaque bar: 24dp glyphs plain in 48dp targets, a label (Save) Medium 15 12 in from the ends of its press
+  if (theme.isAndroid && plain) return { height: 48, fontSize: 15, lineHeight: 20, weight: "medium", prominentWeight: "medium", iconSize: 24, gutter: 12, plain: true }
   // Android: 46dp circles with 24dp glyphs; a label (Save) Medium 15 in a capsule 16 in from its ends
   if (theme.isAndroid) return { height: 46, fontSize: 15, lineHeight: 20, weight: "medium", prominentWeight: "medium", iconSize: 24, gutter: 16 }
   const bottom = placement === "bottom"
@@ -255,20 +271,38 @@ function parts(children: ReactNode): Parts {
   return out
 }
 
-function BarTitle({ title, large, start }: { title: ToolbarTitleProps; large: boolean; start: boolean }) {
+function BarTitle({
+  title,
+  large,
+  start,
+  plain = false,
+  afterLeading = false,
+}: {
+  title: ToolbarTitleProps
+  large: boolean
+  start: boolean
+  /** In an opaque Android bar. */
+  plain?: boolean
+  /** Leading items stand before it. */
+  afterLeading?: boolean
+}) {
   const theme = useTheme()
   const subtitle = title.subtitle != null && title.subtitle !== false
   const android = theme.isAndroid
   // Android's title: Medium 17, centered in the 46dp row of its circles, a subtitle 14 in the gray of secondary text
   // under it (a glass bar). Set from the start, it stands 76dp in after a back button and 24dp with none:
-  // 18 past the bar's gutter and the gap after the back button
-  const font = android
-    ? { fontSize: 17, lineHeight: subtitle ? 20 : 22 }
-    : large
-      ? { fontSize: theme.length("--toolbar-large-title-font-size", 34), lineHeight: theme.length("--toolbar-large-title-line-height", 41) }
-      : subtitle
-        ? { fontSize: theme.length("--toolbar-title-compact-font-size", 15), lineHeight: theme.length("--toolbar-title-compact-line-height", 20) }
-        : { fontSize: theme.length("--toolbar-title-font-size", 17), lineHeight: theme.length("--toolbar-title-line-height", 22) }
+  // 18 past the bar's gutter and the gap after the back button. In an opaque bar Medium 18 over the subtitle in the
+  // lighter gray of a row's description, the pair centered in the bar (baselines 25.6 and 43.9 of its 56dp), from 72dp
+  // in after a back button and 18 with none
+  const font = plain
+    ? { fontSize: 18, lineHeight: 22 }
+    : android
+      ? { fontSize: 17, lineHeight: subtitle ? 20 : 22 }
+      : large
+        ? { fontSize: theme.length("--toolbar-large-title-font-size", 34), lineHeight: theme.length("--toolbar-large-title-line-height", 41) }
+        : subtitle
+          ? { fontSize: theme.length("--toolbar-title-compact-font-size", 15), lineHeight: theme.length("--toolbar-title-compact-line-height", 20) }
+          : { fontSize: theme.length("--toolbar-title-font-size", 17), lineHeight: theme.length("--toolbar-title-line-height", 22) }
   const sub = android
     ? { fontSize: 14, lineHeight: 18 }
     : large
@@ -278,8 +312,8 @@ function BarTitle({ title, large, start }: { title: ToolbarTitleProps; large: bo
     <View
       style={[
         styles.heading,
-        { alignItems: start || large ? "flex-start" : "center", minHeight: large ? 0 : android ? 46 : theme.length("--toolbar-top-item-size", 44) },
-        android && start && !large ? { marginStart: 18 } : null,
+        { alignItems: start || large ? "flex-start" : "center", minHeight: large ? 0 : plain ? 48 : android ? 46 : theme.length("--toolbar-top-item-size", 44) },
+        android && start && !large ? { marginStart: plain ? (afterLeading ? 20 : 14) : 18 } : null,
       ]}
     >
       <Text
@@ -292,7 +326,12 @@ function BarTitle({ title, large, start }: { title: ToolbarTitleProps; large: bo
         {title.children}
       </Text>
       {subtitle ? (
-        <Text numberOfLines={1} weight={android || large ? "regular" : "medium"} color={android ? theme.colors.textSecondary : theme.colors.labelSecondary} style={sub}>
+        <Text
+          numberOfLines={1}
+          weight={android || large ? "regular" : "medium"}
+          color={android && !plain ? theme.colors.textSecondary : theme.colors.labelSecondary}
+          style={sub}
+        >
           {title.subtitle}
         </Text>
       ) : null}
@@ -321,25 +360,29 @@ function ToolbarRoot({
 }: ToolbarProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
-  const titleAlign = titleAlignProp ?? "center"
   const { leading, title, content, trailing, rows } = parts(children)
   const top = placement === "top"
+  const mode = background ?? (top && !theme.isAndroid ? "glass" : "soft")
+  // An opaque top bar on Android is its classic bar: plain icons, the title from the start, drawn at all times
+  const plain = theme.isAndroid && top && mode === "hard"
+  const titleAlign = titleAlignProp ?? (plain ? "start" : "center")
+  const bar = { placement, plain }
   // Android's bars keep their title in the row: no large title
   const large = top && titleStyle === "large" && !theme.isAndroid
   const start = titleAlign === "start" || !!content?.props.fill
   // With content under the bar its glass casts the raised shadow, as a scrolled top bar's and a bottom bar's with
   // more below (Toolbar.module.css data-scrolled, data-content-below)
   const canvas = canvasColor ?? theme.colors.background
-  const item = { ...barItem(theme, placement), raised: scrolled, canvas }
-  const mode = background ?? (top && !theme.isAndroid ? "glass" : "soft")
+  const item = { ...barItem(theme, placement, plain), raised: scrolled, canvas }
   // A landscape phone's cutout and rounded corners: the bar's fill reaches the edges, its items stay clear of them
   const sides = (gutter: number) => physicalPadding(gutter + (safeArea ? insets.left : 0), gutter + (safeArea ? insets.right : 0))
   const android = theme.isAndroid
   // Android's bars: 46dp circles and capsules 6dp from the screen's sides in a 56dp row under the status bar, and 6dp
   // more under it on a glass screen (62dp); at the bottom on the line of its 56dp tab bar, 8dp over the gesture bar.
   // iOS 26's bars after the Plex UI phone layer (Toolbar.module.css)
+  // An opaque bar: 48dp targets 4dp from its sides in a 56dp row
   const paddingTop = android
-    ? (top && safeArea ? insets.top : 0) + 5
+    ? (top && safeArea ? insets.top : 0) + (plain ? 4 : 5)
     : top
       ? safeArea
         ? Math.max(theme.length("--toolbar-padding-bottom", 10), insets.top)
@@ -349,14 +392,16 @@ function ToolbarRoot({
   // The items of a bottom bar stand 28 above the edge of a phone with a home indicator (the reference of the CSS)
   const paddingBottom = android
     ? top
-      ? 11
+      ? plain
+        ? 4
+        : 11
       : (safeArea ? insets.bottom : 0) + 13
     : top
       ? theme.length("--toolbar-padding-bottom", 10)
       : safeArea
         ? Math.max(bottomPadding, insets.bottom - 6)
         : bottomPadding
-  const gutter = android ? (top ? 6 : 16) : top ? theme.length("--toolbar-gutter", 16) : theme.length("--toolbar-bottom-gutter", 28)
+  const gutter = android ? (top ? (plain ? 4 : 6) : 16) : top ? theme.length("--toolbar-gutter", 16) : theme.length("--toolbar-bottom-gutter", 28)
   const veil = withAlpha(canvas, parseFloat(String(theme.token("--page-bar-veil-opacity") ?? "55")) / 100)
   const edge = top ? "bottom" : "top"
   // A bottom bar's soft edge covers the content from the items down at all times, as the CSS draws it; the other
@@ -364,31 +409,36 @@ function ToolbarRoot({
   // the blurred content, eased out toward the bar's bottom (SoftTopEdge); under the bottom bar its fade of the tabs,
   // from 8 above the tab bar's line: the screen's color fading in over 60dp in
   // four even steps (0, 0x60, 0xB0, 0xE8 of 285) and staying at 0xE8/285 (81%) down to the edge
-  const backdrop =
-    !top && mode === "soft" ? (
-      android ? (
-        <SoftBottomEdge fill={withAlpha(canvas, ANDROID_FADE_ALPHA)} top={paddingTop - 13 + 60} tail={60} blur={0} stops={ANDROID_FADE_STOPS} />
-      ) : (
-        <SoftBottomEdge fill={canvas} top={paddingTop} tail={27} blur={theme.length("--toolbar-edge-blur-small", 3)} />
-      )
-    ) : !scrolled || mode === "none" ? null : mode === "hard" ? (
-      // Android's bars draw no line of their own; an opaque bar keeps the light divider of a card's rows, so the
-      // content still parts from it
-      <BarBackdrop fill={canvas} line={android ? divider(theme) : theme.color("--page-bar-hard-line")} edge={edge} />
-    ) : mode === "glass" ? (
-      // On Android the blur alone parts the bar from what scrolls under it, as its bars do
-      <BarBackdrop fill={veil} blur={glassBarBlur(theme)} line={android ? undefined : theme.color("--page-bar-line")} edge={edge} />
-    ) : android ? (
-      <SoftTopEdge fill={canvas} blur={6} />
+  const backdrop = plain ? (
+    // The classic bar stands in the cards' color whether or not content is under it, its shadow over the content
+    <>
+      <BarBackdrop fill={theme.colors.groupedSurface} edge={edge} />
+      <BarShadow />
+    </>
+  ) : !top && mode === "soft" ? (
+    android ? (
+      <SoftBottomEdge fill={withAlpha(canvas, ANDROID_FADE_ALPHA)} top={paddingTop - 13 + 60} tail={60} blur={0} stops={ANDROID_FADE_STOPS} />
     ) : (
-      <BarBackdrop fill={veil} blur={theme.length("--page-bar-soft-blur", 10)} edge={edge} />
+      <SoftBottomEdge fill={canvas} top={paddingTop} tail={27} blur={theme.length("--toolbar-edge-blur-small", 3)} />
     )
+  ) : !scrolled || mode === "none" ? null : mode === "hard" ? (
+    // Android's bars draw no line of their own; an opaque bottom bar keeps the light divider of a card's rows, so
+    // the content still parts from it
+    <BarBackdrop fill={canvas} line={android ? divider(theme) : theme.color("--page-bar-hard-line")} edge={edge} />
+  ) : mode === "glass" ? (
+    // On Android the blur alone parts the bar from what scrolls under it, as its bars do
+    <BarBackdrop fill={veil} blur={glassBarBlur(theme)} line={android ? undefined : theme.color("--page-bar-line")} edge={edge} />
+  ) : android ? (
+    <SoftTopEdge fill={canvas} blur={6} />
+  ) : (
+    <BarBackdrop fill={veil} blur={theme.length("--page-bar-soft-blur", 10)} edge={edge} />
+  )
   const sideStyle = start ? null : styles.side
   // The sides share the row evenly, so the middle stands centered; each keeps at least the width of its items and the
   // bar's gap, so a wider side pushes the middle toward the narrower one (and makes it shrink) rather than spill over
   // it or touch it, as iOS does
   const [sideWidths, setSideWidths] = useState({ leading: 0, trailing: 0 })
-  const sideMin = (width: number) => (sideStyle ? { minWidth: width ? width + slotGap(theme, { placement }) : 0 } : null)
+  const sideMin = (width: number) => (sideStyle ? { minWidth: width ? width + slotGap(theme, bar) : 0 } : null)
   const measured = (key: keyof typeof sideWidths, element?: ReactElement) =>
     element && sideStyle
       ? cloneElement(element as ReactElement<ViewProps>, {
@@ -410,18 +460,18 @@ function ToolbarRoot({
     <Animated.View style={[content.props.fill ? styles.grow : styles.middle, faded]}>{content}</Animated.View>
   ) : title && !large ? (
     <View style={[start ? styles.grow : styles.middle]}>
-      <BarTitle title={title.props} large={false} start={start} />
+      <BarTitle title={title.props} large={false} start={start} plain={plain} afterLeading={!!leading} />
     </View>
   ) : (
     <View style={styles.grow} />
   )
   return (
-    <ToolbarContext.Provider value={{ placement }}>
+    <ToolbarContext.Provider value={bar}>
       <BarItemContext.Provider value={item}>
         <BarFieldContext.Provider value={field}>
           <View accessibilityRole="toolbar" {...rest} style={[{ paddingTop, paddingBottom }, sides(gutter), style]}>
             {backdrop}
-            <View style={[styles.iosRow, { minHeight: item.height, gap: start || content?.props.fill ? slotGap(theme, { placement }) : 0 }]}>
+            <View style={[styles.iosRow, { minHeight: item.height, gap: start || content?.props.fill ? slotGap(theme, bar) : 0 }]}>
               {/* A row set from the start leaves out an empty side, which would push the rest a gap in */}
               {leading || sideStyle ? (
                 <View style={[sideStyle, styles.sideStart, sideMin(sideWidths.leading)]}>{measured("leading", leading)}</View>

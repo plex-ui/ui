@@ -129,3 +129,37 @@ export function GroupedSections() {
     </>
   );
 }
+
+const LANGUAGES = [
+  { value: 'en', label: 'English', english: 'English' },
+  { value: 'es', label: 'Español', english: 'Spanish' },
+  { value: 'fr', label: 'Français', english: 'French' },
+  { value: 'de', label: 'Deutsch', english: 'German' },
+  { value: 'it', label: 'Italiano', english: 'Italian' },
+  { value: 'ja', label: '日本語', english: 'Japanese' },
+];
+
+/** A language list: each option leads its row, the row's label names it and its press chooses it */
+export function LeadingMarks() {
+  const android = useTheme().isAndroid;
+  const [language, setLanguage] = useState('en');
+  return (
+    <>
+      <Toolbar>
+        <Toolbar.Leading>
+          <NavigationButton action="back" />
+        </Toolbar.Leading>
+        <Toolbar.Title>Language</Toolbar.Title>
+      </Toolbar>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: android ? 12 : 10, paddingHorizontal: android ? 12 : 16, paddingBottom: 16 }}>
+        <RadioGroup aria-label="Language" value={language} onChange={setLanguage}>
+          <List header="Language">
+            {LANGUAGES.map((item) => (
+              <ListItem key={item.value} label={item.label} description={item.english} leading={<RadioGroup.Item value={item.value} />} />
+            ))}
+          </List>
+        </RadioGroup>
+      </ScrollView>
+    </>
+  );
+}

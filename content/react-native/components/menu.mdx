@@ -146,6 +146,30 @@ import { Copy, DotsHorizontal, EditPencil, RemoveTrash } from "@plexui/react-nat
   </Toolbar.Trailing>
 </Toolbar>`
 
+export const rowCode = `import { IconButton, List, ListItem, Menu } from "@plexui/react-native"
+import { DotsVertical, EditPencil, RemoveTrash } from "@plexui/react-native/icons"
+
+<List footer="Sign out of a device you no longer use.">
+  {devices.map((device) => (
+    <ListItem
+      key={device.id}
+      label={device.name}
+      description={device.detail}
+      trailing={
+        <Menu>
+          <Menu.Trigger>
+            <IconButton icon={<DotsVertical />} accessibilityLabel={\`More for \${device.name}\`} />
+          </Menu.Trigger>
+          <Menu.Content align="end" aria-label={\`\${device.name} actions\`}>
+            <Menu.Item icon={<EditPencil />} onSelect={() => rename(device)}>Rename</Menu.Item>
+            <Menu.Item icon={<RemoveTrash />} danger onSelect={() => signOut(device)}>Sign out</Menu.Item>
+          </Menu.Content>
+        </Menu>
+      }
+    />
+  ))}
+</List>`
+
 <UsageBlock>{`import { Menu } from "@plexui/react-native"`}</UsageBlock>
 
 ## Examples
@@ -183,6 +207,12 @@ import { Copy, DotsHorizontal, EditPencil, RemoveTrash } from "@plexui/react-nat
   <RNExample demo="menu/Destructive" />
 </ComponentPreview>
 
+### From a list row
+
+<ComponentPreview details={<>A menu whose trigger stands in a <code>ListItem</code>, as a row's More, finds its row. On Android the screen dims to black at 40% around the row, which stays lit to its corners (the card's, where the row meets the card's edge), and the popup stands 8dp under the row with its end on the row's end (8dp over it when the screen ends first); the dim fades with the menu, and a tap anywhere closes it. On iOS the menu opens at its button, as any other.</>} code={rowCode} previewMinHeight={168}>
+  <RNExample demo="menu/FromRow" />
+</ComponentPreview>
+
 ## Platforms
 
 | | iOS 26 | Android |
@@ -190,6 +220,7 @@ import { Copy, DotsHorizontal, EditPencil, RemoveTrash } from "@plexui/react-nat
 | Native component | Menu | Menu |
 | Look | A 250pt glass panel with 34pt corners and 17pt rows | A popup: a white (night: dark gray) panel with 12dp corners, 48dp items in 16sp, groups parted by an 8dp band |
 | Motion | Grows from its anchor | Unrolls from its trigger as its rows fade in; a submenu slides in, and a swipe takes it back |
+| From a list row | Opens at its button | Dims the screen around the row, the popup 8dp under the row at its end |
 
 ## API
 

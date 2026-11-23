@@ -1,4 +1,4 @@
-import { cloneElement, createContext, isValidElement, useCallback, useContext, useMemo, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
+import { cloneElement, createContext, isValidElement, useCallback, useContext, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
 import { Platform, Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
 import Disclosure from "../../icons/plex/Disclosure"
 import ExclamationMarkCircle from "../../icons/plex/ExclamationMarkCircle"
@@ -6,7 +6,7 @@ import { spaceToggles, useDescription } from "../../internal/a11y"
 import { flattenChildren, textOf } from "../../internal/children"
 import { cssBox } from "../../internal/cssBox"
 import { mirrored, useRTL } from "../../internal/direction"
-import { RowEndContext, RowHoldContext, type RowEnd } from "../../internal/row"
+import { RowEndContext, RowFrameContext, RowHoldContext, RowStartContext, type RowEnd, type RowFrame } from "../../internal/row"
 import { accentText, controlHighlight, dangerText, divider, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -41,8 +41,12 @@ export type ListProps = {
   style?: StyleProp<ViewStyle>
 }
 
-type RowPlace = { first: boolean; last: boolean }
-const PlaceContext = createContext<RowPlace>({ first: true, last: true })
+/** The corners of Android's card of rows. */
+const ANDROID_CARD_RADIUS = 16
+
+/** A row's place in its section, and the radius of the corners it shares with the section's card (none in a plain list). */
+type RowPlace = { first: boolean; last: boolean; top: number; bottom: number }
+const PlaceContext = createContext<RowPlace>({ first: true, last: true, top: 0, bottom: 0 })
 
 /**
  * A section of rows. iOS 26: a section of an inset grouped list, as @plexui/ui's FieldGroup on a phone
@@ -60,8 +64,19 @@ export function List({ children, header, description, footer, error, surface = "
   const theme = useTheme()
   const rows = flattenChildren(children).filter(isValidElement)
   const fill = surface === "plain" ? theme.color("--field-group-background", theme.colors.surfaceSecondary) : theme.colors.groupedSurface
+  // The card's corners: Android's 16dp card (a header or description inside it stands over the first row), iOS's group
+  const corner = surface === "plain" && theme.isAndroid ? 0 : theme.isAndroid ? ANDROID_CARD_RADIUS : theme.length("--field-group-radius", 26)
+  const opensCard = theme.isAndroid ? header == null && description == null : true
   const body = rows.map((row, index) => (
-    <PlaceContext.Provider key={row.key ?? index} value={{ first: index === 0, last: index === rows.length - 1 }}>
+    <PlaceContext.Provider
+      key={row.key ?? index}
+      value={{
+        first: index === 0,
+        last: index === rows.length - 1,
+        top: index === 0 && opensCard ? corner : 0,
+        bottom: index === rows.length - 1 ? corner : 0,
+      }}
+    >
       {row}
     </PlaceContext.Provider>
   ))
@@ -189,7 +204,10 @@ export type ListItemProps = {
   /** The row's text, as @plexui/ui's NavigationRow `label`. */
   label: ReactNode
   description?: ReactNode
-  /** A symbol at the start, plain or in a tile of `leadingColor` (the Settings look). */
+  /**
+   * A symbol at the start, plain or in a tile of `leadingColor` (the Settings look). Or, inside a RadioGroup, an
+   * option with no text of its own: the row is a choice with its mark first (a language list), and its press chooses it.
+   */
   leading?: ReactNode
   /** The fill of the leading tile; the symbol turns white on it. */
   leadingColor?: string
@@ -240,8 +258,9 @@ export type ListItemProps = {
  * row. On Android a row of a settings screen: 50dp tall at least (60 with a description), the label 16sp, the
  * description 13sp in the secondary label under it, the value 16sp in the accent at the end, 17 from it (20 in a row
  * with a tile), no chevron; the text 20 in, or 71 after a 24dp symbol at 21, or 64 after a 28dp tile of
- * `leadingColor` at 18 with a 24dp symbol (the tile's corners 10); a 1px divider from the text's start to the next
- * row, none under a row with a tile (a tiled row draws none).
+ * `leadingColor` at 18 with a 24dp symbol (the tile's corners 10), or 64 after a RadioGroup option's 20dp ring at 22
+ * (the row 64dp with a description); a 1px divider from the text's start to the next row, none under a row with a
+ * tile (a tiled row draws none).
  */
 export function ListItem({
   label,
@@ -263,7 +282,10 @@ export function ListItem({
   testID,
 }: ListItemProps) {
   const theme = useTheme()
-  const { last } = useContext(PlaceContext)
+  const { last, top, bottom } = useContext(PlaceContext)
+  // A menu opened from the row finds the row (Android lights it over the dim of the screen)
+  const frameNode = useRef<unknown>(null)
+  const frame = useMemo<RowFrame>(() => ({ node: frameNode, radius: { top, bottom } }), [top, bottom])
   const switchRow = checkedProp !== undefined || defaultChecked !== undefined || onCheckedChange !== undefined
   const [own, setOwn] = useState(defaultChecked ?? false)
   const checked = checkedProp ?? own
@@ -277,7 +299,13 @@ export function ListItem({
   // row holds the state of a control that would hold its own, so the row's press and the control's change the same
   // state; an option's state is its group's
   const radios = useContext(RadioContext)
-  const found = !switchRow && !onPress ? rowControl(trailing, radios != null) : null
+  const atEnd = !switchRow && !onPress ? rowControl(trailing, radios != null) : null
+  // An option may lead the row instead, its mark first
+  const atStart =
+    !switchRow && !onPress && !atEnd && radios != null && isValidElement(leading) && leading.type === RadioGroup.Item
+      ? { kind: "radio" as const, element: leading as ReactElement<RadioGroupItemProps> }
+      : null
+  const found = atEnd ?? atStart
   const [controlOwn, setControlOwn] = useState<boolean | "indeterminate">(() => (found && found.kind !== "radio" ? (found.element.props.defaultChecked ?? false) : false))
   const rowName = textOf(label) || undefined
   const control = !found ? null : found.kind === "radio" ? radioControl(found.element, radios!, disabled, rowName) : endControl(found, controlOwn, setControlOwn, disabled, rowName)
@@ -304,7 +332,7 @@ export function ListItem({
     // The row's switch is drawn only: the row is the control
     const track = <SwitchTrack checked={checked} disabled={disabled} pressed={pressed} />
     const end = !switchRow ? (
-      (control?.node ?? trailing)
+      atStart ? trailing : (control?.node ?? trailing)
     ) : trailing != null ? (
       <View style={[styles.pair, { gap: theme.isAndroid ? 16 : theme.length("--field-row-disclosure-gap", 8) }]}>
         {trailing}
@@ -313,10 +341,16 @@ export function ListItem({
     ) : (
       track
     )
-    return theme.isAndroid ? (
-      <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} leadingColor={leadingColor} value={value} valuePlacement={valuePlacement} trailing={end} error={error} disabled={disabled} destructive={destructive} last={last} />
-    ) : (
-      <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={leading} leadingColor={leadingColor} value={value} valuePlacement={valuePlacement} trailing={end} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
+    const start = atStart && control ? <RowStartContext.Provider value>{control.node}</RowStartContext.Provider> : leading
+    const startColor = atStart ? undefined : leadingColor
+    return (
+      <RowFrameContext.Provider value={frame}>
+        {theme.isAndroid ? (
+          <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null} value={value} valuePlacement={valuePlacement} trailing={end} error={error} disabled={disabled} destructive={destructive} last={last} />
+        ) : (
+          <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} value={value} valuePlacement={valuePlacement} trailing={end} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
+        )}
+      </RowFrameContext.Provider>
     )
   }
   if (press) {
@@ -324,6 +358,8 @@ export function ListItem({
     const highlight = controlHighlight(theme.scheme)
     return (
       <Pressable
+        ref={frameNode as never}
+        collapsable={false}
         {...described.props}
         {...(switchRow ? spaceToggles(toggle) : null)}
         // A row that toggles its control is not a second element for a screen reader or a Tab stop: the control is
@@ -350,7 +386,7 @@ export function ListItem({
     )
   }
   return (
-    <View testID={testID} style={row(false)}>
+    <View ref={frameNode as never} collapsable={false} testID={testID} style={row(false)}>
       {content(false)}
     </View>
   )
@@ -594,7 +630,23 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
 /** The danger ink of a form's error, as the web's FieldError (`--field-error-color`). */
 const errorColor = (theme: Theme) => theme.color("--field-error-color", theme.color("--color-text-danger-outline", theme.color("--color-text-danger")))
 
-function AndroidContent({ handPress, theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, error, disabled, destructive, last }: ContentProps & { leadingColor?: string; last: boolean; handPress: RowEnd["press"] }) {
+function AndroidContent({
+  handPress,
+  theme,
+  label,
+  description,
+  descriptionId,
+  leading,
+  leadingColor,
+  leadingMark = false,
+  value,
+  valuePlacement,
+  trailing,
+  error,
+  disabled,
+  destructive,
+  last,
+}: ContentProps & { leadingColor?: string; leadingMark?: boolean; last: boolean; handPress: RowEnd["press"] }) {
   // A disabled row fades to half, as Android's rows do
   const dim = (color: string) => (disabled ? withAlpha(color, 0.5) : color)
   const danger = dangerText(theme)
@@ -602,7 +654,8 @@ function AndroidContent({ handPress, theme, label, description, descriptionId, l
   // Android's row symbols are the text's ink over a light card and a gray over a dark one
   const symbol = dim(destructive ? danger : theme.scheme === "dark" ? theme.colors.labelSecondary : theme.colors.text)
   const tile = leading != null && !!leadingColor
-  const textStart = leading == null ? 20 : tile ? 64 : 71
+  // A choice led by its mark: the 20dp ring 22 in, the text (and the divider) 64 in, 64dp tall with a description
+  const textStart = leading == null ? 20 : tile || leadingMark ? 64 : 71
   // A value that ends the row stands 17 from the end (a value row), 20 in a row with a tile (a tiled row)
   const valueEnd = trailing == null && !tile ? 17 : 20
   // At the end the value takes half the row at most, 16 from the label and from a control
@@ -615,14 +668,21 @@ function AndroidContent({ handPress, theme, label, description, descriptionId, l
   const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, press: handPress }), [handPress])
   const parts = (
     <>
-      {leading != null ? (
+      {leading == null ? null : leadingMark ? (
+        <View style={styles.androidMark}>{leading}</View>
+      ) : (
         <View style={tile ? [styles.androidTile, { backgroundColor: leadingColor, opacity: disabled ? 0.5 : 1 }] : styles.androidIcon}>
           <IconDefaultsProvider size={24} color={tile ? "#ffffff" : symbol}>
             {leading}
           </IconDefaultsProvider>
         </View>
-      ) : null}
-      <View style={[fill ? styles.androidTextHug : styles.androidText, { paddingVertical: error != null ? 0 : description != null || below ? 10 : 15 }]}>
+      )}
+      <View
+        style={[
+          fill ? styles.androidTextHug : styles.androidText,
+          { paddingVertical: error != null ? 0 : description != null || below ? (leadingMark ? 12 : 10) : 15 },
+        ]}
+      >
         <Text color={ink} style={styles.androidLabel}>
           {label}
         </Text>
@@ -687,7 +747,7 @@ const styles = StyleSheet.create({
   disclosure: { marginHorizontal: -5 },
   // Android's section: one card, 16 round; the header a 40dp row inside it (a header row), the footer under it
   // (a footer: 24 from the screen's edge, 10 above, 17 below)
-  androidCard: { borderRadius: 16, overflow: "hidden" },
+  androidCard: { borderRadius: ANDROID_CARD_RADIUS, overflow: "hidden" },
   androidHeader: { height: 40, paddingHorizontal: 20, paddingTop: 15, fontSize: 14, lineHeight: 18 },
   androidDescriptionLine: { paddingHorizontal: 20, paddingBottom: 6, fontSize: 14, lineHeight: 18 },
   androidDescriptionAlone: { paddingTop: 15 },
@@ -701,6 +761,7 @@ const styles = StyleSheet.create({
   androidRow: { flexDirection: "row", alignItems: "center", minHeight: 50, paddingStart: 20, paddingEnd: 20 },
   // A symbol at 21 and the text at 71; a 28dp tile at 18 with a 24dp symbol and the text at 64 (a tiled row)
   androidIcon: { width: 24, height: 24, alignItems: "center", justifyContent: "center", marginStart: 1, marginEnd: 26 },
+  androidMark: { width: 20, alignItems: "center", justifyContent: "center", marginStart: 2, marginEnd: 22 },
   androidTile: { width: 28, height: 28, borderRadius: 10, alignItems: "center", justifyContent: "center", marginStart: -2, marginEnd: 18 },
   androidText: { flex: 1, minWidth: 0, gap: 4 },
   androidTextHug: { flexShrink: 1, minWidth: 0, gap: 4 },

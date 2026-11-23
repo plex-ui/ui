@@ -146,6 +146,29 @@ export function BarBackdrop({
   )
 }
 
+/**
+ * The shadow under an Android opaque bar, over the content: 3dp of black, 12.5% at the bar's edge, 11.4% at 0.57dp,
+ * 7% at 0.95dp, 4.7% at 1.33dp and 1.6% from 1.71dp on, as Android's classic bars cast it (measured on a device).
+ */
+export function BarShadow() {
+  const stops = [
+    [0.125, 0.19],
+    [0.114, 0.57],
+    [0.07, 0.95],
+    [0.047, 1.33],
+    [0.016, 1.71],
+    [0.016, 3],
+  ]
+    .map(([alpha, at]) => `rgba(0, 0, 0, ${alpha}) ${at}px`)
+    .join(", ")
+  return (
+    <View
+      pointerEvents="none"
+      style={{ position: "absolute", top: "100%", start: 0, end: 0, height: 3, backgroundImage: `linear-gradient(to bottom, ${stops})` } as ViewStyle}
+    />
+  )
+}
+
 /** The alpha of the screen's color in Android's fade under its tabs, 0xE8 of 285. */
 export const ANDROID_FADE_ALPHA = 232 / 285
 /** Its steps over the fade, as fractions of that alpha: 0, 0x60, 0xB0 and 0xE8 of 285. */

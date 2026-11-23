@@ -1,4 +1,4 @@
-import { Input, Select, Text, TextField, useTheme } from "@plexui/react-native"
+import { Input, OTPInput, Select, Text, TextField, useTheme } from "@plexui/react-native"
 import { Search } from "@plexui/react-native/icons"
 import { useState } from "react"
 import { StyleSheet, View } from "react-native"
@@ -16,6 +16,7 @@ export function FieldsScreen() {
   const [query, setQuery] = useState("Coffee")
   const [email, setEmail] = useState("hello@")
   const [country, setCountry] = useState<string | null>("gb")
+  const [code, setCode] = useState("4880")
   return (
     <>
       <Section title="Input" note={theme.isAndroid ? "Android's outlined field: 50dp, 8dp corners, the accent on focus; search its 40dp pill" : "iOS 26: 44pt fields in 17pt type"}>
@@ -43,6 +44,12 @@ export function FieldsScreen() {
           <TextField label="Email" value={email} onChangeText={setEmail} errorMessage={email.includes(".") ? undefined : "Enter a full address"} required testID="field-email" />
           <TextField label="Display name" variant="soft" defaultValue="Anna Kim" />
           <TextField label="Employee ID" disabled defaultValue="48291" description="Managed by your organization" />
+        </View>
+      </Section>
+      <Section title="OTP input" note={theme.isAndroid ? "Outlined code boxes: 4dp corners, the accent on focus" : "The web's phone cells: 44 by 52pt capsules"}>
+        <View style={styles.stack}>
+          <OTPInput value={code} onChange={setCode} testID="otp-code" />
+          <OTPInput value="488030" grouping={[3, 3]} invalid errorMessage="Invalid verification code." />
         </View>
       </Section>
       <Section title="Select" note={theme.isAndroid ? "Android's single-choice dialog: radio rows, one Cancel" : "A pop-up field and its menu"}>

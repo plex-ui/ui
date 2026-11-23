@@ -1,0 +1,73 @@
+---
+title: OTP Input
+description: "A field for one-time passwords and verification codes, entered one digit per cell, with autofill."
+metaDescription: A field for one-time codes, one digit per cell, with grouped cells, an error and autofill from the keyboard; the web's 44 by 52pt phone cells on iOS, outlined code boxes with the accent on focus on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { OTPInput, Text } from "@plexui/react-native"
+
+const [value, setValue] = useState("")
+const [error, setError] = useState(false)
+const [disabled, setDisabled] = useState(false)
+const [grouping, setGrouping] = useState("none") // or "3+3"
+
+<View style={{ alignItems: "center", gap: 24 }}>
+  <View style={{ gap: 4 }}>
+    <Text size="lg" weight="semibold" align="center">Enter the code</Text>
+    <Text size="sm" color="secondary" align="center">We sent a 6-digit code to alex.johnson@example.com</Text>
+  </View>
+  <OTPInput
+    value={value}
+    onChange={setValue}
+    grouping={grouping === "3+3" ? [3, 3] : undefined}
+    invalid={error}
+    errorMessage={error ? "Invalid verification code." : undefined}
+    disabled={disabled}
+  />
+</View>`
+
+<UsageBlock>{`import { OTPInput } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="filled-state" />
+<span id="with-error" />
+<span id="disabled" />
+<span id="grouped-33" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A code is entered in a verification step, so the field stands under the step's title and the recipient the code went to. On iOS the cells are the React page's phone cells: 44 by 52pt capsules 8pt apart, a Semibold 24 digit, a dot in each empty cell without focus, the outline darkening on the cell with focus. On Android they are outlined code boxes: 32.7 by 40.8dp with 4dp corners, 8.8dp apart, the line of an outlined field that takes the accent on the box with focus, and the digit at 20sp.</p>
+  <p>A digit moves the focus to the next cell and Backspace clears the cell or, from an empty one, the cell before it. The first cell takes the code the keyboard suggests (<code>one-time-code</code> on iOS, the SMS code on Android): an autofilled or pasted code fills the cells from the one it lands in, and <code>onComplete</code> is called once every cell holds a digit.</p>
+  <p>Choose Empty or Filled to replace the current code with a preset. <code>grouping</code> splits the cells, here into two groups of three. The error and disabled controls preserve the code you entered. The error control demonstrates styling; it does not validate the code.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="otp-input/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: a text field for a one-time code, drawn as the Plex cells | None: the Plex Android code boxes |
+| Look | 44 by 52pt capsule cells, a dot in an empty cell, the outline darkening on focus | 32.7 by 40.8dp outlined boxes with 4dp corners, the line in the accent on focus |
+
+## API
+
+<PropsTable data={[
+  { prop: "length", type: "number", default: "6", description: "Number of digit cells" },
+  { prop: "value", type: "string", description: "Controlled value" },
+  { prop: "onChange", type: "(value: string) => void", description: "Called when value changes" },
+  { prop: "onComplete", type: "(value: string) => void", description: "Called when all digits filled" },
+  { prop: "grouping", type: "number[]", description: "Grouping pattern with extra gap (e.g. [3,3])" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Invalid visual state" },
+  { prop: "errorMessage", type: "string", description: "Error message below the input" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disable all cells" },
+  { prop: "autoFocus", type: "boolean", default: "false", description: "Auto-focus first cell on mount" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the root" },
+  { prop: "testID", type: "string", description: "Test id of the root; each cell's field takes it with -digit-1, -digit-2 and so on" },
+]} />
+
+Each digit stays in its own cell: typing into a later empty cell keeps the digit there, and clearing a cell in the middle does not move the others. The value is the filled digits in order. Pasting or typing several digits writes them from the focused cell onward.

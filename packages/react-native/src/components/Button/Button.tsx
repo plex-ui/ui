@@ -100,6 +100,11 @@ export type BarItemStyle = {
   raised?: boolean
   /** The color of the screen under the bar: Android's see-through glass is solved against it. */
   canvas?: string
+  /**
+   * An opaque Android bar: its icons stand plain in their 48dp targets, with no circle of their own, and its prominent
+   * action is the accent's ink, as Android's classic bars draw them.
+   */
+  plain?: boolean
 }
 
 export const BarItemContext = createContext<BarItemStyle | null>(null)
@@ -243,6 +248,11 @@ function barColors(
   { bar, prominent, neutral, disabled, selected, flat }: { bar: BarItemStyle | null; prominent: boolean; neutral: boolean; disabled: boolean; selected: boolean; flat: boolean },
 ): Colors {
   if (!bar) return colors
+  if (theme.isAndroid && bar.plain) {
+    // An opaque bar's items are plain: the glyph or label in the text color, the prominent one in the accent
+    const ink = disabled ? withAlpha(theme.material.onSurface, 0.38) : prominent ? theme.material.primary : theme.material.onSurface
+    return neutral || prominent ? { background: "transparent", pressed: "transparent", text: ink } : colors
+  }
   if (theme.isAndroid) {
     // The bar's prominent action is in the accent, as iOS sets it
     // in the accent capsule: not the neutral ink of a solid primary button elsewhere
@@ -372,7 +382,7 @@ export function Button({
   const glass = theme.isIOS && wantsGlass
   // On Android the same button stands on a glass of its own, as the Android bar circles: a see-through card with a
   // rim and a soft shadow (the glass of a plain bar)
-  const card = theme.isAndroid && !!bar && (wantsGlass || (accentAction && disabled && !bar.inGroup))
+  const card = theme.isAndroid && !!bar && !bar.plain && (wantsGlass || (accentAction && disabled && !bar.inGroup))
   const androidGlass = useAndroidGlass("bar", bar?.canvas)
   if (glass && !bar) {
     // The Liquid Glass text button of the iOS 27 kit: Medium (`--button-glass-font-weight`), 17/22 at md and lg
@@ -417,7 +427,7 @@ export function Button({
   const shadow =
     prominent && !disabled
       ? theme.token("--toolbar-prominent-shadow")
-      : theme.isAndroid && bar && accentAction && !disabled
+      : theme.isAndroid && bar && !bar.plain && accentAction && !disabled
         ? barShadow(theme.scheme)
         : undefined
   const minTarget = theme.isAndroid ? 48 : 44

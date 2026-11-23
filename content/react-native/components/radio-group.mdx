@@ -99,6 +99,23 @@ const [view, setView] = useState("list")
   </RadioGroup>
 </ScrollView>`
 
+export const leadingCode = `import { List, ListItem, RadioGroup } from "@plexui/react-native"
+
+const languages = [
+  { value: "en", label: "English", english: "English" },
+  { value: "es", label: "Español", english: "Spanish" },
+  { value: "fr", label: "Français", english: "French" },
+]
+const [language, setLanguage] = useState("en")
+
+<RadioGroup aria-label="Language" value={language} onChange={setLanguage}>
+  <List header="Language">
+    {languages.map((item) => (
+      <ListItem key={item.value} label={item.label} description={item.english} leading={<RadioGroup.Item value={item.value} />} />
+    ))}
+  </List>
+</RadioGroup>`
+
 <UsageBlock>{`import { RadioGroup } from "@plexui/react-native"`}</UsageBlock>
 
 ## Examples
@@ -139,12 +156,18 @@ const [view, setView] = useState("list")
   <RNExample demo="radio-group/GroupedSections" screen grouped />
 </ComponentPreview>
 
+### Mark at the start
+
+<ComponentPreview details={<>Give an option as a row's <code>leading</code> to put its mark first, as a language list does: on Android its radio button leads the row and the text starts 64dp in, on iOS the checkmark stands where a row's symbol would. The row's label names the option, and a press anywhere on the row chooses it.</>} code={leadingCode} previewMinHeight={168}>
+  <RNExample demo="radio-group/LeadingMarks" screen grouped />
+</ComponentPreview>
+
 ## Platforms
 
 | | iOS 26 | Android |
 | --- | --- | --- |
 | Native component | None: a checkmark list or a menu picker | Radio button |
-| Look | The checkmark of the chosen row | A 20dp radio button at the row's end |
+| Look | The checkmark of the chosen row, at its end or, as the row's `leading`, at its start | A 20dp radio button at the row's end, or first in the row as its `leading` (the text 64dp in, 64dp rows with a description) |
 
 ## API
 

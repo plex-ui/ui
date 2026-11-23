@@ -82,6 +82,8 @@ const minimize = useTabBarMinimize()
   checkbox and list checkmark; Material 3 switch, checkbox and radio button.
 - `Input` and `TextField` (`label`, `description`, `errorMessage`): a 44pt iOS field; Material's outlined (`outline`)
   or filled (`soft`) text field with its floating label.
+- `OTPInput` (`length`, `value`, `onChange`, `onComplete`, `grouping`, `invalid`, `errorMessage`): a one-time code,
+  one digit per cell, autofilled from the keyboard; the web's phone cells on iOS, outlined code boxes on Android.
 - `Select` (`options`, `value`, `onChange(option)`): the field and a menu with a checkmark at the chosen option.
 - `Menu` (`Trigger`, `Content`, `Item`, `Separator`, `Label`): iOS 26 glass menu; Material 3 dropdown menu.
 - `Dialog` (`title`, `description`, `actions`): the iOS 26 alert; Material 3's basic dialog.

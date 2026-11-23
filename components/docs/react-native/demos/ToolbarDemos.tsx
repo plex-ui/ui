@@ -166,7 +166,7 @@ export const Overview = docsDemo(function Overview() {
   const [field, setField] = useState<(typeof FIELDS)[number]>('top');
   const [title, setTitle] = useState(true);
   const [titleStyle, setTitleStyle] = useState<(typeof TITLE_STYLES)[number]>('inline');
-  const [titleAlign, setTitleAlign] = useTitleAlign();
+  const [titleAlignPick, setTitleAlign] = useState<ToolbarTitleAlign>();
   const [subtitle, setSubtitle] = useState(false);
   const [group, setGroup] = useState(false);
   const [segmented, setSegmented] = useState(false);
@@ -175,6 +175,8 @@ export const Overview = docsDemo(function Overview() {
   const [topBackgroundPick, setTopBackground] = useState<BarBackground>();
   // iOS 26's glass top bar, Android's soft edge, until the reader picks
   const topBackground = topBackgroundPick ?? (android ? 'soft' : 'glass');
+  // An inline title stands centered until the reader picks, and from the start in Android's opaque bar
+  const titleAlign = titleAlignPick ?? (android && topBackground === 'hard' ? 'start' : 'center');
   const [bottom, setBottom] = useState<(typeof BOTTOM)[number]>('none');
   const [bottomBackground, setBottomBackground] = useState<BarBackground>('soft');
   // The open search: its field takes the place of the title and the bar's buttons, with Close next to it
@@ -226,7 +228,7 @@ export const Overview = docsDemo(function Overview() {
           top={(scrolled, canvas) => (
             <Toolbar
               titleStyle={named ? titleStyle : undefined}
-              titleAlign={named && (titleStyle === 'inline' || android) ? titleAlign : undefined}
+              titleAlign={named && (titleStyle === 'inline' || android) ? titleAlignPick : undefined}
               background={topBackground}
               scrolled={scrolled}
               canvasColor={canvas}
@@ -477,6 +479,46 @@ export const Disabled = docsDemo(function Disabled() {
           }
         >
           <FormRows />
+        </PhonePage>
+      </RNScreen>
+    </>
+  );
+});
+
+/**
+ * An opaque bar, `background="hard"`, over the orders: Back, the title with its count under it, and Search and More.
+ * On Android it is the platform's classic bar, there whether or not the list is under it, its icons plain and the
+ * title from the start; on iOS the bar turns opaque, with its hairline, once the list scrolls under it.
+ */
+export const OpaqueBar = docsDemo(function OpaqueBar() {
+  const android = useNativePlatform() === 'android';
+  const [subtitle, setSubtitle] = useState(true);
+  const [titleAlignPick, setTitleAlign] = useState<ToolbarTitleAlign>();
+  const titleAlign = titleAlignPick ?? (android ? 'start' : 'center');
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />
+        <Segments name="titleAlign" options={TITLE_ALIGNS} value={titleAlign} onChange={setTitleAlign} />
+      </div>
+      <RNScreen screen grouped minHeight={640}>
+        <PhonePage
+          top={(scrolled, canvas) => (
+            <Toolbar background="hard" titleAlign={titleAlignPick} scrolled={scrolled} canvasColor={canvas}>
+              <Toolbar.Leading>
+                <NavigationButton action="back" />
+              </Toolbar.Leading>
+              <Toolbar.Title subtitle={subtitle ? '24 orders' : undefined}>Orders</Toolbar.Title>
+              <Toolbar.Trailing>
+                <Toolbar.Group aria-label="Order actions">
+                  <IconButton icon={<Search />} accessibilityLabel="Search" />
+                  <IconButton icon={android ? <DotsVertical /> : <DotsHorizontal />} accessibilityLabel="More" />
+                </Toolbar.Group>
+              </Toolbar.Trailing>
+            </Toolbar>
+          )}
+        >
+          <Rows />
         </PhonePage>
       </RNScreen>
     </>

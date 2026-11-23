@@ -9,6 +9,7 @@ import ChevronRightMd from "../../icons/plex/ChevronRightMd"
 import { lastInputKeyboard, spaceToggles } from "../../internal/a11y"
 import { textOf } from "../../internal/children"
 import { isRTL, mirrored } from "../../internal/direction"
+import { RowFrameContext, type RowFrame } from "../../internal/row"
 import { Glass } from "../../internal/Glass"
 import { ACCELERATE_DECELERATE, canTransformGlass, glassOpacity, Overlay, overlayTiming } from "../../internal/Overlay"
 import { barSurface, elevationShadow, withAlpha, dangerText } from "../../theme/material"
@@ -19,6 +20,9 @@ import { Text } from "../Text/Text"
 
 export type MenuAnchor = { x: number; y: number; width: number; height: number }
 
+/** The List row a menu opens from, measured with its trigger, and the radius of its top and bottom corners. */
+export type MenuRow = { box: MenuAnchor; radius: RowFrame["radius"] }
+
 export type Measurable = {
   measureInWindow?: (callback: (x: number, y: number, width: number, height: number) => void) => void
   measure?: (callback: (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => void) => void
@@ -28,7 +32,10 @@ type MenuContextValue = {
   open: boolean
   setOpen: (open: boolean) => void
   anchor: MenuAnchor | null
+  /** The List row the trigger stands in. */
+  row: MenuRow | null
   setTrigger: (node: Measurable | null) => void
+  setRowFrame: (frame: RowFrame | null) => void
   /** Measures the trigger again, as it moves while the menu is open. */
   place: () => void
 }
@@ -56,20 +63,34 @@ export function measure(node: Measurable | null, done: (anchor: MenuAnchor) => v
 }
 
 /**
- * Where a menu's trigger stands: measured as the menu opens (`place`, then `then`), and again while it is open when
- * the window turns or resizes. A measure that comes back after a newer one, or after the menu closed, is dropped.
+ * Where a menu's trigger stands, and the List row it stands in: measured as the menu opens (`place`, then `then`), and
+ * again while it is open when the window turns or resizes. A measure that comes back after a newer one, or after the
+ * menu closed, is dropped.
  */
 export function useMenuAnchor(open: boolean) {
   const trigger = useRef<Measurable | null>(null)
+  const rowFrame = useRef<RowFrame | null>(null)
   const [anchor, setAnchor] = useState<MenuAnchor | null>(null)
+  const [row, setRow] = useState<MenuRow | null>(null)
   const generation = useRef(0)
   const { width, height } = useWindowDimensions()
   const place = useCallback((then?: () => void) => {
     const own = ++generation.current
     measure(trigger.current, (box) => {
       if (own !== generation.current) return
-      setAnchor(box)
-      then?.()
+      const frame = rowFrame.current
+      if (!frame) {
+        setAnchor(box)
+        setRow(null)
+        then?.()
+        return
+      }
+      measure(frame.node.current as Measurable | null, (rowBox) => {
+        if (own !== generation.current) return
+        setAnchor(box)
+        setRow({ box: rowBox, radius: frame.radius })
+        then?.()
+      })
     })
   }, [])
   useEffect(() => {
@@ -79,20 +100,25 @@ export function useMenuAnchor(open: boolean) {
   const setTrigger = useCallback((node: Measurable | null) => {
     trigger.current = node
   }, [])
-  return { anchor, place, setTrigger }
+  const setRowFrame = useCallback((frame: RowFrame | null) => {
+    rowFrame.current = frame
+  }, [])
+  return { anchor, row, place, setTrigger, setRowFrame }
 }
 
 /**
  * A menu of actions from a trigger: iOS 26's pop-up menu (glass, radius 34, 250 wide, 17/20 rows of 42 with the
  * symbol at the leading edge, `--menu-*` of the phone layer), Android's popup (white, 12dp corners, 48dp
  * items in Regular 16, groups parted by an 8dp band, a chosen option checked at the leading edge, unrolling from its
- * trigger). Parts as @plexui/ui: `Menu.Trigger`, `Menu.Content`, `Menu.Item`, `Menu.Separator`, `Menu.Label`.
+ * trigger). Opened from a List row (a row's ⋮), Android dims the screen to black at 40% around the row, which stays
+ * lit, and sets the popup 8 under the row at its end edge. Parts as @plexui/ui: `Menu.Trigger`, `Menu.Content`,
+ * `Menu.Item`, `Menu.Separator`, `Menu.Label`.
  */
 function MenuRoot({ children, open: openProp, onOpenChange }: MenuProps) {
   const [own, setOwn] = useState(false)
   const open = openProp ?? own
   // A menu opened from outside (the controlled `open`) is placed at its trigger too
-  const { anchor, place, setTrigger } = useMenuAnchor(open)
+  const { anchor, row, place, setTrigger, setRowFrame } = useMenuAnchor(open)
   // Listens for the input from the start, so a menu opened from the keyboard knows it (the web)
   useEffect(() => {
     lastInputKeyboard()
@@ -105,7 +131,7 @@ function MenuRoot({ children, open: openProp, onOpenChange }: MenuProps) {
     if (next) place(apply)
     else apply()
   }
-  return <MenuContext.Provider value={{ open, setOpen, anchor, setTrigger, place: () => place() }}>{children}</MenuContext.Provider>
+  return <MenuContext.Provider value={{ open, setOpen, anchor, row, setTrigger, setRowFrame, place: () => place() }}>{children}</MenuContext.Provider>
 }
 MenuRoot.displayName = "Menu"
 
@@ -117,7 +143,13 @@ function useMenu(part: string) {
 
 /** The element that opens the menu: a Button or anything with `onPress`. */
 function MenuTrigger({ children, style }: { children: ReactElement<{ onPress?: (event: GestureResponderEvent) => void }>; style?: StyleProp<ViewStyle> }) {
-  const { open, setOpen, setTrigger, place } = useMenu("Menu.Trigger")
+  const { open, setOpen, setTrigger, setRowFrame, place } = useMenu("Menu.Trigger")
+  // A trigger in a List row tells the menu its row
+  const frame = useContext(RowFrameContext)
+  useLayoutEffect(() => {
+    setRowFrame(frame)
+    return () => setRowFrame(null)
+  }, [frame, setRowFrame])
   const onPress = isValidElement(children) ? children.props.onPress : undefined
   const child = isValidElement(children)
     ? cloneElement(children, {
@@ -151,7 +183,7 @@ export type MenuContentProps = {
 function MenuContent(props: MenuContentProps) {
   const menu = useMenu("Menu.Content")
   // A menu whose items say `checked` (true or false) is a set of options: it keeps the checkmark's column, as Select's
-  return <MenuSurface {...props} check={hasCheckedItems(props.children)} open={menu.open} anchor={menu.anchor} onClose={() => menu.setOpen(false)} />
+  return <MenuSurface {...props} check={hasCheckedItems(props.children)} open={menu.open} anchor={menu.anchor} row={menu.row} onClose={() => menu.setOpen(false)} />
 }
 
 function hasCheckedItems(children: ReactNode): boolean {
@@ -168,6 +200,8 @@ type SurfaceProps = MenuContentProps & {
   check?: boolean
   /** The menu opens over its trigger, as Android's popup and the web's phone menu (a dropdown field's list opens under it). @default true */
   cover?: boolean
+  /** The List row the menu opens from: on Android the screen dims around it and the popup stands under it. */
+  row?: MenuRow | null
 }
 
 /** The floating panel of a menu, placed under its anchor (over it when the screen ends first). */
@@ -417,9 +451,9 @@ function CascadeRow({ children }: { children: ReactNode }) {
   const { clock, unroll, rowIn, height, fromBottom } = cascade
   let start = 0
   if (box && height > 0) {
-    // The unroll's edge passes 24 short of the row's far side at this share of its run: the inverse of its curve,
-    // (1 − cos πt) / 2
-    const reach = fromBottom ? height - box.y - 24 : box.y + box.height - 24
+    // The unroll's edge passes 24 short of the row's far side (32 short of its top as the popup unrolls upward) at
+    // this share of its run: the inverse of its curve, (1 − cos πt) / 2
+    const reach = fromBottom ? height - box.y - 32 : box.y + box.height - 24
     const share = Math.min(1, Math.max(0, reach / height))
     start = (unroll * Math.acos(1 - 2 * share)) / Math.PI
   }
@@ -512,7 +546,7 @@ function AndroidPage({ children, width, minWidth, maxWidth, maxHeight, onSize, s
  * width back, shrinks to 0.95 under a dim of up to 25% black, and the popup's size turns into the submenu's; Back, a
  * drag towards the end or a flick takes it back.
  */
-function AndroidMenuSurface({ open, anchor, onClose, align = "start", width, check = false, cover, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
+function AndroidMenuSurface({ open, anchor, row, onClose, align = "start", width, check = false, cover, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const window = useWindowDimensions()
@@ -566,6 +600,14 @@ function AndroidMenuSurface({ open, anchor, onClose, align = "start", width, che
   // The start edges line up (Compose's MenuPosition follows the layout direction)
   const alignsLeft = (align === "start") !== rtl
   const placeFor = (panel: Size) => {
+    if (row) {
+      // From a List row: at the row's end edge, 8 under the row, or 8 over it when it does not fit under
+      const { box: lit } = row
+      const left = Math.max(margin, Math.min(rtl ? lit.x : lit.x + lit.width - panel.width, window.width - panel.width - margin))
+      const under = lit.y + lit.height + ROW_MENU_GAP
+      const fitsUnder = under + panel.height <= window.height - bottomEdge
+      return { left, top: fitsUnder ? under : Math.max(topEdge, lit.y - ROW_MENU_GAP - panel.height), fromBottom: !fitsUnder }
+    }
     const left = Math.max(margin, Math.min(alignsLeft ? box.x : box.x + box.width - panel.width, window.width - panel.width - margin))
     const below = over ? box.y : box.y + box.height
     const fitsBelow = below + panel.height <= window.height - bottomEdge
@@ -584,13 +626,15 @@ function AndroidMenuSurface({ open, anchor, onClose, align = "start", width, che
   const horizontal = swapped ? { right: left } : { left }
   const fromBottom = main?.fromBottom ?? false
   const placed = size != null
-  // The entrance: the unroll's 150ms and 16 a row, and the last row's 180 after it
+  // The entrance: the unroll's 150ms and 16 a row, and the last row's 180 after it. From a List row the popup does not
+  // unroll: it fades in whole over 150ms as it grows from 0.95 with a slight overshoot over 200
   const unroll = 150 + 16 * countRows(children)
   const total = unroll + ROW_IN
+  const popping = row != null
   useEffect(() => {
     if (!open || !placed || reduced) return
     clock.setValue(0)
-    const animation = Animated.timing(clock, { toValue: 1, duration: total, easing: Easing.linear, useNativeDriver: false })
+    const animation = Animated.timing(clock, { toValue: 1, duration: popping ? ROW_POP.scale : total, easing: Easing.linear, useNativeDriver: false })
     animation.start(({ finished }) => {
       if (finished) setRevealed(true)
     })
@@ -601,12 +645,12 @@ function AndroidMenuSurface({ open, anchor, onClose, align = "start", width, che
   const height = size?.height ?? 0
   const unrollShare = unroll / total
   const cascade = useMemo<Cascade | null>(
-    () => (reduced ? null : { clock, unroll: unrollShare, rowIn: ROW_IN / total, height, fromBottom }),
-    [reduced, clock, unrollShare, total, height, fromBottom],
+    () => (reduced || popping ? null : { clock, unroll: unrollShare, rowIn: ROW_IN / total, height, fromBottom }),
+    [reduced, popping, clock, unrollShare, total, height, fromBottom],
   )
   // The unroll: the popup's height from 0 to its own, from its trigger's side; from the bottom the popup and its rows
-  // move together, so its bottom edge stays
-  const unrolling = placed && !revealed && !reduced
+  // move together, so its bottom edge stays. The panel's fill and shadow fade in as it unrolls
+  const unrolling = placed && !revealed && !reduced && !popping
   const reveal = (outputRange: number[]) => clock.interpolate({ inputRange: [0, unrollShare], outputRange, easing: ACCELERATE_DECELERATE, extrapolate: "clamp" })
   const panelWidth = morphing ? morph(size.width, subSize.width) : undefined
   const panelHeight = morphing ? morph(size.height, subSize.height) : unrolling ? reveal([0, height]) : undefined
@@ -726,66 +770,115 @@ function AndroidMenuSurface({ open, anchor, onClose, align = "start", width, che
   // The submenu stands at the popup's start edge
   const startEdge = rtl && !swapped ? { right: 0 } : { left: 0 }
   const background = barSurface(m, theme.scheme)
+  // From a List row: the popup's fade (and the dim's) over the first 150ms of its 200, and its growth from 0.95
+  const popFade = clock.interpolate({ inputRange: [0, ROW_POP.fade / ROW_POP.scale], outputRange: [0, 1], easing: ACCELERATE_DECELERATE, extrapolate: "clamp" })
+  const popScale = clock.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1], easing: ROW_POP.easing })
   return (
     <Overlay open={open} onDismiss={onClose} motion="menu" testID={testID}>
       {(progress, opening) => {
         // It leaves fading as it lifts 5dp, towards the side it unrolled from; with reduced motion it only fades
         const lift = progress.interpolate({ inputRange: [0, 1], outputRange: [fromBottom ? 5 : -5, 0] })
         const shift = reduced ? null : opening ? drop : drop ? Animated.add(drop, lift) : lift
+        const popIn = popping && opening && !reduced
+        const opacity = reduced || !opening ? progress : popping ? popFade : 1
         return (
-          <Animated.View
-            ref={panel as never}
-            // The panel takes the focus of a menu opened by a pointer (the web), with no ring of its own
-            {...(web ? { tabIndex: -1 as const, onKeyDown: (raw: unknown) => menuKeyDown(raw, sub ? subPage.current : mainPage.current) } : null)}
-            accessibilityRole="menu"
-            aria-label={ariaLabel}
-            style={[styles.surface, horizontal, { top, opacity: reduced || !opening ? progress : 1, transform: shift ? [{ translateY: shift }] : undefined }]}
-          >
-            <Animated.View pointerEvents={moving ? "none" : "auto"} style={[styles.android, { backgroundColor: background, width: panelWidth, height: panelHeight }]}>
-              <Animated.View
-                ref={mainPage as never}
-                {...hidden}
-                pointerEvents={sub ? "none" : "auto"}
-                style={[
-                  styles.androidPageBox,
-                  behind ? null : styles.gone,
-                  {
-                    transformOrigin: rtl ? "100% 0" : "0 0",
-                    transform:
-                      sub != null
-                        ? [{ translateX: swipe.interpolate({ inputRange: [0, 1], outputRange: [0, -span / 2] }) }, { scale: swipe.interpolate({ inputRange: [0, 1], outputRange: [1, 0.95] }) }]
-                        : drop
-                          ? [{ translateY: Animated.multiply(drop, -1) }]
-                          : undefined,
-                  },
-                ]}
-              >
-                <CascadeContext.Provider value={cascade}>
-                  <AndroidPage width={morphing ? size.width : width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={(measured) => setSize(sameSize(measured))}>
-                    <SurfaceContext.Provider value={surface}>{children}</SurfaceContext.Provider>
-                  </AndroidPage>
-                </CascadeContext.Provider>
-                {/* The menu darkens behind the submenu, up to 25% black */}
-                {sub ? <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000000", opacity: swipe.interpolate({ inputRange: [0, 1], outputRange: [0, 0.25] }) }]} /> : null}
-              </Animated.View>
-              {sub ? (
-                // As wide as the widest page may be, so the submenu takes its own width, not the menu's
+          <>
+            {row ? <RowDim row={row} fade={popIn ? popFade : progress} alpha={theme.scheme === "dark" ? 0.2 : 0.4} width={window.width} height={window.height} /> : null}
+            <Animated.View
+              ref={panel as never}
+              // The panel takes the focus of a menu opened by a pointer (the web), with no ring of its own
+              {...(web ? { tabIndex: -1 as const, onKeyDown: (raw: unknown) => menuKeyDown(raw, sub ? subPage.current : mainPage.current) } : null)}
+              accessibilityRole="menu"
+              aria-label={ariaLabel}
+              style={[
+                styles.surface,
+                horizontal,
+                {
+                  top,
+                  opacity,
+                  // From a row it grows from its bottom end corner
+                  transformOrigin: popIn ? (rtl ? "0% 100%" : "100% 100%") : undefined,
+                  transform: popIn ? [{ scale: popScale }] : shift ? [{ translateY: shift }] : undefined,
+                },
+              ]}
+            >
+              {/* The panel's fill and shadow, which fade in as it unrolls; the rows fade in on their own */}
+              <Animated.View pointerEvents="none" style={[styles.androidFill, { backgroundColor: background, opacity: unrolling ? reveal([0, 1]) : 1 }]} />
+              <Animated.View pointerEvents={moving ? "none" : "auto"} style={[styles.android, { width: panelWidth, height: panelHeight }]}>
                 <Animated.View
-                  ref={subPage as never}
-                  {...swipeBack.responder.panHandlers}
-                  pointerEvents="box-none"
-                  style={[styles.androidSubPage, startEdge, { width: maxWidth, transform: [{ translateX: swipe.interpolate({ inputRange: [0, 1], outputRange: [span || window.width, 0] }) }] }]}
+                  ref={mainPage as never}
+                  {...hidden}
+                  pointerEvents={sub ? "none" : "auto"}
+                  style={[
+                    styles.androidPageBox,
+                    behind ? null : styles.gone,
+                    {
+                      transformOrigin: rtl ? "100% 0" : "0 0",
+                      transform:
+                        sub != null
+                          ? [{ translateX: swipe.interpolate({ inputRange: [0, 1], outputRange: [0, -span / 2] }) }, { scale: swipe.interpolate({ inputRange: [0, 1], outputRange: [1, 0.95] }) }]
+                          : drop
+                            ? [{ translateY: Animated.multiply(drop, -1) }]
+                            : undefined,
+                    },
+                  ]}
                 >
-                  <AndroidPage width={width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={onSubSize} style={{ backgroundColor: background }}>
-                    {subItems}
-                  </AndroidPage>
+                  <CascadeContext.Provider value={cascade}>
+                    <AndroidPage width={morphing ? size.width : width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={(measured) => setSize(sameSize(measured))}>
+                      <SurfaceContext.Provider value={surface}>{children}</SurfaceContext.Provider>
+                    </AndroidPage>
+                  </CascadeContext.Provider>
+                  {/* The menu darkens behind the submenu, up to 25% black */}
+                  {sub ? <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000000", opacity: swipe.interpolate({ inputRange: [0, 1], outputRange: [0, 0.25] }) }]} /> : null}
                 </Animated.View>
-              ) : null}
+                {sub ? (
+                  // As wide as the widest page may be, so the submenu takes its own width, not the menu's
+                  <Animated.View
+                    ref={subPage as never}
+                    {...swipeBack.responder.panHandlers}
+                    pointerEvents="box-none"
+                    style={[styles.androidSubPage, startEdge, { width: maxWidth, transform: [{ translateX: swipe.interpolate({ inputRange: [0, 1], outputRange: [span || window.width, 0] }) }] }]}
+                  >
+                    <AndroidPage width={width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={onSubSize} style={{ backgroundColor: background }}>
+                      {subItems}
+                    </AndroidPage>
+                  </Animated.View>
+                ) : null}
+              </Animated.View>
             </Animated.View>
-          </Animated.View>
+          </>
         )
       }}
     </Overlay>
+  )
+}
+
+/** The space between a List row and the popup opened from it. */
+const ROW_MENU_GAP = 8
+
+/**
+ * The entrance of a popup from a List row: a fade over 150ms (accelerate-decelerate) and a scale from 0.95 over 200ms
+ * on an overshoot of tension 2 (Android's OvershootInterpolator(2), which peaks near 1.007).
+ */
+const ROW_POP = { fade: 150, scale: 200, easing: Easing.out(Easing.back(2)) } as const
+
+/**
+ * Android's dim around the List row a menu opens from: black at 40% over a light screen and 20% over a dark one, the
+ * row left lit to its corners (the card's, where the row meets the card's edge). It fades in with the popup over
+ * 150ms and out with it.
+ */
+function RowDim({ row, fade, alpha, width, height }: { row: MenuRow; fade: Animated.Value | Animated.AnimatedInterpolation<number>; alpha: number; width: number; height: number }) {
+  const { x, y, width: w, height: h } = row.box
+  const t = Math.min(row.radius.top, h / 2, w / 2)
+  const b = Math.min(row.radius.bottom, h / 2, w / 2)
+  // The screen, and the row cut out of it (even-odd)
+  const hole = `M${x + t} ${y}H${x + w - t}A${t} ${t} 0 0 1 ${x + w} ${y + t}V${y + h - b}A${b} ${b} 0 0 1 ${x + w - b} ${y + h}H${x + b}A${b} ${b} 0 0 1 ${x} ${y + h - b}V${y + t}A${t} ${t} 0 0 1 ${x + t} ${y}Z`
+  return (
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: fade }]}>
+      <Svg width={width} height={height}>
+        <Path d={`M0 0H${width}V${height}H0Z${hole}`} fill="#000000" fillOpacity={alpha} fillRule="evenodd" />
+      </Svg>
+    </Animated.View>
   )
 }
 
@@ -1166,7 +1259,8 @@ const styles = StyleSheet.create({
   shrink: { flexShrink: 1 },
   scroll: { flexGrow: 0 },
   // Android's popup: 12dp corners, the items flush with its edges, a soft shadow
-  android: { borderRadius: 12, overflow: "hidden", boxShadow: elevationShadow.level2 },
+  android: { borderRadius: 12, overflow: "hidden" },
+  androidFill: { position: "absolute", top: 0, bottom: 0, start: 0, end: 0, borderRadius: 12, boxShadow: elevationShadow.level2 },
   // A page keeps its own size while the popup's changes around it
   androidPageBox: { alignSelf: "flex-start", flexShrink: 0 },
   androidPage: { flexShrink: 0, flexGrow: 0 },

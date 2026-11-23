@@ -16,6 +16,7 @@
     "input",
     "list",
     "menu",
+    "otp-input",
     "page-control",
     "radio-group",
     "segmented-control",
