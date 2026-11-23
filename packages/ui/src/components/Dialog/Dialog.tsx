@@ -35,6 +35,7 @@ import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges 
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge, reducedMotionEnter } from "../Transition/shared"
 import { attachSheetDrag } from "./sheetDrag"
+import { growsFromButton, presentationSource, SHEET_EXIT_MS, SHEET_SPRING_MS, sourceTransform, watchPresentationSources } from "../../lib/presentMotion"
 import { watchDialogViewport } from "./dialogViewport"
 import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING } from "./dialogSteps"
 import { PhoneLayoutContext, usePhoneLayout, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout"
@@ -45,6 +46,8 @@ import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
 
 // Presses that start while a dialog or menu comes in are held, as on iOS (lib/holdEnteringPresses)
 holdEnteringPresses()
+// Notes the button each press lands on from the start, so the first dialog, mounted by the press that opens it, knows it
+if (typeof document !== "undefined") watchPresentationSources(document)
 
 type DialogContextValue = {
   open: boolean
@@ -386,6 +389,27 @@ const Content = ({
   const crossesScreen =
     placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || sheetCrosses
 
+  // A phone sheet opened by a button grows out of it and shrinks back into it; one pulled down leaves at the
+  // finger's speed (lib/presentMotion). The button is the one pressed as the dialog opens: noted with the render that
+  // opens it, kept once that render is committed, for the way back.
+  const openedFrom = useMemo(() => (open && typeof document !== "undefined" ? presentationSource(document) : null), [open])
+  const source = useRef<Element | null>(null)
+  const draggedClose = useRef(false)
+  const openRef = useRef(open)
+  useLayoutEffect(() => {
+    openRef.current = open
+    if (!open) return
+    source.current = openedFrom
+    draggedClose.current = false
+  }, [open, openedFrom])
+  const sheetMotion = phone && mobilePlacement === "bottom" && growsFromButton(undefined)
+  const growsFromSource = sheetMotion && (open ? openedFrom : source.current) !== null
+  const timing = crossesScreen ? overlayTimingLarge : overlayTiming
+  const transitionTiming = sheetMotion ? {
+    enterDuration: growsFromSource ? SHEET_SPRING_MS : timing.enterDuration,
+    exitDuration: growsFromSource || draggedClose.current ? SHEET_EXIT_MS : timing.exitDuration,
+  } : timing
+
   // The content of a closing dialog is frozen for its exit, so this reads the owner's latest
   // handler: state that changes together with the close decides where focus returns.
   const handleCloseAutoFocus = useStableCallback((event: Event) => {
@@ -414,10 +438,31 @@ const Content = ({
       onInteractOutside(request)
       if (request.defaultPrevented) return false
     }
-    if (confirmClose) return requestClose()
+    draggedClose.current = true
+    // An owner that keeps it open without saying so (a controlled `open` it does not change): its next close goes
+    // back into the button again
+    setTimeout(() => { if (openRef.current) draggedClose.current = false }, SHEET_EXIT_MS)
+    if (confirmClose) {
+      const closed = requestClose()
+      if (!closed) draggedClose.current = false
+      return closed
+    }
     setOpen(false)
     return true
   })
+
+  // The panel lies over its button before it enters and before it leaves, wherever the button is by then
+  useLayoutEffect(() => {
+    if (!panel) return
+    const from = growsFromSource && !draggedClose.current ? sourceTransform(panel, open ? openedFrom : source.current) : null
+    if (from) {
+      panel.style.setProperty("--dialog-panel-source-transform", from)
+      panel.setAttribute("data-presented-from", "")
+    } else {
+      panel.style.removeProperty("--dialog-panel-source-transform")
+      panel.removeAttribute("data-presented-from")
+    }
+  }, [panel, open, openedFrom, growsFromSource])
 
   useEffect(() => {
     if (!panel || mobilePlacement !== "bottom") return undefined
@@ -462,7 +507,7 @@ const Content = ({
       <PhoneScope enabled={phoneLayout !== null && !outerPhoneLayout?.container}>
       {/* A dialog mounted open enters too, as `open` set with the mount does */}
       <TransitionGroup
-        {...(crossesScreen ? overlayTimingLarge : overlayTiming)}
+        {...transitionTiming}
         reducedMotionEnterDuration={reducedMotionEnter.dialog}
         {...exitGuard.transition}
         className={clsx(s.Transition, HOLD_PRESSES_CLASS)}

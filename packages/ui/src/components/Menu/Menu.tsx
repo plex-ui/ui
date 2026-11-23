@@ -32,6 +32,7 @@ import { PhoneLayoutContext } from "../PhoneLayout/PhoneLayout"
 import { useLinkComponent } from "../PlexUIProvider/internal"
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingQuick, reducedMotionEnter } from "../Transition/shared"
+import { growsFromButton, MENU_SPRING_MS, sourceScale } from "../../lib/presentMotion"
 import { isHoverPointer } from "../../lib/inputMode"
 import s from "@plexui/styles/components/Menu/Menu.module.css"
 import { HOLD_PRESSES_CLASS, holdEnteringPresses } from "../../lib/holdEnteringPresses"
@@ -541,6 +542,23 @@ const Content = ({
     if (!cover || !triggerElement || !contentElement) return
     return markCoveredMenuTrigger(triggerElement, contentElement)
   }, [cover, triggerElement, contentElement])
+  // A menu that covers its button grows out of it and shrinks back into it, as an iOS 27.2 menu does, on SwiftUI's
+  // spring(duration: 0.21, bounce: 0.2), --spring-menu. Its timers wait for the spring.
+  // Decided while it is open: a closing menu covers nothing, yet goes back into its button
+  const growsRef = useRef(false)
+  if (open) growsRef.current = cover !== null && growsFromButton(triggerElement)
+  const grows = growsRef.current
+  useLayoutEffect(() => {
+    if (!open || !contentElement) return
+    const scale = grows ? sourceScale(contentElement, triggerElement) : null
+    if (scale) {
+      contentElement.style.setProperty("--menu-source-transform", scale)
+      contentElement.setAttribute("data-presented-from", "")
+    } else {
+      contentElement.style.removeProperty("--menu-source-transform")
+      contentElement.removeAttribute("data-presented-from")
+    }
+  }, [open, grows, contentElement, triggerElement])
   const [exitGuard] = useState(createExitGuard)
   const isHorizontal = layout === "horizontal"
   // The content of a closing menu is frozen for its exit, so this reads the owner's latest handler.
@@ -582,7 +600,7 @@ const Content = ({
       <PhoneScope enabled={phoneLayout.scoped}>
       <TransitionGroup
         className={clsx(s.Menu, HOLD_PRESSES_CLASS)}
-        {...overlayTiming}
+        {...(grows ? { enterDuration: MENU_SPRING_MS, exitDuration: MENU_SPRING_MS } : overlayTiming)}
         reducedMotionEnterDuration={reducedMotionEnter.menu}
         {...exitGuard.transition}
         overlay

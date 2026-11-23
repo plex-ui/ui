@@ -1,7 +1,9 @@
 import { isPhoneLayout } from "../../lib/phoneLayout"
+import { SHEET_EXIT_MS, SHEET_RELEASE_SPRING, springEasing } from "../../lib/presentMotion"
 
 // A bottom sheet follows the finger. A drag from its top 44px moves it 1:1, never up. Past 30% of its
-// height, or at 0.5px/ms, it closes; otherwise it returns. Buttons in that strip keep their press.
+// height, or at 0.5px/ms, it closes; otherwise it returns. Either way it goes on at the finger's speed, on a spring
+// that starts at it, as a sheet let go of does on iOS. Buttons in that strip keep their press.
 // As on iOS, a pull down that starts anywhere else moves the sheet too once the content under the finger is at
 // its top: the first move decides, down and mostly vertical with every scroller under the finger at its top
 // takes the sheet; up, sideways, a move another handler took, a field, a control that pans by itself or a
@@ -22,6 +24,12 @@ const EXITING = "[data-exiting], [data-exiting-active]"
 // A sheet at its full height says so: a sheet under it then steps back, as one presented from a sheet does on iOS.
 // A shorter sheet leaves the one under it in place, as a medium detent does.
 const FULL = "data-sheet-full"
+// A sheet that grew out of its button would shrink back into it; one let go of leaves down instead (Dialog sets it).
+const PRESENTED_FROM = "data-presented-from"
+const EXIT_DURATION = "--dialog-exit-duration"
+const EXIT_EASING = "--dialog-exit-easing"
+
+const reducedMotion = (view: Window) => Boolean(view.matchMedia?.("(prefers-reduced-motion: reduce)").matches)
 
 const watchFullHeight = (panel: HTMLElement, view: Window & typeof globalThis) => {
   if (!view.ResizeObserver) return () => {}
@@ -68,19 +76,26 @@ export const attachSheetDrag = (panel: HTMLElement, close: (event: TouchEvent) =
     stopSettling()
     clearInline()
     panel.style.removeProperty(DRAG_TRANSFORM)
+    panel.style.removeProperty(EXIT_DURATION)
+    panel.style.removeProperty(EXIT_EASING)
   }
   const onSettled = (event: TransitionEvent) => {
     if (event.target === panel && event.propertyName === "transform") clear()
   }
-  const returnToRest = () => {
+  // `from` is where the sheet is let go of, `velocity` the finger's speed down in px/ms: the sheet starts back at it.
+  const returnToRest = (from = 0, velocity = 0) => {
     stopSettling()
-    if (view.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    if (reducedMotion(view)) {
       clear()
       return
     }
-    panel.style.transition = "transform var(--motion-enter) var(--cubic-enter)"
+    // Back up is the way to rest: a finger still going down starts it the other way.
+    const spring = springEasing(SHEET_RELEASE_SPRING, from > 0 ? (-velocity * 1000) / from : 0, true)
+    panel.style.transition = `transform ${spring.ms}ms ${spring.easing}`
     panel.style.transform = ""
     panel.style.removeProperty(DRAG_TRANSFORM)
+    panel.style.removeProperty(EXIT_DURATION)
+    panel.style.removeProperty(EXIT_EASING)
     const durationText = view.getComputedStyle(panel).transitionDuration
     const duration = Number.parseFloat(durationText) * (durationText.endsWith("ms") ? 1 : 1000)
     if (duration === 0) {
@@ -162,27 +177,45 @@ export const attachSheetDrag = (panel: HTMLElement, close: (event: TouchEvent) =
     // moved keeps its tap.
     if (fromContent && travelled > DECIDE && event.cancelable) event.preventDefault()
     fromContent = false
-    // A finger that rested before lifting is no flick.
-    const flick = speed > CLOSE_SPEED && event.timeStamp - lastTime < REST
+    // A finger that rested before lifting is no flick, and gives the sheet no speed.
+    const moving = event.timeStamp - lastTime < REST
+    const velocity = moving ? speed : 0
+    const flick = speed > CLOSE_SPEED && moving
     startY = null
     if (travelled <= 0) {
       clear()
       return
     }
-    if (travelled > panel.getBoundingClientRect().height * CLOSE_SHARE || flick) {
+    const height = panel.getBoundingClientRect().height
+    if (travelled > height * CLOSE_SHARE || flick) {
       // The normal/exit-start CSS states retain this exact release position.
       // No inline transform or transition may mask the active CSS exit.
       panel.style.setProperty(DRAG_TRANSFORM, `translateY(${travelled}px)`)
       clearInline()
+      // The rest of the way down goes on at the finger's speed, within the time the dialog gives its exit
+      const presentedFrom = panel.hasAttribute(PRESENTED_FROM)
+      panel.removeAttribute(PRESENTED_FROM)
+      if (!reducedMotion(view)) {
+        const left = Math.max(1, height - travelled)
+        const spring = springEasing(SHEET_RELEASE_SPRING, (Math.max(0, velocity) * 1000) / left, true)
+        panel.style.setProperty(EXIT_DURATION, `${Math.min(spring.ms, SHEET_EXIT_MS)}ms`)
+        panel.style.setProperty(EXIT_EASING, spring.easing)
+      }
       // An owner can veto close. Register before close, which can detach us.
       settleTimer = view.setTimeout(() => {
         settleTimer = undefined
-        if (panel.isConnected && !panel.closest(EXITING)) returnToRest()
+        if (!panel.isConnected || panel.closest(EXITING)) return
+        // An owner that kept the dialog open without saying so: it still goes back into its button later
+        if (presentedFrom) panel.setAttribute(PRESENTED_FROM, "")
+        returnToRest(travelled, velocity)
       }, SETTLE)
-      if (close(event) === false) returnToRest()
+      if (close(event) === false) {
+        if (presentedFrom) panel.setAttribute(PRESENTED_FROM, "")
+        returnToRest(travelled, velocity)
+      }
       return
     }
-    returnToRest()
+    returnToRest(travelled, velocity)
   }
 
   const onCancel = () => {

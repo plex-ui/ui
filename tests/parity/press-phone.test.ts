@@ -36,7 +36,12 @@ describe("press on a phone", () => {
     expect(press.color).toContain("#fff calc(30% * (1 - var(--button-mobile-material-opacity, 0)))")
     expect(press.color).toContain("#fff calc(22% * (1 - var(--button-mobile-material-opacity, 0)))")
     expect(press["transition-duration"]).toBe("0s")
-    expect(phoneDecls(button, `.Button[data-variant]${enabled}:active::before, .Button[data-variant]${enabled}:active::after`).transform).toBe("none")
+    // Its layers never take a transform on a phone, nor declare a transition for one (M5): a press starts none
+    const layers = '.Button.Button[data-variant]:not([data-mobile-material="glass"])'
+    const both = phoneDecls(button, `${layers}::before, ${layers}::after`)
+    expect(both.transform).toBe("none")
+    expect(both["transition-property"]).not.toContain("transform")
+    expect(phoneDecls(button, `${layers}::after`)["transition-property"]).toBe("none")
   })
 
   test("a ghost button draws no capsule, a soft or outline one fades its fill, a solid one lightens it", () => {

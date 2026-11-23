@@ -1013,10 +1013,23 @@
     );
     transition-duration: 0s;
 
+    &::before {
+      transition-duration: 0s;
+    }
+  }
+
+  /* Its press does not scale, so on a phone the layers of a button that is not glass never take a transform, nor
+     declare a transition for one: a press changes their fill alone, and starts no transform transition. */
+  .Button.Button[data-variant]:not([data-mobile-material="glass"]) {
     &::before,
     &::after {
       transform: none;
-      transition-duration: 0s;
+      transition-property: opacity, background-color, box-shadow, border-color;
+    }
+
+    &::after {
+      transition-property: none;
+      will-change: auto;
     }
   }
 

@@ -1011,6 +1011,30 @@
   .Menu:is([data-entering], [data-exiting]) .MenuList {
     transition-delay: 0s;
   }
+
+  /* A menu that covers its button grows out of it and shrinks back into it, as an iOS 27.2 menu does: from the
+     button's size at the corner it shares with it (the menu sets the scale), on SwiftUI's spring(duration: 0.21,
+     bounce: 0.2), --spring-menu. It shows as it leaves the button and fades at the end of its way back. Not with
+     reduced motion (it fades in place, below), nor in the Plex Android look (the menu sets no scale there). */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Only before it starts: the group keeps data-entering while it enters */
+    .Menu[data-entering]:not([data-entering-active], [data-interrupted]) .MenuList[data-presented-from],
+    .Menu:is([data-exiting-active], [data-exiting][data-interrupted]) .MenuList[data-presented-from] {
+      transform: var(--menu-source-transform);
+    }
+
+    .Menu:is([data-entering-active], [data-entering][data-interrupted]) .MenuList[data-presented-from] {
+      transition:
+        opacity var(--motion-exit) var(--cubic-enter),
+        transform var(--spring-menu-duration) var(--spring-menu);
+    }
+
+    .Menu:is([data-exiting-active], [data-exiting][data-interrupted]) .MenuList[data-presented-from] {
+      transition:
+        opacity var(--motion-exit) var(--cubic-exit) calc(var(--spring-menu-duration) * 0.3),
+        transform var(--spring-menu-duration) var(--spring-menu);
+    }
+  }
 }
 
 /* With reduced motion a menu fades in place, as on iOS with Reduce Motion (Files' ⋯ menu on the iOS 27.2 simulator: no

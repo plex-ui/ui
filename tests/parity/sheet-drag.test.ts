@@ -76,6 +76,39 @@ for (const [framework, attach] of [["React", attachReact], ["Vue", attachVue]] a
       detach()
     })
 
+    test("a flick leaves down at the finger's speed, not back into the button it grew from", () => {
+      const { panel, close, detach } = setup(375)
+      panel.setAttribute("data-presented-from", "")
+      touch(panel, "touchstart", 0, 10)
+      touch(panel, "touchmove", 40, 60)
+      touch(panel, "touchmove", 60, 110)
+      touch(panel, "touchend", 70)
+      expect(close).toHaveBeenCalledOnce()
+      expect(panel.hasAttribute("data-presented-from")).toBe(false)
+      expect(panel.style.getPropertyValue("--dialog-panel-drag-transform")).toBe("translateY(100px)")
+      // 2.5 px/ms with 500 px left: the spring starts at 5 moves a second, its first step steep
+      const easing = panel.style.getPropertyValue("--dialog-exit-easing")
+      const first = Number(easing.match(/^linear\(0, ([\d.]+) ([\d.]+)%/)?.slice(1, 2)[0])
+      const share = Number(easing.match(/^linear\(0, [\d.]+ ([\d.]+)%/)?.[1])
+      const duration = Number.parseFloat(panel.style.getPropertyValue("--dialog-exit-duration"))
+      expect(first / ((share / 100) * (duration / 1000))).toBeGreaterThan(4)
+      expect(duration).toBeLessThanOrEqual(500)
+      detach()
+    })
+
+    test("a vetoed flick keeps the sheet's way back into its button", () => {
+      const { panel, close, detach } = setup(375)
+      close.mockReturnValue(false)
+      panel.setAttribute("data-presented-from", "")
+      touch(panel, "touchstart", 0, 10)
+      touch(panel, "touchmove", 40, 60)
+      touch(panel, "touchmove", 60, 110)
+      touch(panel, "touchend", 70)
+      expect(panel.hasAttribute("data-presented-from")).toBe(true)
+      expect(panel.style.getPropertyValue("--dialog-exit-easing")).toBe("")
+      detach()
+    })
+
     test.each([false, true])("partial release respects Reduce Motion=%s while direct finger tracking remains", (reduced) => {
       const { panel, close, detach } = setup(375, reduced)
       touch(panel, "touchstart", 0, 10)
@@ -85,7 +118,7 @@ for (const [framework, attach] of [["React", attachReact], ["Vue", attachVue]] a
       expect(close).not.toHaveBeenCalled()
       expect(panel.style.transform).toBe("")
       if (reduced) expect(panel.style.transition).toBe("")
-      else expect(panel.style.transition).toBe("transform var(--motion-enter) var(--cubic-enter)")
+      else expect(panel.style.transition).toMatch(/^transform \d+ms linear\(0, /)
       detach()
     })
 
@@ -137,7 +170,7 @@ for (const [framework, attach] of [["React", attachReact], ["Vue", attachVue]] a
       expect(panel.style.getPropertyValue("--dialog-panel-drag-transform")).toBe("")
       expect(panel.style.transform).toBe("")
       if (reduced) expect(panel.style.transition).toBe("")
-      else expect(panel.style.transition).toBe("transform var(--motion-enter) var(--cubic-enter)")
+      else expect(panel.style.transition).toMatch(/^transform \d+ms linear\(0, /)
       detach()
       expect(vi.getTimerCount()).toBe(0)
     })

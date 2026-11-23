@@ -16,6 +16,9 @@ This changelog documents significant updates, bug fixes, and improvements to com
 ### Changed
 
 - **Accordion.** An item opens and closes as an iOS DisclosureGroup: the panel takes its height at once, its content shows through a clip, and the items after it slide by a transform, on the smooth spring. No height is animated. React and Vue.
+- **Dialog on a phone.** A bottom sheet opened by a button grows out of it and shrinks back into it as it closes, on the sheet spring (0.33 s, bounce 0.2). A sheet pulled down and let go of carries on at the finger's speed, off the screen or back to its rest, and never passes its rest. Not with reduced motion (the sheet fades in place, as before) or in the Android look. React and Vue.
+- **Menu on a phone.** A menu that covers its button grows out of it and shrinks back into it, on the menu spring (0.21 s, bounce 0.2). Not with reduced motion or in the Android look. React and Vue.
+- **Button on a phone.** The press layers of a button that is not glass take no transform and declare no transform transition, so a press starts none.
 
 ## 0.61.1 (2026-11-23)
 

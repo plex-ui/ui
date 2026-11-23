@@ -730,11 +730,14 @@ describe("Dialog parity, radix-ui 1.8", () => {
     const phone: Array<[string, string]> = []
     const desktop: Array<[string, string]> = []
     const reduced: Array<[string, string]> = []
+    const grown: Array<[string, string]> = []
     root.walkDecls("--dialog-panel-hidden-opacity", (decl) => {
       const rule = decl.parent
       if (rule?.type !== "rule") return
       const media = rule.parent?.type === "atrule" && "params" in rule.parent ? String(rule.parent.params) : ""
-      const list = media.includes("width <= 767px") ? phone : media.includes("prefers-reduced-motion") ? reduced : desktop
+      const list = media.includes("width <= 767px") ? phone
+        : media.includes("prefers-reduced-motion: reduce") ? reduced
+        : media.includes("no-preference") ? grown : desktop
       list.push([rule.selector.replace(/\s+/g, " "), decl.value])
     })
     // With reduced motion every panel fades in place, as on iOS with Reduce Motion
@@ -744,6 +747,8 @@ describe("Dialog parity, radix-ui 1.8", () => {
       ['.Content:where([data-mobile-placement="bottom"])', "1"],
       ['.Content:where([data-mobile-placement="fullscreen"])', "1"],
     ])
+    // A phone sheet that grows out of its button shows as it leaves it (lib/presentMotion)
+    expect(grown).toEqual([['.Content[data-mobile-placement="bottom"] .Panel[data-presented-from]', "0"]])
     // Desktop keeps what it had: only fullscreen slides in opaque.
     expect(desktop).toEqual([['.Content:where([data-placement="fullscreen"])', "1"]])
     // The scrim still fades in and out.

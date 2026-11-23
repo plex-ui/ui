@@ -45,6 +45,7 @@ import { composeEventHandlers, mergeSlotProps } from "../Tooltip/slot.js"
 import type { LinkComponent } from "../PlexUIProvider/index.js"
 import { TransitionGroup } from "../Transition/index.js"
 import { createExitGuard, overlayTiming, overlayTimingQuick, reducedMotionEnter } from "../Transition/shared.js"
+import { growsFromButton, MENU_SPRING_MS, sourceScale } from "../../lib/presentMotion.js"
 import {
   MenuLevelKey,
   MenuRootInternalsKey,
@@ -492,6 +493,8 @@ const MenuRootContentImpl = defineComponent({
     onCloseAutoFocus: { type: Function as PropType<(event: Event) => void>, required: true },
     onOpenAutoFocus: { type: Function as PropType<(event: Event) => void>, required: true },
     exitGuard: { type: Object as PropType<ReturnType<typeof createExitGuard>>, required: true },
+    /** Whether the open menu grows out of its button: its timers wait for the spring then */
+    onGrows: { type: Function as PropType<(grows: boolean) => void>, required: true },
   },
   setup(props, { slots }) {
     const rootContext = injectDropdownMenuRootContext()
@@ -520,6 +523,25 @@ const MenuRootContentImpl = defineComponent({
       if (!cover || !trigger || !content) return
       onCleanup(markCoveredMenuTrigger(trigger, content))
     })
+    // A menu that covers its button grows out of it and shrinks back into it, as an iOS 27.2 menu does, on SwiftUI's
+    // spring(duration: 0.21, bounce: 0.2), --spring-menu. Decided while it is open: a closing menu covers nothing,
+    // yet goes back into its button.
+    watchEffect(() => {
+      if (!level.open()) return
+      const trigger = internals.trigger.value
+      const content = level.content.value
+      const grows = coversTrigger() && triggerCover.value !== null && growsFromButton(trigger)
+      props.onGrows(grows)
+      if (!content) return
+      const scale = grows ? sourceScale(content, trigger) : null
+      if (scale) {
+        content.style.setProperty("--menu-source-transform", scale)
+        content.setAttribute("data-presented-from", "")
+      } else {
+        content.style.removeProperty("--menu-source-transform")
+        content.removeAttribute("data-presented-from")
+      }
+    }, { flush: "post" })
     onMounted(() => {
       level.content.value = document.getElementById(rootContext.contentId)
     })
@@ -687,6 +709,8 @@ export const MenuContent = defineComponent({
   },
   setup(props, { slots, emit }) {
     const { open } = useMenuContext()
+    const grows = shallowRef(false)
+    const onGrows = (value: boolean) => { grows.value = value }
     const onCloseAutoFocus = (event: Event) => emit("closeAutoFocus", event)
     const onOpenAutoFocus = (event: Event) => emit("openAutoFocus", event)
     const exitGuard = createExitGuard()
@@ -698,7 +722,7 @@ export const MenuContent = defineComponent({
           TransitionGroup,
           {
             class: [s.Menu, HOLD_PRESSES_CLASS],
-            ...overlayTiming,
+            ...(grows.value ? { enterDuration: MENU_SPRING_MS, exitDuration: MENU_SPRING_MS } : overlayTiming),
             reducedMotionEnterDuration: reducedMotionEnter.menu,
             ...exitGuard.transition,
             overlay: true,
@@ -708,7 +732,7 @@ export const MenuContent = defineComponent({
               open.value
                 ? h(
                     MenuRootContentImpl,
-                    { key: "dropdown", ...props, onCloseAutoFocus, onOpenAutoFocus, exitGuard },
+                    { key: "dropdown", ...props, onCloseAutoFocus, onOpenAutoFocus, exitGuard, onGrows },
                     { default: () => slots.default?.() },
                   )
                 : createCommentVNode(),

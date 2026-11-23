@@ -289,6 +289,34 @@
     scale: 0.92;
     translate: 0 -10px;
   }
+
+  /* A sheet opened by a button grows out of it and shrinks back into it as it closes, as an iOS 27.2 sheet presented
+     with a zoom transition from its source does: from the button's frame (the dialog sets the transform that lays the
+     panel over it) on SwiftUI's spring(duration: 0.33, bounce: 0.2), --spring-sheet. It shows as it leaves the
+     button and fades at the end of its way back, so the move reads, not a fade. With reduced motion it fades in
+     place, as every dialog does. */
+  @media (prefers-reduced-motion: no-preference) {
+    .Content[data-mobile-placement="bottom"] .Panel[data-presented-from] {
+      --dialog-panel-hidden-transform: var(--dialog-panel-source-transform);
+      --dialog-panel-hidden-opacity: 0;
+    }
+
+    .Transition:is([data-entering-active], [data-entering][data-interrupted])
+      .Content[data-mobile-placement="bottom"]
+      .Panel[data-presented-from] {
+      transition:
+        opacity var(--motion-exit) var(--cubic-enter),
+        transform var(--spring-sheet-duration) var(--spring-sheet);
+    }
+
+    .Transition:is([data-exiting-active], [data-exiting][data-interrupted])
+      .Content[data-mobile-placement="bottom"]
+      .Panel[data-presented-from] {
+      transition:
+        opacity var(--motion-exit) var(--cubic-exit) calc(var(--spring-sheet-duration) * 0.3),
+        transform var(--spring-sheet-duration) var(--spring-sheet);
+    }
+  }
 }
 
 /* With reduced motion the dialog fades in place, the scrim with it, as a sheet does on iOS with Reduce Motion: no
