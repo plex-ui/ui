@@ -1,0 +1,88 @@
+---
+title: Alert
+description: Inline message for notices and warnings, with semantic colors, a title, a description and actions.
+metaDescription: React Native alert for inline messages and warnings, in the shape of an iOS tip on iOS 26 and as a card of the Plex Android look on Android, with semantic colors, variants, a title, a description, actions and a close button.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Alert, Button } from "@plexui/react-native"
+import { Lightbulb } from "@plexui/react-native/icons"
+
+const [color, setColor] = useState("primary")
+const [variant, setVariant] = useState("outline")
+const [title, setTitle] = useState(true)
+const [description, setDescription] = useState(true) // an alert needs a title or a description
+const [indicator, setIndicator] = useState(undefined) // or <Lightbulb />, false
+const [actions, setActions] = useState(false) // not on a solid alert, whose color buttons do not read on
+const [mobileActions, setMobileActions] = useState("capsules") // or "own"
+const [onDismiss, setOnDismiss] = useState(false) // not on a solid alert either
+const [banner, setBanner] = useState(false)
+
+<Alert
+  color={color}
+  variant={variant}
+  title={title ? "Scheduled maintenance" : undefined}
+  description={description ? "We'll be offline 2 - 4 AM UTC on July 14 while we upgrade our database." : undefined}
+  indicator={indicator}
+  actions={actions ? (
+    <>
+      <Button color="primary" variant="soft" pill>Set reminder</Button>
+      <Button color="primary" variant="solid" pill>View status</Button>
+    </>
+  ) : undefined}
+  mobileActions={mobileActions}
+  onDismiss={onDismiss ? () => {} : undefined}
+  banner={banner}
+/>`
+
+<UsageBlock>{`import { Alert } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="colors--variants" />
+<span id="title" />
+<span id="description" />
+<span id="actions" />
+<span id="indicator" />
+<span id="dismissible" />
+<span id="banner" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p><code>color</code> and <code>variant</code> style the alert. It shows a <code>title</code>, a <code>description</code> or both; each takes text or nodes. It has an indicator icon by default, chosen from its color (a warning for warning, caution and danger, a check for success, an info circle otherwise): an icon in <code>indicator</code> replaces it, and <code>indicator={'{false}'}</code> hides it. A danger alert is announced as an <code>alert</code>.</p>
+  <p>On iOS an alert takes the shape and text of an iOS tip (TipKit), as the web draws it on a phone: 26pt corners (a banner stays square), 17pt above the text and 16 at the sides, the icon 22pt with the text at 56, the title at 17/22 semibold and the description at 15/20. A soft or outline alert turns gray, the secondary fill with no border, and only its icon keeps the alert's color (a neutral alert's icon is the secondary label); a solid alert keeps its color. On Android it is a card of the Plex Android look with the same parts: 16dp corners and padding, a 24dp icon, the title in Title Medium and the description in Body Medium.</p>
+  <p><code>actions</code> stand under the message as capsules side by side, each at least half the alert wide (50pt on iOS, 40dp on Android); with <code>mobileActions="own"</code> they keep the size you give the buttons and start where the text starts, for an alert inside a block of its own buttons. A solid alert is for a message alone, so the preview offers actions and Close on soft and outline alerts. <code>onDismiss</code> puts a close button in the corner: a 26pt soft circle in a 44pt target on iOS, the bare cross in a 48dp target on Android. <code>banner</code> is a full-width strip across the top or bottom of a screen, with square corners.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <RNExample demo="alert/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None (a Plex view in the shape of a TipKit tip) | None (a Plex view drawn as a card) |
+| Look | Gray rounded card, the icon in the alert's color, capsule actions | A card with 16dp corners, the icon in the alert's color, 40dp capsule actions |
+
+Neither platform has an inline alert: iOS's Alert is the modal [Dialog](/react-native/components/dialog), so an inline message takes the tip's shape.
+
+## API
+
+<PropsTable data={[
+  { prop: "title", type: "ReactNode", description: "Title displayed in the alert" },
+  { prop: "description", type: "ReactNode", description: "Description text" },
+  { prop: "actions", type: "ReactNode", description: "Actions (for example buttons), under the message" },
+  { prop: "mobileActions", type: '"capsules" | "own"', default: '"capsules"', description: "Capsules side by side, each at least half the alert wide, or the buttons at their own size, starting under the text" },
+  { prop: "color", type: '"primary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Color scheme" },
+  { prop: "variant", type: '"solid" | "soft" | "outline"', default: '"outline"', description: "Style variant: a soft or outline alert is gray, its icon in the color" },
+  { prop: "indicator", type: "ReactNode | false", description: "Custom indicator or false to hide" },
+  { prop: "onDismiss", type: "() => void", description: "Shows the close button when set" },
+  { prop: "dismissLabel", type: "string", default: '"Dismiss"', description: "Accessible name of the close button" },
+  { prop: "banner", type: "boolean", default: "false", description: "Full-width strip: square corners" },
+  { prop: "actionsStyle", type: "StyleProp<ViewStyle>", description: "Style of the actions' row" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the alert" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+The web's `actionsPlacement` is a desktop setting (on a phone the actions always stand under the message), so React Native has none; `actionsStyle` and `style` stand for `actionsClassName` and `className`.

@@ -1,0 +1,75 @@
+---
+title: Separator
+description: "A thin line that divides content: the rows of a list or, standing vertically, inline items."
+metaDescription: React Native separator, a thin line that divides content, across between the rows of a list or standing between inline items; the web's phone line on iOS and the hairline divider of the Plex Android look on Android, decorative or a separator for screen readers.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Fragment } from "react"
+import { Separator, Text } from "@plexui/react-native"
+import { View } from "react-native"
+
+const details = [["Version", "0.9.0"], ["Published", "2 days ago"], ["Bundle", "48 kB"], ["License", "MIT"]]
+
+[[#orientation=horizontal]]
+<View style={{ gap: 8, maxWidth: 384 }}>
+  {details.map(([term, value], i) => (
+    <Fragment key={term}>
+      {i > 0 && <Separator[[^decorative]] decorative={false}[[/decorative]] />}
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <Text size="sm">{term}</Text>
+        <Text size="sm" color="tertiary">{value}</Text>
+      </View>
+    </Fragment>
+  ))}
+</View>
+[[/orientation=horizontal]]
+[[#orientation=vertical]]
+<View style={{ flexDirection: "row", alignItems: "center", alignSelf: "center", gap: 16 }}>
+  {details.map(([term, value], i) => (
+    <Fragment key={term}>
+      {i > 0 && <Separator orientation="vertical"[[^decorative]] decorative={false}[[/decorative]] />}
+      <View style={{ gap: 2 }}>
+        <Text size="sm" weight="medium">{term}</Text>
+        <Text size="sm" color="tertiary">{value}</Text>
+      </View>
+    </Fragment>
+  ))}
+</View>
+[[/orientation=vertical]]`
+
+<UsageBlock>{`import { Separator } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="vertical" />
+<span id="menu" />
+<span id="list" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A thin divider between content. <code>orientation="horizontal"</code> (default) separates the rows of a list or the parts of a card; <code>"vertical"</code> stands between inline items, such as a meta strip, and stretches to the height of its row, at least a line of text tall. A separator is <code>decorative</code> by default, so screen readers skip it; set <code>decorative={'{false}'}</code> when the divider marks a real grouping, and it is a <code>separator</code> (with its <code>aria-orientation</code> on the web).</p>
+  <p>On iOS it is the web's line on a phone: <code>--separator-color</code> (<code>--color-border</code>) at <code>--separator-thickness</code> (1pt); theme them through the <code>ThemeProvider</code>'s <code>brand</code> tokens. On Android it is the divider between the rows of a card in the Plex Android look: one device pixel of the divider gray. A <a href="/react-native/components/list">List</a> and a <a href="/react-native/components/menu">Menu</a> draw their own separators between rows.</p>
+</>} code={overviewCode} codeValues={{ orientation: "horizontal", decorative: true }} previewMinHeight={200}>
+  <RNExample demo="separator/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None (a Plex view drawn as the web's line) | None (a Plex view drawn as a divider) |
+| Look | A 1pt line in the border color | A hairline in the divider gray |
+
+## API
+
+<PropsTable data={[
+  { prop: "orientation", type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Direction of the divider" },
+  { prop: "decorative", type: "boolean", default: "true", description: "When true, screen readers skip the separator. Set false when the divider carries semantic grouping (a separator)" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the line" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+`style` stands for `className`; the web's other `<div>` attributes have no counterpart.

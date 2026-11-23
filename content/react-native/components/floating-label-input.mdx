@@ -1,0 +1,115 @@
+---
+title: Float Input
+description: A text field named by a label that floats into its frame on Android and names its cell on iOS.
+metaDescription: Text field with a floating label, an error, a description, a clear button, a password reveal and several lines; a form cell named by its placeholder on iOS, the outlined field whose label springs onto the line on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { FloatingLabelInput } from "@plexui/react-native"
+
+const [value, setValue] = useState("")
+
+<FloatingLabelInput
+  label="Email address"
+  type="email"
+  value={value}
+  onChangeText={setValue}
+  errorMessage={errorMessage ? "Email is not valid." : undefined}
+  description="We'll never share your email with anyone else."
+  disabled={disabled}
+  readOnly={readOnly}
+  onClear={() => setValue("")}
+/>`
+
+export const textareaCode = `import { FloatingLabelInput } from "@plexui/react-native"
+
+<FloatingLabelInput label="Message" multiline value={message} onChangeText={setMessage} />`
+
+export const passwordCode = `import { FloatingLabelInput } from "@plexui/react-native"
+
+// The eye that shows the value is built in; revealable={false} removes it
+<FloatingLabelInput label="Password" type="password" />`
+
+export const selectCode = `import { Field, List, Select } from "@plexui/react-native"
+
+<List>
+  <Field row hideLabel label="Role">
+    <Select value={role} options={roles} onChange={(option) => setRole(option.value)} placeholder="Role" block />
+  </Field>
+</List>`
+
+<UsageBlock>{`import { FloatingLabelInput } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>iOS has no floating label: on iOS the field is a cell of a <code>List</code> on the grouped background, named by its placeholder (the label), as the web's phone view draws it with <code>Field row hideLabel</code>. On its own it is a List of one cell with the description in its footer; among a List's rows it is a row, the description under its value. The error stands inside the cell. The label stays the field's name for screen readers.</p>
+  <p>On Android it is the outlined field, 8dp corners: the label rests in the field at 16sp and springs to 12sp onto the line (stiffness 500, no bounce) when the field takes focus or a value, in the accent while it has focus. The description and the error are 14sp help under the field, and the field shakes when an error appears. <code>labelPlacement="inside"</code> puts the label at the top of a filled box with the value under it, and <code>pill</code> makes a capsule; the web's phone view leaves both to the desktop, so the example does too.</p>
+  <p>Choose Empty or Filled to replace the value with a preset. An error message marks the field invalid. Read-only text can still be selected and copied. <code>onClear</code> shows the clear button while the field has a value and is neither disabled nor read-only. <code>type</code> brings the keyboard of an <code>email</code>, a <code>tel</code>, a <code>url</code> or a <code>number</code>.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="floating-label-input/Overview" />
+</ComponentPreview>
+
+### Text fields
+
+Everything that is typed: more than one line, or a password. Values with a mask, such as an [SSN](/react-native/components/input#ssn-input) or a [birthday](/react-native/components/input#birthday-input), are on the Input page.
+
+#### Textarea
+
+<ComponentPreview details={<>Use <code>multiline</code> for a field of several lines. On iOS the cell starts at one line and grows with the text; on Android the outlined field starts at <code>rows</code> lines (2), its label floating on the line as a single-line field's.</>} code={textareaCode} previewMinHeight={168}>
+  <RNExample demo="floating-label-input/TextareaField" />
+</ComponentPreview>
+
+#### Password input
+
+<ComponentPreview details={<>A <code>type="password"</code> field hides its value and ships a built-in eye at its end that shows or hides it; <code>onRevealedChange</code> hears each press. Set <code>revealable</code> to <code>false</code> to remove it, or to <code>true</code> to add it to another sensitive field. On iOS the eye stands at the end of the cell in the tertiary label, its 44pt target reaching past it; on Android a 24dp icon on a 48dp target.</>} code={passwordCode} previewMinHeight={168}>
+  <RNExample demo="floating-label-input/Password" />
+</ComponentPreview>
+
+### Selects
+
+React Native has no floating-label select: a `Select` alone in a label-hidden row is its cell, named by its placeholder.
+
+#### Select
+
+<ComponentPreview details={<>On iOS the cell holds the Select's value (its placeholder until one is chosen) from the row's text start, the menu picker's chevrons at its end; a press opens the menu. On Android the value stands at the row's start and a press opens the choice dialog.</>} code={selectCode} previewMinHeight={168}>
+  <RNExample demo="floating-label-input/SelectField" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Text field in a form cell (no floating label) | Text field, outlined, with a floating label |
+| Look | A cell named by its placeholder; the error inside it, the description in the footer | An 8dp outlined field; the label springs from 16 to 12sp onto the line; 14sp help under it |
+
+## API
+
+<PropsTable data={[
+  { prop: "label", type: "string", description: "The field's name: the floating label on Android, the cell's placeholder on iOS (required)" },
+  { prop: "value", type: "string", description: "Controlled text" },
+  { prop: "defaultValue", type: "string", description: "Initial text (uncontrolled)" },
+  { prop: "onChangeText", type: "(text: string) => void", description: "Called with the text on every change" },
+  { prop: "errorMessage", type: "string", description: "Error message under the field (on iOS inside the cell)" },
+  { prop: "invalid", type: "boolean", default: "false (or true if errorMessage is provided)", description: "Marks the field invalid" },
+  { prop: "description", type: "ReactNode", description: "Helper text under the field (on iOS the cell's footer)" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the field and takes no input" },
+  { prop: "readOnly", type: "boolean", default: "false", description: "Keeps the value and hides the clear button" },
+  { prop: "onClear", type: "() => void", description: "Shows a clear button while the field has a value" },
+  { prop: "type", type: '"text" | "password" | "email" | "tel" | "url" | "number"', default: '"text"', description: "The kind of value: password hides it, the others bring their keyboard" },
+  { prop: "revealable", type: "boolean", default: 'true when type="password" and no endAdornment', description: "The built-in eye that shows or hides the value" },
+  { prop: "onRevealedChange", type: "(revealed: boolean) => void", description: "Called with the new state each time the eye is pressed" },
+  { prop: "multiline", type: "boolean", default: "false", description: "Several lines" },
+  { prop: "rows", type: "number", default: "2", description: "Lines of a multiline field (Android; the iOS cell grows from one)" },
+  { prop: "labelPlacement", type: '"border" | "inside"', default: '"border"', description: "Android: the label floats onto the outline, or to the top of a filled box" },
+  { prop: "pill", type: "boolean", description: "A capsule (the web's default); Android keeps the 8dp corners unless it is set" },
+  { prop: "startAdornment", type: "ReactNode", description: "Content before the text" },
+  { prop: "endAdornment", type: "ReactNode", description: "Content after the text, before the eye" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the root" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+Every other prop of React Native's `TextInput` passes through (`autoComplete`, `maxLength`, `onFocus`, `onBlur` and so on).

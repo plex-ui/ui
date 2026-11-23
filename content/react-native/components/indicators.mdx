@@ -1,0 +1,106 @@
+---
+title: Indicators
+description: "Loading and progress indicators: spinners, determinate progress rings and animated dots."
+metaDescription: Loading and progress indicators for React Native, a spinner, a progress ring and pulsing dots; the iOS 26 spinner of eight spokes on iOS, Material's circular progress on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { CircularProgress, LoadingDots, LoadingIndicator } from "@plexui/react-native"
+
+const [indicator, setIndicator] = useState("LoadingIndicator") // or "CircularProgress", "LoadingDots"
+const [size, setSize] = useState(20)
+const [strokeWidth, setStrokeWidth] = useState(2) // the ring's
+const [color, setColor] = useState(undefined) // or "secondary", "danger": the spinner and the dots take a text color
+const [duration, setDuration] = useState(800) // ms, one turn of the spinner
+const [simulated, setSimulated] = useState(true) // without progress the ring simulates it
+const [progress, setProgress] = useState(25)
+const [maxDuration, setMaxDuration] = useState(15000)
+const [done, setDone] = useState(false) // fills the ring and ends the simulation
+const [trackColor, setTrackColor] = useState(undefined) // or "var(--alpha-15)"
+const [trackActiveColor, setTrackActiveColor] = useState(undefined) // or "var(--gray-1000)"
+
+{indicator === "LoadingIndicator" && <LoadingIndicator size={size} duration={duration} color={color} />}
+{indicator === "CircularProgress" && (
+  <CircularProgress
+    size={size}
+    strokeWidth={strokeWidth}
+    progress={simulated ? undefined : progress}
+    maxDuration={maxDuration}
+    done={done}
+    trackColor={trackColor}
+    trackActiveColor={trackActiveColor}
+  />
+)}
+{indicator === "LoadingDots" && <LoadingDots color={color} />}`
+
+<UsageBlock>{`import { LoadingIndicator, CircularProgress, LoadingDots } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="loadingindicator" />
+<span id="sizing--stroke" />
+<span id="color" />
+<span id="duration" />
+<span id="circularprogress" />
+<span id="progress" />
+<span id="sizing--stroke-1" />
+<span id="color-1" />
+<span id="loadingdots" />
+<span id="color-2" />
+<span id="phone-spinner" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p><code>indicator</code> picks one of the three. <code>LoadingIndicator</code> is a spinner for general loading states, 20 points by default. On iOS it is the iOS 27 spinner of eight rounded spokes, as the touch stylesheet draws it on the web: up to 16 it takes the kit's Small spokes and from 28 the Large ones, and a <code>strokeWidth</code> replaces the spokes' widths, so the example leaves it unset. On Android it is Material's circular progress in the accent: an arc that surges and turns, its stroke an eighth of the size. <code>color</code> takes a text color, such as <code>danger</code> (the primary text by default on iOS, as the web's <code>currentcolor</code>), and <code>duration</code> sets the time of one turn, as the web's <code>--indicator-rotate-duration</code>.</p>
+  <p><code>CircularProgress</code> is a progress ring. Without <code>progress</code> it simulates progress over <code>maxDuration</code> milliseconds, and <code>done</code> fills the ring and ends the simulation; this preview sets it every 4 seconds to start over. <code>progress</code>, from 0 to 100, shows a fixed value instead. <code>size</code> and <code>strokeWidth</code> (at most 4) size the ring, and <code>trackColor</code> and <code>trackActiveColor</code> color its track and its progress, a color or a token such as <code>var(--alpha-15)</code>. <code>LoadingDots</code> shows typing progress with staggered pulsing dots in a text color; on Android they also grow and shrink, on the Plex Android look's typing timing.</p>
+  <p>The indicators are decorative unless they get an <code>aria-label</code>: then a screen reader reads a busy progress indicator by that name. With reduced motion they stand still.</p>
+</>} code={overviewCode} previewMinHeight={228}>
+  <RNExample demo="indicators/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Activity indicator (UIActivityIndicatorView) for the spinner; none for the ring and the dots | Circular progress indicator for the spinner; none for the ring and the dots |
+| Look | Eight rounded spokes, brightening to the leading one, turning a spoke at a time; the Plex ring and dots | An arc in the accent that surges and turns; the Plex ring, and dots that grow and fade in turn |
+
+## API
+
+### LoadingIndicator [#loadingindicator-1]
+
+<PropsTable data={[
+  { prop: "size", type: "number", default: "20", description: "Size in points" },
+  { prop: "strokeWidth", type: "number", description: "iOS: the spokes' width (by default the iOS 27 kit's proportion: 2/14 of the size up to 16, 4/30 to 27, 5/35 from 28). Android: the arc's stroke (by default an eighth of the size)" },
+  { prop: "color", type: "TextColor | string", default: '"primary"', description: "A text color or any color string; the accent on Android by default" },
+  { prop: "duration", type: "number", default: "800", description: "The time of one turn in ms; Android's cycle keeps its proportion" },
+  { prop: "aria-label", type: "string", description: "The name read out, as a busy progress indicator; without one it is decorative" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the box" },
+]} />
+
+### CircularProgress [#circularprogress-1]
+
+<PropsTable data={[
+  { prop: "progress", type: "number", description: "Static progress 0-100 (disables the simulated animation)" },
+  { prop: "done", type: "boolean", default: "false", description: "Fills the ring and ends the simulated progress" },
+  { prop: "maxDuration", type: "number", default: "15000", description: "Duration of the simulated progress in ms" },
+  { prop: "size", type: "number", default: "28", description: "Diameter in points" },
+  { prop: "strokeWidth", type: "number", default: "2", description: "Stroke thickness in points of its 20pt drawing, capped at 4" },
+  { prop: "trackColor", type: "string", description: "Track color: a color or a token (var(--…))" },
+  { prop: "trackActiveColor", type: "string", description: "Active segment color: a color or a token (var(--…))" },
+  { prop: "aria-label", type: "string", description: "The name read out, as a progress bar with its value" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the box" },
+]} />
+
+### LoadingDots [#loadingdots-1]
+
+<PropsTable data={[
+  { prop: "color", type: "TextColor | string", default: '"primary"', description: "A text color or any color string" },
+  { prop: "aria-label", type: "string", description: "The name read out, as a busy progress indicator; without one they are decorative" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the row" },
+]} />

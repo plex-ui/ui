@@ -1,0 +1,216 @@
+---
+title: Input Group
+description: A text field with addons around its value, such as a prefix, a unit, a menu or a button.
+metaDescription: Text field with addons before, after, above or below its control (text prefixes and units, icon buttons, a unit menu, a counter); the value of a form row with its prefix or unit on iOS and Android, an Input's frame on its own.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Field, InputGroup, List, LoadingIndicator } from "@plexui/react-native"
+
+// A prefix: the List takes columns, so the value starts at the column
+<List columns>
+  <Field row label="Website" errorMessage={invalid ? "Enter a valid address." : undefined}>
+    <InputGroup disabled={disabled} invalid={invalid}>
+      <InputGroup.Input placeholder="acme.com" inputMode="url" autoCapitalize="none" />
+      <InputGroup.Addon>
+        <InputGroup.Text>https://</InputGroup.Text>
+      </InputGroup.Addon>
+      {loading && (
+        <InputGroup.Addon align="inline-end">
+          <LoadingIndicator />
+        </InputGroup.Addon>
+      )}
+    </InputGroup>
+  </Field>
+  <Field row label="Amount">
+    <InputGroup disabled={disabled}>
+      <InputGroup.Input placeholder="0.00" inputMode="decimal" />
+      <InputGroup.Addon>
+        <InputGroup.Text>$</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  </Field>
+</List>
+
+// A unit: the value ends at the row's edge, its unit after it
+<List>
+  <Field row label="Distance">
+    <InputGroup disabled={disabled}>
+      <InputGroup.Input defaultValue="5" inputMode="decimal" />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Text>km</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  </Field>
+</List>`
+
+export const textCode = `import { Field, InputGroup, List, Textarea } from "@plexui/react-native"
+
+<List columns>
+  <Field row label="Page">
+    <InputGroup>
+      <InputGroup.Input placeholder="docs" autoCapitalize="none" />
+      <InputGroup.Addon>
+        <InputGroup.Text>plexui.com/</InputGroup.Text>
+      </InputGroup.Addon>
+    </InputGroup>
+  </Field>
+</List>
+
+// The counter of a block-end addon is the List's footer
+<List footer={\`\${280 - post.length} characters left\`}>
+  <Field row orientation="vertical" label="Post">
+    <Textarea variant="ghost" placeholder="What's happening?" maxLength={280} value={post} onChangeText={setPost} autoResize rows={2} />
+  </Field>
+</List>`
+
+export const buttonCode = `import { Button, Field, InputGroup, List } from "@plexui/react-native"
+import { CameraPhoto, Copy } from "@plexui/react-native/icons"
+
+<List>
+  <Field row label="Link">
+    <InputGroup>
+      <InputGroup.Input defaultValue="plexui.com/r/input-group" readOnly />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Button uniform accessibilityLabel="Copy link"><Copy /></InputGroup.Button>
+      </InputGroup.Addon>
+    </InputGroup>
+  </Field>
+  <Field row label="Card">
+    <InputGroup>
+      <InputGroup.Input placeholder="Card number" inputMode="numeric" autoComplete="cc-number" />
+      <InputGroup.Addon align="inline-end">
+        <InputGroup.Button uniform accessibilityLabel="Scan card"><CameraPhoto /></InputGroup.Button>
+      </InputGroup.Addon>
+    </InputGroup>
+  </Field>
+</List>
+// A form's main action is the full-width button under its rows
+<Button color="primary" size="3xl" pill block>Pay</Button>`
+
+export const dropdownCode = `import { Field, InputGroup, List, Menu, Text } from "@plexui/react-native"
+import { ChevronUpDown } from "@plexui/react-native/icons"
+
+<List>
+  <Field row label="Weight">
+    <InputGroup>
+      <InputGroup.Input defaultValue="72" inputMode="decimal" />
+      <InputGroup.Addon align="inline-end">
+        <Menu>
+          <Menu.Trigger>
+            <InputGroup.Button accessibilityLabel={\`Unit: \${unit}\`}>
+              <Text color="secondary">{unit}</Text>
+              <ChevronUpDown size={17} />
+            </InputGroup.Button>
+          </Menu.Trigger>
+          <Menu.Content align="end">
+            {units.map((option) => (
+              <Menu.Item key={option.value} checked={unit === option.value} onSelect={() => setUnit(option.value)}>
+                {option.label}
+              </Menu.Item>
+            ))}
+          </Menu.Content>
+        </Menu>
+      </InputGroup.Addon>
+    </InputGroup>
+  </Field>
+</List>`
+
+export const textareaCode = `import { Button, Field, List, Textarea } from "@plexui/react-native"
+
+// The heading is the row's label, the status line the List's footer, the action the button under it
+<List footer="Line 1, Column 1">
+  <Field row orientation="vertical" label="script.js">
+    <Textarea variant="ghost" placeholder="console.log('Hello, world!');" rows={4} autoCapitalize="none" />
+  </Field>
+</List>
+<Button color="primary" size="3xl" pill block>Run</Button>`
+
+<UsageBlock>{`import { InputGroup } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="variants" />
+<span id="align" />
+<span id="spinner" />
+<span id="sizes" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>Reach for <code>InputGroup</code> when a field needs a text prefix or suffix, a unit, a menu or a button beside its value.</p>
+  <p>On a phone an input group is the value of a <code>List</code> row (<code>Field row</code>): the row's label names it, its prefix, unit, menu or button sits in the row, and the row is its frame. With a prefix the List takes <code>columns</code>, so the value starts at the column, the prefix right before it in the secondary label; without one the value ends at the row's edge with its unit after it, as iOS writes "5 km". A row keeps a prefix or a unit, not both. A header becomes the row's label, a counter or a status line the List's <code>footer</code>, and a main action the full-width button under the List. On Android the row's type is 16sp and the prefix stands 4 from the value.</p>
+  <p>Put an <code>InputGroup.Input</code> and <code>InputGroup.Addon</code>s inside an <code>InputGroup</code>. On its own the group is an Input's frame of its <code>variant</code>, <code>size</code> and <code>pill</code>, with the inline addons as the field's adornments, and it passes <code>disabled</code> and <code>invalid</code> down to the control and the buttons. <code>align</code> places an addon before (<code>inline-start</code>) or after (<code>inline-end</code>) the control, or as a row above (<code>block-start</code>) or below (<code>block-end</code>) it inside the frame. <code>loading</code> shows a <code>LoadingIndicator</code> in an addon while a value is checked. A row sets the field's height, so the example shows no <code>size</code>, <code>variant</code>, <code>pill</code> or <code>align</code> control.</p>
+</>} code={overviewCode} previewMinHeight={280}>
+  <RNExample demo="input-group/Overview" />
+</ComponentPreview>
+
+### Text
+
+<ComponentPreview details={<>Use <code>InputGroup.Text</code> for prefixes, suffixes, units and counters: in a row the row's 17pt type (16sp on Android) in the secondary label. A counter under a textarea is the List's footer.</>} code={textCode} previewMinHeight={168}>
+  <RNExample demo="input-group/TextAddon" />
+</ComponentPreview>
+
+### Button
+
+<ComponentPreview details={<>An icon alone (<code>uniform</code>) in <code>InputGroup.Button</code> is the field's adornment button: in a row on iOS a 36pt square that ends at the row's inset, its 18pt icon in the ghost button's gray, as the React page's Phone view; on Android a 48dp target around a 24dp icon; in a framed field the 44pt target around the icon. A labelled one is a ghost <code>secondary</code> Button a step smaller than the group. A form's main action is the large button under its rows.</>} code={buttonCode} previewMinHeight={168}>
+  <RNExample demo="input-group/ButtonAddon" />
+</ComponentPreview>
+
+### Dropdown
+
+<ComponentPreview details={<>A unit that opens a <code>Menu</code>: its trigger is an <code>InputGroup.Button</code> with the unit and the menu picker's chevrons, right after the value at the row's end. The menu checks the chosen unit.</>} code={dropdownCode} previewMinHeight={168}>
+  <RNExample demo="input-group/Dropdown" />
+</ComponentPreview>
+
+### Textarea
+
+<ComponentPreview details={<>On a phone a textarea with a header and an action is a row of its own: the header is the row's label, the status line the List's footer and the action the full-width button under it. On its own, put an <code>InputGroup.Textarea</code> with <code>block-start</code> and <code>block-end</code> addons in an <code>InputGroup</code>.</>} code={textareaCode} previewMinHeight={168}>
+  <RNExample demo="input-group/TextareaAddon" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: a form cell's text field with its prefix or unit | None: a Plex Android row's field with its prefix or unit |
+| In a List row | The row is the frame; a prefix right before the value, a unit right after it, in the secondary label | The row is the frame; 16sp prefix and unit 4 from the value |
+| On its own | An Input's frame with the addons inside it | The outlined field with the addons inside it |
+
+## API
+
+### InputGroup
+
+<PropsTable data={[
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height, on the same scale as Input" },
+  { prop: "variant", type: '"outline" | "soft"', default: '"outline"', description: "Visual style of the frame" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully rounded frame" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Disables the control and the buttons inside" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Invalid frame; marks the control invalid" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the root" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### InputGroup.Input
+
+The group's text field, without a frame of its own: every `Input` prop except `variant`, `size`, `pill` and the adornments, which the group sets. `disabled` and `invalid` default to the group's state.
+
+### InputGroup.Textarea
+
+The same with several lines: `rows` (3 by default), `autoResize` and `maxRows`, as `Textarea`.
+
+### InputGroup.Addon
+
+<PropsTable data={[
+  { prop: "align", type: '"inline-start" | "inline-end" | "block-start" | "block-end"', default: '"inline-start"', description: "Before or after the control on its line, or a row above or below it" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the addon" },
+]} />
+
+### InputGroup.Button
+
+Takes the [`Button`](/react-native/components/button) props except `size`, which follows the group. `color` defaults to `"secondary"`, `variant` to `"ghost"`, and `disabled` to the group's value. A ghost `uniform` button is the field's adornment button.
+
+### InputGroup.Text
+
+A `Text` for a prefix, a unit or a counter inside an addon, in the secondary label. Every `Text` prop passes through.

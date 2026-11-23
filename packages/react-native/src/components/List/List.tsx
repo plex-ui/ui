@@ -10,6 +10,7 @@ import { RowEndContext, RowFrameContext, RowHoldContext, RowStartContext, type R
 import { accentText, controlHighlight, dangerText, divider, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
+import { Button, ListActionContext } from "../Button/Button"
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { RadioContext, RadioGroup, type RadioGroupContext, type RadioGroupItemProps } from "../RadioGroup/RadioGroup"
@@ -36,9 +37,33 @@ export type ListProps = {
    * list at its edges) in the cards' color, the header a 32dp band of the grouped gray. @default "grouped"
    */
   surface?: "grouped" | "plain"
+  /**
+   * Content at the end of the header, as the web's FieldGroup `action`: a ghost Button there is the list header's text
+   * action (iOS: tinted 17/22 text on the title's line with a 44pt target; Android: 14sp Medium in its color).
+   */
+  action?: ReactNode
+  /**
+   * How much the header stands out, as the web's FieldGroup `headerProminence`: `increased` is iOS's prominent list
+   * header (20/25 Semibold in the primary label, 10 above the rows), and on Android a 16sp Medium title in the text
+   * color in place of the accent's 14sp. @default "standard"
+   */
+  headerProminence?: "standard" | "increased"
+  /**
+   * Every row's value starts at one column, 40% into the row (`--field-row-column-width`), as the web's FieldGroup
+   * `columns`: a form of typed details. Off, values end at the row's edge.
+   */
+  columns?: boolean
   "aria-label"?: string
   testID?: string
   style?: StyleProp<ViewStyle>
+}
+
+/** What a List tells its rows; null outside a List. */
+const ListOptionsContext = createContext<{ columns: boolean } | null>(null)
+
+/** Whether a control stands in a List's rows (a FloatingLabelInput is a row there, a List of its own elsewhere). */
+export function useInList() {
+  return useContext(ListOptionsContext) != null
 }
 
 /** The corners of Android's card of rows. */
@@ -60,9 +85,27 @@ const PlaceContext = createContext<RowPlace>({ first: true, last: true, top: 0, 
  * Android draws a plain list: the rows across the screen with no card, the header a 32dp band of the grouped gray,
  * the footer on that gray.
  */
-export function List({ children, header, description, footer, error, surface = "grouped", "aria-label": ariaLabel, testID, style }: ListProps) {
+export function List({
+  children,
+  header,
+  description,
+  footer,
+  error,
+  surface = "grouped",
+  action,
+  headerProminence = "standard",
+  columns = false,
+  "aria-label": ariaLabel,
+  testID,
+  style,
+}: ListProps) {
   const theme = useTheme()
-  const rows = flattenChildren(children).filter(isValidElement)
+  // A Button among the rows is an action row, as the web's ghost Button in a `[data-row]`
+  const rows = flattenChildren(children)
+    .filter(isValidElement)
+    .map((row) => (row.type === Button ? <ActionRow key={row.key ?? undefined}>{row}</ActionRow> : row))
+  const options = useMemo(() => ({ columns }), [columns])
+  const increased = headerProminence === "increased"
   const fill = surface === "plain" ? theme.color("--field-group-background", theme.colors.surfaceSecondary) : theme.colors.groupedSurface
   // The card's corners: Android's 16dp card (a header or description inside it stands over the first row), iOS's group
   const corner = surface === "plain" && theme.isAndroid ? 0 : theme.isAndroid ? ANDROID_CARD_RADIUS : theme.length("--field-group-radius", 26)
@@ -90,13 +133,21 @@ export function List({ children, header, description, footer, error, surface = "
       <View testID={testID} style={style}>
         <View style={plain ? { backgroundColor: theme.colors.groupedSurface } : [styles.androidCard, { backgroundColor: fill }]}>
           {header == null ? null : plain ? (
-            <View style={[styles.androidBand, { backgroundColor: band }]}>
-              <Text accessibilityRole="header" color={theme.colors.labelSecondary} weight="medium" numberOfLines={1} style={styles.androidBandText}>
+            <View style={[styles.androidBand, action != null ? styles.androidBandRow : null, { backgroundColor: band }]}>
+              <Text accessibilityRole="header" color={theme.colors.labelSecondary} weight="medium" numberOfLines={1} style={[styles.androidBandText, action != null ? styles.grow : null]}>
                 {header}
               </Text>
+              {action != null ? <ListActionContext.Provider value="header">{action}</ListActionContext.Provider> : null}
+            </View>
+          ) : action != null ? (
+            <View style={styles.androidHeaderRow}>
+              <Text accessibilityRole="header" color={increased ? theme.colors.text : accentText(theme)} weight="medium" style={[styles.androidHeaderTitle, increased ? styles.androidHeaderIncreased : null]}>
+                {header}
+              </Text>
+              <ListActionContext.Provider value="header">{action}</ListActionContext.Provider>
             </View>
           ) : (
-            <Text accessibilityRole="header" color={accentText(theme)} weight="medium" style={styles.androidHeader}>
+            <Text accessibilityRole="header" color={increased ? theme.colors.text : accentText(theme)} weight="medium" style={[styles.androidHeader, increased ? styles.androidHeaderIncreased : null]}>
               {header}
             </Text>
           )}
@@ -109,7 +160,7 @@ export function List({ children, header, description, footer, error, surface = "
             </Text>
           ) : null}
           <View accessibilityRole="list" aria-label={label}>
-            {body}
+            <ListOptionsContext.Provider value={options}>{body}</ListOptionsContext.Provider>
           </View>
         </View>
         {error != null ? (
@@ -131,22 +182,31 @@ export function List({ children, header, description, footer, error, surface = "
       {header != null || description != null ? (
         <View
           style={{
-            minHeight: theme.length("--field-group-header-min-height", 39),
+            // The prominent header: 20/25 Semibold in the primary label, 10 above and below (45 at least), as the kit's
+            // Prominent list header
+            minHeight: increased ? 45 : theme.length("--field-group-header-min-height", 39),
             justifyContent: "flex-end",
-            paddingTop: theme.length("--field-group-header-padding-top", 11),
-            paddingBottom: theme.length("--field-group-header-padding-bottom", 6),
+            paddingTop: increased ? 10 : theme.length("--field-group-header-padding-top", 11),
+            paddingBottom: increased ? 10 : theme.length("--field-group-header-padding-bottom", 6),
             paddingHorizontal: theme.length("--field-group-title-padding-inline", inset),
           }}
         >
           {header != null ? (
-            <Text
-              accessibilityRole="header"
-              weight="semibold"
-              color={theme.colors.labelSecondary}
-              style={{ fontSize: theme.length("--field-group-title-font-size", 17), lineHeight: theme.length("--field-group-title-line-height", 22) }}
-            >
-              {header}
-            </Text>
+            <View style={action != null ? styles.iosHeaderRow : null}>
+              <Text
+                accessibilityRole="header"
+                weight="semibold"
+                color={increased ? theme.colors.text : theme.colors.labelSecondary}
+                style={[
+                  increased ? { fontSize: 20, lineHeight: 25 } : { fontSize: theme.length("--field-group-title-font-size", 17), lineHeight: theme.length("--field-group-title-line-height", 22) },
+                  action != null ? styles.grow : null,
+                ]}
+              >
+                {header}
+              </Text>
+              {/* On the title's last line, its target reaching over and under the line without making the header taller */}
+              {action != null ? <ListActionContext.Provider value="header">{action}</ListActionContext.Provider> : null}
+            </View>
           ) : null}
           {description != null ? (
             <Text
@@ -163,7 +223,7 @@ export function List({ children, header, description, footer, error, surface = "
         aria-label={label}
         style={[styles.iosGroup, { borderRadius: theme.length("--field-group-radius", 26), backgroundColor: surface === "plain" ? theme.color("--field-group-background", theme.colors.surfaceSecondary) : theme.colors.groupedSurface }]}
       >
-        {body}
+        <ListOptionsContext.Provider value={options}>{body}</ListOptionsContext.Provider>
       </View>
       {error != null ? (
         // The web's FieldError in the footer: its 4 offset over the footer's padding
@@ -346,9 +406,9 @@ export function ListItem({
     return (
       <RowFrameContext.Provider value={frame}>
         {theme.isAndroid ? (
-          <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null} value={value} valuePlacement={valuePlacement} trailing={end} error={error} disabled={disabled} destructive={destructive} last={last} />
+          <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} disabled={disabled} destructive={destructive} last={last} />
         ) : (
-          <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} value={value} valuePlacement={valuePlacement} trailing={end} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
+          <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
         )}
       </RowFrameContext.Provider>
     )
@@ -388,6 +448,108 @@ export function ListItem({
   return (
     <View ref={frameNode as never} collapsable={false} testID={testID} style={row(false)}>
       {content(false)}
+    </View>
+  )
+}
+
+/** A Button among a List's rows: the row is the button (`ListActionContext`), the hairline under it from the text's start. */
+function ActionRow({ children }: { children: ReactNode }) {
+  const theme = useTheme()
+  const { last } = useContext(PlaceContext)
+  return (
+    <View style={styles.actionRow}>
+      <ListActionContext.Provider value="row">{children}</ListActionContext.Provider>
+      {last ? null : (
+        <View
+          pointerEvents="none"
+          style={[styles.actionSeparator, { start: theme.isAndroid ? 20 : theme.length("--list-row-inset", 20), backgroundColor: theme.isAndroid ? divider(theme) : theme.colors.separator }]}
+        />
+      )}
+    </View>
+  )
+}
+
+export type StackedRowProps = {
+  /** The label over the value; none for a row whose placeholder names the field (`hideLabel`). */
+  label?: ReactNode
+  /** Words under the value (a label-hidden field's description). */
+  description?: ReactNode
+  error?: ReactNode
+  disabled?: boolean
+  /** A control at the end of the label's line. */
+  action?: ReactNode
+  /** The field: drawn bare, its text from the row's text start, as tall as its lines. */
+  children: ReactNode
+  testID?: string
+}
+
+/**
+ * A field row whose value is a line of its own, as the web's `Field row` with `orientation="vertical"` or `hideLabel`
+ * on a phone. iOS: the label 15/20 in the secondary label (`--field-row-above-*`), the value under it in the row's
+ * 17/22, 13 above and below (68 for one line); with no label the value alone, centred in the row's 52. The error 4
+ * under the value, as a row's. Android: the label 13sp in the secondary label, 4 over the bare value (17sp, as a card's
+ * text field), 10 above and below; with no label 15, as a 50dp row.
+ */
+export function ListStackedRow({ label, description, error, disabled = false, action, children, testID }: StackedRowProps) {
+  const theme = useTheme()
+  const { last } = useContext(PlaceContext)
+  const rowEnd = useMemo<RowEnd>(() => ({ fill: () => {}, stacked: true }), [])
+  const android = theme.isAndroid
+  const inset = android ? 20 : theme.length("--list-row-inset", 20)
+  const hidden = label == null
+  const rowLine = theme.length("--field-row-label-line-height", 22)
+  // iOS: a row with words under its value (a description or an error) keeps the insets of a row with text, 12, as
+  // the web's phone rows do; an error stands 4 under the value and the value 4 under the label
+  const texted = description != null || error != null
+  const padding = android
+    ? hidden ? 15 : 10
+    : texted ? theme.length("--field-row-text-padding-block", 12) : hidden ? (theme.length("--field-row-min-height", 52) - rowLine) / 2 : theme.length("--field-row-above-padding-block", 13)
+  const secondary = disabled ? (android ? withAlpha(theme.colors.labelSecondary, 0.5) : theme.colors.labelTertiary) : theme.colors.labelSecondary
+  const labelType = android
+    ? styles.androidDescription
+    : { fontSize: theme.length("--field-row-above-font-size", 15), lineHeight: theme.length("--field-row-above-line-height", 20) }
+  const labelText = hidden ? null : (
+    <Text color={secondary} style={[labelType, action != null ? styles.grow : null, !android && error != null && action == null ? { marginBottom: theme.length("--mobile-field-error-offset", 4) } : null]}>
+      {label}
+    </Text>
+  )
+  const errorOffset = theme.length("--mobile-field-error-offset", 4)
+  const errorLine = theme.length("--mobile-field-error-line-height", 20)
+  const iconSize = theme.length("--mobile-field-error-icon-size", 16)
+  return (
+    <View testID={testID} style={[styles.stackedRow, { paddingStart: inset }]}>
+      <View style={[styles.stackedColumn, { paddingEnd: inset, paddingVertical: padding, gap: android ? 4 : 0 }]}>
+        {last ? null : <View pointerEvents="none" style={[styles.iosSeparator, { backgroundColor: android ? divider(theme) : theme.colors.separator }]} />}
+        {labelText != null && action != null ? (
+          <View style={[styles.pair, { gap: 8 }, !android && error != null ? { marginBottom: theme.length("--mobile-field-error-offset", 4) } : null]}>
+            {labelText}
+            {action}
+          </View>
+        ) : (
+          labelText
+        )}
+        <RowEndContext.Provider value={rowEnd}>{children}</RowEndContext.Provider>
+        {description != null ? (
+          <Text
+            color={secondary}
+            style={android ? styles.androidDescription : { fontSize: theme.length("--field-row-description-font-size", 15), lineHeight: theme.length("--field-row-description-line-height", 20) }}
+          >
+            {description}
+          </Text>
+        ) : null}
+        {error == null ? null : android ? (
+          <Text color={dangerText(theme)} accessibilityLiveRegion="polite" style={styles.androidDescription}>
+            {error}
+          </Text>
+        ) : (
+          <View accessibilityLiveRegion="polite" style={[styles.iosError, { marginTop: errorOffset, gap: theme.length("--mobile-field-error-icon-gap", 4) }]}>
+            <ExclamationMarkCircle size={iconSize} color={errorColor(theme)} style={{ marginTop: (errorLine - iconSize) / 2 }} />
+            <Text color={errorColor(theme)} style={[styles.shrink, { fontSize: theme.length("--mobile-field-error-font-size", 15), lineHeight: errorLine }]}>
+              {error}
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   )
 }
@@ -458,6 +620,8 @@ function iosRow(theme: Theme, pressed: boolean, last: boolean, described: boolea
 
 type ContentProps = Pick<ListItemProps, "label" | "description" | "leading" | "value" | "trailing" | "error"> & {
   theme: Theme
+  /** The end is a switch, a checkbox or a radio: with `columns` it stays at the row's edge. */
+  edgeControl?: boolean
   disabled: boolean
   destructive: boolean
   descriptionId?: string
@@ -498,7 +662,7 @@ function useValueBelow(
   return { below, probe, onRowLayout: auto ? measure("row") : undefined, onTrailingLayout: auto ? measure("trailing") : undefined }
 }
 
-function IOSContent({ theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, error, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean }) {
+function IOSContent({ theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, edgeControl = false, error, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean }) {
   const inset = theme.length("--list-row-inset", 20)
   const tile = theme.length("--field-row-icon-size", 28)
   const gap = theme.length("--field-row-gap", 16)
@@ -526,7 +690,11 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
       )
   // A field at the end fills the room after the label (`RowEnd.fill`)
   const [fill, setFill] = useState(false)
-  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill }), [])
+  // In a List with `columns` a field's value starts at one column, 40% into the row (`--field-row-column-width`)
+  // A switch, a checkbox and a radio stay at the row's edge
+  const columns = useContext(ListOptionsContext)?.columns === true && trailing != null
+  const startsColumn = columns && !edgeControl
+  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, align: startsColumn ? "start" : "end" }), [startsColumn])
   const errorOffset = theme.length("--mobile-field-error-offset", 4)
   const errorLine = theme.length("--mobile-field-error-line-height", 20)
   // With an error the label and the control stand on a line of their own over it
@@ -571,7 +739,7 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
         {probe}
         {line(
           <>
-        <View style={[fill ? styles.iosTextHug : styles.iosText, { paddingVertical: error != null ? 0 : textPadding }, formRow && description == null && error == null ? { minHeight: target, justifyContent: "center" } : null]}>
+        <View style={[columns ? styles.column : fill ? styles.iosTextHug : styles.iosText, { paddingVertical: error != null ? 0 : textPadding }, formRow && description == null && error == null ? { minHeight: target, justifyContent: "center" } : null]}>
           <Text color={labelColor} style={labelType}>
             {label}
           </Text>
@@ -592,7 +760,7 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
           ) : null}
         </View>
         {(value != null && !below) || trailing != null || chevron ? (
-          <View style={[fill ? styles.endFill : styles.end, { gap: disclosureGap }]}>
+          <View style={[fill || columns ? styles.endFill : styles.end, columns && !startsColumn ? styles.endAtEdge : null, { gap: disclosureGap }]}>
             {value != null && !below ? (
               // A long value wraps within the 60% the end takes, as the web's, rather than losing its end; set at the
               // row's end (a phone turns "right" over in a right-to-left layout itself, the web does not)
@@ -601,7 +769,7 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
               </Text>
             ) : null}
             {trailing != null ? (
-              <View style={fill ? styles.grow : styles.keep} onLayout={onTrailingLayout}>
+              <View style={fill ? styles.grow : startsColumn ? styles.keepStart : styles.keep} onLayout={onTrailingLayout}>
                 <RowEndContext.Provider value={rowEnd}>{trailing}</RowEndContext.Provider>
               </View>
             ) : null}
@@ -642,6 +810,7 @@ function AndroidContent({
   value,
   valuePlacement,
   trailing,
+  edgeControl = false,
   error,
   disabled,
   destructive,
@@ -665,7 +834,9 @@ function AndroidContent({
   })
   // A field at the end fills the room after the label, as on iOS; a select opens from the whole row
   const [fill, setFill] = useState(false)
-  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, press: handPress }), [handPress])
+  const columns = useContext(ListOptionsContext)?.columns === true && trailing != null
+  const startsColumn = columns && !edgeControl
+  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, press: handPress, align: startsColumn ? "start" : "end" }), [handPress, startsColumn])
   const parts = (
     <>
       {leading == null ? null : leadingMark ? (
@@ -679,7 +850,7 @@ function AndroidContent({
       )}
       <View
         style={[
-          fill ? styles.androidTextHug : styles.androidText,
+          columns ? [styles.androidTextHug, styles.column] : fill ? styles.androidTextHug : styles.androidText,
           { paddingVertical: error != null ? 0 : description != null || below ? (leadingMark ? 12 : 10) : 15 },
         ]}
       >
@@ -704,7 +875,13 @@ function AndroidContent({
         </Text>
       ) : null}
       {trailing != null ? (
-        <View style={fill ? styles.androidEndFill : styles.androidEnd} onLayout={onTrailingLayout}>
+        <View
+          style={
+            // A switch or a checkbox stays at the row's edge after the label's column (it stretches in a column cell)
+            fill || startsColumn ? [styles.androidEndFill, startsColumn ? styles.androidEndStart : null] : columns ? [styles.androidEnd, styles.androidEndEdge] : styles.androidEnd
+          }
+          onLayout={onTrailingLayout}
+        >
           <RowEndContext.Provider value={rowEnd}>{trailing}</RowEndContext.Provider>
         </View>
       ) : null}
@@ -782,4 +959,22 @@ const styles = StyleSheet.create({
   shrink: { flexShrink: 1 },
   keep: { flexShrink: 0 },
   grow: { flex: 1, minWidth: 0 },
+  // The label's column of a List with `columns`, the value starting after it
+  column: { width: "40%", flexGrow: 0, flexShrink: 0 },
+  keepStart: { flexShrink: 1, minWidth: 0, alignItems: "flex-start" },
+  androidEndStart: { alignItems: "flex-start" },
+  androidEndEdge: { marginStart: "auto" },
+  endAtEdge: { justifyContent: "flex-end" },
+  iosHeaderRow: { flexDirection: "row", alignItems: "flex-end", gap: 16 },
+  androidHeaderRow: { flexDirection: "row", alignItems: "flex-start", height: 40, paddingHorizontal: 20, paddingTop: 15, gap: 16 },
+  androidHeaderTitle: { flex: 1, minWidth: 0, fontSize: 14, lineHeight: 18 },
+  // A prominent header: the title 16sp in the text color
+  androidHeaderIncreased: { fontSize: 16, lineHeight: 20 },
+  androidBandRow: { flexDirection: "row", alignItems: "center", gap: 16 },
+  // A row that is a Button: the button fills it, the hairline under it from the text's start
+  actionRow: { alignSelf: "stretch" },
+  actionSeparator: { position: "absolute", end: 0, bottom: 0, height: StyleSheet.hairlineWidth },
+  // A field row whose value is a line of its own
+  stackedRow: { alignSelf: "stretch", flexDirection: "row", alignItems: "center" },
+  stackedColumn: { flex: 1, minWidth: 0, alignSelf: "stretch" },
 })

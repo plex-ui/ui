@@ -92,6 +92,14 @@ const minimize = useTabBarMinimize()
   or filled (`soft`) text field with its floating label.
 - `OTPInput` (`length`, `value`, `onChange`, `onComplete`, `grouping`, `invalid`, `errorMessage`): a one-time code,
   one digit per cell, autofilled from the keyboard; the web's phone cells on iOS, outlined code boxes on Android.
+- `Field` (`label`, `description`, `errorMessage`, `required`, `hideLabel`, `orientation`, `row`) and `FieldError`: a
+  label, help and an error around a control, on its own or as a row of a `List` (`columns`, `headerProminence`,
+  `action`; a ghost `Button` among the rows is an action row), as the cells of an iOS form.
+- `Textarea` (`rows`, `autoResize`, `maxRows`, `autoSelect`), `FloatingLabelInput` (`label`, `type`, `revealable`,
+  `multiline`, `labelPlacement`): several lines; a label floating onto the Android outline, a cell named by its
+  placeholder on iOS.
+- `InputGroup` with `.Input`, `.Textarea`, `.Addon` (`align`), `.Button`, `.Text`: a field with a prefix, a unit, a
+  menu or a button; `TagInput` (`value`, `onChange`, `validator`, `maxTags`, `delimiters`): typed words as tags.
 - `Select` (`options`, `value`, `onChange(option)`): the field and a menu with a checkmark at the chosen option.
 - `Menu` (`Trigger`, `Content`, `Item`, `Separator`, `Label`): iOS 26 glass menu; Material 3 dropdown menu.
 - `Dialog` (`title`, `description`, `actions`): the iOS 26 alert; Material 3's basic dialog.
@@ -125,6 +133,32 @@ toast.success("Payment sent", { description: "$24.00 to Jane", action: { label: 
 - `Slider` (`label`, `value`, `onChange`, `min`, `max`, `step`, `unit`, `marks`, `resetValue`; `range` with a value
   for each thumb; `orientation="vertical"`): the iOS 26 slider; Material 3's Slider, RangeSlider and VerticalSlider.
 - `PageControl` (`count`, `value`, `onChange`): the iOS page dots, tapped or scrubbed.
+- `Separator` (`orientation`, `decorative`) and `TextLink` (`href`, `primary`, `underline`, `onPress`), a link inside
+  a `Text`.
+
+### Progress
+
+- `Progress` (`value`, `max`, `segments`, `size`, `color`; `value={null}` sweeps): the iOS progress view; Material 3's
+  linear progress indicator.
+- `ProgressSteps` with `.Step` (`icon`), `.Title` (`visuallyHidden`), `.Description` (`current`, `orientation`, `size`,
+  `color`, `connectorStyle`; `variant="minimal"` with `total`): the steps of a flow, a check once completed.
+- `Stepper` (`value`, `onChange`, `min`, `max`, `step`, `wrap`, `autoRepeat`, `showValue`, `onRemove`): UIStepper's
+  two segments, or a cart's quantity with a trash can at one; adjustable for screen readers.
+- `LoadingIndicator` (`size`, `color`, `duration`), `CircularProgress` (`progress`, `done`, `maxDuration`),
+  `LoadingDots`: the iOS spinner and Material 3's circular indicator, a progress ring, three pulsing dots.
+- `ShimmerText` and `ShimmerableText` (`shimmer`): a highlight sweeping across a label; `RollingNumber` (`value`,
+  `format`, `locales`): each changed digit rolls to the new value. All of them stand still with reduced motion.
+
+### Messages
+
+- `Alert` (`color`, `variant`, `title`, `description`, `actions`, `mobileActions`, `indicator`, `onDismiss`, `banner`):
+  an inline message in the shape of an iOS tip, its actions as capsules.
+- `Tip` (`title`, `description`, `icon`, `actions`, `mobileActions`, `onClose`, `arrowEdge`) and `Tip.Popover`: TipKit's
+  inline and popover tips; on Android a card with Material 3's rich tooltip layout.
+- `Popover` with `Popover.Trigger`, `.Content` and `usePopoverController()`: the compact glass panel of an iPhone
+  popover; a popup on Android.
+- `Tooltip` (`content`, `compact`, `side`, `forceOpen`) with `Tooltip.TriggerDecorator`, and `CopyTooltip`
+  (`copyValue`): shown on a long press; Material 3's plain and rich tooltips on Android.
 
 ```tsx
 <List header="General" footer="Notifications show on the lock screen.">

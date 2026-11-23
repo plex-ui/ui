@@ -12,6 +12,17 @@ export type RowEnd = {
    * an Android value row opens its choice from anywhere on the row). Rows that do not offer it leave it out.
    */
   press?: (open: (() => void) | null) => void
+  /**
+   * Where a field's text stands: at the row's `end` (a row's value), or at the `start` of its own column (a List with
+   * `columns`, the web's `[data-field-columns]`). @default "end"
+   */
+  align?: "start" | "end"
+  /**
+   * The field is a line of its own under the row's label, or alone in the row (the web's `Field row` with
+   * `orientation="vertical"` or `hideLabel`): no frame on either platform, the text from the row's text start, as
+   * tall as its lines.
+   */
+  stacked?: boolean
 }
 
 /**

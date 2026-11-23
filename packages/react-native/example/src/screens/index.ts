@@ -4,10 +4,13 @@ import { ButtonsScreen } from "./ButtonsScreen"
 import { ContentScreen } from "./ContentScreen"
 import { ControlsScreen } from "./ControlsScreen"
 import { FieldsScreen } from "./FieldsScreen"
+import { FieldsMoreScreen } from "./FieldsMoreScreen"
 import { IconButtonsScreen } from "./IconButtonsScreen"
 import { IconsScreen } from "./IconsScreen"
 import { ListsScreen } from "./ListsScreen"
+import { MessagesScreen } from "./MessagesScreen"
 import { OverlaysScreen } from "./OverlaysScreen"
+import { ProgressScreen } from "./ProgressScreen"
 import { SegmentedScreen } from "./SegmentedScreen"
 import { TabBarScreen } from "./TabBarScreen"
 import { TextScreen } from "./TextScreen"
@@ -28,7 +31,10 @@ export const screens: Screen[] = [
   { id: "segmented", title: "Segmented", stage: 2, Component: SegmentedScreen },
   { id: "controls", title: "Controls", stage: 3, Component: ControlsScreen },
   { id: "fields", title: "Fields", stage: 3, Component: FieldsScreen },
+  { id: "fields-more", title: "More fields", stage: 3, grouped: true, Component: FieldsMoreScreen },
   { id: "overlays", title: "Overlays", stage: 3, Component: OverlaysScreen },
   { id: "content", title: "Content", stage: 4, Component: ContentScreen },
   { id: "lists", title: "Lists & cards", stage: 4, grouped: true, Component: ListsScreen },
+  { id: "progress", title: "Progress", stage: 4, Component: ProgressScreen },
+  { id: "messages", title: "Messages", stage: 4, Component: MessagesScreen },
 ]

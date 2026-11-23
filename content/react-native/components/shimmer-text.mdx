@@ -1,0 +1,63 @@
+---
+title: Shimmer Text
+description: Text with a shimmer animation for loading and in-progress states, always on or toggled with a graceful stop.
+metaDescription: Shimmer text for React Native that sweeps a light band across any text for loading and AI-generated content in progress, always on or toggled with a graceful stop; plain text with reduced motion.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { ShimmerText, ShimmerableText } from "@plexui/react-native"
+
+// Always shimmering: ShimmerText
+// Shimmering while loading: ShimmerableText, which off finishes its sweep and stops
+const [shimmer, setShimmer] = useState([[shimmer]])
+
+<ShimmerableText[[^as=div]] as="[[as]]"[[/as=div]] shimmer={shimmer}[[#as=div]] size="lg" weight="semibold"[[/as=div]][[#as=h2]] weight="bold" style={{ fontSize: 24, lineHeight: 32 }}[[/as=h2]][[#as=p]] size="md"[[/as=p]][[#as=span]] size="sm" color={theme.color("--color-text-secondary")}[[/as=span]]>
+  Generating response...
+</ShimmerableText>`
+
+<UsageBlock>{`import { ShimmerText, ShimmerableText } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="semantic-elements" />
+<span id="controllable-shimmer" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p><code>ShimmerText</code> applies a continuous shimmer to text: for loading states, AI-generated content in progress, or visual emphasis. It takes the props of <code>Text</code> for its size, weight and color, as the web's classes. <code>as</code> names the element it stands for: <code>h1</code> to <code>h6</code> are read as a heading, and <code>p</code>, <code>span</code> or <code>div</code> (default) as text.</p>
+  <p><code>ShimmerableText</code> turns the shimmer on and off with <code>shimmer</code>, for text that moves between a loading and an idle state. Set to <code>false</code>, the animation finishes its current sweep and then pauses, with no abrupt cut. On iOS the band is the web's: half the text's width, from the text color to a light gray and back, across in 2.1 seconds every 3, the first after 0.6 seconds. On Android it is the Plex Android look's flicker: a 160dp band across the text in 1.2 seconds, linear. With reduced motion the text stands plain.</p>
+</>} code={overviewCode} codeValues={{ as: "div", shimmer: true }} previewMinHeight={168}>
+  <RNExample demo="shimmer-text/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: the Plex shimmer (SwiftUI's shimmering text is a modifier of its own) | None: the Plex shimmer |
+| Look | A light band sweeping across the text every 3 seconds | A light band, 160dp wide, crossing the text in 1.2 seconds |
+
+## API
+
+**ShimmerText**: always shimmering
+
+<PropsTable data={[
+  { prop: "as", type: '"p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"', default: '"div"', description: "The element it stands for; h1 to h6 are read as a heading" },
+  { prop: "children", type: "ReactNode", description: "Text content to shimmer" },
+  { prop: "size, weight, color, variant…", type: "TextProps", description: "The props of Text, for the type and color" },
+  { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the text" },
+  { prop: "containerStyle", type: "StyleProp<ViewStyle>", description: "Style of the box around the text" },
+]} />
+
+**ShimmerableText**: controllable shimmer
+
+<PropsTable data={[
+  { prop: "as", type: '"p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"', default: '"div"', description: "The element it stands for; h1 to h6 are read as a heading" },
+  { prop: "shimmer", type: "boolean", default: "false", description: "Whether the shimmer animation is active" },
+  { prop: "children", type: "ReactNode", description: "Text content to shimmer" },
+  { prop: "size, weight, color, variant…", type: "TextProps", description: "The props of Text, for the type and color" },
+  { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the text" },
+  { prop: "containerStyle", type: "StyleProp<ViewStyle>", description: "Style of the box around the text" },
+]} />

@@ -17,8 +17,8 @@ import {
   type ViewStyle,
 } from "react-native"
 import XCircleFilled from "../../icons/plex/XCircleFilled"
-import { useDescription } from "../../internal/a11y"
 import { useAndroidGlass } from "../../internal/BarBackdrop"
+import { FieldStack, FloatLabelContext } from "../../internal/fieldStack"
 import { Glass } from "../../internal/Glass"
 import { useRTL } from "../../internal/direction"
 import { springTo, stiffSpring } from "../../internal/motion"
@@ -29,7 +29,6 @@ import type { Theme } from "../../theme/types"
 import { BarFieldContext, type ControlSize } from "../Button/Button"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { MaterialCancel, MaterialClose } from "../Icon/material"
-import { Text } from "../Text/Text"
 
 export type InputVariant = "outline" | "soft" | "ghost"
 
@@ -524,8 +523,22 @@ export function InputAdornmentButton({ children, accessibilityLabel, selected, d
 
 Input.AdornmentButton = InputAdornmentButton
 
-/** `shift` moves the field sideways (TextField's shake on an error). */
-type FieldExtras = { label?: ReactNode; required?: boolean; shift?: Animated.Value }
+/**
+ * `shift` moves the field sideways (TextField's shake on an error). With `multiline` (a Textarea) `rows` sets the
+ * least height in lines, and `autoResize` grows the field with its text up to `maxRows` (else it stays at `rows` and
+ * scrolls).
+ */
+export type FieldExtras = {
+  label?: ReactNode
+  required?: boolean
+  shift?: Animated.Value
+  rows?: number
+  maxRows?: number
+  autoResize?: boolean
+  /** Android, at a row's end: the value stands at the end, as a value row's and the web's ghost row value (a Field row's
+   * Input, an InputGroup's value before its unit); in a List with `columns` it still starts its column. */
+  valueAtEnd?: boolean
+}
 
 /** The field itself; TextField passes it a floating label on Android. */
 export function InputField({
@@ -539,9 +552,13 @@ export function InputField({
   pill = false,
   style,
   testID,
-  label,
-  required,
-  shift,
+  label: ownLabel,
+  required: ownRequired,
+  shift: ownShift,
+  rows,
+  maxRows,
+  autoResize = false,
+  valueAtEnd = false,
   value,
   defaultValue,
   onChangeText,
@@ -554,6 +571,11 @@ export function InputField({
   ...rest
 }: InputProps & FieldExtras) {
   const theme = useTheme()
+  // A Field's label, floated in the field on Android (FloatLabelContext); the field's own wins
+  const floatLabel = useContext(FloatLabelContext)
+  const label = ownLabel ?? floatLabel?.label
+  const required = ownRequired ?? floatLabel?.required
+  const shift = ownShift ?? floatLabel?.shift
   const [focused, setFocused] = useState(false)
   const [own, setOwn] = useState(defaultValue ?? "")
   const text = value ?? own
@@ -570,6 +592,12 @@ export function InputField({
   const rowEnd = useContext(RowEndContext)
   const fillsRow = rowEnd != null && !barField
   const inRow = fillsRow && !theme.isAndroid
+  // A line of its own under a row's label, or alone in the row (the web's vertical or label-hidden `Field row`): the
+  // bare value on both platforms, from the row's text start; in a List with `columns` the value starts its column
+  const stacked = fillsRow && rowEnd?.stacked === true
+  const bare = inRow || stacked
+  const startAligned = stacked || rowEnd?.align === "start"
+  const multiline = rest.multiline === true
   // The row's value stands at its end: the right, or the left in a right-to-left row (a phone turns "right" over
   // itself, the web does not)
   const { ref: textBox, rtl } = useRTL<ComponentRef<typeof View>>()
@@ -600,13 +628,15 @@ export function InputField({
   )
   const look = barSearch
     ? { ...fieldLookOf, box: { ...fieldLookOf.box, ...androidGlass } as ViewStyle }
-    : inRow
+    : bare
     ? {
         ...fieldLookOf,
-        box: { minHeight: theme.length("--field-row-label-line-height", 22), opacity: disabled ? 0.5 : 1 } as ViewStyle,
-        placeholder: theme.colors.labelTertiary,
+        box: { minHeight: theme.isAndroid ? fieldLookOf.text.lineHeight : theme.length("--field-row-label-line-height", 22), opacity: disabled ? 0.5 : 1 } as ViewStyle,
+        frame: null,
+        placeholder: theme.isAndroid ? fieldLookOf.placeholder : theme.colors.labelTertiary,
         text: { ...fieldLookOf.text, color: theme.colors.text },
         adornmentOffset: 0,
+        gutter: 0,
       }
     : fieldLookOf
   const floating = theme.isAndroid && label != null && !barField
@@ -637,12 +667,31 @@ export function InputField({
   // A 24dp icon stands 12 in, the text 12 past it (48 in); otherwise the text is 14 in (the outlined field), 21 in a
   // card's bare field, or 20 in a bar's search field. Android's search field keeps its text 48 from the end
   // (at a row's end the row sets the edge: a bare field keeps 14)
-  const edge = barField && !search ? 20 : fillsRow && variant === "ghost" ? 14 : look.gutter
+  // A ghost value that starts a row's column, or (Android) stands at the row's end, has the row's insets for its own
+  const flush = fillsRow && variant === "ghost" && (rowEnd?.align === "start" || (theme.isAndroid && valueAtEnd))
+  const edge = barField && !search ? 20 : stacked || flush ? 0 : fillsRow && variant === "ghost" ? 14 : look.gutter
   const endEdge = search ? 48 : edge
   const sides: ViewStyle | null = theme.isAndroid
-    ? { paddingStart: startAdornment ? 12 : edge, paddingEnd: endAdornment || showClear || androidClear ? 12 : endEdge }
+    ? stacked
+      ? { paddingStart: 0, paddingEnd: 0 }
+      : { paddingStart: startAdornment ? 12 : edge, paddingEnd: endAdornment || showClear || androidClear ? 12 : endEdge }
     : null
   const textStart = theme.isAndroid ? (startAdornment ? 48 : edge) : 0
+  // Above and below the text: a label floated inside a filled field (8 to 24) sets the text under it; Android centres
+  // a line in the field's height; iOS keeps 10 in its border (11 from the edge); a bare value none
+  const padding = bare
+    ? { top: 0, bottom: 0 }
+    : floating && !outlined
+      ? { top: 26, bottom: 10 }
+      : theme.isAndroid
+        ? { top: (look.height - look.text.lineHeight) / 2, bottom: (look.height - look.text.lineHeight) / 2 }
+        : { top: 10, bottom: 10 }
+  // A Textarea's lines: `rows` at least; with `autoResize` as many as its text takes (a hidden copy of the text, as
+  // wide as the field's, measures them), up to `maxRows` (the larger of `rows` and 10, as the web's)
+  const minLines = Math.max(1, Math.round(rows ?? 1))
+  const maxLines = Math.max(minLines, Math.round(maxRows ?? Math.max(minLines, 10)))
+  const [measured, setMeasured] = useState(0)
+  const lines = multiline && autoResize && measured > 0 ? Math.min(maxLines, Math.max(minLines, Math.round(measured / look.text.lineHeight))) : minLines
   // An outlined label floats to the text's start over the line (past a pill's round end), the cut 5 around it
   const floatedStart = pill ? look.height / 2 : 14
   const [labelWidth, setLabelWidth] = useState(0)
@@ -675,7 +724,7 @@ export function InputField({
       raised={!!barField?.raised}
       radius={look.height / 2}
       shift={shift}
-      style={[styles.box, look.box, { gap: look.gap }, sides, style]}
+      style={[styles.box, look.box, { gap: look.gap }, multiline ? styles.boxTop : null, sides, style]}
       testID={testID}
     >
       {theme.isAndroid ? <FieldOutline frame={look.frame} cut={cut} motion={lineMotion} /> : null}
@@ -726,6 +775,18 @@ export function InputField({
             </Animated.View>
           </>
         ) : null}
+        {multiline && autoResize ? (
+          <NativeText
+            aria-hidden
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            onLayout={(event) => setMeasured(event.nativeEvent.layout.height)}
+            style={[styles.mirror, look.text, theme.font("regular")]}
+          >
+            {/* A last empty line keeps its height: Text drops a trailing line break */}
+            {`${text || rest.placeholder || " "}\u200b`}
+          </NativeText>
+        ) : null}
         <TextInput
           {...rest}
           ref={setInput}
@@ -761,8 +822,12 @@ export function InputField({
             look.text,
             theme.font("regular"),
             // A label floated inside the field (8 to 24) sets the text under it
-            floating && !outlined ? { paddingTop: 26, paddingBottom: 10 } : { paddingVertical: theme.isAndroid ? (look.height - look.text.lineHeight) / 2 : inRow ? 0 : 10 },
-            inRow ? { textAlign: Platform.OS === "web" && rtl ? "left" : "right" } : null,
+            { paddingTop: padding.top, paddingBottom: padding.bottom },
+            (inRow && !startAligned) || (fillsRow && valueAtEnd && !startAligned) ? { textAlign: Platform.OS === "web" && rtl ? "left" : "right" } : null,
+            // A value in a row that the person cannot edit is the secondary label, as the web's phone rows (iOS's
+            // values of a row that only informs)
+            fillsRow && readOnly && !disabled ? { color: theme.colors.labelSecondary } : null,
+            multiline ? { height: lines * look.text.lineHeight + padding.top + padding.bottom, textAlignVertical: "top" } : null,
           ]}
         />
       </View>
@@ -834,72 +899,32 @@ export type TextFieldProps = InputProps & {
  */
 export function TextField({ label, description, errorMessage, required, invalid, ...input }: TextFieldProps) {
   const theme = useTheme()
-  const error = errorMessage != null && errorMessage !== false && errorMessage !== ""
-  const bad = invalid || error
-  const help = error ? errorMessage : description
-  // The help or the error describes the field: read after its label (a hint on a phone, `aria-describedby` on the
-  // web). A caller's own hint wins; its described-by ids are kept with this one.
-  const described = useDescription(help)
-  const describedBy = [(input as DescribedBy)["aria-describedby"], (described.props as DescribedBy)["aria-describedby"]].filter(Boolean).join(" ") || undefined
-  const describedProps = {
-    ...described.props,
-    ...(describedBy ? { "aria-describedby": describedBy } : null),
-    ...(input.accessibilityHint != null ? { accessibilityHint: input.accessibilityHint } : null),
-  }
-  // Android shakes the field when an error message appears: flung left at 350dp/s on a spring of stiffness 600 at half
-  // its critical damping, it swings back and settles where it stood
-  const [shake] = useState(() => new Animated.Value(0))
-  const hadError = useRef(error)
-  useEffect(() => {
-    const appeared = error && !hadError.current
-    hadError.current = error
-    if (!appeared || !theme.isAndroid || theme.reducedMotion) return
-    shake.setValue(0)
-    Animated.spring(shake, { toValue: 0, velocity: -350, ...stiffSpring(600, 0.5), useNativeDriver: false }).start()
-  }, [error, shake, theme.isAndroid, theme.reducedMotion])
-  if (theme.isAndroid) {
-    return (
-      <View style={styles.field}>
-        <InputField {...input} {...describedProps} label={label} required={required} invalid={bad} shift={shake} />
-        {help != null ? (
-          // Android's help under a field: 14 in the gray of secondary text, or in the error color, at the text's 14
-          // (dimmed with a disabled field)
-          <Text
-            nativeID={described.id}
-            color={bad ? dangerText(theme) : theme.colors.textSecondary}
-            accessibilityLiveRegion={error ? "polite" : undefined}
-            style={{ fontSize: 14, lineHeight: 18, paddingHorizontal: 14, paddingTop: 6, opacity: input.disabled ? 0.5 : 1 }}
-          >
-            {help}
-          </Text>
-        ) : null}
-      </View>
-    )
-  }
   return (
-    <View style={[styles.field, { gap: 8 }]}>
-      <Text weight="medium" style={{ fontSize: 15, lineHeight: 20 }} color={input.disabled ? "disabled" : "primary"}>
-        {label}
-        {required ? <Text color={theme.color("--color-text-danger")}> *</Text> : null}
-      </Text>
-      <InputField
-        {...input}
-        {...describedProps}
-        accessibilityLabel={input.accessibilityLabel ?? (typeof label === "string" ? label : undefined)}
-        required={required}
-        invalid={bad}
-      />
-      {help != null ? (
-        <Text
-          nativeID={described.id}
-          color={bad ? theme.color("--color-text-danger") : "secondary"}
-          accessibilityLiveRegion={error ? "polite" : undefined}
-          style={{ fontSize: theme.length("--mobile-field-error-font-size", 15), lineHeight: theme.length("--mobile-field-error-line-height", 20), marginTop: theme.length("--mobile-field-error-offset", 4) - 8 }}
-        >
-          {help}
-        </Text>
-      ) : null}
-    </View>
+    <FieldStack
+      label={label}
+      required={required}
+      description={description}
+      errorMessage={errorMessage}
+      invalid={invalid}
+      disabled={input.disabled}
+      floating={theme.isAndroid}
+      describedBy={(input as DescribedBy)["aria-describedby"]}
+      hint={input.accessibilityHint}
+    >
+      {({ described, invalid: bad, shake }) =>
+        theme.isAndroid ? (
+          <InputField {...input} {...described} label={label} required={required} invalid={bad} shift={shake} />
+        ) : (
+          <InputField
+            {...input}
+            {...described}
+            accessibilityLabel={input.accessibilityLabel ?? (typeof label === "string" ? label : undefined)}
+            required={required}
+            invalid={bad}
+          />
+        )
+      }
+    </FieldStack>
   )
 }
 
@@ -913,15 +938,18 @@ const styles = StyleSheet.create({
   // Centered in the 48dp target
   adornmentPressed: { position: "absolute", top: 4, start: 4, width: 40, height: 40, borderRadius: 20 },
   box: { flexDirection: "row", alignItems: "center", alignSelf: "stretch" },
+  // A field of several lines keeps its adornments on its first line
+  boxTop: { alignItems: "flex-start" },
   grow: { flex: 1, minWidth: 0, justifyContent: "center" },
   // On the web a zero width leaves Chrome's `auto` focus ring drawn round the text: the field shows its focus itself
   input: { margin: 0, padding: 0, outlineWidth: 0, outlineStyle: "none" as "solid", minWidth: 0 },
   floating: { position: "absolute", start: 0, maxWidth: "100%", flexDirection: "row" },
   measure: { position: "absolute", start: 0, top: 0, opacity: 0 },
+  // As wide as the text, out of the flow and unseen
+  mirror: { position: "absolute", start: 0, end: 0, top: 0, opacity: 0 },
   underline: { position: "absolute", left: 0, right: 0, bottom: 0 },
   window: { position: "absolute", overflow: "hidden" },
   copy: { position: "absolute" },
   clear: { alignItems: "center", justifyContent: "center" },
   clearStretch: { alignSelf: "stretch" },
-  field: { alignSelf: "stretch" },
 })

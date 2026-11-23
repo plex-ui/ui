@@ -1,0 +1,79 @@
+---
+title: Textarea
+description: A text field of several lines that can grow with its text, as the value of a List row or on its own.
+metaDescription: Multi-line text field with rows, auto resize up to maxRows, auto select, disabled and invalid states; the bare value of a form row under its label on iOS, the outlined field of several lines on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Field, List, Textarea } from "@plexui/react-native"
+
+const [value, setValue] = useState("Gate code 4512\\nThird floor, door on the left\\nCall when you arrive")
+
+<List>
+  <Field row orientation="vertical" label="Notes" errorMessage={invalid ? "Keep the note to two lines." : undefined}>
+    <Textarea
+      variant="ghost"
+      value={value}
+      onChangeText={setValue}
+      placeholder="Add a note"
+      rows={3}
+      maxRows={10}
+      autoResize
+      autoSelect={autoSelect}
+      disabled={disabled}
+      invalid={invalid}
+    />
+  </Field>
+</List>`
+
+<UsageBlock>{`import { Textarea } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="variants" />
+<span id="sizing" />
+<span id="disabled" />
+<span id="invalid" />
+<span id="auto-resize" />
+<span id="auto-select-text" />
+<span id="autofill-extensions" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>On a phone, put a textarea under the label of a <code>List</code> row (<code>Field row orientation="vertical"</code>) with <code>variant="ghost"</code>: the row is its frame and sets its insets and type, so the example shows no <code>size</code> or <code>variant</code> control; <code>rows</code> sets its height. On iOS its lines are the row's 17/22 from the row's text start; on Android the bare 17sp lines of a card's text field.</p>
+  <p>Textarea is the Input's field with several lines, so it takes the same <code>variant</code>, <code>size</code>, <code>disabled</code>, <code>readOnly</code> and <code>invalid</code>, and on its own the same frames: on iOS a 44pt field's border with 11 above and below its lines, on Android the outlined field, its label floating on the line inside a <code>Field</code>. <code>rows</code> sets the initial height; with <code>autoResize</code> the textarea grows and shrinks as the user types, up to <code>maxRows</code> (the larger of <code>rows</code> and 10 when unset), then scrolls. <code>autoSelect</code> selects all its text when it takes focus (TextInput's <code>selectTextOnFocus</code>). <code>disabled</code> dims it and takes no input. <code>invalid</code> marks it invalid; in a row the error is the row's <code>errorMessage</code> line under the value. Browser autofill extensions are a desktop matter: iOS and Android offer autofill from the system.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="textarea/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Text view (multi-line text field) | Text field, multi-line (outlined) |
+| In a List row | The row's bare value under its label, 17/22 lines from the text start | The bare 17sp value under the row's label, 20 in |
+| On its own | A framed field, its lines 11 from the border | The outlined field, 8dp corners, the label floating on the line in a Field |
+
+## API
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "Controlled text" },
+  { prop: "defaultValue", type: "string", description: "Initial text (uncontrolled)" },
+  { prop: "onChangeText", type: "(text: string) => void", description: "Called with the text on every change" },
+  { prop: "variant", type: '"outline" | "soft" | "ghost"', default: '"outline"', description: "Fill style; ghost has no frame, for a row or a container that frames it" },
+  { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Step of the control scale: the radius, gutter and type of the frame" },
+  { prop: "rows", type: "number", default: "3", description: "Initial row count" },
+  { prop: "autoResize", type: "boolean", default: "false", description: "Grow and shrink with the text" },
+  { prop: "maxRows", type: "number", description: "Max rows with autoResize; defaults to the larger of rows and 10" },
+  { prop: "autoSelect", type: "boolean", default: "false", description: "Select all the text when it takes focus" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims the textarea and takes no input" },
+  { prop: "readOnly", type: "boolean", default: "false", description: "Keeps the value" },
+  { prop: "invalid", type: "boolean", default: "false", description: "Draws it in the error color" },
+  { prop: "placeholder", type: "string", description: "Shown while the textarea is empty" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the field's box" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+Every other prop of React Native's `TextInput` passes through (`maxLength`, `autoCapitalize`, `onFocus`, `onBlur` and so on).

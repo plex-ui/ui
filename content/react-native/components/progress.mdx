@@ -1,0 +1,87 @@
+---
+title: Progress
+description: A horizontal bar that shows how far a task has come, or a sweep while its length is unknown.
+metaDescription: Progress bar for React Native that shows how far a task has come, or a sweep while its length is unknown, with a label, sizes, colors and segments; iOS 26's progress view on iOS, Material's line progress on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Progress, Text, useTheme } from "@plexui/react-native"
+import { View } from "react-native"
+
+const theme = useTheme()
+
+[[#label]]
+<View style={{ gap: 8 }}>
+  <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", gap: 16 }}>
+    <Text nativeID="progress-upload-label">Uploading plex-ui.zip</Text>
+[[^indeterminate]]
+    <Text color={theme.color("--color-text-tertiary")} style={{ fontSize: 14 }}>[[value]]%</Text>
+[[/indeterminate]]
+  </View>
+  <Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]}[[^size=sm]] size="[[size]]"[[/size=sm]][[^color=primary]] color="[[color]]"[[/color=primary]] aria-labelledby="progress-upload-label" />
+</View>
+[[/label]]
+[[^label]]
+<Progress value={[[#indeterminate]]null[[/indeterminate]][[^indeterminate]][[value]][[/indeterminate]]}[[^size=sm]] size="[[size]]"[[/size=sm]][[^color=primary]] color="[[color]]"[[/color=primary]] aria-label="Uploading plex-ui.zip" />
+[[/label]]`
+
+export const segmentsCode = `import { Progress, Text } from "@plexui/react-native"
+import { View } from "react-native"
+
+<View style={{ width: "100%", maxWidth: 320, gap: 8 }}>
+  <Text nativeID="progress-bill-label">Bill of $200</Text>
+  <Progress
+    aria-labelledby="progress-bill-label"
+    max={200}
+    segments={[
+      { value: 120, color: "success", label: "Paid" },
+      { value: 45, color: "warning", label: "Pending" },
+    ]}
+    size="lg"
+  />
+</View>`
+
+<UsageBlock>{`import { Progress } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="with-label" />
+<span id="controlled" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A bar of task completion between <code>0</code> and <code>max</code> (100 by default); it animates each change of <code>value</code>, so bind it to any source, here the <code>value</code> slider. <code>indeterminate</code> passes <code>value={'{null}'}</code>: a sweep for a task of unknown length. <code>label</code> puts a label and a readout above the bar, the typical upload or onboarding pattern; the bar takes its name from it with <code>aria-labelledby</code> (the label's <code>nativeID</code>), and without one it needs an <code>aria-label</code>. It reads out the value as a rounded percentage, or what <code>getValueLabel</code> returns. <code>size</code> sets the thickness, 4, 6 or 8 points, and <code>color</code> the filled part, such as <code>secondary</code> grey for a second series beside the first.</p>
+  <p>On iOS the bar is drawn from the phone layer's tokens: the ink on <code>--progress-track-color</code>, a change of value in 120ms, and a sweep of 40% of the track there and back in 1.5 seconds. On Android it is Material's line progress in the Plex Android look: the accent on the text color at 8% (16% at night), a change of value in 300ms decelerating, and Material's two lines running along the track for a task of unknown length. With reduced motion a value lands at once and the sweep stands still in the middle; a screen reader reads the bar as busy then.</p>
+</>} code={overviewCode} codeValues={{ value: 66, indeterminate: false, label: true, size: "sm", color: "primary" }}>
+  <RNExample demo="progress/Overview" />
+</ComponentPreview>
+
+### Segments
+
+<ComponentPreview details={<>Pass <code>segments</code> for parts of one bar side by side, each in its color, such as a bill paid in parts: what is paid, what is pending, and the track left for what is due. A part is <code>{"{ value, color, label }"}</code>; the bar&apos;s value is their sum, and a part past <code>max</code> is cut to it. A hairline of the track (<code>--progress-segment-gap</code>) parts them. It reads out each part with its label and share, such as Paid 60%, Pending 23%.</>} code={segmentsCode}>
+  <RNExample demo="progress/Segments" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Progress view (linear) | Linear progress indicator |
+| Look | A 4pt track of the ink on a light gray, rounded; a sweep for an unknown length (iOS has none of its own) | The accent on a light track, rounded; two lines running along it for an unknown length |
+
+## API
+
+<PropsTable data={[
+  { prop: "value", type: "number | null", default: "null", description: "Current progress between 0 and max. Pass null for indeterminate" },
+  { prop: "max", type: "number", default: "100", description: "Maximum progress value" },
+  { prop: "segments", type: "ProgressSegment[]", description: "Parts of one bar side by side: { value, color?, label? }, color one of primary, secondary, success, warning, caution, danger, info, discovery. Takes the place of value" },
+  { prop: "size", type: '"sm" | "md" | "lg"', default: '"sm"', description: "The bar's thickness: sm 4pt (iOS's progress view), md 6pt, lg 8pt (a bar in a stats card)" },
+  { prop: "color", type: '"primary" | "secondary" | "success" | "warning" | "caution" | "danger" | "info" | "discovery"', default: '"primary"', description: "The color of the filled part; primary is the ink on iOS and the accent on Android. A segmented bar's parts take their own colors" },
+  { prop: "getValueLabel", type: "(value: number, max: number) => string", description: "The value read out. Defaults to the rounded percentage, e.g. \"67%\"" },
+  { prop: "aria-label", type: "string", description: "The name read out, when no visible label names the bar" },
+  { prop: "aria-labelledby", type: "string", description: "The nativeID of the visible label that names the bar (Android and the web)" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the track" },
+]} />

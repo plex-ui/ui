@@ -1,0 +1,112 @@
+---
+title: Tag Input
+description: A field that turns what is typed into removable tags, as the value of a List row or on its own.
+metaDescription: Text field that turns typed words into removable tags, with delimiters, a validator, a maximum and a least height in lines; the web's phone tags in a form row on iOS, 32dp chips on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Field, List, TagInput } from "@plexui/react-native"
+
+// The tags are the value of a row, under its label
+<List>
+  <Field row orientation="vertical" label="Tags">
+    <TagInput variant="ghost" placeholder="Add a tag..." rows={1} />
+  </Field>
+</List>`
+
+export const filterCode = `import { Field, List, Select, TagInput, type Tag } from "@plexui/react-native"
+
+const [field, setField] = useState("email")
+const [tags, setTags] = useState<Tag[]>([
+  { value: "ada@plexui.com", valid: true },
+  { value: "grace@plexui.com", valid: true },
+])
+
+<List>
+  <Field row label="Where">
+    <Select value={field} options={fields} onChange={(option) => setField(option.value)} />
+  </Field>
+  <Field row orientation="vertical" label="Is in">
+    <TagInput variant="ghost" value={tags} onChange={setTags} placeholder="Add a value" />
+  </Field>
+</List>`
+
+export const suggestionsCode = `import { Button, Field, List, TagInput, type Tag } from "@plexui/react-native"
+
+const [tags, setTags] = useState<Tag[]>([
+  { value: "React", valid: true },
+  { value: "TypeScript", valid: true },
+])
+const available = SUGGESTIONS.filter((suggestion) => !tags.some((tag) => tag.value === suggestion))
+
+<List>
+  <Field row orientation="vertical" label="Skills">
+    <TagInput variant="ghost" value={tags} onChange={setTags} placeholder="Add a skill..." />
+  </Field>
+</List>
+<List header="Suggestions">
+  {available.map((suggestion) => (
+    <Field row key={suggestion} label={suggestion}>
+      <Button color="primary" variant="ghost" accessibilityLabel={\`Add \${suggestion}\`} onPress={() => setTags([...tags, { value: suggestion, valid: true }])}>
+        Add
+      </Button>
+    </Field>
+  ))}
+</List>`
+
+<UsageBlock>{`import { TagInput } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>On a phone, put a tag input under the label of a <code>List</code> row (<code>Field row orientation="vertical"</code>) with <code>variant="ghost"</code>, as a textarea: the row is its frame and sets its insets and type, so the example shows no <code>size</code> or <code>pill</code> control. A comma, a space or Return turns the text into a tag, a paste is split at the delimiters, Backspace in the empty field takes the last tag, and each tag's × removes it. <code>rows</code> sets the least height in lines of tags.</p>
+  <p>On iOS a tag is the web's phone tag: a 44pt line with a 32pt gray pill, its 17pt words 8 in and the × in a 44pt target after them, 8 apart; the field, as wide as its text or hint and a 10pt cursor gutter, takes the rest of the last tag's line when that fits, else a 28pt line of its own 8 under the tags. On Android a tag is a 32dp chip, 16 round, filled with the text color at 5%, its words 14sp. <code>validator</code> judges each new tag, and an invalid one stands in the danger color; <code>maxTags</code> takes the field away at the limit.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="tag-input/Overview" />
+</ComponentPreview>
+
+### Inline filter row
+
+<ComponentPreview details={<>A filter on a phone is a group: the field it filters is a pop-up row, a <code>Select</code> at the row's end, and its values the tags under the next row's label.</>} code={filterCode} previewMinHeight={168}>
+  <RNExample demo="tag-input/InlineFilterRow" />
+</ComponentPreview>
+
+### Suggestions
+
+<ComponentPreview details={<>Suggestions are rows of a List of their own, each with its Add button at the end, as iOS lists offer items to add. A press adds the suggestion as a tag and takes its row away.</>} code={suggestionsCode} previewMinHeight={240}>
+  <RNExample demo="tag-input/Suggestions" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: a token field, drawn as the web's phone tags | None: a Plex Android chip field |
+| Tags | A 32pt gray pill in a 44pt line, 17pt words, the × in a 44pt target | A 32dp chip, 16 round, the text color at 5%, 14sp words |
+| In a List row | The row's bare value under its label | The row's bare value under its label |
+
+## API
+
+<PropsTable data={[
+  { prop: "value", type: "Tag[]", description: "Controlled value" },
+  { prop: "defaultValue", type: "Tag[]", description: "Uncontrolled initial tags" },
+  { prop: "onChange", type: "(tags: Tag[]) => void", description: "Change handler" },
+  { prop: "placeholder", type: "string", description: "Input placeholder" },
+  { prop: "validator", type: "(value: string) => boolean", description: "Validates each tag when it is created; invalid tags shown in red" },
+  { prop: "maxTags", type: "number", description: "Maximum number of tags; at the limit the text field goes" },
+  { prop: "rows", type: "number", default: "1", description: "Min rows" },
+  { prop: "size", type: "'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'", default: "xl", description: "Line height of a framed tag input (a row sets its own)" },
+  { prop: "variant", type: "'outline' | 'ghost'", default: "outline", description: "ghost has no frame, for a row" },
+  { prop: "pill", type: "boolean", default: "false", description: "Fully-rounded frame" },
+  { prop: "delimiters", type: "string[]", default: '[",", " "]', description: "Characters that commit the current text as a tag" },
+  { prop: "disabled", type: "boolean", description: "Tags cannot be added or removed" },
+  { prop: "autoFocus", type: "boolean", default: "false", description: "Focus on mount" },
+  { prop: "accessibilityLabel", type: "string", description: "The text field's name (the placeholder by default)" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the root" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+`Tag` is `{ value: string; valid: boolean }`.

@@ -17,7 +17,7 @@ import { flattenChildren } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
 import { useAndroidGlass } from "../../internal/BarBackdrop"
 import { curves } from "../../internal/motion"
-import { barShadow, stateLayer, withAlpha } from "../../theme/material"
+import { accentText, barShadow, controlHighlight, dangerText, stateLayer, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
@@ -125,6 +125,13 @@ export const BarFieldContext = createContext<{
   /** The color of the screen under the bar. */
   canvas?: string
 } | null>(null)
+
+/**
+ * A ghost Button in a List: in its `header` it is the list header's text action, in a `row` (a Button among a List's
+ * rows) the row is the button, as the web's ghost Button in a FieldGroup's header or in a `[data-row]`. Null elsewhere.
+ */
+export type ListAction = "header" | "row"
+export const ListActionContext = createContext<ListAction | null>(null)
 
 /** The control icon size a button size falls back to (Button.module.css). */
 const CONTROL_ICON: Record<ControlSize, string> = { "3xs": "xs", "2xs": "sm", xs: "sm", sm: "md", md: "md", lg: "md", xl: "md", "2xl": "lg", "3xl": "lg" }
@@ -390,9 +397,114 @@ function renderChildren(children: ReactNode, metrics: Metrics) {
 /**
  * A button after the platform: an iOS 26 capsule (the native sizes of the Plex UI phone layer, its colors and glass)
  * or the Android button (a pill, 14 Medium, the Plex colors; a disabled one keeps its fill and dims its label to
- * half). Props follow @plexui/ui.
+ * half). Props follow @plexui/ui. A ghost Button in a List's header or among its rows is drawn as the list's text action
+ * (`ListActionContext`).
  */
-export function Button({
+export function Button(props: ButtonProps) {
+  const list = useContext(ListActionContext)
+  const bar = useContext(BarItemContext)
+  if (list != null && bar == null && props.variant === "ghost") return <ListActionButton {...props} place={list} />
+  return <ButtonBody {...props} />
+}
+
+/**
+ * A ghost Button as a List draws an action. In a row (iOS 27.2's button cell): the row's 17/22 Regular words where a
+ * row's label starts, tinted (the accent for `primary`, `secondary` and `info`, red for `danger`), an icon after them at
+ * the row's trailing edge, the row's press fill, no chevron; on Android a 50dp row with the 16sp words 20 in, in the
+ * accent or the error color, pressed in the list selector. In a header: iOS's list header action, tinted 17/22 text on
+ * the title's line with a 44pt target; Android's 14sp Medium in the accent on the header's line. `style` reaches the
+ * row (`justifyContent: "center"` centres the words, as the web's `data-align="center"`).
+ */
+function ListActionButton({
+  place,
+  color = "primary",
+  disabled = false,
+  loading = false,
+  inert: inertProp = loading,
+  children,
+  style,
+  onPressIn,
+  onPressOut,
+  accessibilityState,
+  ...rest
+}: ButtonProps & { place: ListAction }) {
+  const theme = useTheme()
+  const android = theme.isAndroid
+  const [pressed, setPressed] = useState(false)
+  const inert = disabled || inertProp
+  const row = place === "row"
+  const tinted = color === "primary" || color === "secondary" || color === "info"
+  const base =
+    color === "danger"
+      ? android
+        ? dangerText(theme)
+        : theme.color("--color-text-danger")
+      : tinted
+        ? android
+          ? accentText(theme)
+          : // The web's phone rows tint an action with the info text (#0169cc, blue-200 in the dark)
+            theme.color("--color-text-info", theme.colors.accent)
+        : buttonColors(theme, color, "ghost", false, false).text
+  const ink = disabled ? (android ? withAlpha(base, 0.5) : theme.colors.labelTertiary) : !row && pressed && !android ? lighten(theme, base) : base
+  const type = android
+    ? row
+      ? { fontSize: 16, lineHeight: 20 }
+      : { fontSize: 14, lineHeight: 18 }
+    : row
+      ? { fontSize: theme.length("--field-row-label-font-size", 17), lineHeight: theme.length("--field-row-label-line-height", 22) }
+      : { fontSize: theme.length("--field-group-title-font-size", 17), lineHeight: theme.length("--field-group-title-line-height", 22) }
+  const parts = flattenChildren(children)
+  // Words and then an icon: the words take the room, so the icon ends the row
+  const trailingIcon = row && parts.length > 1 && isValidElement(parts[parts.length - 1])
+  const content = parts.map((part, index) =>
+    typeof part === "string" || typeof part === "number" ? (
+      <Text key={`label-${index}`} weight={android && !row ? "medium" : "regular"} numberOfLines={row ? undefined : 1} style={[type, trailingIcon && index < parts.length - 1 ? styles.grow : null]}>
+        {part}
+      </Text>
+    ) : (
+      <Fragment key={`part-${index}`}>{part}</Fragment>
+    ),
+  )
+  const fill = row && pressed && !inert ? (android ? controlHighlight(theme.scheme) : theme.color("--field-row-press-background")) : undefined
+  // The header's words stand on the title's line: their target reaches over and under it to 44 (48 on Android)
+  const reach = row ? 0 : Math.max(0, ((android ? 48 : 44) - type.lineHeight) / 2)
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: inert, busy: loading, ...accessibilityState }}
+      aria-busy={loading}
+      disabled={inert}
+      hitSlop={row ? undefined : { top: reach, bottom: reach, left: 8, right: 8 }}
+      onPressIn={(event) => {
+        setPressed(true)
+        onPressIn?.(event)
+      }}
+      onPressOut={(event) => {
+        setPressed(false)
+        onPressOut?.(event)
+      }}
+      {...rest}
+      style={[
+        styles.row,
+        row
+          ? { alignSelf: "stretch", justifyContent: "flex-start", minHeight: android ? 50 : theme.length("--field-row-min-height", 52), paddingHorizontal: android ? 20 : theme.length("--list-row-inset", 20), gap: 8 }
+          : { flexShrink: 0, gap: 4 },
+        fill ? { backgroundColor: fill } : null,
+        !row && android && pressed && !inert ? { opacity: 0.6 } : null,
+        style,
+      ]}
+    >
+      <TextColorProvider value={ink}>
+        {/* A row's symbol is 24 (`--field-row-icon-symbol-size`), as the arrow of a link that leaves the app */}
+        <IconDefaultsProvider size={android ? 24 : row ? theme.length("--field-row-icon-symbol-size", 24) : theme.length("--control-icon-size-md", 20)} color={ink}>
+          {loading ? <ActivityIndicator color={ink} size="small" /> : content}
+        </IconDefaultsProvider>
+      </TextColorProvider>
+    </Pressable>
+  )
+}
+
+function ButtonBody({
   color = "primary",
   variant = "solid",
   size = "md",
@@ -666,4 +778,5 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
   fromTop: { alignSelf: "stretch", transformOrigin: "top" },
+  grow: { flexGrow: 1, flexShrink: 1 },
 })

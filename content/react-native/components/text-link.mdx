@@ -1,0 +1,74 @@
+---
+title: Text Link
+description: "A link in running text, to a page of the app or another site, that takes the color of the text around it."
+metaDescription: React Native text link for inline links inside a Text, to a screen of the app or another site, with the color of the text around it, an underline, a primary color and weights; opened with Linking on iOS and Android, an anchor on the web.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Text, TextLink } from "@plexui/react-native"
+import { ArrowTopRightSm } from "@plexui/react-native/icons"
+
+const [color, setColor] = useState("primary") // or "secondary", "tertiary": the paragraph's color
+const [primary, setPrimary] = useState(false)
+const [underline, setUnderline] = useState(undefined) // or true, false; unset, on unless primary
+const [external, setExternal] = useState(false)
+const [weight, setWeight] = useState(undefined) // or "medium", "semibold"
+
+<Text size="md" color={color}>
+  You can use the{" "}
+  <TextLink href="#" primary={primary} underline={underline} weight={weight}>responses endpoint</TextLink>{" "}
+  to generate text. You can either use the API directly from an HTTP client of your choice, or use one of the{" "}
+  {external ? (
+    <TextLink href="https://example.com" primary={primary} underline={underline} weight={weight}>
+      official SDKs <ArrowTopRightSm size={16} />
+    </TextLink>
+  ) : (
+    <TextLink href="#" primary={primary} underline={underline} weight={weight}>official SDKs</TextLink>
+  )}{" "}
+  for your preferred language.
+</Text>`
+
+<UsageBlock>{`import { TextLink } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="inline-usage" />
+<span id="default-inheritance" />
+<span id="primary-color" />
+<span id="underline" />
+<span id="external-links" />
+<span id="font-weight" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A <code>TextLink</code> sits in running text: put it inside a <code>Text</code>, whose face, size and color it takes, with an underline, a subtle difference from the text around it. Change the paragraph's color (<code>colorClassName</code>) to see it. <code>primary</code> colors the link with <code>--link-primary-text-color</code> instead and drops the underline by default. <code>underline</code> turns the underline on or off; unset, it is on unless the link is <code>primary</code>. <code>weight</code> sets the link's weight (the web's font-weight class); by default it takes the text's own.</p>
+  <p>A tap opens <code>href</code> with React Native's <code>Linking</code>: a link of the app (its own scheme or a universal link) or a site in the browser; on the web it is an anchor, and an <code>http://</code> or <code>https://</code> URL opens in a new tab. An icon such as <code>ArrowTopRightSm</code> can mark an external link. <code>onPress</code> runs first, and <code>event.preventDefault()</code> keeps the link from opening, for a link your router handles. iOS highlights a pressed link as its text views do; Android draws the press layer of the Plex Android look behind the text.</p>
+</>} code={overviewCode} previewMinHeight={228}>
+  <RNExample demo="text-link/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Text with a link | Text with a link |
+| Look | The text's color, underlined; a gray behind it while pressed | The text's color, underlined; the press layer behind it while pressed |
+
+## API
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "Link content" },
+  { prop: "href", type: "string", description: "URL, opened with Linking (an anchor on the web). An http:// or https:// URL is external" },
+  { prop: "onPress", type: "(event: GestureResponderEvent) => void", description: "Called when the link is pressed, before it opens href; event.preventDefault() keeps it from opening" },
+  { prop: "primary", type: "boolean", default: "false", description: "Primary color, no default underline" },
+  { prop: "underline", type: "boolean", default: "true", description: "Underline (default true unless primary)" },
+  { prop: "forceExternal", type: "boolean", description: "Force external link behavior (a new tab on the web)" },
+  { prop: "weight", type: '"regular" | "medium" | "semibold" | "bold"', description: "Weight of the link's text; the text's own by default" },
+  { prop: "accessibilityLabel", type: "string", description: "Accessible name, when the text alone does not say where the link goes" },
+  { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the link's text" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+With `href` the link is a `link` for screen readers; with only `onPress` it is a `button`. The web's `to`, `as` and `target` are for a web router and a browser's tabs: in React Native a router's own link handles `onPress` (`weight` and `style` stand for the font-weight class and `className`), and `PlexUIProvider`'s `linkComponent` has no counterpart.

@@ -1,0 +1,112 @@
+---
+title: Tooltip
+description: "Brief text that explains a control, shown on a long press."
+metaDescription: React Native tooltip for brief text that explains a control, shown on a long press, with any trigger, a compact variant and a copy tooltip; the web's tooltip on iOS and Material 3's plain and rich tooltips on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Button, Tooltip } from "@plexui/react-native"
+import { Copy } from "@plexui/react-native/icons"
+
+const [trigger, setTrigger] = useState("text") // or "button", "icon"
+const [compact, setCompact] = useState(false)
+const [side, setSide] = useState("top") // or "right", "bottom", "left"
+const [disabled, setDisabled] = useState(false)
+
+<>
+  {trigger === "text" && (
+    // Tooltip.TriggerDecorator makes text a trigger
+    <Tooltip content="This is additional context that appears when the trigger is hovered or focused" compact={compact} side={side}>
+      <Tooltip.TriggerDecorator size="md">Simple text with tooltip</Tooltip.TriggerDecorator>
+    </Tooltip>
+  )}
+  {trigger === "button" && (
+    <Tooltip content={disabled ? "This action is disabled for reasons" : "Tooltip on button"} compact={compact} side={side}>
+      <Button color="primary" size="lg" disabled={disabled}>
+        Sample button
+      </Button>
+    </Tooltip>
+  )}
+  {trigger === "icon" && (
+    <Tooltip content={disabled ? "This action is disabled for reasons" : "Copy to clipboard"} compact={compact} side={side}>
+      <Button color="secondary" variant="ghost" size="md" accessibilityLabel="Copy to clipboard" disabled={disabled}>
+        <Copy />
+      </Button>
+    </Tooltip>
+  )}
+</>`
+
+export const copyCode = `import { Button, CopyTooltip } from "@plexui/react-native"
+
+<CopyTooltip copyValue="sess_12345abcdefg">
+  <Button color="secondary" variant="ghost" size="xl" accessibilityLabel="Copy session ID">
+    sess_12345abcdefg
+  </Button>
+</CopyTooltip>`
+
+<UsageBlock>{`import { CopyTooltip, Tooltip } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="different-triggers" />
+<span id="conditionally-enabled" />
+<span id="compact-tooltips" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>Tooltips give supplementary information. A phone has no hover: a long press on the trigger shows the tooltip for a second and a half, as Android shows a tooltip, and a tap anywhere hides it sooner; <code>forceOpen</code> keeps it shown or hidden. Keep what people need in view as visible helper text, or open a <a href="/react-native/components/popover">Popover</a> on a tap. A screen reader reads the content as the trigger's description, so it is never lost.</p>
+  <p>Any element that hands its native view to <code>ref</code> can be the trigger, and it keeps its place in the layout: <code>trigger</code> shows text, a button and an icon button. Wrap text in <code>Tooltip.TriggerDecorator</code>, which a tap opens too and which shows the dotted underline of an open tooltip. An icon button names itself with <code>accessibilityLabel</code>, and its tooltip says the same in words. A disabled button tells why in its tooltip: its long press still shows it. <code>content={'{null}'}</code> shows none.</p>
+  <p>On iOS, which has no tooltips, it is the web's tooltip: the elevated surface with its shadow, 8pt corners and 14/20 text, 12 by 16 in (<code>gutterSize</code>); <code>compact</code>, for one to three words, is inverted, 2 by 8 in. On Android it is Material 3's: <code>compact</code> the plain tooltip (the inverse surface, Body Small, 4dp corners), otherwise the rich tooltip's container (12dp corners, Body Medium, a level 2 shadow), 4dp from the trigger. <code>side</code> is the side it prefers; it turns to the other side when there is no room.</p>
+</>} code={overviewCode} previewMinHeight={200}>
+  <RNExample demo="tooltip/Overview" />
+</ComponentPreview>
+
+### Copy Tooltip
+
+<ComponentPreview details={<>A <code>CopyTooltip</code> copies <code>copyValue</code> when its trigger is tapped and says Copied! with a check in a compact tooltip for a second, once the clipboard write succeeds; a long press shows Copy. It writes with the web's Clipboard API and React Native's clipboard module on a phone; <code>copy</code> takes your app's own writer instead, such as <code>expo-clipboard</code>'s <code>setStringAsync</code>.</>} code={copyCode} previewMinHeight={168}>
+  <RNExample demo="tooltip/CopyTooltipExample" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None (iOS has tooltips only for a pointer: a Plex view drawn as the web's tooltip) | None (a Plex view drawn as Material 3's tooltips) |
+| Look | A white card with a soft shadow; compact: a dark capsule | Compact: the plain tooltip on the inverse surface; otherwise the rich tooltip's container |
+
+## API
+
+### Tooltip
+
+<PropsTable data={[
+  { prop: "children", type: "ReactElement", description: "The trigger: a single element. Wrap plain text in Tooltip.TriggerDecorator" },
+  { prop: "content", type: "ReactNode", description: "Tooltip content (null = no tooltip)" },
+  { prop: "compact", type: "boolean", default: "false", description: "Short 1-3 word tooltips, inverse styling (Material's plain tooltip on Android)" },
+  { prop: "maxWidth", type: 'number | "none"', default: "300", description: "Max width of tooltip; none keeps it on one line" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side" },
+  { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger (at most 4dp on Android)" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment" },
+  { prop: "alignOffset", type: "number", default: "0", description: "Alignment offset" },
+  { prop: "gutterSize", type: '"sm" | "md" | "lg"', default: '"md"', description: "Content padding (iOS)" },
+  { prop: "forceOpen", type: "boolean", description: "Force open or closed" },
+  { prop: "contentStyle", type: "StyleProp<ViewStyle>", description: "Style of the tooltip's panel" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+`Tooltip.TriggerDecorator` turns text into a trigger that a tap or a long press opens (`focusable`, default `true`, makes it a stop of the web's keyboard). It is a `Text` of its own, so it takes `variant`, `size`, `weight`, `color` and `style` for the type the web's decorator inherits from the text around it. The web's `openDelay`, `interactive` and `preventUnintentionalClickToClose` are for a pointer's hover and have no counterpart; `contentStyle` stands for `contentClassName`.
+
+### CopyTooltip
+
+<PropsTable data={[
+  { prop: "children", type: "ReactElement", description: "Trigger element (a Button, or text in Tooltip.TriggerDecorator)" },
+  { prop: "copyValue", type: "string", description: "Required. Content to copy to clipboard" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"top"', description: "Preferred side of the trigger" },
+  { prop: "sideOffset", type: "number", default: "5", description: "Distance from trigger" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Preferred alignment against the trigger" },
+  { prop: "alignOffset", type: "number", default: "0", description: "Offset from start/end alignment" },
+  { prop: "onCopy", type: "(copied: boolean) => void", description: "Called once the clipboard write settles, with whether it succeeded. The tooltip says Copied! only after a successful write" },
+  { prop: "copy", type: "(value: string) => Promise<boolean | void> | boolean | void", description: "Writes to the clipboard in place of the default; false or a throw is a failed write" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

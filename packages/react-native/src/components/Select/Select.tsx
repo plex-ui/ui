@@ -93,6 +93,9 @@ export function Select<T extends SelectOption>({
   // At the end of an Android row the select is the row's value, as in an Android value row, and a press anywhere
   // on the row opens its choice
   const androidRow = rowEnd && android
+  // Alone in a row whose label is hidden (a label-hidden `Field row`): the value from the row's text start and the
+  // chevrons at its end, on the row's line
+  const stacked = row?.stacked === true && block
   const handRow = androidRow && !disabled ? row?.press : undefined
   useEffect(() => {
     if (!handRow) return
@@ -117,7 +120,7 @@ export function Select<T extends SelectOption>({
         hitSlop={androidRow && !row?.press ? ROW_SLOP : undefined}
         testID={testID}
         // The arrow sits in Compose's trailing icon slot, 12 from the edge
-        style={[styles.box, inRow ? styles.row : androidRow ? null : [look.box, { gap: look.gap }], android && !androidRow ? { paddingEnd: 12 } : null]}
+        style={[styles.box, inRow ? styles.row : androidRow ? null : [look.box, { gap: look.gap }], android && !androidRow ? { paddingEnd: 12 } : null, stacked ? styles.stacked : null]}
       >
         {android && !androidRow ? <FieldOutline frame={look.frame} /> : null}
         {androidRow ? (
@@ -125,7 +128,7 @@ export function Select<T extends SelectOption>({
           <Text
             numberOfLines={1}
             color={withAlpha(chosen ? m.primary : withAlpha(m.onSurface, 0.35), disabled ? 0.5 : 1)}
-            style={[styles.shrink, styles.androidValue]}
+            style={[stacked ? styles.grow : styles.shrink, styles.androidValue, stacked ? styles.startText : null]}
           >
             {chosen?.label ?? placeholder}
           </Text>
@@ -133,7 +136,7 @@ export function Select<T extends SelectOption>({
           <Text
             numberOfLines={1}
             color={chosen && !disabled ? theme.colors.labelSecondary : tertiary}
-            style={[styles.shrink, { fontSize: theme.length("--field-row-label-font-size", 17), lineHeight: theme.length("--field-row-label-line-height", 22) }]}
+            style={[stacked ? styles.grow : styles.shrink, { fontSize: theme.length("--field-row-label-font-size", 17), lineHeight: theme.length("--field-row-label-line-height", 22) }]}
           >
             {chosen?.label ?? placeholder}
           </Text>
@@ -271,6 +274,8 @@ const styles = StyleSheet.create({
   shrink: { flexShrink: 1, minWidth: 0 },
   // A row's pop-up: no field, 34 tall, the value 8 before its chevrons
   row: { minHeight: 34, gap: 8 },
+  stacked: { minHeight: 0 },
+  startText: { textAlign: "left" },
   rowChevrons: { width: 8.5, height: 22, marginStart: -2, marginEnd: 2, alignItems: "center", justifyContent: "center", overflow: "visible" },
   androidValue: { fontSize: 16, lineHeight: 20, textAlign: "right" },
   // A radio row in the dialog: 4 of padding and the row's 18 before the radio's frame, 21 and 4 after the text

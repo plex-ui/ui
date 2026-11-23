@@ -1,0 +1,203 @@
+---
+title: Field
+description: A label, a description and an error around a control, on its own or as a row of a List.
+metaDescription: Form field that links a label, helper text and an error message to its control, on its own or as a row of a List; the cells of an iOS form on iOS, the outlined field with a floating label and the Plex Android rows on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Field, Input, List, Text } from "@plexui/react-native"
+
+// The label above its value; with \`columns\` on the List the values start at one column,
+// without \`orientation\` they end at the row's edge, and \`hideLabel\` leaves the placeholder alone
+<List footer="We'll never share your email with anyone else.">
+  <Field row label="Name" orientation="vertical">
+    <Input placeholder="Required" autoComplete="name" />
+  </Field>
+  <Field row label="Email" orientation="vertical" errorMessage="Enter a valid email address.">
+    <Input defaultValue="jane@example" inputMode="email" autoCapitalize="none" autoComplete="email" />
+  </Field>
+</List>
+
+// A label action stands under the group, in the rows' text
+<Text accessibilityRole="link" color="info" onPress={usePhone}>Use phone instead</Text>
+
+// On its own: the label over the control (on Android an Input floats it in its outlined field)
+<Field label="Email" required description="We'll never share your email with anyone else.">
+  <Input inputMode="email" />
+</Field>`
+
+export const groupCode = `import { Button, Field, Input, List, Text } from "@plexui/react-native"
+
+<List
+  header="Billing address"
+  headerProminence="increased"
+  action={<Button color="primary" variant="ghost" size="sm" onPress={clear}>Clear</Button>}
+  footer={<>Your bank checks this address against your card. <Text color="info" onPress={learnMore}>Learn more</Text></>}
+  columns
+>
+  <Field row label="Street">
+    <Input placeholder="Required" value={street} onChangeText={setStreet} />
+  </Field>
+  <Field row label="City">
+    <Input placeholder="Required" value={city} onChangeText={setCity} />
+  </Field>
+  <Field row label="Postcode">
+    <Input placeholder="Required" value={postcode} onChangeText={setPostcode} />
+  </Field>
+</List>`
+
+export const actionRowsCode = `import { Button, List } from "@plexui/react-native"
+import { ArrowTopRightSm } from "@plexui/react-native/icons"
+
+<List>
+  <Button block color="info" variant="ghost">Edit Menu</Button>
+  <Button block color="info" variant="ghost">
+    Privacy Policy
+    <ArrowTopRightSm />
+  </Button>
+  <Button block color="danger" variant="ghost">Delete Account</Button>
+</List>
+<List>
+  <Button block color="info" variant="ghost" style={{ justifyContent: "center" }}>Reset to Default</Button>
+</List>`
+
+export const spacingCode = `import { List } from "@plexui/react-native"
+import { View } from "react-native"
+
+// iOS: 35 from rows to rows, less a header's 18.67 (11.33 after a footer) and a footer's 17.33
+<View>
+  <List>…</List>
+  <View style={{ height: 35 - 18.67 }} />
+  <List header="Header">…</List>
+  <View style={{ height: 35 }} />
+  <List footer="A footer of one line.">…</List>
+  <View style={{ height: 35 - 17.33 - 11.33 }} />
+  <List header="Header after a footer">…</List>
+  <View style={{ height: 17 }} />
+  <List header="Prominent header" headerProminence="increased">…</List>
+</View>`
+
+export const controlsCode = `import { Field, List, Select, Textarea } from "@plexui/react-native"
+
+<List>
+  <Field row label="Role">
+    <Select value={role} onChange={(option) => setRole(option.value)} options={roles} />
+  </Field>
+  <Field row label="Notes" orientation="vertical">
+    <Textarea placeholder="Anything the team should know" rows={3} autoResize />
+  </Field>
+</List>`
+
+export const labelCode = `import { Checkbox } from "@plexui/react-native"
+
+const [accepted, setAccepted] = useState(true)
+
+<Checkbox checked={accepted} onCheckedChange={(next) => setAccepted(next === true)} label="Accept terms and conditions" />`
+
+<UsageBlock>{`import { Field, FieldError, List } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="label-action" />
+<span id="sizing" />
+<span id="optical-alignment" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>Field wraps a control with a label, a description and an error message, and links them: the control is named by the label, described by the description or the error (a hint on a phone, <code>aria-describedby</code> on the web) and marked <code>invalid</code> by the error. <code>required</code> adds an asterisk after the label; it is visual only. The <code>layout</code> control puts the label in its four places.</p>
+  <p>On a phone a field is a cell of a <code>List</code> on the grouped background, as in an iOS form, with <code>row</code>: the label above its value (<code>orientation="vertical"</code>: on iOS 15/20 in the secondary label, 13 above and below), values in one column (<code>List columns</code>, 40% into the row), the value at the end of the row, or the placeholder alone (<code>hideLabel</code>), its value starting at the row's edge. The row is the field's frame, so the field draws none. The error stands inside the cell, under the value. The words that explain a field go in the List's <code>footer</code>, and a required field says so in its placeholder, as iOS account forms do. A disabled field dims only its value; <code>disabled</code> on the <code>Field</code> dims its label too.</p>
+  <p>On Android the same rows are the Plex Android list rows: the label 16sp beside its field, or 13sp in the secondary gray over a bare 17sp value, 20 in. <code>labelAction</code> holds a link that acts on the field, at the end of the label's line; a row has no label line to hold it, so the link stands under the group in the rows' text. On its own, with no <code>row</code>, the label stands over the control as TextField's (iOS 15/20 Medium, the help 4pt under it); on Android an Input or a Textarea floats it in its outlined field and the help is 14sp under it. The web's <code>size</code>, <code>pill</code> and <code>opticallyAlign</code> stay on the desktop: a row sets the field's height, insets and type.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="field/Overview" />
+</ComponentPreview>
+
+### Group
+
+<ComponentPreview details={<>
+  <p>The web's <code>FieldGroup</code> is a <code>List</code>: it holds the rows and draws the hairlines between them. Its <code>header</code> names the group, <code>action</code> stands at the end of the header, and <code>footer</code> under the rows. <code>columns</code> starts every value at one column, 40% into the row.</p>
+  <p><code>headerProminence="increased"</code> makes the header lead its content: on iOS the list's prominent header, 20pt Semibold in the primary label, and on Android a 16sp title in the text color. A ghost Button in <code>action</code> is the list header's action: on iOS 17/22 text in the info color (#0169cc, a lighter blue in the dark, as the React page's Phone view) on the header's line with a 44pt target, on Android 14sp Medium in the accent. The footer is 13/16 on iOS and 14sp on Android.</p>
+</>} code={groupCode} previewMinHeight={168}>
+  <RNExample demo="field/Group" />
+</ComponentPreview>
+
+### Action rows
+
+<ComponentPreview details={<>
+  <p>A row that is an action is a ghost <code>Button</code> among a List's rows, as an iOS list draws a button. The row gives it its height and type: on iOS 52pt with 17pt words where a row's label starts, and no chevron; its press fills the row to the group's corners. On Android a 50dp row with 16sp words 20 in, pressed in the list selector.</p>
+  <p>The Button's <code>color</code> tints the words: <code>info</code> (or <code>primary</code>) for the info color on iOS and the accent on Android, <code>danger</code> for a destructive row. An icon after the words stands at the row's trailing edge at 24pt, such as an arrow for a link that leaves the app. <code>style={'{{ justifyContent: "center" }}'}</code> centres the words, as Settings puts Reset to Default in a group of its own.</p>
+</>} code={actionRowsCode} previewMinHeight={240}>
+  <RNExample demo="field/ActionRows" />
+</ComponentPreview>
+
+### Spacing between groups
+
+<ComponentPreview details={<>
+  <p>Lists one after another space themselves as Settings in iOS 27 does: 35 from rows to rows, 55.33 to rows under a header, 47.67 past a footer of one line and 16 more for each further line, 75.33 past a footer to rows under a header; a prominent header keeps a SwiftUI Form's 62 after rows. A List leaves the space between groups to the screen, so stack them in a <code>View</code> with no gap of its own and put the space between them: 35, less 18.67 for a header (11.33 after a footer) and 17.33 for a footer. On Android the cards stand 12 apart, and a footer's own space under it parts it from the next card.</p>
+</>} code={spacingCode} previewMinHeight={760}>
+  <RNExample demo="field/Spacing" />
+</ComponentPreview>
+
+### Other controls
+
+<ComponentPreview details={<>
+  <p>Field works with any control: it hands the control its name, its description and its invalid state, and a control with a name of its own keeps it. A <code>Select</code> is the value at the end of its row, its chevrons after it, and a long text stands under its label. React Native has no date picker of Plex UI's, so the web's Starts row is left out. A group of checkboxes, radios or switches is a row per choice: see <a href="/react-native/components/checkbox">Checkbox</a>, <a href="/react-native/components/radio-group">Radio Group</a> and <a href="/react-native/components/switch">Switch</a>.</p>
+</>} code={controlsCode} previewMinHeight={168}>
+  <RNExample demo="field/Controls" />
+</ComponentPreview>
+
+### Label
+
+<ComponentPreview details={<>A <code>Field</code> draws its own label. For a checkbox or a switch, where a field's layout is too much, the control takes its own <code>label</code>: a press on it toggles the control, and it names the control for a screen reader. React Native has no standalone <code>Label</code>. Here <code>accepted</code> starts as <code>true</code>. The label takes the body type of a list row, 17/22 regular on iOS.</>} code={labelCode} previewMinHeight={168}>
+  <RNExample demo="field/Label" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Form cell (a text field in a grouped list) | None: the Plex Android list rows and the outlined text field |
+| On its own | The label over the control, the help 4pt under it | The label floating in an Input's outlined field, the help 14sp under it |
+| As a row | The label at the start and the value at the end; or the label above the bare value | The 16sp label beside the field; or the 13sp label above the bare 17sp value |
+
+## API
+
+<PropsTable data={[
+  { prop: "label", type: "ReactNode", description: "Label text for the field; it names the control" },
+  { prop: "hideLabel", type: "boolean", default: "false", description: "Hides the label from view; it still names the control. On a row the value or placeholder starts at the row's edge" },
+  { prop: "description", type: "ReactNode", description: "Helper text under the control (on a row under its label); it describes the control" },
+  { prop: "errorMessage", type: "ReactNode", description: "Error message under the control; marks the control invalid" },
+  { prop: "labelAction", type: "ReactNode", description: "Content at the end of the label's line, such as a link that acts on the field" },
+  { prop: "required", type: "boolean", default: "false", description: "Shows a required asterisk after the label (visual only)" },
+  { prop: "orientation", type: '"vertical" | "horizontal"', default: '"horizontal" on a row with a visible label, else "vertical"', description: "Layout direction of label and control" },
+  { prop: "row", type: "boolean", default: "false", description: "One line of a List, as the web's row of a FieldGroup" },
+  { prop: "fill", type: "boolean", default: "false", description: "On a row, the control takes the rest of the line after the label" },
+  { prop: "icon", type: "ReactNode", description: "On a row, a symbol before the label" },
+  { prop: "action", type: "ReactNode", description: "On a row, a control at the end of the row after the row's own control" },
+  { prop: "disabled", type: "boolean", description: "The field is unavailable as a whole: its label dims with the control (the web's data-disabled)" },
+  { prop: "children", type: "ReactElement | (control: FieldControlProps) => ReactNode", description: "The control; it receives accessibilityLabel, the description's hint (aria-describedby on the web) and invalid. A function receives them to place itself" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the root (on its own)" },
+  { prop: "testID", type: "string", description: "Test id of the root" },
+]} />
+
+### List (the web's FieldGroup)
+
+`List` takes these props for forms, in addition to its own (see [List](/react-native/components/list)):
+
+<PropsTable data={[
+  { prop: "header", type: "ReactNode", description: "Heading over the rows; the web's title" },
+  { prop: "headerProminence", type: '"standard" | "increased"', default: '"standard"', description: "How much the header stands out: on iOS the prominent list header, 20pt Semibold in the primary label" },
+  { prop: "action", type: "ReactNode", description: "Content at the end of the header; a ghost Button is the header's text action" },
+  { prop: "footer", type: "ReactNode", description: "Content under the rows, such as a note" },
+  { prop: "columns", type: "boolean", default: "false", description: "Every value starts at one column, 40% into the row" },
+]} />
+
+### FieldError
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The error message; announced when it appears" },
+  { prop: "icon", type: "boolean", default: "true", description: "The exclamation mark before the message (iOS; Android draws none)" },
+  { prop: "nativeID", type: "string", description: "Id that a control's description can point at" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the root" },
+]} />

@@ -34,8 +34,8 @@ export type RNScreenProps = {
    */
   headerFirst?: boolean;
   /**
-   * The example stands alone, with no app bar, centered 48 below the top of the phone, as a React example with
-   * `phonePresentation="none"` (Avatar, Skeleton)
+   * The example stands alone, with no app bar, 24 below the top of the phone and centered in the first 120, as a React
+   * example with `phonePresentation="none"` (Avatar, Skeleton)
    */
   bare?: boolean;
   /** The height of the screen on a narrow page, where the example stands on the page itself */
@@ -120,11 +120,12 @@ function Canvas({ layout, grouped, headerFirst, minHeight, title, bottom, onBack
 
 function canvasBody(layout: Layout, background: string, minHeight: number, title: string | undefined, bottom: number, inset: number, top: number, gap: number, children: ReactNode) {
   if (layout === 'screen') return <View style={{ flex: 1, minHeight, backgroundColor: background }}>{children}</View>;
-  // The React example's bare stage: 48 above and below the example, 16 at the sides, the example centered
+  // The React example's bare stage (phonePresentation="none"): 24 above and below the example and 16 at the sides, the
+  // example centered in at least 120 (the preview's least height), so one line stands 48 from the top
   if (layout === 'bare') {
     return (
       <View style={{ flex: 1, backgroundColor: background }}>
-        <View style={{ paddingVertical: 48, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', gap: 12 }}>{children}</View>
+        <View style={{ minHeight: 120, paddingVertical: 24, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', gap: 12 }}>{children}</View>
       </View>
     );
   }

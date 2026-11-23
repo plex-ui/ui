@@ -1,0 +1,249 @@
+---
+title: Popover
+description: A floating panel for contextual UI at its trigger, with flexible sizing and a controllable open state.
+metaDescription: "React Native popover for contextual floating UI, opened from its trigger: the compact glass panel of an iPhone popover on iOS 26 and a popup of the Plex Android look on Android, with flexible sizing, a controllable open state and a controller that closes or shakes it."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Button, Popover, Text } from "@plexui/react-native"
+import { View } from "react-native"
+
+const [minWidth, setMinWidth] = useState(300) // or "auto"
+const [translucent, setTranslucent] = useState(false)
+
+<Popover>
+  <Popover.Trigger>
+    <Button color="primary" pill={false}>Generate</Button>
+  </Popover.Trigger>
+  <Popover.Content minWidth={minWidth} translucent={translucent}>
+    <View style={{ padding: 16 }}>
+      <Text size="sm" color="secondary">Use with any floating UI.</Text>
+    </View>
+  </Popover.Content>
+</Popover>`
+
+export const controllerCode = `import { useEffect, useRef, useState } from "react"
+import { Button, Popover, Text, usePopoverController, useTheme } from "@plexui/react-native"
+import { Sparkles } from "@plexui/react-native/icons"
+import { TextInput, View } from "react-native"
+
+function PromptForm({ value, onChange, submitting, onSubmit }) {
+  const theme = useTheme()
+  const { shake, close } = usePopoverController()
+  return (
+    <View style={{ paddingTop: 8 }}>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        accessibilityLabel="Prompt"
+        multiline
+        numberOfLines={3}
+        placeholder="Describe what you're using the model for, and we'll generate system instructions."
+        placeholderTextColor={theme.colors.textTertiary}
+        style={{ minHeight: 88, paddingHorizontal: 16, paddingVertical: 8, fontSize: 16, lineHeight: 24, color: theme.colors.text }}
+      />
+      <View style={{ paddingHorizontal: 12, paddingBottom: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <Sparkles size={16} color={theme.colors.textTertiary} />
+          <Text size="sm" color="tertiary">Free beta</Text>
+        </View>
+        <Button color="primary" size="xs" pill={false} loading={submitting} onPress={() => onSubmit(close, shake)}>
+          Create
+        </Button>
+      </View>
+    </View>
+  )
+}
+
+export function PopoverControllerDemo() {
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const timer = useRef(undefined)
+  const session = useRef(0)
+
+  useEffect(() => () => {
+    session.current++
+    clearTimeout(timer.current)
+  }, [])
+
+  const changeOpen = (next) => {
+    session.current++
+    clearTimeout(timer.current)
+    timer.current = undefined
+    if (next) {
+      setSubmitting(false)
+      setValue("")
+    }
+    setOpen(next)
+  }
+
+  const submitPrompt = (close, shake) => {
+    if (!value) {
+      shake()
+      return
+    }
+    if (timer.current !== undefined) return
+    setSubmitting(true)
+    const current = session.current
+    timer.current = setTimeout(() => {
+      if (session.current !== current) return
+      timer.current = undefined
+      close()
+    }, 2000)
+  }
+
+  return (
+    <Popover open={open} onOpenChange={changeOpen}>
+      <Popover.Trigger>
+        <Button color="primary" pill={false}>Generate</Button>
+      </Popover.Trigger>
+      <Popover.Content>
+        <PromptForm value={value} onChange={setValue} submitting={submitting} onSubmit={submitPrompt} />
+      </Popover.Content>
+    </Popover>
+  )
+}`
+
+export const confirmationCode = `import { Button, Popover, Text, usePopoverController } from "@plexui/react-native"
+
+function ConfirmationBody() {
+  const { close } = usePopoverController()
+  return (
+    <>
+      <Text variant="body" style={{ paddingHorizontal: 15, paddingTop: 5, paddingBottom: 19 }}>
+        Are you sure you want to delete this event?
+      </Text>
+      <Button color="danger" variant="soft" block pill size="xl" style={{ minHeight: 48 }} onPress={close}>
+        Delete event
+      </Button>
+    </>
+  )
+}
+
+<Popover>
+  <Popover.Trigger>
+    <Button color="danger" variant="soft" size="3xl" block pill>Delete event</Button>
+  </Popover.Trigger>
+  {/* The panel covers its 50pt button and ends 16 above the button's bottom edge */}
+  <Popover.Content side="top" sideOffset={-34} width={240} minWidth="auto" style={{ padding: 16 }}>
+    <ConfirmationBody />
+  </Popover.Content>
+</Popover>`
+
+export const columnsCode = `import { BottomSheet, IconButton, List, ListItem, Switch, Toolbar } from "@plexui/react-native"
+import { DotsHorizontal } from "@plexui/react-native/icons" // DotsVertical on Android
+
+const allColumns = [
+  { id: "name", label: "Name" },
+  { id: "email", label: "Email" },
+  { id: "role", label: "Role" },
+  { id: "status", label: "Status" },
+  { id: "created", label: "Created at" },
+  { id: "lastLogin", label: "Last login" },
+  { id: "avatar", label: "Avatar" },
+  { id: "phone", label: "Phone" },
+]
+const [open, setOpen] = useState(false)
+const [shown, setShown] = useState(["name", "email", "role", "status"])
+const toggle = (id) => setShown((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]))
+
+<Toolbar>
+  <Toolbar.Title>Members</Toolbar.Title>
+  <Toolbar.Trailing>
+    <IconButton icon={<DotsHorizontal />} accessibilityLabel="Columns" onPress={() => setOpen(true)} />
+  </Toolbar.Trailing>
+</Toolbar>
+<BottomSheet open={open} onOpenChange={setOpen} title="Columns">
+  <List>
+    {allColumns.map((col) => (
+      <ListItem
+        key={col.id}
+        label={col.label}
+        trailing={<Switch color="accent" checked={shown.includes(col.id)} onCheckedChange={() => toggle(col.id)} accessibilityLabel={col.label} />}
+      />
+    ))}
+  </List>
+</BottomSheet>`
+
+<UsageBlock>{`import { Popover, usePopoverController } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="sizing-the-popover" />
+<span id="open-on-hover" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>Put a <code>Popover.Trigger</code> and a <code>Popover.Content</code> inside a <code>Popover</code>. A tap on the trigger opens the panel and a tap anywhere else closes it; <code>open</code> and <code>onOpenChange</code> control it. The trigger is any element that hands its native view to <code>ref</code> (a Button, a Pressable, a View) and keeps its own place in the layout. <code>side</code> places the panel (<code>bottom</code> by default; it turns when it does not fit) and <code>align</code> lines it up with the start, center or end of the trigger. A phone has no room beside the trigger, so the example opens below it, centered, as the React page's Phone preview does, and a phone has no hover, so there is no <code>showOnHover</code>.</p>
+  <p>Size the panel with any combination of <code>width</code>, <code>minWidth</code> and <code>maxWidth</code>: a <code>minWidth</code> of 300 and a <code>maxWidth</code> of 700 by default, capped by the room inside the window and its <code>collisionPadding</code> (20); <code>{'minWidth="auto"'}</code> lets the panel hug its content.</p>
+  <p>On iOS the panel is the compact glass panel an iPhone presents a popover as: the glass of the menus with their shadow and edge (<code>--popover-mobile-background</code>, <code>--menu-shadow</code>) and 34pt corners, growing from 0.95 as it fades in. <code>translucent</code> gives it the web's frosted gradient over a 16px blur with its own shadow instead. On Android it is a popup of the Plex Android look: its surface with 12dp corners and a level 2 shadow, popping in from 0.95 with a slight overshoot; Material has no translucent surface, so <code>translucent</code> does nothing there.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <RNExample demo="popover/Overview" />
+</ComponentPreview>
+
+### Using the controller
+
+<ComponentPreview details={<>You can access <code>usePopoverController()</code> from components within <code>Popover.Content</code>. The hook exposes two methods, <code>close()</code> and <code>shake()</code>: <code>shake()</code> moves the panel 5 to each side twice over 400ms (it stays still with reduced motion).<br/><br/><ul><li>Attempting to submit an empty prompt calls the <code>shake()</code> method</li><li>After the simulated two-second request, <code>close()</code> dismisses the popup. Closing or unmounting cancels the pending request; reopening starts a fresh session.</li></ul></>} code={controllerCode} previewMinHeight={168}>
+  <RNExample demo="popover/Controller" />
+</ComponentPreview>
+
+### Confirmation
+
+<ComponentPreview details={<>Confirm a destructive action from the button that asks for it. The panel covers the button, as iOS presents an action sheet from a bar button: no Cancel button, since a tap anywhere else cancels, the message in the body text and the action as a 48pt capsule, with the insets of the iOS 27.2 alert. A negative <code>sideOffset</code> lays the panel over its trigger.</>} code={confirmationCode} previewMinHeight={280}>
+  <RNExample demo="popover/Confirmation" />
+</ComponentPreview>
+
+### Column configuration
+
+<ComponentPreview details={<>A column-visibility panel. On a phone it is a sheet (<a href="/react-native/components/bottom-sheet">BottomSheet</a>) of <code>List</code> rows with switches, in a fixed order: as in iOS settings, a row stays in place when its switch changes. It opens from the More button of the screen's <code>Toolbar</code>, as iOS apps open their view options.</>} code={columnsCode} previewMinHeight={640}>
+  <RNExample demo="popover/ColumnConfiguration" />
+</ComponentPreview>
+
+### Nesting
+
+A popover opened from inside another stands over it, and Android's back and the web's Escape close the topmost one first.
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None (UIPopoverPresentationController is UIKit only: a Plex view drawn as its compact panel) | None (a Plex view drawn as a popup) |
+| Look | A glass panel with 34pt corners at its trigger | A popup surface with 12dp corners and a level 2 shadow at its trigger |
+
+## API
+
+**Popover** (root)
+
+<PropsTable data={[
+  { prop: "open", type: "boolean", description: "Controlled open state; uncontrolled when omitted" },
+  { prop: "onOpenChange", type: "(nextState: boolean) => void", description: "Called when the popover opens or closes" },
+]} />
+
+**Popover.Trigger**: Renders the element that toggles the popover; the panel stands at it and follows it when it moves. Its only child is an element that hands its native view to `ref`.
+
+**Popover.Content**
+
+<PropsTable data={[
+  { prop: "width", type: 'number | "auto"', default: '"auto"', description: "Panel width" },
+  { prop: "minWidth", type: 'number | "auto"', default: "300", description: "Minimum panel width" },
+  { prop: "maxWidth", type: "number", default: "700", description: "Maximum panel width, capped by the room inside the window" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "Preferred placement; turns when it does not fit" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "Alignment relative to trigger" },
+  { prop: "sideOffset", type: "number", default: "8", description: "Offset from trigger; negative to lay the panel over it" },
+  { prop: "alignOffset", type: "number", default: "-5", description: "Offset from the start or end alignment" },
+  { prop: "avoidCollisions", type: "boolean", default: "true", description: "Turn and move to stay inside the window" },
+  { prop: "collisionPadding", type: "number | { top?, right?, bottom?, left? }", default: "20", description: "Space to keep from the window's edges (the safe area at least); a side an object leaves out gets 0" },
+  { prop: "translucent", type: "boolean", default: "false", description: "Translucent, blurred surface (iOS and the web)" },
+  { prop: "autoFocus", type: "boolean", default: "true", description: "Move focus to the panel when it opens (the web)" },
+  { prop: "aria-labelledby", type: "string", description: "The id of the element that names the popover (the web)" },
+  { prop: "aria-label", type: "string", description: "Accessible name of the popover" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the panel (padding, a fixed height)" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+**usePopoverController()**: Hook available inside `Popover.Content`. Returns `{ close: () => void, shake: () => void }`.
+
+The web's `showOnHover` and `hoverOpenDelay` are for a pointer's hover, `Popover.Anchor` takes a DOM element and `zIndex` orders the page's layers: React Native has none of them (an overlay stands over the app). `style` stands for `className`.

@@ -1,0 +1,70 @@
+---
+title: Rolling Number
+description: A number whose digits roll to a new value, as an odometer, for a total or a count that changes.
+metaDescription: Rolling number for React Native whose digits roll to a new value, as an odometer, for a total, a balance or a count that changes while it is watched, written with Intl.NumberFormat; read as the written number.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Button, RollingNumber } from "@plexui/react-native"
+
+const [value, setValue] = useState(1284)
+
+<RollingNumber
+  value={value}
+  locales="en-US"
+  format={{ style: "currency", currency: "USD" }}
+  weight="semibold"
+  style={{ fontSize: 36, lineHeight: 40 }}
+/>
+<Button color="secondary" variant="soft" size="sm" onPress={() => setValue(value + 25)}>+25</Button>`
+
+export const inTextCode = `import { RollingNumber, Text, useTheme } from "@plexui/react-native"
+import { View } from "react-native"
+
+const secondary = useTheme().color("--color-text-secondary")
+
+<View style={{ flexDirection: "row" }}>
+  <RollingNumber value={count} size="sm" color={secondary} />
+  <Text size="sm" color={secondary}> {count === 1 ? "item" : "items"} in your bag</Text>
+</View>`
+
+<UsageBlock>{`import { RollingNumber } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A rolling number turns each changed digit to its new value, as the wheels of an odometer do, so a total or a count that changes in front of the reader shows the change. Use it where a number moves while it is watched, such as a total as items are added; a number that only loads once needs none.</p>
+  <p>Pass the number as <code>value</code>; a new value rolls each digit that changes, and the digits that stay still do not move. <code>format</code> and <code>locales</code> write it as <code>Intl.NumberFormat</code> does: here as a currency, a percent or a plain number, with its grouping. It takes the props of <code>Text</code> for its size, weight and color, as the web's classes. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. On iOS each digit is a reel of 0 to 9 that turns in 600ms, as on the web; on Android it is the Plex Android look's animated text, a changed character fading out and away while the new one comes in, up for a larger number, in 320ms. It is read out as the written number, and with reduced motion the digits change at once.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <RNExample demo="rolling-number/Overview" />
+</ComponentPreview>
+
+### In text
+
+<ComponentPreview details={<>It keeps the text&apos;s size, weight and baseline, so it stands in a row of text as any word does.</>} code={inTextCode} previewMinHeight={160}>
+  <RNExample demo="rolling-number/InText" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: the Plex rolling number (SwiftUI's numeric text transition is a modifier of its own) | None: the Plex rolling number |
+| Look | Each changed digit rolls on its reel | Each changed character fades and slides to the new one |
+
+## API
+
+### RollingNumber
+
+<PropsTable data={[
+  { prop: "value", type: "number", description: "The number shown; a new value rolls each changed digit to it" },
+  { prop: "locales", type: "Intl.LocalesArgument", default: '"en-US"', description: "The locale the number is written in. Its own digits roll, such as Arabic-Indic" },
+  { prop: "format", type: "Intl.NumberFormatOptions", description: "How it is written: a currency, a percent, fraction digits, grouping" },
+  { prop: "size, weight, color, variant…", type: "TextProps", description: "The props of Text, for the type and color; the figures are tabular" },
+  { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the characters, such as a font size" },
+  { prop: "containerStyle", type: "StyleProp<ViewStyle>", description: "Style of the row of characters" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />

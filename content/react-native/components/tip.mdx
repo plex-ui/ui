@@ -1,0 +1,132 @@
+---
+title: Tip
+description: "A short message that points out a feature people might miss, in the screen or anchored to a control."
+metaDescription: React Native tip after Apple TipKit, with inline tips, an arrow pointing at a control, popover tips anchored to a control, a symbol, actions and a close button, drawn as TipKit's tips on iOS 26 and with Material 3's rich tooltip layout on Android.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Button, Tip } from "@plexui/react-native"
+import { Bell } from "@plexui/react-native/icons"
+import { View } from "react-native"
+
+const [shown, setShown] = useState(true)
+const [icon, setIcon] = useState(true)
+const [onClose, setOnClose] = useState(true)
+const [actions, setActions] = useState("none") // or "one", "two"
+const [mobileActions, setMobileActions] = useState("rows") // or "buttons"
+const [arrowEdge, setArrowEdge] = useState("none") // or "top", "bottom"
+// With an arrow, the control the tip explains stands on that side
+const control = arrowEdge !== "none" && (
+  <Button color="secondary" variant="soft" uniform pill accessibilityLabel="Notifications" style={{ alignSelf: "center" }}>
+    <Bell />
+  </Button>
+)
+
+<View style={{ alignItems: "center", gap: 4 }}>
+  {arrowEdge === "top" && control}
+  {shown ? (
+    <Tip
+      icon={icon ? <Bell /> : undefined}
+      title="Turn on notifications"
+      description="Get a message when someone replies to your post or mentions you."
+      onClose={onClose ? () => setShown(false) : undefined}
+      actions={actions === "none" ? undefined : (
+        <>
+          {actions === "two" && <Button color="primary" variant="soft" size="sm" pill>Not now</Button>}
+          <Button color="primary" variant={actions === "two" ? "solid" : "soft"} size="sm" pill>Turn on</Button>
+        </>
+      )}
+      mobileActions={actions === "none" ? undefined : mobileActions}
+      arrowEdge={arrowEdge === "none" ? undefined : arrowEdge}
+    />
+  ) : (
+    <Button color="secondary" variant="soft" onPress={() => setShown(true)}>Show the tip again</Button>
+  )}
+  {arrowEdge === "bottom" && control}
+</View>`
+
+export const popoverCode = `import { Button, Tip } from "@plexui/react-native"
+import { Filter } from "@plexui/react-native/icons"
+
+const [open, setOpen] = useState(false)
+
+<Tip.Popover
+  open={open}
+  onOpenChange={setOpen}
+  title="Filter the list"
+  description="Show only the items from the last week, month or year."
+>
+  <Button color="secondary" variant="soft" onPress={() => setOpen(!open)}>
+    <Filter />
+    Filter
+  </Button>
+</Tip.Popover>`
+
+<UsageBlock>{`import { Tip } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+<span id="actions" />
+<span id="buttons-on-a-phone" />
+<span id="arrow" />
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A tip teaches a feature people might not find on their own: a title that names it and a sentence or two on how to use it. Show one tip at a time, close to what it explains, and stop showing it once the feature is used or the tip is closed. A tip is not for errors or for news about a task: use an <a href="/react-native/components/alert">Alert</a> or a <a href="/react-native/components/toast">Toast</a>.</p>
+  <p>An inline tip takes its place in the layout, on the opaque card of a grouped list, so place it on a grouped background. A symbol in <code>icon</code> leads the message in the secondary color; <code>onClose</code> shows Close in the trailing corner. On iOS it is TipKit's tip as the web draws it on a phone: 26pt corners, a 36pt symbol 12 from the text, the title at 17/22 semibold over the description at 15/20, and a bare cross in the tertiary label. On Android the card of the Plex Android look takes Material 3's rich tooltip layout: 16dp corners and padding, a 24dp symbol, the title in Title Medium over Body Medium, and the cross in a 48dp target.</p>
+  <p><code>actions</code> stand under the message. By default each action is a row of text in its button's color under a separator, 46pt tall, starting under the text, as iOS cards show them; on Android they are Material's text buttons in the accent, side by side. With <code>mobileActions="buttons"</code> each keeps its Button's color and variant as a capsule as wide as the tip (48pt on iOS, 40dp on Android), for a card that asks for a permission.</p>
+  <p>With <code>arrowEdge</code> the tip points at what it explains with an arrow centered on that edge (TipKit's 47 by 13 arrow on iOS, Material's 16 by 8 caret on Android) and leaves room for it on that side. A tip stands over or under its control, as TipKit's inline tip does: the preview offers no sideways arrow, as the React page's Phone preview does not.</p>
+</>} code={overviewCode} previewMinHeight={240}>
+  <RNExample demo="tip/Overview" />
+</ComponentPreview>
+
+### Popover
+
+<ComponentPreview details={<>A popover tip floats next to its control with an arrow that points at it, 300pt wide. On iOS it is the tip's content on the iOS 27 alert's glass with the kit's popover shadow; on Android the popup surface of the Plex Android look with 12dp corners, its level 2 shadow and Material's caret. It does not take the focus. Close, a tap outside the tip, Android's back or the web's Escape closes it, through <code>onOpenChange</code>. Show it when the control appears; here the button shows it.</>} code={popoverCode} previewMinHeight={260}>
+  <RNExample demo="tip/PopoverTip" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None (TipKit is SwiftUI only: a Plex view drawn as its tips) | None (a Plex view with Material 3's rich tooltip layout) |
+| Look | Inline: the card of a grouped list; popover: the alert's glass with an arrow | Inline: a card with 16dp corners; popover: the popup surface with a caret |
+
+## API
+
+### Tip
+
+<PropsTable data={[
+  { prop: "title", type: "ReactNode", description: "The tip's title: what the feature is" },
+  { prop: "description", type: "ReactNode", description: "One or two sentences on how to use it" },
+  { prop: "icon", type: "ReactNode", description: "A symbol that leads the message" },
+  { prop: "actions", type: "ReactNode", description: "Buttons for the tip's actions, below the message" },
+  { prop: "mobileActions", type: '"rows" | "buttons"', default: '"rows"', description: "Rows of text under a separator (text buttons on Android), or the buttons as given, each a full-width capsule" },
+  { prop: "onClose", type: "() => void", description: "Shows the Close button; called when it is pressed" },
+  { prop: "closeLabel", type: "string", default: '"Close tip"', description: "Accessible name of the Close button" },
+  { prop: "arrowEdge", type: '"top" | "bottom" | "left" | "right"', description: "Draws an arrow at this edge, pointing at what the tip explains" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the tip" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+### Tip.Popover
+
+Takes `title`, `description`, `icon`, `actions` and `mobileActions` as Tip does, and the control it explains as its only child: an element that hands its native view to `ref` (a Button, a Pressable, a View), which keeps its own place in the layout.
+
+<PropsTable data={[
+  { prop: "open", type: "boolean", description: "Shows the tip (controlled)" },
+  { prop: "defaultOpen", type: "boolean", default: "false", description: "Shows the tip at first (uncontrolled)" },
+  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called when the tip opens or closes" },
+  { prop: "side", type: '"top" | "right" | "bottom" | "left"', default: '"bottom"', description: "The side of the control the tip shows on, turned when it does not fit" },
+  { prop: "align", type: '"start" | "center" | "end"', default: '"center"', description: "The alignment against the control" },
+  { prop: "sideOffset", type: "number", default: "4", description: "The distance from the control to the arrow's point" },
+  { prop: "closeButton", type: "boolean", default: "true", description: "Shows the Close button" },
+  { prop: "closeLabel", type: "string", default: '"Close tip"', description: "Accessible name of the Close button" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the popover around the tip" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+An inline tip is a note named by its title; a popover tip is a dialog named by its title that does not move the focus. A tap outside a popover tip closes it without reaching what is under it.
