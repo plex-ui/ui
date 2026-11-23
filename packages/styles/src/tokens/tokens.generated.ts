@@ -742,6 +742,14 @@ export const tokenLayers: readonly TokenLayer[] = [
       "--cubic-reduced-enter-dialog": "cubic-bezier(0.3, 1, 0.7, 1)",
       "--motion-reduced-enter-menu": "500ms",
       "--cubic-reduced-enter-menu": "cubic-bezier(0.4, 1, 0.7, 1)",
+      "--spring-smooth": "cubic-bezier(0.3, 0.6, 0.1, 1)",
+      "--spring-smooth-duration": "750ms",
+      "--spring-snappy": "cubic-bezier(0.35, 0.8, 0.1, 1.02)",
+      "--spring-snappy-duration": "725ms",
+      "--spring-sheet": "cubic-bezier(0.35, 0.9, 0.1, 1.02)",
+      "--spring-sheet-duration": "495ms",
+      "--spring-menu": "cubic-bezier(0.35, 0.9, 0.1, 1.05)",
+      "--spring-menu-duration": "325ms",
       "--scrollbar-color": "var(--alpha-30)",
       "--shadow": "0 10px 15px -3px light-dark(rgba(0 0 0 / 10%), rgba(0 0 0 / 20%)), 0 4px 6px -4px light-dark(rgba(0 0 0 / 10%), rgba(0 0 0 / 20%))",
       "--shadow-hairline": "0 0 0 var(--shadow-hairline-width) var(--shadow-hairline-color)",
@@ -765,6 +773,26 @@ export const tokenLayers: readonly TokenLayer[] = [
     }
   },
   {
+    "id": "variables-semantic:linearEasing=true@010",
+    "source": "variables-semantic.css",
+    "rank": 0,
+    "specificity": [
+      0,
+      1,
+      0
+    ],
+    "order": 642,
+    "when": {
+      "linearEasing": true
+    },
+    "tokens": {
+      "--spring-smooth": "linear(0, 0.005 1.1%, 0.02 2.3%, 0.081 4.9%, 0.159 7.5%, 0.463 16.6%, 0.558 19.8%, 0.639 23%, 0.709 26.3%, 0.769 29.7%, 0.82 33.2%, 0.863 37%, 0.901 41.5%, 0.932 46.4%, 0.955 51.9%, 0.972 58.1%, 0.992 73.4%, 1)",
+      "--spring-snappy": "linear(0, 0.006 1.2%, 0.023 2.5%, 0.052 3.9%, 0.094 5.5%, 0.187 8.3%, 0.516 17.4%, 0.615 20.6%, 0.698 23.6%, 0.768 26.6%, 0.828 29.8%, 0.877 33.1%, 0.917 36.5%, 0.949 40.3%, 0.973 44.4%, 0.99 49.1%, 1 54.4%, 1.006 65.8%, 1)",
+      "--spring-sheet": "linear(0, 0.007 1.2%, 0.024 2.4%, 0.055 3.9%, 0.099 5.4%, 0.195 8.1%, 0.434 14.2%, 0.54 17%, 0.638 20%, 0.724 22.9%, 0.795 25.8%, 0.856 28.9%, 0.905 32%, 0.943 35.3%, 0.971 38.6%, 0.991 42.2%, 1.013 51.1%, 1)",
+      "--spring-menu": "linear(0, 0.008 1.2%, 0.027 2.5%, 0.06 3.9%, 0.102 5.3%, 0.197 7.9%, 0.536 16.4%, 0.638 19.4%, 0.726 22.3%, 0.799 25.3%, 0.858 28.2%, 0.907 31.3%, 0.945 34.6%, 0.972 37.8%, 0.992 41.4%, 1.012 49.9%, 1)"
+    }
+  },
+  {
     "id": "variables-semantic:reducedMotion=true@010",
     "source": "variables-semantic.css",
     "rank": 0,
@@ -773,7 +801,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 634,
+    "order": 646,
     "when": {
       "reducedMotion": true
     },
@@ -783,7 +811,11 @@ export const tokenLayers: readonly TokenLayer[] = [
       "--motion-exit": "0ms",
       "--motion-exit-large": "0ms",
       "--motion-enter-quick": "0ms",
-      "--motion-exit-quick": "0ms"
+      "--motion-exit-quick": "0ms",
+      "--spring-smooth-duration": "0ms",
+      "--spring-snappy-duration": "0ms",
+      "--spring-sheet-duration": "0ms",
+      "--spring-menu-duration": "0ms"
     }
   },
   {
@@ -795,7 +827,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 640,
+    "order": 656,
     "tokens": {
       "--alert-border-radius": "var(--radius-xl)",
       "--alert-gap": "spacing(3)",
@@ -939,6 +971,8 @@ export const tokenLayers: readonly TokenLayer[] = [
       "--accordion-content-divider-width": "0px",
       "--accordion-transition-duration": "var(--transition-duration-basic)",
       "--accordion-transition-ease": "var(--transition-ease-basic)",
+      "--accordion-motion-duration": "var(--spring-smooth-duration)",
+      "--accordion-motion-easing": "var(--spring-smooth)",
       "--date-range-cell-size": "30px",
       "--checkbox-indicator-size": "var(--radio-group-indicator-size)",
       "--checkbox-label-gap": "var(--radio-group-item-gap)",
@@ -1645,7 +1679,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1477,
+    "order": 1495,
     "tokens": {
       "--radius-2xs": "0.125rem",
       "--radius-xs": "0.25rem",
@@ -1677,7 +1711,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1498,
+    "order": 1516,
     "when": {
       "maxWidth": 767
     },
@@ -1709,7 +1743,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1514,
+    "order": 1532,
     "when": {
       "maxWidth": 767
     },
@@ -1750,7 +1784,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1539,
+    "order": 1557,
     "when": {
       "maxWidth": 767
     },
@@ -1767,7 +1801,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 1566,
+    "order": 1584,
     "when": {
       "maxWidth": 767
     },
@@ -2241,7 +2275,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2117,
+    "order": 2135,
     "when": {
       "minWidth": 414,
       "maxWidth": 767
@@ -2259,7 +2293,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2118,
+    "order": 2136,
     "when": {
       "maxWidth": 575
     },
@@ -2303,6 +2337,8 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--accordion-item-disabled-opacity": 0.5,
     "--accordion-item-divider-color": "rgba(13, 13, 13, 0.1)",
     "--accordion-item-divider-width": 1,
+    "--accordion-motion-duration": 750,
+    "--accordion-motion-easing": "cubic-bezier(0.3, 0.6, 0.1, 1)",
     "--accordion-transition-duration": 120,
     "--accordion-transition-ease": "ease",
     "--accordion-trigger-color": "#0d0d0d",
@@ -3765,6 +3801,14 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--sortable-slot-radius": 12,
     "--source-list-gutter": 16,
     "--spacing": 4,
+    "--spring-menu": "cubic-bezier(0.35, 0.9, 0.1, 1.05)",
+    "--spring-menu-duration": 325,
+    "--spring-sheet": "cubic-bezier(0.35, 0.9, 0.1, 1.02)",
+    "--spring-sheet-duration": 495,
+    "--spring-smooth": "cubic-bezier(0.3, 0.6, 0.1, 1)",
+    "--spring-smooth-duration": 750,
+    "--spring-snappy": "cubic-bezier(0.35, 0.8, 0.1, 1.02)",
+    "--spring-snappy-duration": 725,
     "--stats-card-accent-width": 4,
     "--stats-card-background": "#ffffff",
     "--stats-card-border-color": "rgba(13, 13, 13, 0.1)",
@@ -4075,6 +4119,8 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--accordion-item-disabled-opacity": 0.5,
     "--accordion-item-divider-color": "rgba(255, 255, 255, 0.12)",
     "--accordion-item-divider-width": 1,
+    "--accordion-motion-duration": 750,
+    "--accordion-motion-easing": "cubic-bezier(0.3, 0.6, 0.1, 1)",
     "--accordion-transition-duration": 120,
     "--accordion-transition-ease": "ease",
     "--accordion-trigger-color": "#ffffff",
@@ -5537,6 +5583,14 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--sortable-slot-radius": 12,
     "--source-list-gutter": 16,
     "--spacing": 4,
+    "--spring-menu": "cubic-bezier(0.35, 0.9, 0.1, 1.05)",
+    "--spring-menu-duration": 325,
+    "--spring-sheet": "cubic-bezier(0.35, 0.9, 0.1, 1.02)",
+    "--spring-sheet-duration": 495,
+    "--spring-smooth": "cubic-bezier(0.3, 0.6, 0.1, 1)",
+    "--spring-smooth-duration": 750,
+    "--spring-snappy": "cubic-bezier(0.35, 0.8, 0.1, 1.02)",
+    "--spring-snappy-duration": 725,
     "--stats-card-accent-width": 4,
     "--stats-card-background": "#212121",
     "--stats-card-border-color": "rgba(255, 255, 255, 0.12)",

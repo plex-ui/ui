@@ -515,6 +515,20 @@
     --cubic-reduced-enter-dialog: cubic-bezier(0.3, 1, 0.7, 1);
     --motion-reduced-enter-menu: 500ms;
     --cubic-reduced-enter-menu: cubic-bezier(0.4, 1, 0.7, 1);
+    /* Springs, as SwiftUI's spring(duration:bounce:) with mass 1: smooth (0.5s, bounce 0) and snappy (0.5s, bounce 0.15)
+       are SwiftUI's presets; sheet (0.33s, bounce 0.2) and menu (0.21s, bounce 0.2) are an iOS 27.2 sheet and menu
+       growing from the button that opens them. Each is a cubic Bézier close to the spring here, for a browser without
+       linear() (Safari before 17.2); under @supports below it is the spring itself, sampled to within 0.004. The
+       duration is the time the spring takes to settle within 0.001 of its end, longer than the duration it is named
+       for, as a spring's tail is. */
+    --spring-smooth: cubic-bezier(0.3, 0.6, 0.1, 1);
+    --spring-smooth-duration: 750ms;
+    --spring-snappy: cubic-bezier(0.35, 0.8, 0.1, 1.02);
+    --spring-snappy-duration: 725ms;
+    --spring-sheet: cubic-bezier(0.35, 0.9, 0.1, 1.02);
+    --spring-sheet-duration: 495ms;
+    --spring-menu: cubic-bezier(0.35, 0.9, 0.1, 1.05);
+    --spring-menu-duration: 325ms;
 
     /* =============================================
       Scrollbar
@@ -562,6 +576,16 @@
     --color-surface-elevated-secondary: light-dark(var(--gray-50), var(--gray-400));
   }
 
+  @supports (transition-timing-function: linear(0, 1)) {
+    :root,
+    :where([data-theme]) {
+      --spring-smooth: linear(0, 0.005 1.1%, 0.02 2.3%, 0.081 4.9%, 0.159 7.5%, 0.463 16.6%, 0.558 19.8%, 0.639 23%, 0.709 26.3%, 0.769 29.7%, 0.82 33.2%, 0.863 37%, 0.901 41.5%, 0.932 46.4%, 0.955 51.9%, 0.972 58.1%, 0.992 73.4%, 1);
+      --spring-snappy: linear(0, 0.006 1.2%, 0.023 2.5%, 0.052 3.9%, 0.094 5.5%, 0.187 8.3%, 0.516 17.4%, 0.615 20.6%, 0.698 23.6%, 0.768 26.6%, 0.828 29.8%, 0.877 33.1%, 0.917 36.5%, 0.949 40.3%, 0.973 44.4%, 0.99 49.1%, 1 54.4%, 1.006 65.8%, 1);
+      --spring-sheet: linear(0, 0.007 1.2%, 0.024 2.4%, 0.055 3.9%, 0.099 5.4%, 0.195 8.1%, 0.434 14.2%, 0.54 17%, 0.638 20%, 0.724 22.9%, 0.795 25.8%, 0.856 28.9%, 0.905 32%, 0.943 35.3%, 0.971 38.6%, 0.991 42.2%, 1.013 51.1%, 1);
+      --spring-menu: linear(0, 0.008 1.2%, 0.027 2.5%, 0.06 3.9%, 0.102 5.3%, 0.197 7.9%, 0.536 16.4%, 0.638 19.4%, 0.726 22.3%, 0.799 25.3%, 0.858 28.2%, 0.907 31.3%, 0.945 34.6%, 0.972 37.8%, 0.992 41.4%, 1.012 49.9%, 1);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     :root,
     :where([data-theme]) {
@@ -571,6 +595,10 @@
       --motion-exit-large: 0ms;
       --motion-enter-quick: 0ms;
       --motion-exit-quick: 0ms;
+      --spring-smooth-duration: 0ms;
+      --spring-snappy-duration: 0ms;
+      --spring-sheet-duration: 0ms;
+      --spring-menu-duration: 0ms;
     }
   }
 }

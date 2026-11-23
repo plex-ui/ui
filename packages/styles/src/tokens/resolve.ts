@@ -698,6 +698,8 @@ export type LayerCondition = {
   maxWidth?: number
   highDensity?: boolean
   reducedMotion?: boolean
+  /** Under `@supports (transition-timing-function: linear(0, 1))`: the CSS springs. Never applies off the web. */
+  linearEasing?: boolean
 }
 
 /** Custom properties declared on the root under one condition, raw as written in the CSS. */
@@ -729,6 +731,7 @@ export function layerApplies(layer: TokenLayer, context: TokenContext, scheme: C
   if (when.maxWidth !== undefined && context.width > when.maxWidth) return false
   if (when.highDensity && !context.highDensity) return false
   if (when.reducedMotion && !context.reducedMotion) return false
+  if (when.linearEasing) return false
   return true
 }
 

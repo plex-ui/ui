@@ -72,6 +72,11 @@ export function buildLayers(postcss, read) {
           Object.assign(state.condition, MEDIA.get(node.params))
           continue
         }
+        // The springs as linear(): a layer of their own, which platforms without CSS easing leave out (resolve.ts)
+        if (node.type === "atrule" && node.name === "supports" && node.params === "(transition-timing-function: linear(0, 1))") {
+          state.condition.linearEasing = true
+          continue
+        }
         if (node.type === "rule") {
           const selector = node.selector.replace(/\s+/g, " ").trim()
           const known = ROOT_SELECTORS.get(selector)

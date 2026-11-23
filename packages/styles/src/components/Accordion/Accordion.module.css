@@ -64,8 +64,7 @@
   height: var(--accordion-icon-size);
   margin-inline-end: var(--accordion-icon-margin-inline-end, 0px);
   color: var(--accordion-icon-color);
-  transition: transform var(--accordion-transition-duration)
-    var(--accordion-transition-ease);
+  transition: transform var(--accordion-motion-duration) var(--accordion-motion-easing);
 }
 
 .Trigger[data-state="open"] .Chevron {
@@ -78,14 +77,15 @@
   line-height: var(--accordion-content-line-height);
   color: var(--accordion-content-color);
 
+  /* The panel takes its height at once and its content shows through a clip growing down from the trigger, while
+     what follows slides down by a transform (lib/accordionMotion): no height is animated, as an iOS 27.2
+     DisclosureGroup opens. Closing, the clip draws back up and the panel leaves the layout when it ends. */
   &[data-state="open"] {
-    animation: accordion-down var(--accordion-transition-duration)
-      var(--accordion-transition-ease);
+    animation: accordion-reveal var(--accordion-motion-duration) var(--accordion-motion-easing);
   }
 
   &[data-state="closed"] {
-    animation: accordion-up var(--accordion-transition-duration)
-      var(--accordion-transition-ease);
+    animation: accordion-conceal var(--accordion-motion-duration) var(--accordion-motion-easing);
   }
 }
 
@@ -98,21 +98,21 @@
   border-top: var(--accordion-content-divider-width, 0px) solid var(--accordion-item-divider-color);
 }
 
-@keyframes accordion-down {
+@keyframes accordion-reveal {
   from {
-    height: 0;
+    clip-path: inset(0 0 100% 0);
   }
   to {
-    height: var(--radix-accordion-content-height);
+    clip-path: inset(0);
   }
 }
 
-@keyframes accordion-up {
+@keyframes accordion-conceal {
   from {
-    height: var(--radix-accordion-content-height);
+    clip-path: inset(0);
   }
   to {
-    height: 0;
+    clip-path: inset(0 0 100% 0);
   }
 }
 

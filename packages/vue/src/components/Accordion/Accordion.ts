@@ -27,6 +27,7 @@ import {
 } from "reka-ui"
 import { ChevronDownMd } from "../Icon/index.js"
 import s from "@plexui/styles/components/Accordion/Accordion.module.css"
+import { attachAccordionMotion } from "../../lib/accordionMotion.js"
 
 // Vue port of packages/ui/src/components/Accordion/Accordion.tsx. React
 // builds on Radix Accordion; this builds on Reka UI's (same anatomy) and
@@ -111,6 +112,21 @@ export const Accordion = defineComponent({
     "update:value": (_value: AccordionValue) => true,
   },
   setup(props, { attrs, slots, emit }) {
+    // What follows an item slides as it opens and closes (lib/accordionMotion), on the root Reka renders, again
+    // when a new `type` remounts it
+    let motionRoot: HTMLElement | null = null
+    let detachMotion: (() => void) | undefined
+    const setMotionRoot = (instance: unknown) => {
+      const element = (instance as { $el?: unknown } | null)?.$el
+      const next = element instanceof HTMLElement ? element : null
+      if (next === motionRoot) return
+      detachMotion?.()
+      detachMotion = undefined
+      motionRoot = next
+      if (next) detachMotion = attachAccordionMotion(next, { root: s.Root, item: s.Item, content: s.Content })
+    }
+    onBeforeUnmount(() => setMotionRoot(null))
+
     const isMultiple = () => props.type === "multiple"
     const internalValue = ref<AccordionValue>(props.defaultValue ?? (isMultiple() ? [] : ""))
     const controlledValue = () => props.value
@@ -249,6 +265,7 @@ export const Accordion = defineComponent({
         {
           ...restAttrs,
           "key": props.type,
+          "ref": setMotionRoot,
           "class": [s.Root, className],
           "type": props.type,
           // Reka reads the open item(s) from here; `null` is "none open" in

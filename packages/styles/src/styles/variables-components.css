@@ -210,6 +210,10 @@
     --accordion-content-divider-width: 0px;
     --accordion-transition-duration: var(--transition-duration-basic);
     --accordion-transition-ease: var(--transition-ease-basic);
+    /* Opening and closing: the panel's clip, the chevron's turn and what follows sliding (lib/accordionMotion), on
+       SwiftUI's smooth spring, as a DisclosureGroup animates */
+    --accordion-motion-duration: var(--spring-smooth-duration);
+    --accordion-motion-easing: var(--spring-smooth);
 
     /* =============================================
       DateRangePicker

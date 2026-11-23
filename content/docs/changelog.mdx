@@ -7,6 +7,16 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Added
+
+- **Spring tokens.** `--spring-smooth`, `--spring-snappy`, `--spring-sheet` and `--spring-menu`, each with a `-duration`: SwiftUI's `spring(duration:bounce:)` sampled into `linear()`, with a close cubic Bézier for browsers without `linear()`. Durations are 0 with reduced motion.
+
+### Changed
+
+- **Accordion.** An item opens and closes as an iOS DisclosureGroup: the panel takes its height at once, its content shows through a clip, and the items after it slide by a transform, on the smooth spring. No height is animated. React and Vue.
+
 ## 0.61.1 (2026-11-23)
 
 ### Security
