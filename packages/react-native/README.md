@@ -3,7 +3,15 @@
 Plex UI components for React Native and Expo. One set of components draws the iOS 26 look (the phone layer of
 Plex UI: native sizes, glass) or Material 3 on Android, from the same design tokens as the web (`@plexui/styles`).
 
-> Private and in development: not published to npm yet.
+## Install
+
+```bash
+npx expo install @plexui/react-native react-native-svg react-native-safe-area-context
+# optional: native glass on iOS 26, a blur elsewhere
+npx expo install expo-glass-effect expo-blur
+```
+
+The docs, with a live example of every component: https://plexui.com/react-native/components
 
 ## Use
 

@@ -4,7 +4,7 @@
 // `@plexui/styles/...` file the package's built `dist` imports (a CSS module
 // added without republishing styles would otherwise ship an import that
 // consumers cannot resolve).
-// Usage: node scripts/check-styles-published.mjs [ui|vue] (ui by default)
+// Usage: node scripts/check-styles-published.mjs [ui|vue|react-native] (ui by default)
 import { execFileSync } from "node:child_process"
 import { readdirSync, readFileSync } from "node:fs"
 import path from "node:path"
@@ -43,7 +43,10 @@ const packed = JSON.parse(npm(["pack", `@plexui/styles@${version}`, "--dry-run",
 const files = new Set((packed[0]?.files ?? []).map((file) => file.path))
 
 // `@plexui/styles/<subpath>` specifiers in the package's dist, mapped through the exports
-const exportsMap = Object.entries(styles.exports).filter(([, target]) => typeof target === "string")
+// A conditional export resolves to its default file
+const exportsMap = Object.entries(styles.exports)
+  .map(([key, target]) => [key, typeof target === "string" ? target : target?.default])
+  .filter(([, target]) => typeof target === "string")
 const resolveSubpath = (subpath) => {
   for (const [key, target] of exportsMap) {
     const prefix = key.slice(2).replace("*", "")

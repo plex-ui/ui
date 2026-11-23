@@ -1,19 +1,19 @@
 // Bumps package versions for a release and keeps everything that pins them in step:
 // - packages/<name>/package.json "version";
-// - the @plexui/styles range in ui and vue, when the new styles version falls
-//   outside it (ui and vue then need a release too, and the script says so);
+// - the @plexui/styles range in ui, vue and react-native, when the new styles
+//   version falls outside it (they then need a release too, and the script says so);
 // - package-lock.json, which `npm ci` in the release workflow checks;
 // - for ui, the changelog's "## Unreleased" heading becomes "## <version> (<date>)".
 // Merging the result into master publishes it (.github/workflows/publish.yml).
-// Usage: npm run release:bump -- [--dry-run] <styles|ui|vue|mcp> <patch|minor|major|x.y.z> [<package> <level> ...]
+// Usage: npm run release:bump -- [--dry-run] <styles|ui|vue|mcp|react-native> <patch|minor|major|x.y.z> [<package> <level> ...]
 import { execFileSync } from "node:child_process"
 import { readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
-const PACKAGES = ["styles", "ui", "vue", "mcp"]
-const STYLES_DEPENDENTS = ["ui", "vue"]
+const PACKAGES = ["styles", "ui", "vue", "mcp", "react-native"]
+const STYLES_DEPENDENTS = ["ui", "vue", "react-native"]
 const CHANGELOG = "content/docs/changelog.mdx"
 
 const fail = (message) => {
@@ -25,7 +25,7 @@ const args = process.argv.slice(2)
 const dryRun = args.includes("--dry-run")
 const pairs = args.filter((arg) => arg !== "--dry-run")
 if (pairs.length === 0 || pairs.length % 2 !== 0) {
-  fail("Usage: npm run release:bump -- [--dry-run] <styles|ui|vue|mcp> <patch|minor|major|x.y.z> [<package> <level> ...]")
+  fail("Usage: npm run release:bump -- [--dry-run] <styles|ui|vue|mcp|react-native> <patch|minor|major|x.y.z> [<package> <level> ...]")
 }
 
 const parse = (version) => {

@@ -2,7 +2,8 @@ name: Release packages
 
 # Releases every package whose package.json version is not on npm yet, after
 # the parity tests pass, in dependency order: @plexui/styles, then @plexui/ui
-# and @plexui/vue (both depend on it), then @plexui/mcp. Then it tags what it
+# and @plexui/vue (both depend on it), then @plexui/mcp and @plexui/react-native
+# (which depends on styles too). Then it tags what it
 # published and opens the GitHub Release v<ui version> with that version's
 # section of the docs changelog.
 #
@@ -14,8 +15,10 @@ name: Release packages
 # this workflow file set as their trusted publisher. A package that is not on
 # npm yet cannot have one, so its first publish falls back to the
 # NPM_BOOTSTRAP_TOKEN repository secret (a granular token with publish access
-# to @plexui) when it is set. Delete that secret once every package has a
-# trusted publisher. (NPM_TOKEN is the token used before OIDC; it is not read.)
+# to @plexui) when it is set; without it a package that npm has never seen is
+# skipped with a warning (publish it once locally: npm run publish:<pkg>).
+# Delete that secret once every package has a trusted publisher. (NPM_TOKEN is
+# the token used before OIDC; it is not read.)
 # Keep this file's name: the trusted publisher settings on npm point at it.
 
 on:
@@ -26,6 +29,7 @@ on:
       - packages/ui/package.json
       - packages/vue/package.json
       - packages/mcp/package.json
+      - packages/react-native/package.json
 
   workflow_dispatch:
     inputs:
@@ -49,6 +53,7 @@ jobs:
       # Without the secret, setup-node's own placeholder, as before: OIDC only
       NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN || 'XXXXX-XXXXX-XXXXX-XXXXX' }}
       DRY_RUN: ${{ github.ref != 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+      HAS_BOOTSTRAP_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN != '' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,13 +71,18 @@ jobs:
         id: check
         run: |
           any=skip
-          for pkg in styles ui vue mcp; do
+          for pkg in styles ui vue mcp react-native; do
+            key=${pkg//-/_}
             version=$(node -p "require('./packages/$pkg/package.json').version")
             if [ "$(npm view "@plexui/$pkg@$version" version 2>/dev/null)" = "$version" ]; then
-              echo "$pkg=skip" >> "$GITHUB_OUTPUT"
+              echo "$key=skip" >> "$GITHUB_OUTPUT"
               echo "@plexui/$pkg@$version is already on npm, skipping."
+            elif [ -z "$(npm view "@plexui/$pkg" version 2>/dev/null)" ] && [ "$HAS_BOOTSTRAP_TOKEN" != "true" ] && [ "$DRY_RUN" != "true" ]; then
+              # A package npm has never seen has no trusted publisher yet, so OIDC cannot publish it
+              echo "$key=skip" >> "$GITHUB_OUTPUT"
+              echo "::warning::@plexui/$pkg is not on npm yet: publish it once locally (npm run publish:$pkg) or set NPM_BOOTSTRAP_TOKEN, then set its trusted publisher."
             else
-              echo "$pkg=publish" >> "$GITHUB_OUTPUT"
+              echo "$key=publish" >> "$GITHUB_OUTPUT"
               any=publish
               echo "@plexui/$pkg@$version will be published."
             fi
@@ -98,7 +108,7 @@ jobs:
           else npm publish --access public --provenance; fi
 
       - name: Wait for @plexui/styles to reach the registry
-        if: steps.check.outputs.styles == 'publish' && env.DRY_RUN != 'true' && (steps.check.outputs.ui == 'publish' || steps.check.outputs.vue == 'publish')
+        if: steps.check.outputs.styles == 'publish' && env.DRY_RUN != 'true' && (steps.check.outputs.ui == 'publish' || steps.check.outputs.vue == 'publish' || steps.check.outputs.react_native == 'publish')
         run: |
           version=$(node -p "require('./packages/styles/package.json').version")
           for attempt in $(seq 1 30); do
@@ -165,6 +175,29 @@ jobs:
           if [ "$DRY_RUN" = "true" ]; then npm publish --access public --dry-run
           else npm publish --access public --provenance; fi
 
+      # The package resolves its peers (React Native, react-native-svg…) from the
+      # example app, which pins one Expo SDK; its icon modules are generated
+      - name: Build and check @plexui/react-native
+        if: steps.check.outputs.react_native == 'publish'
+        env:
+          STYLES: ${{ steps.check.outputs.styles }}
+        run: |
+          npm ci --prefix packages/react-native/example
+          npm run build --prefix packages/react-native
+          if [ "$DRY_RUN" = "true" ] && [ "$STYLES" = "publish" ]; then
+            echo "Dry run: the new @plexui/styles is not on npm, so check-styles-published is skipped."
+          else
+            node scripts/check-styles-published.mjs react-native
+          fi
+
+      - name: Publish @plexui/react-native
+        id: publish_react_native
+        if: steps.check.outputs.react_native == 'publish'
+        working-directory: packages/react-native
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then npm publish --access public --dry-run
+          else npm publish --access public --provenance; fi
+
       # Also after a failed step, and on a manual run with nothing to publish:
       # every version this run published or npm already has gets its tag and
       # the ui Release when they are missing. A version published a moment
@@ -178,13 +211,14 @@ jobs:
           PUBLISHED_ui: ${{ steps.publish_ui.outcome }}
           PUBLISHED_vue: ${{ steps.publish_vue.outcome }}
           PUBLISHED_mcp: ${{ steps.publish_mcp.outcome }}
+          PUBLISHED_react_native: ${{ steps.publish_react_native.outcome }}
         run: |
           on_npm() {
-            published="PUBLISHED_$1"
+            published="PUBLISHED_${1//-/_}"
             [ "${!published}" = "success" ] || [ "$(npm view "@plexui/$1@$2" version 2>/dev/null)" = "$2" ]
           }
           also=""
-          for pkg in styles vue mcp; do
+          for pkg in styles vue mcp react-native; do
             version=$(node -p "require('./packages/$pkg/package.json').version")
             tag="@plexui/$pkg@$version"
             if on_npm "$pkg" "$version" && [ -z "$(git ls-remote --tags origin "refs/tags/$tag")" ]; then

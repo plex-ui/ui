@@ -1020,10 +1020,10 @@ git commit -m "release: ui 0.21.0, styles 0.1.1"
 git push origin master
 ```
 On that push `publish.yml`:
-1. checks each package's version on npm (`@plexui/styles`, `@plexui/ui`, `@plexui/vue`, `@plexui/mcp`) and skips the published ones;
+1. checks each package's version on npm (`@plexui/styles`, `@plexui/ui`, `@plexui/vue`, `@plexui/mcp`, `@plexui/react-native`) and skips the published ones (and, without `NPM_BOOTSTRAP_TOKEN`, a package npm has never seen, with a warning);
 2. builds styles and runs `npm run test:parity`;
-3. publishes the missing versions in that order, with the local scripts' guards before ui and vue (`check-styles-published.mjs`, `check-published-types.mjs`), waiting until a just-published styles version is visible on npm;
-4. tags them (`@plexui/<pkg>@<version>` for styles, vue, mcp) and opens the GitHub Release `v<ui version>` with that version's changelog section (`npm run release:notes -- <version>` prints it).
+3. publishes the missing versions in that order (react-native last, built against the example app's Expo SDK), with the local scripts' guards before ui and vue (`check-styles-published.mjs`, `check-published-types.mjs`), waiting until a just-published styles version is visible on npm;
+4. tags them (`@plexui/<pkg>@<version>` for styles, vue, mcp, react-native) and opens the GitHub Release `v<ui version>` with that version's changelog section (`npm run release:notes -- <version>` prints it).
 
 A failed run can simply be re-run: published versions are skipped, and the tag step tags whatever reached npm. The Actions tab runs it by hand too, as a dry run by default (build, tests, `npm publish --dry-run`); only master can really publish. Do not create GitHub Releases by hand any more.
 
@@ -1032,7 +1032,7 @@ A failed run can simply be re-run: published versions are skipped, and the tag s
 - A package that is not on npm yet cannot have a trusted publisher. For its first publish, either add a repository secret `NPM_BOOTSTRAP_TOKEN` (granular token with publish access to `@plexui`; the workflow falls back to it) or publish once locally (`npm login`, then `npm run publish:styles` / `publish:vue`). Then set its trusted publisher and delete the secret. The old `NPM_TOKEN` secret (from before OIDC) is not used.
 - `package.json` `repository.url` must point at `https://github.com/plex-ui/ui.git` (the repo was `plex-ui/docs`), or provenance verification rejects the publish.
 
-**Local fallback:** `npm run publish:styles`, `publish:ui`, `publish:vue`, `publish:mcp` (same guards; needs `npm login`). After a local ui publish, rebuild: `npm publish` triggers `build:clean`, which deletes `dist/`.
+**Local fallback:** `npm run publish:styles`, `publish:ui`, `publish:vue`, `publish:mcp`, `publish:react-native` (same guards; needs `npm login`). After a local ui publish, rebuild: `npm publish` triggers `build:clean`, which deletes `dist/`.
 
 **Key details:**
 - Pushing needs the `stomashevsky` gh account (see memory); release tag format: `v{version}` (e.g. `v0.20.0`)
