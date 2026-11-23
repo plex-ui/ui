@@ -31,7 +31,9 @@ const SURFACES = ['grouped', 'plain'] as const;
  * leaves the space between sections to the screen; on Android the cards stand 12 apart, and a footer's own 17 under
  * it parts it from the next card.
  */
-function sectionGap(android: boolean, { afterFooter = false, header = false }: { afterFooter?: boolean; header?: boolean }) {
+function sectionGap(android: boolean, { afterFooter = false, header = false, plain = false }: { afterFooter?: boolean; header?: boolean; plain?: boolean }) {
+  // A plain list on Android: a header's band or a footer parts the sections, else a 12dp gray band
+  if (android && plain) return afterFooter || header ? 0 : 12;
   if (android) return afterFooter ? 0 : 12;
   return 35 - (afterFooter ? 17.33 : 0) - (header ? (afterFooter ? 11.33 : 18.67) : 0);
 }
@@ -62,6 +64,9 @@ export const Overview = docsDemo(function Overview() {
     weekStart: { icon: <Calendar />, color: theme.color('--color-background-danger-solid') },
     dayStart: { icon: <Clock />, color: theme.color('--color-background-success-solid') },
   };
+  // Android's plain list runs across the screen, and the space between its sections is gray
+  const plainList = android && surface === 'plain';
+  const gapFill = plainList ? theme.colors.groupedBackground : undefined;
   const item = ({ id, label, description: note, disabled: off, placement }: Row) => (
     <ListItem
       key={id}
@@ -92,6 +97,7 @@ export const Overview = docsDemo(function Overview() {
         {row ? (
           // The page a row opens: its choices, the current one checked, and Back to the list
           <PhonePage
+            flush={plainList}
             top={(scrolled, canvas) => (
               <Toolbar scrolled={scrolled} canvasColor={canvas}>
                 <Toolbar.Leading>
@@ -118,6 +124,7 @@ export const Overview = docsDemo(function Overview() {
           </PhonePage>
         ) : (
           <PhonePage
+            flush={plainList}
             top={(scrolled, canvas) => (
               <Toolbar scrolled={scrolled} canvasColor={canvas}>
                 <Toolbar.Title>Calendar</Toolbar.Title>
@@ -127,7 +134,7 @@ export const Overview = docsDemo(function Overview() {
             <List surface={surface} header={header ? 'General' : undefined}>
               {GENERAL_ROWS.map(item)}
             </List>
-            <View style={{ height: sectionGap(android, { header }) }} />
+            <View style={{ height: sectionGap(android, { header, plain: plainList }), backgroundColor: gapFill }} />
             <List
               surface={surface}
               header={header ? 'Events' : undefined}
@@ -139,7 +146,7 @@ export const Overview = docsDemo(function Overview() {
                 trailing={<Switch checked={weekNumbers} onCheckedChange={setWeekNumbers} accessibilityLabel="Week numbers" />}
               />
             </List>
-            <View style={{ height: sectionGap(android, { afterFooter: footer }) }} />
+            <View style={{ height: sectionGap(android, { afterFooter: footer, plain: plainList }), backgroundColor: gapFill }} />
             <List surface={surface}>
               <ListItem label="Sign out" destructive onPress={() => {}} />
             </List>

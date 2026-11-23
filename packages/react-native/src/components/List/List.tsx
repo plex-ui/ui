@@ -31,8 +31,9 @@ export type ListProps = {
   error?: ReactNode
   /**
    * The canvas the section stands on. `grouped`: the gray grouped canvas of a settings screen, the section in the
-   * grouped secondary surface (white in light). `plain`: a plain canvas, the section in the plain secondary gray
-   * (`--field-group-background`). The same on both platforms. @default "grouped"
+   * grouped secondary surface (white in light). `plain`: a plain canvas; on iOS the section in the plain secondary gray
+   * (`--field-group-background`), on Android a plain list: no card, the rows across the canvas (the screen sets such a
+   * list at its edges) in the cards' color, the header a 32dp band of the grouped gray. @default "grouped"
    */
   surface?: "grouped" | "plain"
   "aria-label"?: string
@@ -51,7 +52,9 @@ const PlaceContext = createContext<RowPlace>({ first: true, last: true })
  * 16dp round, a 1px divider between rows from the text's start; the header inside the card, a 40dp row of 14sp Medium
  * in the accent 20 in, its description 14sp in the secondary label under it; the footer under the card, 14sp in the
  * secondary label 12 in (24 from the screen's edge, as the screen insets the card 12), 10 above and 17 below, an
- * error the same in the error color. The screen sets the cards 12 from its edges and 12 apart.
+ * error the same in the error color. The screen sets the cards 12 from its edges and 12 apart. On a plain canvas
+ * Android draws a plain list: the rows across the screen with no card, the header a 32dp band of the grouped gray,
+ * the footer on that gray.
  */
 export function List({ children, header, description, footer, error, surface = "grouped", "aria-label": ariaLabel, testID, style }: ListProps) {
   const theme = useTheme()
@@ -64,16 +67,29 @@ export function List({ children, header, description, footer, error, surface = "
   ))
   const label = ariaLabel ?? (textOf(header) || undefined)
   if (theme.isAndroid) {
+    // A plain list has no card: its rows run across the screen in the cards' color (so a divider shows in dark mode
+    // too), and its header is a band of the grouped canvas across them, 14sp Medium in the secondary label 16 in
+    const plain = surface === "plain"
+    const band = theme.colors.groupedBackground
     return (
       <View testID={testID} style={style}>
-        <View style={[styles.androidCard, { backgroundColor: fill }]}>
-          {header != null ? (
+        <View style={plain ? { backgroundColor: theme.colors.groupedSurface } : [styles.androidCard, { backgroundColor: fill }]}>
+          {header == null ? null : plain ? (
+            <View style={[styles.androidBand, { backgroundColor: band }]}>
+              <Text accessibilityRole="header" color={theme.colors.labelSecondary} weight="medium" numberOfLines={1} style={styles.androidBandText}>
+                {header}
+              </Text>
+            </View>
+          ) : (
             <Text accessibilityRole="header" color={accentText(theme)} weight="medium" style={styles.androidHeader}>
               {header}
             </Text>
-          ) : null}
+          )}
           {description != null ? (
-            <Text color={theme.colors.labelSecondary} style={[styles.androidDescriptionLine, header == null ? styles.androidDescriptionAlone : null]}>
+            <Text
+              color={theme.colors.labelSecondary}
+              style={[styles.androidDescriptionLine, plain ? styles.androidDescriptionPlain : header == null ? styles.androidDescriptionAlone : null]}
+            >
               {description}
             </Text>
           ) : null}
@@ -82,11 +98,11 @@ export function List({ children, header, description, footer, error, surface = "
           </View>
         </View>
         {error != null ? (
-          <Text color={dangerText(theme)} accessibilityLiveRegion="polite" style={styles.androidFooter}>
+          <Text color={dangerText(theme)} accessibilityLiveRegion="polite" style={[styles.androidFooter, plain ? [styles.androidFooterPlain, { backgroundColor: band }] : null]}>
             {error}
           </Text>
         ) : footer != null ? (
-          <Text color={theme.colors.labelSecondary} style={styles.androidFooter}>
+          <Text color={theme.colors.labelSecondary} style={[styles.androidFooter, plain ? [styles.androidFooterPlain, { backgroundColor: band }] : null]}>
             {footer}
           </Text>
         ) : null}
@@ -676,6 +692,12 @@ const styles = StyleSheet.create({
   androidDescriptionLine: { paddingHorizontal: 20, paddingBottom: 6, fontSize: 14, lineHeight: 18 },
   androidDescriptionAlone: { paddingTop: 15 },
   androidFooter: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 17, fontSize: 14, lineHeight: 18 },
+  // A plain list's header band (32dp, its text 16 in), its description and its footer 20 in as the rows' text, the
+  // footer on the band's gray as the space between sections
+  androidBand: { height: 32, justifyContent: "center", paddingHorizontal: 16 },
+  androidBandText: { fontSize: 14, lineHeight: 18 },
+  androidDescriptionPlain: { paddingTop: 10 },
+  androidFooterPlain: { paddingHorizontal: 20 },
   androidRow: { flexDirection: "row", alignItems: "center", minHeight: 50, paddingStart: 20, paddingEnd: 20 },
   // A symbol at 21 and the text at 71; a 28dp tile at 18 with a 24dp symbol and the text at 64 (a tiled row)
   androidIcon: { width: 24, height: 24, alignItems: "center", justifyContent: "center", marginStart: 1, marginEnd: 26 },

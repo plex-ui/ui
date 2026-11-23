@@ -28,20 +28,28 @@ export function PhonePage({
   bottom,
   onScroll,
   largeTitleRows,
+  flush = false,
   children,
 }: {
   top?: (scrolled: boolean, canvas?: string) => ReactNode;
   bottom?: (scrolled: boolean, canvas?: string) => ReactNode;
   onScroll?: (event: ScrollEvent) => void;
   largeTitleRows?: 'search' | 'rows';
+  /** The content at the screen's edges and right under the top bar: an Android plain list. */
+  flush?: boolean;
   children?: ReactNode;
 }) {
   const theme = useTheme();
   // The bars' scroll edges take the screen's color (a grouped screen's is not the theme's background)
   const canvas = useScreenCanvas();
   const rowGap = theme.length('--toolbar-row-gap', 10);
-  const contentGap =
-    theme.isAndroid ? 12 : largeTitleRows ? (largeTitleRows === 'search' ? rowGap : 16) - theme.length('--toolbar-padding-bottom', 10) : 16;
+  const contentGap = flush
+    ? 0
+    : theme.isAndroid
+      ? 12
+      : largeTitleRows
+        ? (largeTitleRows === 'search' ? rowGap : 16) - theme.length('--toolbar-padding-bottom', 10)
+        : 16;
   // The space after the content, the React Page's (--page-content-padding-bottom); Android's lists end 12 above a bar
   const contentEnd = theme.isAndroid ? 12 : theme.length('--page-content-padding-bottom', 48);
   const [topHeight, setTopHeight] = useState(0);
@@ -66,7 +74,7 @@ export function PhonePage({
         contentContainerStyle={{
           paddingTop: topHeight + contentGap,
           // Android's sections stand 12 from the screen's edges
-          paddingHorizontal: theme.isAndroid ? 12 : 16,
+          paddingHorizontal: flush ? 0 : theme.isAndroid ? 12 : 16,
           paddingBottom: bottomHeight + contentEnd,
         }}
       >

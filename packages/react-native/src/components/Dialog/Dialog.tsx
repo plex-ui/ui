@@ -382,7 +382,7 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
   return (
     <View style={[styles.android, { width, backgroundColor: androidDialogBackground(theme) }]}>
       {list != null ? (
-        // A list: the title stays, 10 over the rows, and the rows scroll under it (AlertDialog with a custom view)
+        // A list: the title stays, 14 over the rows, and the rows scroll under it (AlertDialog with a custom view)
         <>
           {title != null ? (
             <Text nativeID={ids.title} color={m.onSurface} accessibilityRole="header" style={[styles.androidTitle, styles.androidListTitle, theme.font("medium")]}>
@@ -407,7 +407,7 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
         </ScrollView>
       )}
       {bar.length ? (
-        <View onLayout={(event) => setRoom(event.nativeEvent.layout.width - 16)} style={stacked ? styles.androidStack : styles.androidActions}>
+        <View onLayout={(event) => setRoom(event.nativeEvent.layout.width - 16)} style={stacked ? styles.androidStack : [styles.androidActions, list != null ? styles.androidListActions : null]}>
           {order.map((index) =>
             // The neutral actions at the start, a space, then the negative and the positive
             !stacked && index === neutral.length && neutral.length ? [<View key="space" style={styles.grow} />, button(index)] : button(index),
@@ -436,14 +436,16 @@ const styles = StyleSheet.create({
   android: { flexShrink: 1, borderRadius: 20, overflow: "hidden" },
   androidText: { paddingHorizontal: 24, paddingTop: 19, paddingBottom: 20, gap: 10 },
   androidTitle: { fontSize: 20, lineHeight: 24 },
-  // Over a list the title keeps its 24 at the sides and 19 above, and stands 10 over the rows
-  androidListTitle: { paddingHorizontal: 24, paddingTop: 19, paddingBottom: 10 },
+  // Over a list the title keeps its 24 at the sides and 19 above, and stands 14 over the rows
+  androidListTitle: { paddingHorizontal: 24, paddingTop: 19, paddingBottom: 14 },
   // A list with no title starts 8 under the panel's top
   androidListTop: { paddingTop: 8 },
   androidMessage: { fontSize: 16, lineHeight: 22 },
   androidContent: { marginTop: 6 },
   // The button row: 52 tall (6 over and under its 40dp buttons), 8 in from the sides
   androidActions: { flexDirection: "row", justifyContent: "flex-end", alignItems: "center", gap: GAP, paddingHorizontal: 8, paddingVertical: 6 },
+  // Under a list of choices the row is 56: 8 over and under the buttons (measured on the platform's single-choice dialog)
+  androidListActions: { paddingVertical: 8 },
   // Stacked: 8 over and under the 40dp buttons (two make 96)
   androidStack: { alignItems: "flex-end", paddingHorizontal: 8, paddingVertical: 8 },
   // Android's dialog button: 40 tall, at least 64 wide, 12 at the sides; at least 40, so a larger font grows it
