@@ -105,3 +105,30 @@
     transition-timing-function: var(--cubic-enter);
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css), after @plexui/react-native's Tooltip on Android
+   (decision 0026): Material 3's tooltips. `compact` is the plain tooltip: 4px corners, 4 by 8 inside, at least 24
+   tall, 12/16 text, the inverse surface. Otherwise the rich tooltip: the surface container, 12px corners, 12 by 16
+   inside, 14/20 text in its variant ink, Material's level 2 shadow. The width stays the `maxWidth` prop's. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Tooltip {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--android-tooltip-fill);
+    box-shadow: 0 2px 6px 2px rgb(0 0 0 / 15%), 0 1px 2px rgb(0 0 0 / 30%);
+    color: var(--android-tooltip-text);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  [data-platform="android"] .Tooltip[data-compact="true"] {
+    min-height: 24px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--android-tooltip-inverse);
+    box-shadow: none;
+    color: var(--android-tooltip-inverse-text);
+    font-size: 12px;
+    line-height: 16px;
+  }
+}

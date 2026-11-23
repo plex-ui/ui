@@ -1,0 +1,296 @@
+/*
+ * The Plex Android look of the phone layer (touch.css). The phone rules draw iOS 26 by default; a document whose
+ * root has `data-platform="android"` takes the Android look instead: PlexUIProvider sets it on an Android browser
+ * (`platform="auto"`, the default) or when asked (`platform="android"`), and the docs' Android phone frame sets it.
+ *
+ * It follows @plexui/react-native on Android (packages/react-native/src/components, their `android` branches; decision
+ * 0026): the reference messenger's numbers first, then Google's own apps, then Compose / Material 3. Component rules
+ * live next to their iOS phone rules in each component's stylesheet, under `[data-platform="android"]`; shared values
+ * are here.
+ */
+@media (max-width: 767px) {
+  :root[data-platform="android"] {
+    /* A bottom bar stands on the line of the 56dp tab bar, 8dp over the gesture bar: its 46dp circles 13dp over the
+       inset (iOS: 28 from the edge, the 34 home indicator less 6), 16dp from the screen's sides (iOS 28). Without an
+       inset (a browser that keeps its own bar) 13 from the window's edge. */
+    --toolbar-bottom-padding-bottom: calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 13px);
+    --toolbar-bottom-gutter: 16px;
+    /* A page's groups (its cards) stand 12dp from the screen's sides at every width, as in a sheet (Dialog.module.css):
+       the reference's settings cards (iOS: the layout margin, 16 or 20). */
+    --page-gutter: 12px;
+  }
+
+  /* Bars and overlays (Toolbar, TabBar, NavigationButton, a Sheet's bar). A glass control (a bar's circle or pill, a
+     search field in a bar, a Button with `mobileMaterial="glass"`) is no liquid glass: white at 80% over the screen
+     (at night a near-black gray at 80%), a 0.55dp white rim along its top and bottom (white at 12.5% and 7.8% at
+     night), a shadow of #333 at 8.6% blurred 8 and 2.33 down (none at night), the content blurred 7 under it. The tab
+     bar's capsule is the card at 76% with a thinner, darker rim and a tighter shadow. A held control shows a layer of
+     the text at 7%. */
+  :root[data-platform="android"] {
+    --android-bar-glass: light-dark(rgb(255 255 255 / 80%), rgb(30 30 31 / 80%));
+    --android-bar-shadow: 0 2.33px 8px light-dark(rgb(51 51 51 / 8.6%), transparent), inset 0 0.55px 0 light-dark(#fff, rgb(255 255 255 / 12.5%)), inset 0 -0.55px 0 light-dark(#fff, rgb(255 255 255 / 7.8%));
+    --android-tabs-glass: light-dark(rgb(255 255 255 / 76%), color-mix(in srgb, var(--gray-300) 76%, transparent));
+    --android-tabs-shadow: 0 0.85px 2.67px light-dark(rgb(0 0 0 / 12.5%), rgb(255 255 255 / 1.6%)), inset 0 0.4px 0 light-dark(rgb(0 0 0 / 6.7%), rgb(255 255 255 / 2.4%)), inset 0 -0.4px 0 light-dark(rgb(0 0 0 / 12.5%), rgb(255 255 255 / 6.7%));
+    --android-bar-press: color-mix(in srgb, var(--color-text) 7%, transparent);
+    --mobile-glass-background: var(--android-bar-glass);
+    --mobile-glass-background-hover: var(--android-bar-glass);
+    --mobile-glass-background-active: color-mix(in srgb, var(--android-bar-glass), var(--color-text) 7%);
+    --mobile-glass-shadow: var(--android-bar-shadow);
+    --mobile-glass-shadow-raised: var(--android-bar-shadow);
+    --mobile-glass-backdrop-filter: blur(7px);
+    /* A prominent control (an accent circle or capsule) casts the shadow of a card: 6% under it, 30% at night. */
+    --android-accent-shadow: 0 2px 8px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 30%));
+    /* Disabled content of a bar's control: the text at 38%. */
+    --android-bar-disabled: color-mix(in srgb, var(--color-text) 38%, transparent);
+    /* Overlays. The light and dark pairs are set here, on the root: the build writes a component's light-dark() as
+       a rule under a [data-theme] ancestor, which the root that holds data-platform has not. A popup's card (a menu,
+       a badge's ring, a skeleton's band): white, at night a raised gray. A centered dialog: white, at night the gray
+       of a container. A toast: a dark card, its action the accent mixed with white. A skeleton block: the text at 6%
+       (5% at night). A row's menu: its gap a light gray band (a darker gray at night), its shadow soft and 3 down, the
+       screen behind it dimmed 40% (20% at night). A page's dots: light gray, dark gray at night. A selected tab's
+       label: the accent's text (the bright accent at night). */
+    --android-card: light-dark(#fff, var(--gray-300));
+    --android-dialog-surface: light-dark(#fff, var(--gray-200));
+    --android-toast-fill: light-dark(rgb(39 47 56 / 92%), rgb(24 24 24 / 96%));
+    --android-toast-action: light-dark(color-mix(in srgb, #fff 50%, var(--color-background-accent-solid)), color-mix(in srgb, #fff 60%, var(--color-background-accent-solid)));
+    --android-skeleton-fill: light-dark(color-mix(in srgb, var(--color-text) 6%, transparent), color-mix(in srgb, var(--color-text) 5%, transparent));
+    --android-menu-band: color-mix(in srgb, var(--color-text) 6%, transparent);
+    --android-popup-gap: light-dark(#f5f5f5, #262626);
+    --android-popup-shadow: 0 3px 8px light-dark(rgb(0 0 0 / 14%), rgb(0 0 0 / 40%)), 0 0 1px light-dark(rgb(0 0 0 / 12%), transparent);
+    --android-popup-dim: light-dark(rgb(0 0 0 / 40%), rgb(0 0 0 / 20%));
+    --android-dot: light-dark(#bbb, #555);
+    --android-tab-selected: light-dark(var(--color-text-accent), var(--color-background-accent-solid));
+    /* A segmented control's selected segment: the accent at 12% over the card. */
+    --android-segment-thumb: color-mix(in srgb, var(--color-background-accent-solid) 12%, var(--android-card));
+    /* Material 3's tooltips: a rich one on the surface container (tone 94, 12 at night), a plain one on the inverse
+       surface (tone 20, 90 at night) with the inverse text; a rich one's text the surface's variant ink (tone 30, 80). */
+    --android-tooltip-fill: light-dark(#eee, #1f1f1f);
+    --android-tooltip-text: light-dark(#474747, #c6c6c6);
+    --android-tooltip-inverse: light-dark(#303030, #e2e2e2);
+    --android-tooltip-inverse-text: light-dark(#f1f1f1, #303030);
+    /* A context menu dims the screen as a row's menu does, black at 40% (20% at night), with no blur; the element
+       stays clear, without a shadow. */
+    --context-menu-dimming-background: var(--android-popup-dim);
+    --context-menu-dimming-backdrop-filter: none;
+    --context-menu-preview-shadow: none;
+  }
+
+  /* Menus (Menu, ContextMenu, Select's list and every list drawn with the --menu-* values): the popup of a row. Opaque,
+     the popup's card with 12px corners and a soft shadow, the screen behind it dimmed 40% (20% at night: a spread of
+     its shadow, which a press goes through), no space above and under its rows, which run flush with its sides. A row
+     is 48 tall, its 24px symbol 18 in (the glyph about 20) and the label 16/20 Regular 20 after it (62 in); a
+     description 13/16 in the secondary text; a held row is the text at 12%. A chosen row's check stands at its end. A
+     separator is an 8px band of light gray; a section title 13/16 in the text, 13 from the sides and 8 above and under
+     it. A disabled row is the text at 38%. A menu opened from a bar's button is the bar's glass instead
+     (Menu.module.css: --android-header-menu-*). */
+  :root[data-platform="android"] {
+    --menu-radius: 12px;
+    --menu-radius-pill: 12px;
+    --menu-gutter: 0px;
+    --menu-pill-gutter: 0px;
+    --menu-padding-inline: 0px;
+    --menu-default-width: max-content;
+    --menu-default-min-width: 196px;
+    --menu-shadow: var(--android-popup-shadow), 0 0 0 100vmax var(--android-popup-dim);
+    --menu-mobile-background: var(--android-card);
+    --menu-mobile-backdrop-filter: none;
+    --menu-font-size: 16px;
+    --menu-line-height: 20px;
+    --menu-letter-spacing: var(--font-sans-tracking);
+    --menu-row-min-height: 48px;
+    --menu-row-padding-block: 6px;
+    --menu-item-padding: 0 18px;
+    --menu-pill-item-padding: 0 18px;
+    --menu-item-gap: 0px;
+    --menu-item-radius: 0px;
+    --menu-press-background: color-mix(in srgb, var(--color-text) 12%, transparent);
+    --menu-description-font-size: 13px;
+    --menu-description-line-height: 16px;
+    --menu-description-color: var(--color-text-secondary);
+    --menu-disabled-label-color: color-mix(in srgb, var(--color-text) 38%, transparent);
+    --menu-disabled-description-color: color-mix(in srgb, var(--color-text) 38%, transparent);
+    --menu-separator-gutter: 0;
+    --menu-pill-separator-gutter: 0;
+    --menu-separator-background-color: var(--android-popup-gap);
+    --menu-label-padding: 8px 13px;
+    --menu-label-padding-bottom: 8px;
+    --menu-label-font-size: 13px;
+    --menu-label-font-weight: var(--font-weight-normal);
+    --menu-label-line-height: 16px;
+    --menu-leading-icon-size: 24px;
+    --menu-leading-icon-slot: 24px;
+    --menu-leading-icon-gap: 20px;
+    --menu-check-column: 24px;
+    --menu-check-gap: 18px;
+    --menu-check-size: 24px;
+    --menu-check-stroke: 0px;
+    --menu-check-icon-offset: 0px;
+    --menu-check-icon-gap: 20px;
+    --menu-check-label-inset: 18px;
+    /* A menu opened from a bar's button (the header menu): the bar's glass blurred 36 under it, 22px corners, 5
+       above and under its rows, the screen dimmed 10%, its separator an 8px band of the text at 6%. */
+    --android-header-menu-shadow: var(--android-bar-shadow), 0 0 0 100vmax rgb(0 0 0 / 10%);
+  }
+
+  /* Lists and forms (FieldGroup, Field, NavigationRow; List and ListItem on Android): a settings screen's rows. A row
+     is 50dp at least (64 with a description, its text 12 from the row's top and bottom), its label 16/20, a
+     description 13/16 in the secondary label 4 under it, the text 21 in; a label over its value (a vertical row) 13/16,
+     4 over it, 10 above and below. A tile leads 18 in and the text follows at 64 (corners 10). An error under a row or a field is a line of 13/16 (14/18 under a
+     field of its own) in the error color, with no mark. A held row is the list selector: the text at 11.4% over a
+     light card, white at 5% over a dark one. The text in the accent (a header, a value) is the bright accent over a
+     light card and its lighter text at night; red text is the danger solid, its soft text at night; the line between
+     rows is a light gray, the darkest gray at night. */
+  :root[data-platform="android"] {
+    --android-accent-text: light-dark(var(--color-background-accent-solid), var(--color-text-accent));
+    --android-danger-text: light-dark(var(--color-background-danger-solid), var(--color-text-danger-soft));
+    --android-divider: light-dark(#d9d9d9, var(--gray-0));
+    --android-list-press: light-dark(rgb(0 0 16 / 11.4%), rgb(255 255 255 / 5%));
+    /* An off switch's track and an empty checkbox's outline: a mid gray, a darker one at night. A held solid button's
+       layer: black at 5.9%, white at 5.1% at night. */
+    --android-switch-off: light-dark(#a7adb2, var(--gray-500));
+    --android-checkbox-ring: light-dark(#b0b9c2, var(--gray-500));
+    --android-button-solid-press: light-dark(rgb(0 0 0 / 5.9%), rgb(255 255 255 / 5.1%));
+    /* A field's hint: a light gray, a dim one at night. A field's idle outline: a light gray, the text at 24% at
+       night. A search field in the content: the text at 5%, 7% at
+       night. */
+    --android-hint: light-dark(#a8a8a8, #7d7d7d);
+    --android-field-line: light-dark(#dbdbdb, color-mix(in srgb, var(--color-text) 24%, transparent));
+    --android-search-fill: light-dark(color-mix(in srgb, var(--color-text) 5%, transparent), color-mix(in srgb, var(--color-text) 7%, transparent));
+    --list-row-inset: 21px;
+    --field-row-min-height: 50px;
+    --field-row-text-padding-block: 12px;
+    --field-row-label-font-size: 16px;
+    --field-row-label-line-height: 20px;
+    --field-row-description-font-size: 13px;
+    --field-row-description-line-height: 16px;
+    --field-row-description-min-height: 64px;
+    --field-row-above-font-size: 13px;
+    --field-row-above-line-height: 16px;
+    --field-row-above-gap: 4px;
+    --field-row-above-padding-block: 10px;
+    --field-row-icon-offset: -3px;
+    --field-row-icon-gap: 18px;
+    --field-row-icon-radius: 10px;
+    --field-row-press-background: var(--android-list-press);
+    --field-group-radius: 16px;
+    --mobile-field-error-font-size: 14px;
+    --mobile-field-error-line-height: 18px;
+    --mobile-field-error-icon-display: none;
+  }
+
+  /* A field with a floating label (FloatingLabelInput, FloatingLabelSelect; @plexui/react-native's on Android): an
+     outlined field 56 tall, corners 8, the text 16 14 in, a hairline in a light gray (the text at 24% at night)
+     that turns to the accent while it is edited, the label 16 in the hint color at rest and 12 in the accent on
+     the line once it floats. With the label inside it is filled with the text at 5%, its label floated 8 from the top
+     and the value 10 from the bottom. */
+  :root[data-platform="android"] {
+    --floating-input-height: 56px;
+    --floating-input-inside-height: 56px;
+    --floating-input-box-radius: 8px;
+    --floating-input-box-gutter: 14px;
+    --floating-input-font-size: 16px;
+    --floating-input-border-color: var(--android-field-line);
+    --floating-input-border-color-hover: var(--android-field-line);
+    --floating-input-border-color-focus: var(--android-accent-text);
+    --floating-input-border-color-invalid: var(--android-danger-text);
+    --floating-input-label-color: var(--android-hint);
+    --floating-input-label-color-focus: var(--android-accent-text);
+    --floating-input-label-color-invalid: var(--android-danger-text);
+    --floating-input-inside-label-color: var(--android-hint);
+    --floating-input-label-scale: 0.75;
+    --floating-input-inside-label-scale: 0.75;
+    --floating-input-inside-label-shift: -12px;
+    --floating-input-inside-value-shift: 16px;
+    --floating-input-inside-line-height: 20px;
+  }
+
+  /* A search field in the content (under a large title, at the top of a sheet) is Android's pill of the text at 5%,
+     with no glass (its size and colors: Input.module.css); an invalid one keeps its red line. */
+  html[data-platform="android"] [data-slot="input"][data-variant="soft"]:has(> input[type="search"]):not(:where([data-row] *, [data-toolbar] *)) {
+    --input-soft-background-color: var(--android-search-fill);
+
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+
+    &:not([data-invalid]) {
+      box-shadow: none;
+    }
+  }
+
+  /* Sliders: a 3 track (corners 1.5) in a light gray, its fill in the accent, a 12 knob of the accent with no ring
+     and no shadow (and no lens: Slider.module.css); the label 16 and the value 16 in the accent at the end. */
+  :root[data-platform="android"] {
+    --slider-track-size: 3px;
+    --slider-track-radius: 1.5px;
+    --slider-track-color: light-dark(#ebedf0, var(--gray-300));
+    --slider-range-color: var(--color-background-accent-solid);
+    --slider-thumb-width: 12px;
+    --slider-thumb-height: 12px;
+    --slider-thumb-background: var(--color-background-accent-solid);
+    --slider-thumb-shadow: none;
+    --slider-label-font-size: 16px;
+    --slider-label-line-height: 20px;
+    --slider-value-font-size: 16px;
+    --slider-value-line-height: 20px;
+    --slider-value-color: var(--android-accent-text);
+    --slider-unit-color: var(--android-accent-text);
+  }
+
+  /* Buttons (@plexui/react-native's Button on Android): three steps, 32 (3xs to sm), 40 (md, lg) and 48 (xl to 3xl),
+     their gutters 12, 16 and 20, the label 14/20 Medium (15/20 in the 48), 4 (32) or 6 from its symbol, a symbol of 16
+     (32) or 20, a spinner of 18 (24 in the 48). A bar that sizes its own buttons keeps its sizes. */
+  :root[data-platform="android"] {
+    --button-font-weight: var(--font-weight-medium);
+    --button-touch-gap-sm: 4px;
+    --button-touch-gap: 6px;
+    --button-size-3xs: 32px;
+    --button-size-2xs: 32px;
+    --button-size-xs: 32px;
+    --button-size-sm: 32px;
+    --button-size-md: 40px;
+    --button-size-lg: 40px;
+    --button-size-xl: 48px;
+    --button-size-2xl: 48px;
+    --button-size-3xl: 48px;
+    --button-gutter-3xs: 12px;
+    --button-gutter-2xs: 12px;
+    --button-gutter-xs: 12px;
+    --button-gutter-sm: 12px;
+    --button-gutter-md: 16px;
+    --button-gutter-lg: 16px;
+    --button-gutter-xl: 20px;
+    --button-gutter-2xl: 20px;
+    --button-gutter-3xl: 20px;
+    --button-font-size-3xs: 14px;
+    --button-font-size-2xs: 14px;
+    --button-font-size-xs: 14px;
+    --button-font-size-sm: 14px;
+    --button-font-size-md: 14px;
+    --button-font-size-lg: 14px;
+    --button-font-size-xl: 15px;
+    --button-font-size-2xl: 15px;
+    --button-font-size-3xl: 15px;
+    --button-line-height-3xs: 20px;
+    --button-line-height-2xs: 20px;
+    --button-line-height-xs: 20px;
+    --button-line-height-sm: 20px;
+    --button-line-height-md: 20px;
+    --button-line-height-lg: 20px;
+    --button-line-height-xl: 20px;
+    --button-line-height-2xl: 20px;
+    --button-line-height-3xl: 20px;
+    --button-icon-size-3xs: 16px;
+    --button-icon-size-2xs: 16px;
+    --button-icon-size-xs: 16px;
+    --button-indicator-size-3xs: 18px;
+    --button-indicator-size-2xs: 18px;
+    --button-indicator-size-xs: 18px;
+    --button-indicator-size-sm: 18px;
+    --button-indicator-size-md: 18px;
+    --button-indicator-size-lg: 18px;
+    --button-indicator-size-xl: 24px;
+    --button-indicator-size-2xl: 24px;
+    --button-indicator-size-3xl: 24px;
+  }
+}

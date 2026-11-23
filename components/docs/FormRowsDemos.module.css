@@ -221,3 +221,45 @@
     padding-bottom: var(--dialog-footer-height, 0px);
   }
 }
+
+/* The Plex Android look (`data-platform="android"`): a summary row and an account row are Android list rows, with
+   no chevron; a summary's value is the row's value, in the accent, ending 17 from the card's edge (in columns the
+   row's data, in the text color); an account row's detail is a description 4 under its label. */
+@media (max-width: 767px) {
+  [data-platform="android"] :is(.TagSummary, :is(.ScreenStage, .FormDialog) [data-account-row]) [data-row-disclosure] {
+    display: none;
+  }
+
+  [data-platform="android"] .TagSummary [data-tag-summary-content] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-platform="android"] .TagSummary [data-tag-summary-value] {
+    margin-inline-end: -3px;
+    color: var(--android-accent-text);
+  }
+
+  [data-platform="android"] .TagSummary:is([disabled], [data-disabled], [aria-disabled="true"]) [data-tag-summary-value] {
+    color: color-mix(in srgb, var(--android-accent-text) 50%, transparent);
+  }
+
+  [data-platform="android"] [data-field-columns] .TagSummary [data-tag-summary-content] {
+    grid-template-columns: var(--field-row-column-width) minmax(0, 1fr);
+  }
+
+  [data-platform="android"] [data-field-columns] .TagSummary [data-tag-summary-value] {
+    margin-inline-end: 0;
+    color: var(--color-text);
+  }
+
+  [data-platform="android"] :is(.ScreenStage, .FormDialog) [data-account-detail] {
+    margin-top: 4px;
+  }
+
+  /* The picked rows' tint is the accent's box on Android, as @plexui/react-native's Checkbox with the accent
+     selection color: the accent solid, its white mark */
+  [data-platform="android"] .TagEditor {
+    --checkbox-ghost-check-color: var(--color-background-accent-solid);
+    --checkbox-checkmark-color: var(--color-text-accent-solid);
+  }
+}

@@ -436,7 +436,7 @@ describe("Compact Phone viewport", () => {
     const view = render(<PhonePage>
       <ComponentPreview previewId="loading" phonePresentation={presentation}><span>Loading example</span></ComponentPreview>
     </PhonePage>)
-    fireEvent.click(view.getByLabelText("Phone"))
+    fireEvent.click(view.getByLabelText("iOS"))
     const frame = view.container.querySelector("iframe")!
     expect(view.getByRole("status", { name: "Loading the phone preview" })).toBeTruthy()
     expect(frame.parentElement!.getAttribute("aria-busy")).toBe("true")
@@ -452,7 +452,7 @@ describe("Compact Phone viewport", () => {
       <ComponentPreview previewId="active" phonePresentation="screen"><span>Active example</span></ComponentPreview>
       <ComponentPreview previewId="passive" phonePresentation="screen"><span>Passive example</span></ComponentPreview>
     </PhonePage>)
-    fireEvent.click(view.getAllByLabelText("Phone")[0])
+    fireEvent.click(view.getAllByLabelText("iOS")[0])
     const frame = view.getByTitle("Phone preview") as HTMLIFrameElement
     const post = vi.spyOn(frame.contentWindow!, "postMessage")
     expect(post).not.toHaveBeenCalled()
@@ -499,7 +499,7 @@ describe("Compact Phone viewport", () => {
     // A page-wide Phone setting is passive; pressing an already-selected Phone
     // tab explicitly activates only the chosen example.
     expect(firstPost).not.toHaveBeenCalled()
-    fireEvent.click(view.getAllByLabelText("Phone")[0])
+    fireEvent.click(view.getAllByLabelText("iOS")[0])
     expect(firstPost).toHaveBeenCalledExactlyOnceWith({ previewKey: "otp-one", previewKeyboardCommand: "activate" }, window.location.origin)
     expect(secondPost).not.toHaveBeenCalled()
     firstPost.mockClear()
@@ -586,11 +586,10 @@ describe("Compact Phone viewport", () => {
       <ComponentPreview previewId="second" phonePresentation="screen"><span>Second</span></ComponentPreview>
       <ComponentPreview previewId="pointer" phonePresentation="none"><span>Pointer only</span></ComponentPreview>
     </PreviewViewportProvider>)
-    // On the desktop view there is no device to pick
-    expect(view.queryByLabelText("All phones")).toBeNull()
+    // One switch per example for the screen and the device (Desktop, iOS, Android); none on a pointer-only example
     expect(view.queryAllByLabelText("Platform")).toHaveLength(0)
+    expect(view.getAllByLabelText("Screen")).toHaveLength(2)
     fireEvent.click(view.getByText("Use Phone"))
-    expect(view.getAllByLabelText("Platform")).toHaveLength(2)
     const frames = () => view.getAllByTitle("Phone preview") as HTMLIFrameElement[]
     expect(frames().map((frame) => frame.getAttribute("src"))).toEqual([
       "/preview/components/auth-forms?key=first",
@@ -598,7 +597,7 @@ describe("Compact Phone viewport", () => {
     ])
     expect(frames().every((frame) => frame.closest(".PhoneDevice"))).toBe(true)
     // The page's pick: every screen in an Android phone, its status bar and gesture handle
-    fireEvent.click(within(view.getByLabelText("All phones")).getByText("Android"))
+    fireEvent.click(within(view.getByLabelText("All examples")).getByText("Android"))
     expect(frames().map((frame) => frame.getAttribute("src"))).toEqual([
       "/preview/components/auth-forms?key=first&platform=android",
       "/preview/components/auth-forms?key=second&platform=android",
@@ -606,12 +605,12 @@ describe("Compact Phone viewport", () => {
     expect(frames().every((frame) => frame.closest(".AndroidDevice") && !frame.closest(".PhoneDevice"))).toBe(true)
     expect(view.container.querySelectorAll(".AndroidGestureHandle")).toHaveLength(2)
     // An example's own pick: only that one goes back to the iPhone
-    fireEvent.click(within(view.getAllByLabelText("Platform")[0]).getByText("iOS"))
+    fireEvent.click(within(view.getAllByLabelText("Screen")[0]).getByLabelText("iOS"))
     expect(frames()[0].closest(".PhoneDevice")).toBeTruthy()
     expect(frames()[1].closest(".AndroidDevice")).toBeTruthy()
     // A pointer-only example has no phone, so no device either
     const pointerPreview = view.getByText("Pointer only").closest("[data-component-preview]")!
-    expect(pointerPreview.querySelector('[aria-label="Platform"]')).toBeNull()
+    expect(pointerPreview.querySelector('[aria-label="Screen"]')).toBeNull()
   })
 
   test("a page of examples that are only phones offers their device, with no Desktop and Phone switch", () => {
@@ -754,11 +753,11 @@ describe("Compact Phone viewport", () => {
     )
     const view = render(page(false))
     expect(view.queryByLabelText("All examples")).toBeNull()
-    expect(view.queryByLabelText("Phone")).toBeNull()
+    expect(view.queryByLabelText("iOS")).toBeNull()
     expect(view.getByText("Draft example")).toBeTruthy()
     view.rerender(page(true))
     expect(view.getByLabelText("All examples")).toBeTruthy()
-    expect(view.getAllByLabelText("Phone").length).toBeGreaterThan(0)
+    expect(view.getAllByLabelText("iOS").length).toBeGreaterThan(0)
   })
 
   test("phoneDialog keeps its screen presentation without an explicit mode", () => {

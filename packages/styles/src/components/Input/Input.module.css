@@ -721,6 +721,78 @@
       height: 19px;
     }
   }
+
+  /* The Plex Android field (@plexui/react-native's Input on Android): 50 tall at every size, corners of 8 (a pill's
+     round), the text 16 from 14 in (12 after a leading symbol, the text 12 after it), the hint a light gray, the
+     caret in the accent (the text's color in a ghost field). An outlined field draws a hairline in a light gray (the
+     text at 24% at night) that becomes a 1.5 line in the accent while it is edited, in the error color when invalid;
+     a soft field is the text at 5% with no line; disabled, the whole field fades to half. A search field in the
+     content (soft, led by its magnifier) is a 40 pill of the text at 5% (7% at night), its 24 magnifier 12 in at
+     60%, the text 14 at 48, the hint at 50% (android.css takes the glass off). A row and a bar keep their own
+     fields. */
+  [data-platform="android"] .Container:not(:where([data-row] *, [data-toolbar] *)) {
+    --input-size: 50px;
+    --input-radius: 8px;
+    --input-gutter: 14px;
+    --input-gap: 12px;
+    --input-font-size: 16px;
+    --input-adornment-offset: 0px;
+    --input-outline-border-color: var(--android-field-line);
+    --input-outline-border-color-hover: var(--android-field-line);
+    --input-outline-border-color-focus: var(--android-accent-text);
+    --input-border-color-invalid: var(--android-danger-text);
+    --input-soft-background-color: color-mix(in srgb, var(--color-text) 5%, transparent);
+    --input-placeholder-text-color: var(--android-hint);
+    caret-color: var(--android-accent-text);
+
+    &[data-pill] {
+      --input-radius: var(--radius-full);
+    }
+
+    &[data-variant="ghost"] {
+      caret-color: var(--color-text);
+    }
+
+    &[data-variant="outline"]:not([data-disabled])[data-focused="true"] {
+      box-shadow: 0 0 0 1.5px var(--input-outline-border-color-focus) inset;
+    }
+
+    &[data-variant]:not([data-disabled])[data-invalid][data-focused="true"] {
+      box-shadow: 0 0 0 1.5px var(--input-border-color-invalid) inset;
+    }
+
+    &[data-disabled] {
+      opacity: 0.5;
+
+      > .Input,
+      > .Clear {
+        opacity: 1;
+      }
+    }
+  }
+
+  [data-platform="android"] .Container[data-has-start-adornment]:not(:where([data-row] *, [data-toolbar] *)) {
+    --input-gutter: 14px;
+
+    padding-left: 12px;
+  }
+
+  [data-platform="android"] .Container[data-variant="soft"][data-has-start-adornment]:not(:where([data-row] *, [data-toolbar] *)) {
+    --input-size: 40px;
+    --input-radius: var(--radius-full);
+    --input-gap: 12px;
+    --input-font-size: 14px;
+    --input-placeholder-text-color: color-mix(in srgb, var(--color-text) 50%, transparent);
+    --input-soft-background-color: var(--android-search-fill);
+    --control-gutter-pill-scaling: 1;
+
+    > svg {
+      flex: none;
+      width: 24px;
+      height: 24px;
+      color: color-mix(in srgb, var(--color-text) 60%, transparent);
+    }
+  }
 }
 
 @keyframes native-autofill-in {

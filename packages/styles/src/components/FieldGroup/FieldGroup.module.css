@@ -359,6 +359,121 @@
   .Body > [data-sortable]:has(> [data-swipe-actions][data-revealed]:last-child) + [data-row]::after {
     opacity: 0;
   }
+
+  /* The Plex Android look (`data-platform="android"`), as @plexui/react-native's List on Android: a section of a
+     settings screen, one card of 16dp corners (the row tokens are in android.css). The header stands inside the card
+     over the rows: a 40dp line of 15sp Medium in the accent 21 in (14 above the text), its description 14sp in the
+     secondary label under it (6 below), an action at its end 15sp Medium in its color with a 48dp target. The footer
+     stands under the card, 14sp in the secondary label 13 in, 11 above and 17 below. The line between rows runs from
+     the text's start to the card's end, in Android's divider gray. Cards stand 12 apart; after a footer its own 17
+     parts them. */
+  [data-platform="android"] .FieldGroup {
+    --field-group-radius: 16px;
+    --field-group-title-color: var(--android-accent-text);
+    --field-group-title-font-size: 15px;
+    --field-group-title-line-height: 20px;
+    --field-group-title-font-weight: var(--font-weight-medium);
+    --field-group-title-padding-inline: 0px;
+    --field-group-description-font-size: 14px;
+    --field-group-description-line-height: 18px;
+    --field-group-footer-font-size: 14px;
+    --field-group-footer-line-height: 18px;
+    --field-group-footer-paragraph-gap: 18px;
+    --field-group-footer-padding: 11px 13px 17px;
+    --field-group-separator-inset-end: 0px;
+  }
+
+  /* A prominent header: 16sp Medium in the text color */
+  [data-platform="android"] .FieldGroup[data-header-prominence="increased"] {
+    --field-group-title-color: var(--color-text);
+    --field-group-title-font-size: 16px;
+    --field-group-title-line-height: 20px;
+    --field-group-title-font-weight: var(--font-weight-medium);
+  }
+
+  [data-platform="android"] .FieldGroup > .Header {
+    align-items: flex-start;
+    min-height: 40px;
+    padding: 14px var(--list-row-inset) 0;
+    border-start-start-radius: var(--field-group-radius);
+    border-start-end-radius: var(--field-group-radius);
+    background: var(--field-group-background);
+  }
+
+  /* 6 under the title closes its 40dp line, and under the description */
+  [data-platform="android"] .FieldGroup > .Header .Title {
+    padding-bottom: calc(40px - 14px - var(--field-group-title-line-height));
+  }
+
+  [data-platform="android"] .FieldGroup > .Header .Description {
+    padding-bottom: 6px;
+  }
+
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  /* Under a header the first row meets the header, not the card's corners */
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body > [data-row]:first-child,
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body > [data-sortable]:first-child > [data-row]:first-child,
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body > [data-swipe-actions]:first-child,
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::before,
+  [data-platform="android"] .FieldGroup:has(> .Header) > .Body > [data-sortable]:first-child > [data-row]:first-child > :is(button, a)[data-block][data-variant="ghost"]::before {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  /* The header's text action: 15sp Medium in its color (the accent), on the title's line, its target 48 */
+  [data-platform="android"] .FieldGroup > .Header > button[data-variant="ghost"]:not([data-uniform]) {
+    --button-size: 48px;
+    --button-font-size: 15px;
+    --button-line-height: 20px;
+    --button-font-weight: var(--font-weight-medium);
+
+    align-self: flex-start;
+    min-width: 48px;
+    margin-block: -14px;
+    margin-inline-end: 0;
+  }
+
+  [data-platform="android"] .FieldGroup > .Header > button[data-variant="ghost"]:not([data-uniform]):is([data-color="primary"], [data-color="secondary"], [data-color="info"]) {
+    --button-text-color: var(--android-accent-text);
+    --button-text-color-hover: var(--android-accent-text);
+  }
+
+  [data-platform="android"] .FieldGroup .Footer a[href] {
+    color: var(--android-accent-text);
+  }
+
+  [data-platform="android"] .Body > [data-row] + [data-row]::after,
+  [data-platform="android"] .Body > [data-sortable] > [data-row] + [data-row]::after,
+  [data-platform="android"] .Body > [data-sortable] + [data-row]::after,
+  [data-platform="android"] .Body > [data-row] + [data-sortable] > [data-row]:first-child::after {
+    background: var(--android-divider);
+  }
+
+  [data-platform="android"] :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {
+    /* 12 apart, 23 less than iOS's 35 rows to rows, so a --field-group-gap that gives a parent's gap back still does */
+    margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 35px) - 23px));
+  }
+
+  [data-platform="android"] :is(.FieldGroup:has(> .Footer), [role="radiogroup"]:has(> .FieldGroup:only-child > .Footer)) + :is(.FieldGroup, [role="radiogroup"]:has(> .FieldGroup:only-child)) {
+    margin-top: calc(var(--field-group-stack-spacing, 0) * (var(--field-group-gap, 35px) - 35px));
+  }
+
+  /* A full-row action is a list row: held, it shows the list selector over the whole row and does not shrink, as a
+     Button does on its own (Button.module.css) */
+  [data-platform="android"] .Body > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  [data-platform="android"] .Body > [data-sortable] > [data-row] > :is(button, a)[data-block][data-variant="ghost"],
+  [data-platform="android"] .Body > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"],
+  [data-platform="android"] .Body > [data-sortable] > [data-row] > [data-swipe-content] > :is(button, a)[data-block][data-variant="ghost"] {
+    --android-button-press: var(--field-row-press-background);
+
+    &:active {
+      scale: none;
+    }
+  }
 }
 
 /* Explanations belong below the group, with the list's own text insets. */

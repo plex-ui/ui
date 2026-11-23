@@ -306,7 +306,7 @@ describe("Phone date capsule in a row (iOS 27.2 compact date picker)", () => {
   const phone = (file: string) => {
     const rules: postcss.Rule[] = []
     postcss.parse(readFileSync(file, "utf8")).walkAtRules("media", (media) => {
-      if (media.params === "(max-width: 767px)") media.walkRules((rule) => { if (rule.selector.includes("[data-date-picker]")) rules.push(rule) })
+      if (media.params === "(max-width: 767px)") media.walkRules((rule) => { if (rule.selector.includes("[data-date-picker]") && !rule.selector.includes('[data-platform="android"]')) rules.push(rule) })
     })
     return rules
   }

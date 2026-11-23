@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Button } from '@plexui/ui/components/Button';
-import { Eye, Code, InfoCircle, Desktop, Mobile, Reload } from '@plexui/ui/components/Icon';
+import { Eye, Code, InfoCircle, Reload } from '@plexui/ui/components/Icon';
+import { AndroidMark, AppleMark, DesktopMark } from './PlatformIcons';
 import { useBreakpoint } from '@plexui/ui/hooks/useBreakpoints';
 import { DemoControlHostContext, DemoControlValuesContext, DemoControlsBottomSlotContext, compactPreviewHeight, createDemoControlChannel, createDemoControlValues, usePreviewEmbed, usePreviewEmbedPlatform, type DemoControlValues } from './PreviewEmbed';
 import { NativePlatformContext, NativeScreenTitleContext, isNativePath, type NativePlatform } from './react-native/platform';
@@ -183,15 +184,14 @@ export function ComponentPreview({
     <div className={`${s.Wrapper} not-prose`} data-component-preview data-preview-viewport={viewport}>
       {/* Tab bar — outside the bordered block */}
       <div className={s.TabBar} data-preview-bar onClickCapture={(event) => {
-        // Re-selecting the active Phone tab is still an explicit activation.
+        // Re-selecting the active phone (iOS or Android) is still an explicit activation.
         // Page-wide Phone mode deliberately does not focus every mounted iframe.
-        if (viewport === 'phone' && event.target instanceof Element && event.target.closest('button[aria-label="Phone"]')) {
+        if (viewport === 'phone' && event.target instanceof Element && event.target.closest('button[aria-label="iOS"], button[aria-label="Android"]')) {
           setPhoneActivation((value) => value + 1);
         }
       }}>
-        {/* A React Native example's look; a React or Vue example's phone: an iPhone or an Android phone, the web
-            components inside the same on both, as a phone's browser draws them */}
-        {(native || (viewport === 'phone' && phonePresentation === 'screen')) && <SegmentedControl
+        {/* A React Native example's look, or an example that is only a phone: iOS or Android */}
+        {(native || (phoneOnly && phonePresentation !== 'none')) && <SegmentedControl
           value={platform}
           onChange={(next) => {
             setPlatformOverride({ platform: next as NativePlatform, revision: pageViewport.platformRevision });
@@ -203,14 +203,21 @@ export function ComponentPreview({
           aria-label="Platform"
           className={native ? undefined : s.ScreenSwitch}
         >
-          <SegmentedControl.Option value="ios">iOS</SegmentedControl.Option>
-          <SegmentedControl.Option value="android">Android</SegmentedControl.Option>
+          <SegmentedControl.Option value="ios" icon={<AppleMark />} aria-label="iOS" />
+          <SegmentedControl.Option value="android" icon={<AndroidMark />} aria-label="Android" />
         </SegmentedControl>}
+        {/* A React or Vue example: the desktop, or a phone's browser on iOS or Android (the web components take the
+            phone's look: iOS 26 or the Plex Android look). One switch for the screen and the platform. */}
         {phonePresentation !== 'none' && !phoneOnly && !native && <SegmentedControl
-          value={viewport}
-          onChange={(v) => {
-            setViewport(v as Viewport);
-            if (v === 'phone') setPhoneActivation((value) => value + 1);
+          value={viewport === 'desktop' ? 'desktop' : platform}
+          onChange={(next) => {
+            if (next === 'desktop') {
+              setViewport('desktop');
+            } else {
+              setPlatformOverride({ platform: next as NativePlatform, revision: pageViewport.platformRevision });
+              setViewport('phone');
+              setPhoneActivation((value) => value + 1);
+            }
             setMode('preview');
           }}
           size="xs"
@@ -218,8 +225,9 @@ export function ComponentPreview({
           aria-label="Screen"
           className={s.ScreenSwitch}
         >
-          <SegmentedControl.Option value="desktop" icon={<Desktop />} aria-label="Desktop" />
-          <SegmentedControl.Option value="phone" icon={<Mobile />} aria-label="Phone" />
+          <SegmentedControl.Option value="desktop" icon={<DesktopMark />} aria-label="Desktop" />
+          <SegmentedControl.Option value="ios" icon={<AppleMark />} aria-label="iOS" />
+          <SegmentedControl.Option value="android" icon={<AndroidMark />} aria-label="Android" />
         </SegmentedControl>}
         <SegmentedControl
           value={mode}
@@ -257,9 +265,10 @@ export function ComponentPreview({
             phone={viewport === 'phone' && wide && phonePresentation !== 'none'
               ? native
                 ? { src: `/preview${pathname}?key=${previewId}&platform=${platform}`, previewKey: previewId, dialog: false, presentation: 'screen', activation: phoneActivation, platform }
-                // A screen stands in the device picked; a bare slice has no frame
-                : phonePresentation === 'screen' && platform === 'android'
-                  ? { src: `/preview${pathname}?key=${previewId}&platform=android`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation, platform }
+                // A screen stands in the device picked; a bare slice has no frame, but its components take the
+                // platform's look too
+                : platform === 'android'
+                  ? { src: `/preview${pathname}?key=${previewId}&platform=android`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation, platform: phonePresentation === 'screen' ? platform : undefined }
                   : { src: `/preview${pathname}?key=${previewId}`, previewKey: previewId, dialog: phoneDialog, presentation: phonePresentation, activation: phoneActivation }
               : null}
           >

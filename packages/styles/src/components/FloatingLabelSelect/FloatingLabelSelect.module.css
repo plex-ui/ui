@@ -271,3 +271,47 @@
     transition: none;
   }
 }
+
+/* The Plex Android look (android.css holds the sizes and colors): the label is 16 at rest, 12 once it floats; the
+   line is 1.5 while the field is edited or invalid. With the label inside, the field is filled with the text at
+   5% and draws no line (an error's line only), its label in the accent while it is edited. */
+@media (max-width: 767px) {
+  [data-platform="android"] .LabelText {
+    font-size: 16px;
+  }
+
+  [data-platform="android"] .FieldFootprint:is([data-focused], [data-open], [data-invalid]):not([data-disabled]) {
+    box-shadow: inset 0 0 0 0.5px var(--input-state-color);
+  }
+
+  [data-platform="android"] .Root[data-label-placement="inside"] {
+    --floating-input-background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    --floating-input-border-color: transparent;
+    --floating-input-border-color-hover: transparent;
+    --floating-input-border-color-focus: transparent;
+    --floating-input-label-color-focus: var(--android-accent-text);
+  }
+
+  [data-platform="android"] .Root[data-label-placement="inside"] .FieldFootprint:not([data-invalid]) {
+    box-shadow: none;
+  }
+
+  [data-platform="android"] .Root[data-label-placement="inside"] .TypeableLabel::before {
+    background-color: transparent;
+  }
+
+  /* Android's menu arrow (arrow_drop_down): 24, 12 from the end, in the secondary text */
+  [data-platform="android"] .DropdownIcon {
+    width: 24px;
+    height: 24px;
+    margin-inline-end: -2px;
+    background-color: currentcolor;
+    color: var(--color-text-secondary);
+    opacity: 1;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") center / 24px 24px no-repeat;
+
+    > * {
+      display: none;
+    }
+  }
+}

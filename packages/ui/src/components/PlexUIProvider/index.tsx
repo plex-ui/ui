@@ -1,1 +1,1 @@
-export { PlexUIProvider } from "./PlexUIProvider"
+export { PlexUIProvider, type PlexUIPlatform } from "./PlexUIProvider"

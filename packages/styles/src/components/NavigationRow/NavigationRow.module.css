@@ -289,3 +289,48 @@
 .NavigationRow[data-value-below][data-disclosure="none"][data-leading] .Leading {
   margin-inline-end: var(--navigation-row-leading-gap);
 }
+
+/* The Plex Android look (`data-platform="android"`), as @plexui/react-native's ListItem on Android: no chevron, the
+   value 16/20 in the accent at the end, 16 from the label, taking half the row at most and ending 17 from the card's
+   edge; a value under the label is the 13/16 gray second line of a detail row, 4 under it; a disabled row fades to
+   half. The row's height, type and press are FieldGroup's row tokens (android.css). */
+@media (max-width: 767px) {
+  [data-platform="android"] .Pressable .Disclosure {
+    display: none;
+  }
+
+  [data-platform="android"] .NavigationRow {
+    --navigation-row-value-color: var(--android-accent-text);
+    --navigation-row-value-max-width: 50%;
+  }
+
+  [data-platform="android"] .Value {
+    margin-inline-end: -3px;
+  }
+
+  [data-platform="android"] .Text {
+    gap: 4px;
+  }
+
+  [data-platform="android"] .NavigationRow[data-value-below] .Content {
+    row-gap: 4px;
+    column-gap: 0;
+  }
+
+  [data-platform="android"] .NavigationRow[data-value-below] .Value,
+  [data-platform="android"] .NavigationRow[data-value-below] .Pressable:not([data-disabled]) .Value {
+    margin: 0;
+    color: var(--mobile-label-secondary, var(--color-text-secondary));
+    font-size: var(--field-row-description-font-size);
+    line-height: var(--field-row-description-line-height);
+  }
+
+  [data-platform="android"] [data-field-columns] .Value {
+    margin-inline-end: 0;
+    color: var(--color-text);
+  }
+
+  [data-platform="android"] .Pressable[data-disabled] :is(.Label, .Description, .Value) {
+    opacity: 0.5;
+  }
+}

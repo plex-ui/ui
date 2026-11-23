@@ -19,7 +19,7 @@ export type ThemeProviderProps = {
    * `"primary"` is the Plex primary, the ink, as on the web. `"accent"` is each platform's own: on iOS a switch turns
    * the system green and a checkbox or a checkmark the accent, the iOS tint; on Android all of them take the accent.
    * Pass `Platform.select` for a different one per platform. A nested ThemeProvider takes its parent's.
-   * @default "primary"
+   * @default "primary" on iOS, "accent" on Android (as the web's Android look)
    */
   selectionColor?: SelectionColor
   /**
@@ -50,7 +50,7 @@ const ThemeContext = createContext<Theme | null>(null)
 type ThemeSettings = {
   scheme: ColorScheme | "system"
   platform: PlatformStyle
-  selectionColor: SelectionColor
+  selectionColor: SelectionColor | undefined
   overrides: Record<string, string> | undefined; fonts: FontFamilies | undefined }
 const ThemeSettingsContext = createContext<ThemeSettings | null>(null)
 
@@ -228,7 +228,9 @@ export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts, 
   const faces = brand?.fonts ?? fonts ?? parent?.fonts
   const facesKey = JSON.stringify(faces ?? null)
   const resolvedPlatform = platform ?? parent?.platform ?? defaultPlatform()
-  const selection = selectionColor ?? parent?.selectionColor ?? "primary"
+  // The color a provider was given (or its parent's); unset, iOS takes the ink and Android its accent
+  const chosenSelection = selectionColor ?? parent?.selectionColor
+  const selection: SelectionColor = chosenSelection ?? (resolvedPlatform === "android" ? "accent" : "primary")
   const theme = useMemo(
     () =>
       createTheme({
@@ -242,8 +244,8 @@ export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts, 
     [resolver, resolvedScheme, resolvedPlatform, facesKey, reducedMotion, selection],
   )
   const settings = useMemo<ThemeSettings>(
-    () => ({ scheme: wantedScheme, platform: resolvedPlatform, selectionColor: selection, overrides: JSON.parse(overridesKey) ?? undefined, fonts: JSON.parse(facesKey) ?? undefined }),
-    [wantedScheme, resolvedPlatform, selection, overridesKey, facesKey],
+    () => ({ scheme: wantedScheme, platform: resolvedPlatform, selectionColor: chosenSelection, overrides: JSON.parse(overridesKey) ?? undefined, fonts: JSON.parse(facesKey) ?? undefined }),
+    [wantedScheme, resolvedPlatform, chosenSelection, overridesKey, facesKey],
   )
   return (
     <ThemeSettingsContext.Provider value={settings}>

@@ -1027,3 +1027,76 @@
     transition-timing-function: var(--cubic-reduced-enter-menu);
   }
 }
+
+/* =============================================
+  The Plex Android look (`data-platform="android"`, android.css), after the Android reference's popups and
+  @plexui/react-native's Menu on Android (decision 0026). The values are android.css's --menu-* (shared with
+  Select's list): the opaque popup of a row. Here the panel is 196 to 288 wide, its rows flush with its sides, a
+  held row's layer across the whole panel, an 8px separator band, a symbol 18 in, a chosen row's check at its end. A
+  menu opened from a bar's button (its trigger in a Toolbar) is the header menu, the bar's glass: 22px corners,
+  blurred 36, 5 above and under its rows, an 8px band of the text at 6%, the screen dimmed 10%. A submenu's panel
+  adds no dim of its own; a ContextMenu's panel none either (its own dimming lifts the element).
+============================================= */
+@media (max-width: 767px) {
+  [data-platform="android"] .MenuList {
+    max-width: min(288px, var(--radix-dropdown-menu-content-available-width, 288px));
+  }
+
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *)) > .PressableInner {
+    display: flex;
+    align-items: center;
+  }
+
+  [data-platform="android"] .MenuList .Separator {
+    height: 8px;
+  }
+
+  :root[data-platform="android"]:has([data-toolbar] [aria-haspopup="menu"][aria-expanded="true"]) .MenuList {
+    --menu-radius: 22px;
+    --menu-radius-pill: 22px;
+    --menu-gutter: 5px;
+    --menu-pill-gutter: 5px;
+    --menu-shadow: var(--android-header-menu-shadow);
+    --menu-mobile-background: var(--android-bar-glass);
+    --menu-mobile-backdrop-filter: blur(36px);
+    --menu-separator-background-color: var(--android-menu-band);
+  }
+
+  [data-platform="android"] .MenuList:is([data-submenu], [data-submenu-phone]),
+  :root[data-platform="android"]:has([data-context-menu-dimming]) .MenuList {
+    --menu-shadow: var(--android-popup-shadow);
+  }
+
+  :root[data-platform="android"]:has([data-toolbar] [aria-haspopup="menu"][aria-expanded="true"]) .MenuList:is([data-submenu], [data-submenu-phone]) {
+    --menu-shadow: var(--android-bar-shadow);
+  }
+
+  /* A held row's layer runs the popup's whole width, as its rows do. */
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) .MenuItem:not(:where(.RadioGroup[data-layout="horizontal"] *))::before {
+    inset-inline: 0;
+  }
+
+  [data-platform="android"] .MenuList .MenuLabel {
+    color: var(--color-text);
+  }
+
+  /* A row with a symbol starts it at 18 in a menu with checkmarks too; a chosen row shows its check at its end, 18
+     after the label. A section title keeps 13 from the sides. */
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) .MenuItem:not(.RadioItem, .CheckboxItem):has(> :is(div, span) > svg:first-child:not([class*="SubTriggerIcon"])) {
+    padding-inline-start: 18px;
+  }
+
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]) :is(.RadioItem, .CheckboxItem) :is(.RadioIndicator, .RadioIndicatorActive, .CheckboxIndicator) {
+    order: 1;
+    margin-inline-start: auto;
+  }
+
+  [data-platform="android"] .MenuList:not([data-layout="horizontal"]):has(:is(.RadioItem, .CheckboxItem)) .MenuLabel {
+    padding-inline-start: 13px;
+  }
+
+  /* A submenu's heading row is a row like the others, its label Regular. */
+  [data-platform="android"] .MenuList[data-submenu-phone] > [data-submenu-collapse] {
+    font-weight: var(--font-weight-normal);
+  }
+}

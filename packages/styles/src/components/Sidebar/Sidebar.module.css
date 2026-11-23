@@ -1996,3 +1996,55 @@
     animation: none;
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css): the phone's list is a settings screen of Android,
+   as FieldGroup draws it there. Cards of 16 corners stand 12 apart; a group's label heads its card inside it, a 40px
+   line of 14/18 Medium in the accent 20 in (15 above the text); rows are 50 tall with their label at 16/20, an icon
+   24px at the inset and the text at 64; the line between rows runs from the text to the card's end in Android's
+   divider gray; a row that leads to another page shows no chevron, as Android's lists do not. */
+@media (max-width: 767px) {
+  [data-platform="android"] .MobileSidebar:not(:where(.App *)) {
+    --sidebar-mobile-list-row-height: 50px;
+    --sidebar-mobile-list-radius: 16px;
+    --sidebar-mobile-list-section-gap: 12px;
+    --sidebar-mobile-list-header-gap: 12px;
+    --sidebar-mobile-list-header-height: 40px;
+    --sidebar-mobile-list-header-font-size: 14px;
+    --sidebar-mobile-list-header-line-height: 18px;
+    --sidebar-mobile-list-header-font-weight: var(--font-weight-medium);
+    --sidebar-mobile-list-icon-column: 44px;
+    --sidebar-mobile-list-chevron-size: 24px;
+    --sidebar-mobile-list-chevron-offset: 0px;
+    --sidebar-menu-item-font-size: 16px;
+    --sidebar-menu-item-line-height: 20px;
+    --sidebar-menu-sub-item-font-size: 16px;
+    --sidebar-menu-sub-item-line-height: 20px;
+  }
+
+  [data-platform="android"] .MobileSidebar:not(:where(.App *)) .Group .GroupLabel:is(.GroupLabel, [data-size]) {
+    align-items: flex-start;
+    padding-top: 15px;
+    border-start-start-radius: var(--sidebar-mobile-list-radius);
+    border-start-end-radius: var(--sidebar-mobile-list-radius);
+    background: var(
+      --sidebar-mobile-list-background,
+      var(--mobile-surface-secondary, var(--mobile-surface-grouped-secondary, var(--color-surface)))
+    );
+    color: var(--android-accent-text);
+    letter-spacing: var(--font-sans-tracking);
+  }
+
+  [data-platform="android"] .MobileSidebar:not(:where(.App *)) .Group:has(> .GroupLabel) .Menu {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+
+  [data-platform="android"] .MobileSidebar:not(:where(.App *)) .Menu :is(.MenuButton, .MenuSubButton)::after {
+    inset-inline-end: 0;
+    background: var(--android-divider);
+  }
+
+  [data-platform="android"] .MobileSidebar:not(:where(.App *)) .MenuDisclosure {
+    display: none;
+  }
+}

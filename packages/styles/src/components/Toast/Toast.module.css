@@ -529,3 +529,113 @@
     }
   }
 }
+
+/* =============================================
+  The Plex Android look (`data-platform="android"`, android.css), after @plexui/react-native's Toast on Android
+  (decision 0026): a dark card with 16px corners, at least 48 tall, no shadow and no glass; its text white, 15/20
+  16 in and 14 above and below (a title over a description: 14/18 Medium over 13/16, 8 above and below), a 24px
+  white symbol 16 before it. The action is a text button 8 from the card's end, 12/8 inside, 14/18 Medium in the
+  accent mixed with white (half; 60% white at night), its press the same color at 10% in 6px corners. A toast with
+  rich colors keeps its color. It is as wide as the screen less the toaster's offsets; where it stands is the
+  Toaster's position, which the stylesheet does not move.
+============================================= */
+@media (max-width: 767px) {
+  /* As wide as the screen between the toaster's side offsets, not as wide as its message. */
+  [data-platform="android"] .Toast {
+    width: calc(100vw - var(--mobile-offset-left, 16px) - var(--mobile-offset-right, 16px)) !important;
+  }
+
+  [data-platform="android"] .Toast[data-styled="true"] {
+    --toast-icon-color: #fff;
+    gap: 16px !important;
+    min-height: 48px;
+    padding: 0 16px !important;
+    border-radius: 16px !important;
+    letter-spacing: var(--font-sans-tracking);
+
+    &:not(:has(> .Content > .Description)) {
+      border-radius: 16px !important;
+    }
+
+    &:not([data-rich-colors="true"]) {
+      background: var(--android-toast-fill) !important;
+      color: #fff !important;
+      box-shadow: none !important;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+
+    &:has(> .Content ~ :is(.ActionButton, .CancelButton, [data-close-button])) {
+      padding-inline-end: 0 !important;
+    }
+
+    & > .Content {
+      padding-block: 14px;
+    }
+
+    & > .Content:has(> .Description) {
+      padding-block: 8px;
+    }
+
+    & .Title {
+      font-size: 15px;
+      font-weight: var(--font-weight-normal);
+      line-height: 20px !important;
+    }
+
+    & .Content:has(> .Description) .Title {
+      font-size: 14px;
+      font-weight: var(--font-weight-medium);
+      line-height: 18px !important;
+    }
+
+    & .Description {
+      font-size: 13px;
+      line-height: 16px !important;
+    }
+
+    &:not([data-rich-colors="true"]) :is(.Title, .Description) {
+      color: #fff !important;
+    }
+
+    & > .Icon,
+    & > .Icon > svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    & > :is(.ActionButton, .CancelButton) {
+      min-height: 34px;
+      margin-inline: 8px !important;
+      padding: 8px 12px !important;
+      border-radius: 6px !important;
+      background: transparent !important;
+      color: var(--android-toast-action) !important;
+      font-size: 14px !important;
+      font-weight: var(--font-weight-medium) !important;
+      line-height: 18px;
+
+      &:active {
+        background: color-mix(in srgb, var(--android-toast-action) 10%, transparent) !important;
+      }
+    }
+
+    & > .CancelButton {
+      color: rgb(255 255 255 / 70%) !important;
+    }
+
+    & > [data-close-button] {
+      width: 48px !important;
+      height: 48px !important;
+      color: #fff !important;
+
+      &::before {
+        background: transparent;
+      }
+    }
+
+    &:has([data-close-button]) {
+      padding-inline-end: 48px !important;
+    }
+  }
+}

@@ -858,4 +858,535 @@
   .Toolbar[data-host="dialog"][data-placement="bottom"] {
     --toolbar-background: var(--dialog-panel-background);
   }
+
+  /* =============================================
+    The Plex Android look (`data-platform="android"`, android.css), after @plexui/react-native's Toolbar on Android
+    (decision 0026): 46px circles and capsules of the bar's glass 6 from the screen's sides, 6 apart, in a 62px row
+    (5 above the items, 11 under them) under the status bar; 24px symbols; a label (Save) Medium 15 16 in from the
+    ends of its capsule; the title Medium 17, centered (the Android reference's bar), a subtitle 14/18 in the secondary text under it, or from the
+    start 18 past the controls (76 after Back, 24 with none). No large title: it stays in the row. A group of actions
+    is one capsule, its symbols in 38px slots 4 from its ends. The bars draw no line of their own. The rows of a large
+    title, which wait in the content, take the bar's numbers too (Page.module.css sets them as the bar's row).
+  ============================================= */
+  [data-platform="android"] :is(.Toolbar, :where(.Row[data-in-content])) {
+    --toolbar-top-item-size: 46px;
+    --toolbar-bottom-item-size: 46px;
+    --toolbar-top-item-gap: 6px;
+    --toolbar-bottom-item-gap: 6px;
+    --toolbar-gutter: 6px;
+    --toolbar-group-gap: 0px;
+    --toolbar-group-padding: 4px;
+    --toolbar-bottom-group-gap: 0px;
+    --toolbar-bottom-group-padding: 4px;
+    --toolbar-padding-bottom: 11px;
+    --toolbar-sheet-padding-top: 8px;
+    --toolbar-bottom-padding-top: 5px;
+    --toolbar-bottom-fill-padding-top: 5px;
+    --toolbar-icon-size: 24px;
+    --toolbar-icon-size-sm: 24px;
+    --toolbar-label-font-size: 15px;
+    --toolbar-label-line-height: 20px;
+    --toolbar-label-font-weight: var(--font-weight-medium);
+    --toolbar-label-prominent-font-weight: var(--font-weight-medium);
+    --toolbar-label-gutter: 16px;
+    --toolbar-bottom-label-gutter: 16px;
+    --toolbar-title-font-size: 17px;
+    --toolbar-title-line-height: 22px;
+    --toolbar-title-font-weight: var(--font-weight-medium);
+    --toolbar-title-compact-font-size: 17px;
+    --toolbar-title-compact-line-height: 20px;
+    --toolbar-subtitle-font-size: 14px;
+    --toolbar-subtitle-line-height: 18px;
+    --toolbar-subtitle-font-weight: var(--font-weight-normal);
+    --toolbar-row-gap: 8px;
+    /* The bar's glass (android.css); a press is a layer of the text at 7%, drawn by the rules below. */
+    --mobile-glass-background: var(--android-bar-glass);
+    --mobile-glass-background-hover: var(--android-bar-glass);
+    --mobile-glass-background-active: var(--android-bar-glass);
+    --mobile-glass-sheen: none;
+    --mobile-glass-shadow: var(--android-bar-shadow);
+    --mobile-glass-shadow-raised: var(--android-bar-shadow);
+    --toolbar-group-item-hover: transparent;
+    --toolbar-group-item-active: transparent;
+    /* The prominent action is the accent with a card's shadow, no edge of glass; disabled, the glass circle with its
+       content at 38%. */
+    --toolbar-prominent-background: var(--color-background-accent-solid);
+    --toolbar-prominent-background-hover: var(--color-background-accent-solid);
+    --toolbar-prominent-background-active: var(--color-background-accent-solid);
+    --toolbar-prominent-color: var(--color-text-accent-solid);
+    --toolbar-prominent-sheen: none;
+    --toolbar-prominent-shadow: var(--android-accent-shadow);
+    --toolbar-prominent-disabled-background: var(--android-bar-glass);
+    --toolbar-prominent-disabled-color: var(--android-bar-disabled);
+    --toolbar-search-font-weight: var(--font-weight-normal);
+    --toolbar-search-placeholder-color: color-mix(in srgb, var(--color-text) 38%, transparent);
+  }
+
+  /* A large title stays in the row, inline; a compact one is the title from the start. */
+  [data-platform="android"] .Toolbar[data-title-style="large"]:not([data-host]) {
+    grid-template-areas: "leading heading trailing";
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
+    grid-template-rows: auto;
+    row-gap: var(--toolbar-row-gap);
+
+    & > .Heading {
+      align-items: center;
+      min-height: var(--toolbar-item-size);
+      text-align: center;
+
+      & > .Title {
+        font-size: var(--toolbar-title-font-size);
+        font-weight: var(--toolbar-title-font-weight);
+        line-height: var(--toolbar-title-line-height);
+      }
+
+      & > .Subtitle {
+        font-size: var(--toolbar-subtitle-font-size);
+        font-weight: var(--toolbar-subtitle-font-weight);
+        line-height: var(--toolbar-subtitle-line-height);
+      }
+    }
+
+    & > .Heading:has(> .Subtitle) > .Title {
+      line-height: var(--toolbar-title-compact-line-height);
+    }
+  }
+
+  /* On a page or in a sheet the large title lives in the content: there the bar shows it inline at all times and the
+     content's copy goes. */
+  [data-platform="android"] .Heading[data-in-content] {
+    display: none;
+  }
+
+  [data-platform="android"] .Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"] > .CollapsedTitle {
+    opacity: 1;
+    transition: none;
+  }
+
+  [data-platform="android"] .Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"] > .CollapsedTitle:has(> .CollapsedSubtitle) {
+    line-height: var(--toolbar-title-compact-line-height);
+  }
+
+  [data-platform="android"] .Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"] > .CollapsedTitle > .CollapsedSubtitle {
+    margin-top: 0;
+    color: var(--color-text-secondary);
+  }
+
+  [data-platform="android"] .Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"]:has(> .Heading) > .Heading {
+    display: none;
+  }
+
+  [data-platform="android"] .Toolbar:is([data-title-style="compact-large"], [data-title-style="compact-medium"]) > .Heading {
+    align-self: center;
+    min-height: var(--toolbar-item-size);
+
+    & > .Title {
+      font-size: var(--toolbar-title-font-size);
+      font-weight: var(--toolbar-title-font-weight);
+      line-height: var(--toolbar-title-line-height);
+    }
+  }
+
+  [data-platform="android"] .Subtitle {
+    margin-top: 0;
+    color: var(--color-text-secondary);
+  }
+
+  /* A title from the start stands 18 past the bar's gap after the controls before it, or the gutter. */
+  [data-platform="android"] .Toolbar:is([data-title-align="start"], [data-title-style="compact-large"], [data-title-style="compact-medium"]) > .Heading {
+    margin-inline-start: 18px;
+  }
+
+  /* A bar stands 5 under the status bar (over a page) or its own top; a bottom bar 5 under its top, whatever its
+     background. */
+  [data-platform="android"] .Toolbar[data-placement="top"]:not([data-host]) {
+    --toolbar-padding-top: 5px;
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="bottom"][data-background]:not([data-background="soft"]) {
+    --toolbar-bottom-padding-top: 5px;
+  }
+
+  [data-platform="android"] .Toolbar[data-host="page"][data-placement="top"] {
+    --toolbar-padding-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 5px);
+  }
+
+  [data-platform="android"] :where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {
+    --toolbar-padding-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 5px);
+  }
+
+  /* A bar's neutral symbol or label is in the text color; disabled at 38%, its glass kept. */
+  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):where(:not([data-disabled])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-text-color: var(--color-text);
+    --button-text-color-hover: var(--color-text);
+  }
+
+  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant]:where(:not([data-mobile-material="flat"])):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-text-color: var(--android-bar-disabled);
+  }
+
+  /* A disabled prominent action goes back to the glass circle: blurred, with its rim and shadow. */
+  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant="solid"]::before {
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+  }
+
+  /* A press: a label takes it in its own shape, a symbol as a 40px circle round it (38 in a group's slot). */
+  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a):not([data-disabled], [data-variant="solid"]):active {
+    --button-mobile-material-sheen: linear-gradient(var(--android-bar-press), var(--android-bar-press));
+  }
+
+  [data-platform="android"] .Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-uniform]:not([data-disabled], [data-variant="solid"]):active {
+    --button-mobile-material-sheen: radial-gradient(circle 20px, var(--android-bar-press) calc(100% - 0.5px), transparent 100%);
+  }
+
+  [data-platform="android"] .Toolbar .Group > :where(button, a)[data-uniform] {
+    width: 38px;
+  }
+
+  [data-platform="android"] .Toolbar .Group > :where(button, a)[data-uniform]:not([data-disabled]):active {
+    --button-mobile-material-sheen: radial-gradient(circle 19px, var(--android-bar-press) calc(100% - 0.5px), transparent 100%);
+  }
+
+  /* A search field in the bar or in a row of it is the bar's own capsule: 46 of its glass, 18px text 20 in, the hint
+     the text at 38%, 24px symbols. */
+  [data-platform="android"] :is(.Toolbar :is(.Leading, .Trailing, .Content), .Row) > [data-slot="input"][data-variant] {
+    --input-font-size: 18px;
+    --input-gutter: 20px;
+    --input-gap: 10px;
+    --toolbar-search-icon-size: 24px;
+  }
+
+  /* The soft edge under the top bar, once content is under it: the content blurred under the whole bar, the blur
+     eased out over its last 32px, under the screen's color at 63% eased out over the last 56 (SoftTopEdge). Nothing
+     reaches below the bar. */
+  [data-platform="android"] .Toolbar[data-placement="top"][data-background="soft"] {
+    &::before,
+    &::after {
+      inset: 0;
+    }
+
+    &::before {
+      background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) 62.75%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: var(--android-top-fade-56);
+      mask-image: var(--android-top-fade-56);
+    }
+
+    &::after {
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      -webkit-mask-image: var(--android-top-fade-32);
+      mask-image: var(--android-top-fade-32);
+    }
+  }
+
+  [data-platform="android"] .Toolbar {
+    --android-top-fade-56: linear-gradient(to bottom, #000 calc(100% - 56px), rgb(0 0 0 / 95.9%) calc(100% - 48px), rgb(0 0 0 / 83%) calc(100% - 40px), rgb(0 0 0 / 62.2%) calc(100% - 32px), rgb(0 0 0 / 37.8%) calc(100% - 24px), rgb(0 0 0 / 17%) calc(100% - 16px), rgb(0 0 0 / 4.1%) calc(100% - 8px), transparent);
+    --android-top-fade-32: linear-gradient(to bottom, #000 calc(100% - 32px), rgb(0 0 0 / 95.9%) calc(100% - 27.43px), rgb(0 0 0 / 83%) calc(100% - 22.86px), rgb(0 0 0 / 62.2%) calc(100% - 18.29px), rgb(0 0 0 / 37.8%) calc(100% - 13.71px), rgb(0 0 0 / 17%) calc(100% - 9.14px), rgb(0 0 0 / 4.1%) calc(100% - 4.57px), transparent);
+  }
+
+  /* The search swap of a filled bar keeps the soft edge of a bar, not the flat band of iOS. */
+  [data-platform="android"] .Toolbar[data-placement="top"][data-background="soft"]:has(> .Content[data-fill]) {
+    &::before {
+      inset: 0;
+      background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) 62.75%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: var(--android-top-fade-56);
+      mask-image: var(--android-top-fade-56);
+    }
+
+    &::after {
+      display: block;
+    }
+  }
+
+  /* A bar of controls alone keeps the same edge over the whole bar. */
+  [data-platform="android"] .Toolbar[data-host="page"][data-placement="top"][data-background="soft"]:not([data-mobile-variant="sheet"] *):not(:has(> .Heading, > .CollapsedTitle, > .Content[data-fill])) {
+    &::before {
+      inset: 0;
+      height: auto;
+      -webkit-mask-image: var(--android-top-fade-56);
+      mask-image: var(--android-top-fade-56);
+    }
+
+    &::after {
+      display: block;
+    }
+  }
+
+  /* The rows of a large title stand in the bar from the start (Page.module.css), so its background reaches under them
+     at all times, not only once they are pinned (the row gap counts only when there are rows). */
+  [data-platform="android"] .Toolbar[data-host="page"][data-placement="top"][data-title-style="large"] {
+    &::before,
+    &::after {
+      margin-bottom: calc(-1 * (var(--page-toolbar-rows-height, 0px) + min(var(--page-toolbar-rows-height, 0px) * 100, var(--toolbar-row-gap))));
+    }
+  }
+
+  /* Glass, the default, is no bar either: once content is under the bar it fades out as under a soft bar, the
+     content blurred over the last 32px (::after, --android-top-fade-32) under the screen's color at 63% over the
+     last 56 (::before, --android-top-fade-56), with no line and no fill of its own. */
+  [data-platform="android"] .Toolbar[data-placement="top"][data-background="glass"] {
+    &::before,
+    &::after {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      content: "";
+      pointer-events: none;
+      transition: opacity var(--transition-duration-basic);
+    }
+
+    &::before {
+      border-bottom: 0;
+      background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) 62.75%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: var(--android-top-fade-56);
+      mask-image: var(--android-top-fade-56);
+    }
+
+    &::after {
+      z-index: -1;
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      -webkit-mask-image: var(--android-top-fade-32);
+      mask-image: var(--android-top-fade-32);
+    }
+
+    &:not([data-scrolled])::before,
+    &:not([data-scrolled])::after {
+      opacity: 0;
+    }
+
+    &[data-scrolled]::before,
+    &[data-scrolled]::after {
+      opacity: 1;
+    }
+  }
+
+  /* Icon buttons side by side at the end of a top bar share one glass pill, as a group of actions does: 38px slots, 4
+     from the pill's ends (84 wide for two), and a button next to a group joins the group's pill. Each piece drops its
+     shadow at a seam, so the pill reads as one. The confirm pill stands apart; an opaque bar keeps its plain 48px
+     targets. */
+  [data-platform="android"] .Toolbar[data-placement="top"]:not([data-background="hard"]) .Trailing > :is(:where(button, a)[data-uniform]:not([data-navigation-action="confirm"]), .Group) {
+    &:has(+ :is(:where(button, a)[data-uniform]:not([data-navigation-action="confirm"]), .Group)) {
+      padding-inline-end: 0;
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+      clip-path: inset(-16px 0 -16px -16px);
+
+      &:dir(rtl) {
+        clip-path: inset(-16px -16px -16px 0);
+      }
+    }
+
+    & + :is(:where(button, a)[data-uniform]:not([data-navigation-action="confirm"]), .Group) {
+      margin-inline-start: calc(-1 * var(--toolbar-top-item-gap));
+      padding-inline-start: 0;
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+      clip-path: inset(-16px -16px -16px 0);
+
+      &:dir(rtl) {
+        clip-path: inset(-16px 0 -16px -16px);
+      }
+
+      &:has(+ :is(:where(button, a)[data-uniform]:not([data-navigation-action="confirm"]), .Group)) {
+        clip-path: inset(-16px 0);
+      }
+    }
+
+    &:focus-visible {
+      clip-path: none;
+    }
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="top"]:not([data-background="hard"]) .Trailing > :where(button, a)[data-uniform]:not([data-navigation-action="confirm"]) {
+    &:has(+ :is(:where(button, a)[data-uniform]:not([data-navigation-action="confirm"]), .Group)) {
+      width: 42px;
+      padding-inline-start: 4px;
+    }
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="top"]:not([data-background="hard"]) .Trailing > :is(:where(button, a)[data-uniform]:not([data-navigation-action="confirm"]), .Group) + :where(button, a)[data-uniform]:not([data-navigation-action="confirm"]) {
+    width: 42px;
+    padding-inline-end: 4px;
+
+    &:has(+ :is(:where(button, a)[data-uniform]:not([data-navigation-action="confirm"]), .Group)) {
+      width: 38px;
+      padding-inline: 0;
+    }
+  }
+
+  /* The title is always inline, so the glass shows as soon as content is under the bar, not with the swap. */
+  [data-platform="android"] .Toolbar:is([data-host="page"], [data-host="dialog"])[data-title-style="large"][data-scrolled][data-background="glass"]::before {
+    opacity: 1;
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="bottom"][data-background="glass"]::before {
+    border-top-color: transparent;
+  }
+
+  /* An opaque bottom bar keeps the light divider of a card's rows once content runs on under it. */
+  [data-platform="android"] .Toolbar[data-placement="bottom"][data-content-below][data-background="hard"]::before {
+    border-top-color: var(--android-divider, var(--page-bar-hard-line));
+  }
+
+  /* The soft edge of a bottom bar fades the screen's color in under its controls at all times: from 8 above the bar,
+     over 60px in four even steps (0, 41%, 76% and all of 81%), and at 81% down to the screen's edge, with no blur. */
+  [data-platform="android"] .Toolbar[data-placement="bottom"][data-background="soft"],
+  [data-platform="android"] .Toolbar[data-placement="bottom"][data-background="soft"]:not([data-host="dialog"], [data-mobile-variant="sheet"] *) {
+    &::before {
+      inset: calc(var(--toolbar-bottom-item-top) - 13px) 0 0;
+      background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) 81.4%, transparent);
+      opacity: 1;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 41.4%) 20px, rgb(0 0 0 / 75.9%) 40px, #000 60px);
+      mask-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 41.4%) 20px, rgb(0 0 0 / 75.9%) 40px, #000 60px);
+    }
+
+    &::after {
+      display: none;
+    }
+  }
+
+  /* An opaque top bar is the classic bar, drawn at all times: 56px in the cards' color with a 3px shadow over the
+     content, its symbols plain in 48px targets 4 from its sides, side by side, with no circles; the title from the
+     start, Medium 20 alone or Medium 18 over a subtitle of 14 in the secondary label, 72 in after Back and 18 with
+     none. A prominent
+     action is the accent's ink with no fill. */
+  [data-platform="android"] .Toolbar[data-placement="top"][data-background="hard"] {
+    --toolbar-top-item-size: 48px;
+    --toolbar-top-item-gap: 0px;
+    --toolbar-gutter: 4px;
+    --toolbar-padding-bottom: 4px;
+    --toolbar-group-padding: 0px;
+    --toolbar-label-gutter: 12px;
+    --toolbar-title-font-size: 20px;
+    --toolbar-title-line-height: 24px;
+    --toolbar-title-compact-font-size: 18px;
+    --toolbar-title-compact-line-height: 22px;
+    --mobile-glass-background: transparent;
+    --mobile-glass-background-hover: transparent;
+    --mobile-glass-background-active: transparent;
+    --mobile-glass-shadow: none;
+    --mobile-glass-shadow-raised: none;
+    --mobile-glass-backdrop-filter: none;
+    --toolbar-prominent-background: transparent;
+    --toolbar-prominent-background-hover: transparent;
+    --toolbar-prominent-background-active: transparent;
+    --toolbar-prominent-color: var(--color-background-accent-solid);
+    --toolbar-prominent-shadow: none;
+    --toolbar-prominent-disabled-background: transparent;
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+
+    &:not(:has(> .Leading)) {
+      grid-template-areas: "heading trailing";
+      grid-template-columns: minmax(0, 1fr) max-content;
+    }
+
+    &:has(> .Leading):not(:has(> .Trailing)) {
+      grid-template-areas: "leading heading";
+      grid-template-columns: max-content minmax(0, 1fr);
+    }
+
+    &::before {
+      inset: 0;
+      border-bottom: 0;
+      background: var(--mobile-surface-grouped-secondary, var(--color-surface));
+      opacity: 1;
+    }
+
+    &::after {
+      position: absolute;
+      z-index: -1;
+      top: 100%;
+      right: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(to bottom, rgb(0 0 0 / 12.5%) 0.19px, rgb(0 0 0 / 11.4%) 0.57px, rgb(0 0 0 / 7%) 0.95px, rgb(0 0 0 / 4.7%) 1.33px, rgb(0 0 0 / 1.6%) 1.71px, rgb(0 0 0 / 1.6%) 3px);
+      content: "";
+      pointer-events: none;
+    }
+
+    & > .Heading {
+      align-items: flex-start;
+      margin-inline-start: 14px;
+      text-align: start;
+    }
+
+    &:has(> .Leading) > .Heading {
+      margin-inline-start: 20px;
+    }
+
+    & .Subtitle,
+    & > .CollapsedTitle > .CollapsedSubtitle {
+      color: var(--mobile-label-secondary, var(--color-text-secondary));
+    }
+
+    & > .CollapsedTitle {
+      text-align: start;
+      margin-inline-start: 20px;
+    }
+  }
+
+  [data-platform="android"] .Toolbar[data-host="page"][data-placement="top"][data-background="hard"] {
+    --toolbar-padding-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 4px);
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="top"][data-background="hard"] .Group > :where(button, a)[data-uniform] {
+    width: 48px;
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="top"][data-background="hard"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-variant="solid"]:not([data-disabled])::before {
+    background-color: transparent;
+  }
+
+  [data-platform="android"] .Toolbar[data-placement="top"][data-background="hard"] :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-uniform]:not([data-disabled]):active {
+    --button-mobile-material-sheen: radial-gradient(circle 20px, var(--android-bar-press) calc(100% - 0.5px), transparent 100%);
+  }
+}
+
+/* =============================================
+  Android sheet bar. A Sheet's bar in the Plex Android look (`data-platform="android"`) keeps the bar's 46px circles
+  and its centered title (above); as the reference messenger's sheets set them, the circles stand 11 under the
+  sheet's top edge (its 24px corners, Dialog.module.css) and 6 from its sides.
+============================================= */
+@media (max-width: 767px) {
+  [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"] {
+    --toolbar-padding-top: 11px;
+  }
+
+  [data-platform="android"] :where([data-mobile-placement="fullscreen"]) .Toolbar[data-host="dialog"][data-placement="top"] {
+    --toolbar-padding-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 5px);
+  }
+
+  /* Content scrolled under the sheet's bar fades out under it, whatever the bar's `background`, with no line and no bar
+     of its own: the sheet's color at 63% over the bar, over a light blur, both let go over the last 32px (12 past the
+     bar), once content is under it. */
+  [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"]::before {
+    inset: 0 0 -12px;
+    border-bottom: 0;
+    background: color-mix(in srgb, var(--toolbar-background, var(--dialog-panel-background, var(--page-background))) 63%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+    transition: opacity var(--transition-duration-basic);
+  }
+
+  [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"][data-scrolled]::before,
+  [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"][data-title-style][data-scrolled]:not([data-title-collapsed])[data-background]::before {
+    opacity: 1;
+  }
+
+  [data-platform="android"] .Toolbar[data-host="dialog"][data-placement="top"]::after {
+    display: none;
+  }
 }

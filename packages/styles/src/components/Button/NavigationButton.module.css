@@ -28,3 +28,88 @@
         --navigation-button-icon-size: var(--navigation-button-confirm-icon-size);
     }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css): Material's glyphs at 24px, as @plexui/react-native
+   draws them on Android: `arrow_back` (mirrored right to left, above), `close` and `check`. The path data replaces
+   each glyph's own in its viewBox: back and confirm on a 24 grid, close on the 20 grid of its box. */
+@media (max-width: 767px) {
+    [data-platform="android"] .NavigationGlyph {
+        width: 24px;
+        height: 24px;
+    }
+
+    [data-platform="android"] .NavigationGlyph[data-navigation-glyph="back"] path {
+        d: path("M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z");
+    }
+
+    [data-platform="android"] .NavigationGlyph[data-navigation-glyph="close"] path {
+        d: path("M5.333 15.833l-1.167-1.167 4.667-4.666-4.667-4.667 1.167-1.166 4.667 4.666 4.666-4.666 1.167 1.166-4.667 4.667 4.667 4.666-1.167 1.167-4.666-4.667z");
+    }
+
+    [data-platform="android"] .NavigationGlyph[data-navigation-glyph="confirm"] path {
+        d: path("M9.55 18l-5.7-5.7 1.425-1.425 4.275 4.275 9.175-9.175 1.425 1.425z");
+    }
+}
+
+/* The Plex Android look: confirm in a top bar (a page's, a Toolbar's, a sheet's) is the bar's glass text pill, not a
+   check: 46 tall, 16 at its sides, at least 46 wide, its label (the button's accessible name) 15/20 bold in the text
+   color, cut short with an ellipsis past 160px; disabled, the label at 38%. It needs no markup of its own: the label
+   is drawn from `aria-label`, and the focus ring moves onto the button. A confirm in a bottom bar keeps its circle. */
+@media (max-width: 767px) {
+    [data-platform="android"] .NavigationButton[data-navigation-action="confirm"]:not([data-toolbar][data-placement="bottom"] *) {
+        --button-size: var(--navigation-button-size, 46px);
+        --button-gutter: 16px;
+        --button-background-color: var(--android-bar-glass);
+        --button-background-color-hover: var(--android-bar-glass);
+        --button-background-color-active: color-mix(in srgb, var(--android-bar-glass), var(--color-text) 7%);
+        --button-text-color: var(--color-text);
+        --button-text-color-hover: var(--color-text);
+        --button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        min-width: var(--button-size);
+        height: var(--button-size);
+        padding-inline: var(--button-gutter);
+
+        &::before {
+            background-image: none;
+            box-shadow: var(--android-bar-shadow);
+        }
+
+        & > span:has(> .NavigationGlyph) {
+            display: none;
+        }
+
+        &::after {
+            position: relative;
+            inset: auto;
+            display: block;
+            max-width: 160px;
+            overflow: hidden;
+            content: attr(aria-label);
+            font-size: 15px;
+            font-weight: var(--font-weight-bold);
+            line-height: 20px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transform: none;
+        }
+
+        &:focus-visible:not([data-menu-pointer-focus]) {
+            outline: 2px solid var(--button-ring-color, var(--color-ring));
+            outline-offset: 2px;
+
+            &::after {
+                outline: none;
+            }
+        }
+
+        &[data-disabled] {
+            --button-background-color: var(--android-bar-glass);
+            --button-text-color: var(--android-bar-disabled);
+            opacity: 1;
+        }
+    }
+}

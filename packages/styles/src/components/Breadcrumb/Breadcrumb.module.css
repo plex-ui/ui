@@ -103,3 +103,23 @@
     }
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css): Android has no breadcrumb either. A trail kept on
+   a phone takes Body Medium, 14/20, and each link Android's 48px touch target; lines of a wrapping trail stand 48px
+   apart. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Breadcrumb,
+  [data-platform="android"] .Breadcrumb[data-size="sm"] {
+    --breadcrumb-font-size: 14px;
+    --breadcrumb-line-height: 20px;
+  }
+
+  [data-platform="android"] .Item,
+  [data-platform="android"] .Item > .Link {
+    min-height: 48px;
+  }
+
+  [data-platform="android"] .Item > .Link::after {
+    inset-inline: min(0px, (100% - 48px) / 2);
+  }
+}

@@ -693,3 +693,13 @@
     content: none;
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css): a list is the popup of a row, from android.css's
+   --menu-* values (opaque, 12px corners, no space above and under its rows, 48px rows 18 in with the label 16/20, the
+   screen dimmed 40%, 20% at night), and the chosen option's check stands at the row's end, 24px in the label's color. */
+@media (max-width: 767px) {
+  [data-platform="android"] .PressableInner > .OptionIndicatorSlot[data-position] {
+    order: 1;
+    margin-inline-start: auto;
+  }
+}

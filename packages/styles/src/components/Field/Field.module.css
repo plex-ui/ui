@@ -972,6 +972,153 @@
   [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > :is([data-variant="outline"], [data-variant="soft"])[role="button"] {
     width: 100%;
   }
+
+  /* The Plex Android look (`data-platform="android"`), as @plexui/react-native's ListItem on Android (the row tokens
+     are in android.css): the label 16/20 and its description 13/16 4 under it; a field at the row's end is a card's
+     bare field, its text 17/20 from 14 after the label's 16 (from the column with `columns`), its hint a light gray,
+     its caret the text color; an error a 13/16 line in the error color 4 under the row's line, with no mark; a
+     disabled row fades to half; a held row (a switch row too) shows the list selector; a symbol (24) leads 20 in and
+     a tile 18 in, the text following both at 64; a row of a text field is 54. */
+  [data-platform="android"] .Field:where([data-row]) {
+    --field-label-description-gap: 4px;
+    --field-error-color: var(--android-danger-text);
+    --mobile-field-error-font-size: 13px;
+    --mobile-field-error-line-height: 16px;
+    --mobile-field-error-icon-display: none;
+    --input-placeholder-text-color: var(--android-hint);
+  }
+
+  [data-platform="android"] .Field:where([data-row]):has(> .Icon > svg) {
+    --field-row-icon-offset: -1px;
+    --field-row-icon-size: 24px;
+    --field-row-icon-gap: 20px;
+  }
+
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > [data-variant] > :is(input, textarea)) {
+    min-height: 54px;
+  }
+
+  [data-platform="android"] .Field:where([data-row]) .Control [data-slot="input"],
+  [data-platform="android"] .Field:where([data-row]) .Control [data-slot="input"] > input,
+  [data-platform="android"] .Field:where([data-row]) .Control textarea,
+  [data-platform="android"] .Field:where([data-row]) .Control [data-slot="input-group-control"] {
+    font-size: 17px;
+    line-height: 20px;
+    caret-color: var(--color-text);
+  }
+
+  [data-platform="android"] .Field:where([data-row]) .Control > [data-variant]:has(> textarea) {
+    --textarea-line-height: 20px;
+  }
+
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])) .Control > [data-variant] > input {
+    text-align: start;
+  }
+
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(> [data-variant] > input, > [data-variant] > textarea) {
+    margin-inline-start: 14px;
+  }
+
+  [data-platform="android"] [data-field-columns] .Field:where([data-row]:not([data-orientation="vertical"])) .Control:has(> [data-variant] > input, > [data-variant] > textarea) {
+    margin-inline-start: 0;
+  }
+
+  /* A field under its label (13/16, 4 over it, 10 above and below: android.css) or alone in the row: alone, its
+     value stands 17 above and below, a 54dp row, and starts 22 in, where the line above the row starts */
+  [data-platform="android"] .Field:where([data-row][data-label-hidden][data-orientation="vertical"]):has(> .Content > .Control > [data-variant] > :is(input, textarea)):not(:has(> .LabelGroup > .Description, > .Content > :not(.Control))) {
+    --field-group-separator-inset-start: 22px;
+
+    padding-block: 17px;
+    padding-inline-start: 22px;
+  }
+
+  /* A disabled row fades to half, its value and control too (they dim themselves) */
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):is([disabled], [data-disabled], [aria-disabled="true"])):not(:has(> .Content > .Control :is(button[role="checkbox"], button[role="radio"], button[role="switch"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"]))),
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Content > .Control > :is(button, [role="button"])[aria-haspopup]:not([aria-haspopup="false"]):is([disabled], [data-disabled], [aria-disabled="true"])),
+  [data-platform="android"] .Field:where([data-row][data-disabled]) {
+    --field-description-color: color-mix(in srgb, var(--mobile-label-secondary, var(--color-text-secondary)) 50%, transparent);
+
+    > .LabelGroup .Label {
+      color: color-mix(in srgb, var(--color-text) 50%, transparent);
+    }
+  }
+
+  /* Android's rows light when held, a switch row too */
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"]):not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(button[role="switch"], button[role="checkbox"], button[role="radio"], input[type="checkbox"], input[type="radio"]):not([disabled], [data-disabled], [aria-disabled="true"], [aria-hidden="true"])) {
+    transition: background-color var(--transition-duration-basic) var(--transition-ease-basic);
+
+    &:active:not(:has(:is(button, a, [role="button"]):not([role="checkbox"], [role="radio"], [role="switch"]):active)) {
+      background: var(--field-row-press-background);
+      transition-duration: 0s;
+    }
+  }
+
+  /* A row's lone checkbox leads the row, as Android's multi-select lists: its circle 22 in from the card's edge (its
+     center at 32), the row's text and the line above the row at 64, the circle centered in the row's height. Beside
+     an icon it stays at the row's end, 21 in from the card's edge; a radio there stands 23 in. Their 48 targets
+     take no room: the row keeps its height. */
+  [data-platform="android"] .Field:where([data-row]:not([data-fill], [data-orientation="vertical"])):has(> .Content > .Control > :only-child:not([data-has-label]) > [role="checkbox"]):not(:has(> .Icon, > .Content > .Control > :only-child > [role="checkbox"] ~ [role="checkbox"], > .Content > .Control > :only-child > :not([role="checkbox"], input[type="checkbox"][aria-hidden="true"]))) {
+    --field-group-separator-inset-start: 64px;
+
+    position: relative;
+    padding-inline-start: 64px;
+
+    &:not(:has(> .Action)) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    > .Content > .Control {
+      position: absolute;
+      grid-area: auto;
+      inset-inline-start: 22px;
+      top: 50%;
+      display: flex;
+      margin: 0;
+      translate: 0 -50%;
+    }
+  }
+
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])):has(> .Icon) > .Content > .Control > :only-child:not([data-has-label]):has(> [role="checkbox"]):not(:has(> [role="checkbox"] ~ [role="checkbox"], > :not([role="checkbox"], input[type="checkbox"][aria-hidden="true"]))) {
+    margin-inline-end: -14px;
+  }
+
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > :only-child > label:only-child:not([data-has-label]) > [data-radio-indicator]:only-child:has(> [role="radio"]):not(:has(> [role="radio"] ~ [role="radio"], > :not([role="radio"], input[type="radio"][aria-hidden="true"]))) {
+    margin-block: -14px;
+    margin-inline-end: -12px;
+  }
+
+  /* A date in a row is the row's value, as a Select's (SelectControl.module.css): no capsule, the date 16/20 in the
+     accent (a date and a time 8 apart), the placeholder the text at 35%, at half when disabled */
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"]) {
+    padding-inline: 0;
+    border-radius: 0;
+    color: var(--color-background-accent-solid);
+
+    &::before {
+      background-color: transparent;
+    }
+
+    &[data-selected="false"] {
+      color: color-mix(in srgb, var(--color-text) 35%, transparent);
+    }
+
+    &[data-disabled] {
+      color: color-mix(in srgb, var(--color-background-accent-solid) 50%, transparent);
+    }
+
+    &[data-disabled][data-selected="false"] {
+      color: color-mix(in srgb, var(--color-text) 17.5%, transparent);
+    }
+
+    &[aria-expanded="true"]:not([data-disabled]) {
+      color: var(--color-background-accent-solid);
+    }
+  }
+
+  [data-platform="android"] .Field:where([data-row]:not([data-orientation="vertical"])) > .Content > .Control > [data-date-picker][data-variant][role="button"][aria-haspopup]:not([aria-haspopup="false"]):has([data-date-parts]) [data-date-part] {
+    padding: 0;
+    background-color: transparent;
+  }
 }
 
 /* =============================================

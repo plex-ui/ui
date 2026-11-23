@@ -503,6 +503,112 @@
   }
 }
 
+/* The Plex Android look (`data-platform="android"`, android.css), after Material 3's docked date range picker in the
+   popup of the Plex Android look, as DatePicker's calendar: 22px corners and the glass of the popups, seven 48px
+   columns with 8 inside the panel, the month at 14/20 Medium, the weekdays (two letters) and the days at 16/24, today
+   ringed instead of dotted, Material's chevrons in 48px targets. A day is a 40px circle and the range a 40px band. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Popover[role="dialog"],
+  [data-platform="android"] .CalendarWrapper {
+    --calendar-inner-padding: 8px;
+    --calendar-header-height: calc(48px + 2 * var(--calendar-inner-padding));
+    --calendar-caption-inset: 104px;
+  }
+
+  [data-platform="android"] .Popover[role="dialog"] {
+    --popover-radius: 22px;
+    background: var(--android-bar-glass);
+    box-shadow: var(--android-bar-shadow);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+  }
+
+  [data-platform="android"] .CalendarWrapper {
+    width: min(352px, calc(100vw - 2 * var(--calendar-gutter)), var(--radix-popover-content-available-width, 352px));
+  }
+
+  [data-platform="android"] .CalendarContainer {
+    --cell-size: 48px;
+    --calendar-width: min(336px, calc(100vw - 2 * var(--calendar-gutter) - 2 * var(--calendar-inner-padding)), calc(var(--radix-popover-content-available-width, 352px) - 2 * var(--calendar-inner-padding)));
+  }
+
+  [data-platform="android"] .Calendar {
+    --cell-size: 48px;
+  }
+
+  [data-platform="android"] .Previous {
+    right: 48px;
+  }
+
+  [data-platform="android"] .Previous button[type="button"],
+  [data-platform="android"] .Next button[type="button"] {
+    --button-size: 48px;
+    --button-text-color: var(--color-text-secondary);
+    --button-text-color-hover: var(--color-text-secondary);
+    width: 48px;
+  }
+
+  [data-platform="android"] .MonthLabel {
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    line-height: 20px;
+  }
+
+  [data-platform="android"] .WeekdayHeader {
+    height: 48px;
+    margin-bottom: 0;
+  }
+
+  [data-platform="android"] .DayLabel {
+    height: 24px;
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: var(--font-weight-normal);
+    line-height: 24px;
+    text-transform: none;
+  }
+
+  [data-platform="android"] .ShortDayLabel {
+    display: inline;
+  }
+
+  [data-platform="android"] .LongDayLabel {
+    display: none;
+  }
+
+  /* The band is the day's middle 40px; the day's target keeps the whole cell */
+  [data-platform="android"] .Day {
+    padding-block: 4px;
+    background-clip: content-box;
+
+    &[data-is-first-range-trail]::before,
+    &[data-is-last-range-trail]::before {
+      top: 4px;
+      bottom: 4px;
+    }
+  }
+
+  [data-platform="android"] .InteractiveDay {
+    padding: 4px;
+    margin-block: -4px;
+    background-clip: content-box;
+    font-size: 16px;
+    line-height: 24px;
+
+    &::before {
+      inset: 4px;
+    }
+
+    &[aria-current="date"]::before {
+      opacity: 1;
+    }
+  }
+
+  [data-platform="android"] .TodayDot {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .CalendarContainer {
     --calendar-height-duration: 0ms;

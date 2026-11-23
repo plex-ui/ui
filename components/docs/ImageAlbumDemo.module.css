@@ -144,3 +144,10 @@
         padding-bottom: 12px;
     }
 }
+
+/* The Plex Android look (`data-platform="android"`): the details are an Android card, its corners 16 */
+@media (max-width: 767px) {
+    [data-platform='android'] .Details {
+        --field-group-radius: 16px;
+    }
+}

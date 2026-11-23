@@ -1050,3 +1050,30 @@
     transition-duration: 0ms;
   }
 }
+
+/* The Plex Android segmented control (the reference's content tabs): a 36 capsule of a bar's glass (android.css),
+   the selected segment a 28 pill 4 inside it, the accent at 12% over the card; every label 15 Medium, the selected
+   one in the accent's text, the others the text at 50%. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Tabs[data-variant="segmented"][data-orientation="horizontal"] {
+    --segmented-control-size: 36px;
+    --segmented-control-gutter: 4px;
+    --segmented-control-gap: 0px;
+    --segmented-control-radius: 100px;
+    --segmented-control-option-radius: 14px;
+    --segmented-control-option-gutter: 14px;
+    --segmented-control-font-size: 15px;
+    --segmented-control-line-height: 20px;
+    --segmented-control-font-weight: var(--font-weight-medium);
+    --segmented-control-active-font-weight: var(--font-weight-medium);
+    --segmented-control-background: var(--android-bar-glass);
+    --segmented-control-shadow: var(--android-bar-shadow);
+    --segmented-control-thumb-background: var(--android-segment-thumb);
+    --segmented-control-thumb-shadow: none;
+    --color-text-secondary: color-mix(in srgb, var(--color-text) 50%, transparent);
+  }
+
+  [data-platform="android"] .Tabs[data-variant="segmented"][data-orientation="horizontal"] .Tab[data-state="on"] {
+    color: var(--android-tab-selected);
+  }
+}

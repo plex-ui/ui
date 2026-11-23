@@ -30,6 +30,13 @@
       margin: auto;
     }
   }
+
+  /* The Plex Android look (`data-platform="android"`, android.css): Android's 48px targets */
+  [data-platform="android"] .StepperControl :is(.StepperPrevious, .StepperNext) {
+    min-width: 48px;
+    min-height: 48px;
+    margin: calc((var(--button-size) - 48px) / 2);
+  }
 }
 
 .StepperContent {

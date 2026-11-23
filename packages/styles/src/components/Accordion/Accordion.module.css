@@ -157,6 +157,27 @@
   .Trigger[data-state="open"] .Chevron {
     transform: rotate(var(--accordion-chevron-open-angle, 180deg));
   }
+
+  /* The Plex Android look (`data-platform="android"`, android.css): an item is a row of an Android settings list,
+     50 tall with its title at 16/20, and Material's expand chevron, 24px in the secondary text at the end, points
+     down and turns up when the item opens. The content stands under the title's start at 14/20, 12 under the
+     separator and 12 over the next. */
+  [data-platform="android"] .Root {
+    --accordion-chevron-closed-angle: 0deg;
+    --accordion-chevron-open-angle: 180deg;
+    --accordion-trigger-font-size: 16px;
+    --accordion-trigger-line-height: 20px;
+    --accordion-trigger-min-height: 50px;
+    --accordion-trigger-padding-block: 15px;
+    --accordion-icon-color: var(--color-text-secondary);
+    --accordion-icon-size: 24px;
+    --accordion-icon-margin-inline-end: 0px;
+    --accordion-content-font-size: 14px;
+    --accordion-content-line-height: 20px;
+    --accordion-content-padding-top: 12px;
+    --accordion-content-padding-bottom: 12px;
+    --accordion-content-padding-inline-start: 0px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

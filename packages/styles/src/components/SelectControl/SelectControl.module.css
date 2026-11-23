@@ -755,4 +755,37 @@
     --select-control-gap: 3px;
     line-height: 18px;
   }
+
+  /* The Plex Android look: a Select at a row's end is the row's value, as a value row of @plexui/react-native's
+     List on Android: 16/20 in the accent, the placeholder the text at 35%, at half when disabled, and no arrow (a
+     press on the row opens the choices). In columns the value stays the row's data, in the text color. */
+  [data-platform="android"] :where([data-row]) .SelectControl {
+    --select-control-font-size: 16px;
+
+    line-height: 20px;
+  }
+
+  [data-platform="android"] :where([data-row]) .DropdownIcon {
+    display: none;
+  }
+
+  /* With the arrow gone its slot and the gap before it go too (a clear button keeps them). */
+  [data-platform="android"] :where([data-row]) .IndicatorWrapper:not(:has(> .Clear)) {
+    display: none;
+  }
+
+  /* The value ends 18 from the card's edge, 3 past the row's 21 (a switch keeps 21), as the reference's value rows. */
+  [data-platform="android"] :where([data-row][data-orientation="horizontal"]:not([data-field-columns] *)) .SelectControl {
+    margin-inline-end: -3px;
+    --field-row-popup-value-color: var(--color-background-accent-solid);
+    --input-placeholder-text-color: color-mix(in srgb, var(--color-text) 35%, transparent);
+
+    &[data-disabled][data-variant] {
+      color: color-mix(in srgb, var(--color-background-accent-solid) 50%, transparent);
+    }
+
+    &[data-disabled][data-variant][data-selected="false"] {
+      color: color-mix(in srgb, var(--color-text) 17.5%, transparent);
+    }
+  }
 }

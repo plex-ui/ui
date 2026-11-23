@@ -61,6 +61,13 @@
       margin: auto;
     }
   }
+
+  /* The Plex Android look (`data-platform="android"`, android.css): Android's 48px target around the 32px box */
+  [data-platform="android"] .CopyButtonContainer button {
+    min-width: 48px;
+    min-height: 48px;
+    margin: calc((32px - 48px) / 2);
+  }
 }
 
 /* The button's own outline stays off; keyboard focus shows Button's

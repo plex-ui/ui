@@ -428,3 +428,97 @@
     }
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css), after @plexui/react-native's Alert on Android
+   (decision 0026): the same card in Android's sizes. 16px corners and 16 inside, a 24px icon (no overhang) 16 before
+   the text and on the title's 24 line (2 above a description's 20 line without a title), the title 16/24 Medium over
+   14/20 2 under it, 16 over the actions; the actions are 40px capsules (their own size with `mobileActions="own"`,
+   starting under the text at 40); Close is the bare 24px cross in the secondary label, in a 48px target 4 from the
+   top and the end, and the first line stops 32 short of it. The colors stay the phone's. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Alert {
+    --alert-font-size: 14px;
+    --alert-line-height: 20px;
+    --alert-indicator-glyph-size: 24px;
+    --alert-indicator-size: 24px;
+    --alert-android-icon-top: 0px;
+    column-gap: 16px;
+    row-gap: 16px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  [data-platform="android"] .Alert[data-banner] {
+    border-radius: 0;
+  }
+
+  [data-platform="android"] .Alert:not(:has(> .Content > .Message > .Title)) {
+    --alert-android-icon-top: -2px;
+  }
+
+  [data-platform="android"] .Alert > .Indicator:is(.Indicator, :has(+ .Content > .Message > .Title ~ .Description)) {
+    padding-inline: 0;
+    margin-block: var(--alert-android-icon-top) 0;
+  }
+
+  [data-platform="android"] .Message,
+  [data-platform="android"] .Indicator + .Content > .Message:is(:not(:has(> .Title)), :not(:has(> .Description))) {
+    align-self: auto;
+    margin-top: 0;
+    padding-inline-start: 0;
+  }
+
+  [data-platform="android"] .Alert:has(> .CloseButton) .Message > :first-child:where(.Title, .Description) {
+    padding-inline-end: 32px;
+  }
+
+  [data-platform="android"] .Title {
+    font-size: 16px;
+    font-weight: var(--font-weight-medium);
+    line-height: 24px;
+  }
+
+  [data-platform="android"] .Title ~ .Description {
+    margin-bottom: 0;
+  }
+
+  [data-platform="android"] .Alert:where(:not([data-mobile-actions="own"])) .Actions > :where(button, a, [role="link"]) {
+    --button-size: 40px;
+    --button-font-size: 14px;
+    --button-gutter: 16px;
+    min-height: 40px;
+    padding-block: 10px;
+    line-height: 20px;
+  }
+
+  [data-platform="android"] .Alert[data-mobile-actions="own"] .Actions {
+    padding-inline-start: 0;
+  }
+
+  [data-platform="android"] .Alert[data-mobile-actions="own"]:has(> .Indicator) .Actions {
+    padding-inline-start: 40px;
+  }
+
+  [data-platform="android"] .Alert > .CloseButton {
+    --button-uniform-size: 48px;
+    --button-icon-size: 24px;
+    --button-text-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    --button-text-color-hover: var(--mobile-label-secondary, var(--color-text-secondary));
+    --button-background-color: transparent;
+    --button-background-color-hover: transparent;
+    top: 4px;
+    inset-inline-end: 4px;
+
+    &::before {
+      background: transparent;
+    }
+
+    &::after {
+      inset: 12px;
+    }
+
+    &:active {
+      opacity: 0.5;
+    }
+  }
+}

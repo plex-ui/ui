@@ -31,7 +31,7 @@ const vuePhone = (page: string) => [...read(page).matchAll(/export const (\w+Pho
 describe("a disabled choice or popup row on a phone", () => {
   const rules: postcss.Rule[] = []
   postcss.parse(read("packages/styles/src/components/Field/Field.module.css")).walkAtRules("media", (media) => {
-    if (media.params === "(max-width: 767px)") media.walkRules((rule) => { if (rule.selector.includes('):is([disabled], [data-disabled], [aria-disabled="true"])')) rules.push(rule) })
+    if (media.params === "(max-width: 767px)") media.walkRules((rule) => { if (rule.selector.includes('):is([disabled], [data-disabled], [aria-disabled="true"])') && !rule.selector.includes('[data-platform="android"]')) rules.push(rule) })
   })
   const decls = (rule: postcss.ChildNode | undefined) => rule && "nodes" in rule ? Object.fromEntries((rule.nodes ?? []).filter((n): n is postcss.Declaration => n.type === "decl").map((d) => [d.prop, d.value])) : {}
 

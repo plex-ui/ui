@@ -332,4 +332,178 @@
       height: var(--tab-bar-minimized-size);
     }
   }
+
+  /* =============================================
+    The Plex Android look (`data-platform="android"`, android.css), after @plexui/react-native's TabBar on Android
+    (decision 0026): the tabs in a 56px capsule of the tabs' glass (the card at 76%, a thin rim, a tight shadow) 12
+    from the screen's sides and 8 over the gesture bar, 4 inside it; each tab 48 tall, a 24px symbol over a 12/16
+    Medium label (Bold when selected), as wide as its label and 16 a side, the tabs growing together to fill 320;
+    the selected one in the accent on its own pill of the accent at 9%. Search or a prominent tab is a 56px circle
+    8 beside the capsule. A badge is the accent's 16px capsule ringed in the card's color. No minimized state: a
+    minimized bar keeps its tabs. Soft is the screen's color at 81% fading in over 60px from the bar's top.
+  ============================================= */
+  [data-platform="android"] .TabBar {
+    --tab-bar-gutter: 12px;
+    --tab-bar-gap: 8px;
+    --tab-bar-padding-top: 8px;
+    --tab-bar-padding-bottom: calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 8px);
+    --tab-bar-capsule-padding-block: 4px;
+    --tab-bar-capsule-padding-inline: 4px;
+    --tab-bar-item-height: 48px;
+    --tab-bar-pill-outset: 0px;
+    --tab-bar-icon-box: 24px;
+    --tab-bar-icon-size: 24px;
+    --tab-bar-label-font-size: 12px;
+    --tab-bar-label-line-height: 16px;
+    --tab-bar-label-font-weight: var(--font-weight-medium);
+    --tab-bar-search-size: 56px;
+    --tab-bar-item-color: var(--color-text);
+    --tab-bar-item-color-selected: var(--android-tab-selected);
+    --tab-bar-item-background-selected: color-mix(in srgb, var(--color-background-accent-solid) 9%, transparent);
+    --tab-bar-badge-size: 16px;
+    --tab-bar-badge-padding-inline: 4px;
+    --tab-bar-badge-font-size: 12px;
+    --tab-bar-badge-font-weight: var(--font-weight-medium);
+    --tab-bar-badge-top: 0.67px;
+    --tab-bar-badge-start: 1.67px;
+    --tab-bar-badge-background: var(--color-background-accent-solid);
+    --tab-bar-badge-color: var(--color-text-accent-solid);
+    --tab-bar-accessory-height: 56px;
+    --mobile-glass-background: var(--android-tabs-glass);
+    --mobile-glass-sheen: none;
+    --mobile-glass-shadow: var(--android-tabs-shadow);
+    --mobile-glass-shadow-raised: var(--android-tabs-shadow);
+
+    &[data-minimized] {
+      padding: var(--tab-bar-padding-top) var(--tab-bar-gutter) var(--tab-bar-padding-bottom);
+    }
+
+    &:is([data-search], [data-prominent], [data-minimized]) {
+      justify-content: center;
+    }
+
+    &[data-background="soft"]::before {
+      display: block;
+      inset: 0;
+      background: color-mix(in srgb, var(--tab-bar-edge-background, var(--page-background)) 81.4%, transparent);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 41.4%) 20px, rgb(0 0 0 / 75.9%) 40px, #000 60px);
+      mask-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 41.4%) 20px, rgb(0 0 0 / 75.9%) 40px, #000 60px);
+    }
+
+    &:is([data-background="hard"], [data-background="glass"])::before {
+      border-top-color: transparent;
+    }
+  }
+
+  [data-platform="android"] .Tabs {
+    min-width: min(328px, 100%);
+  }
+
+  [data-platform="android"] .Tabs > .Item {
+    flex: 1 1 auto;
+    justify-content: center;
+    gap: 0;
+    width: auto;
+    padding: 0 16px;
+
+    &[data-selected] > .Label {
+      font-weight: var(--font-weight-bold);
+    }
+
+    &[data-selected] > .Icon {
+      color: var(--color-background-accent-solid);
+    }
+
+    &[data-disabled] {
+      color: color-mix(in srgb, var(--color-text) 38%, transparent);
+    }
+  }
+
+  [data-platform="android"] .Badge {
+    box-sizing: content-box;
+    border: 1.33px solid var(--android-card);
+    line-height: 16px;
+  }
+
+  [data-platform="android"] .Item[data-selected] .Badge {
+    border-color: color-mix(in srgb, var(--color-background-accent-solid) 9%, var(--android-card));
+  }
+
+  /* The circle beside the capsule: a symbol in the text color, the accent when selected; a prominent one the accent
+     with its ink. A press is a layer of the symbol's color at 10%. */
+  [data-platform="android"] .Item:is(.Search, .Prominent) {
+    color: var(--color-text);
+
+    &::before {
+      inset: 0;
+    }
+
+    &[data-selected] {
+      color: var(--color-background-accent-solid);
+
+      &::before {
+        background: transparent;
+      }
+    }
+
+    &:active:not([data-disabled])::before {
+      background: color-mix(in srgb, currentColor 10%, transparent);
+    }
+  }
+
+  [data-platform="android"] .Item.Prominent:not([data-disabled]) {
+    background-color: var(--color-background-accent-solid);
+    color: var(--color-text-accent-solid);
+  }
+
+  /* Minimized, the Android bar keeps every tab with its label. */
+  [data-platform="android"] .TabBar[data-minimized] {
+    & .Tabs {
+      flex: 0 1 auto;
+      padding: var(--tab-bar-capsule-padding-block) var(--tab-bar-capsule-padding-inline);
+    }
+
+    & .Tabs > .Item,
+    & .Tabs > .Item[data-selected],
+    & .Tabs:not(:has(> .Item[data-selected])) > .Item:first-child {
+      display: flex;
+      flex: 1 1 auto;
+      width: auto;
+      height: var(--tab-bar-item-height);
+      padding: 0 16px;
+      color: var(--tab-bar-item-color);
+
+      &::before {
+        background: transparent;
+      }
+    }
+
+    & .Tabs > .Item[data-selected] {
+      color: var(--tab-bar-item-color-selected);
+
+      &::before {
+        background: var(--tab-bar-item-background-selected);
+      }
+    }
+
+    & .Tabs .Badge {
+      top: var(--tab-bar-badge-top);
+      left: calc(50% + var(--tab-bar-badge-start));
+    }
+
+    & .Tabs .Label {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: hidden;
+      clip-path: none;
+    }
+
+    & .Item:is(.Search, .Prominent) {
+      width: var(--tab-bar-search-size);
+      height: var(--tab-bar-search-size);
+    }
+  }
 }

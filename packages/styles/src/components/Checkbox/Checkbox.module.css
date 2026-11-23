@@ -234,3 +234,123 @@
     cursor: not-allowed;
   }
 }
+
+/* The Plex Android checkbox: a 20 circle in a 48 target, a 1.5 outline of a light gray, filled when checked with
+   the selection color (--checkbox-checked-background, the accent solid unless a page sets it, as Android draws
+   every chosen control in its accent; the error when invalid), the mark a 2px check with round ends in the fill's
+   own text color (a dash when indeterminate). A ghost checkbox is the same circle, as Android has no checkmark
+   alone: filled with the tint its page gave the checkmark (--checkbox-ghost-check-color), else as a solid one. The
+   target reaches past the circle without taking room: the circle keeps the edge of its line and the label starts 11
+   after it, its first line centered on the circle. The label is 16/24, a description 14/20; disabled, both fade to
+   half. (A row's checkbox leads its row: Field.) */
+@media (max-width: 767px) {
+  [data-platform="android"] .Container {
+    --android-checkbox-ease: cubic-bezier(0.37, 0, 0.63, 1);
+    --checkbox-target-size: 48px;
+    --checkbox-target-offset: 0px;
+    --checkbox-indicator-size: 20px;
+    --checkbox-border-width: 1.5px;
+    --checkbox-radius: var(--radius-full);
+    --checkbox-label-inset: 12px;
+    --checkbox-label-gap: 0px;
+    --checkbox-label-font-size: 16px;
+    --checkbox-label-line-height: 24px;
+    --checkbox-description-font-size: 14px;
+    --checkbox-description-line-height: 20px;
+  }
+
+  [data-platform="android"] .Checkbox {
+    --android-checkbox-fill: var(--checkbox-checked-background, var(--color-background-accent-solid));
+
+    &[data-variant="ghost"] {
+      --android-checkbox-fill: var(--checkbox-ghost-check-color, var(--checkbox-checked-background, var(--color-background-accent-solid)));
+    }
+
+    &[aria-invalid="true"] {
+      --android-checkbox-fill: var(--input-border-color-invalid);
+    }
+  }
+
+  [data-platform="android"] .Checkbox:not([data-state="checked"], [data-state="indeterminate"], [aria-invalid="true"]) {
+    --checkbox-paint-border-color: var(--android-checkbox-ring);
+    --checkbox-paint-background: transparent;
+  }
+
+  [data-platform="android"] .Checkbox[data-variant="ghost"][aria-invalid="true"] {
+    --checkbox-paint-border-color: var(--input-border-color-invalid);
+  }
+
+  [data-platform="android"] .Checkbox:is([data-state="checked"], [data-state="indeterminate"]):is(*, [data-variant][aria-invalid]) {
+    --checkbox-paint-border-color: var(--android-checkbox-fill);
+    --checkbox-paint-background: var(--android-checkbox-fill);
+  }
+
+  /* In a list row an error is the line under the row (Field): the checkbox keeps its ring and its fill */
+  [data-platform="android"] :where([data-row]) .Checkbox[aria-invalid="true"] {
+    --android-checkbox-fill: var(--checkbox-checked-background, var(--color-background-accent-solid));
+
+    &[data-variant="ghost"] {
+      --android-checkbox-fill: var(--checkbox-ghost-check-color, var(--checkbox-checked-background, var(--color-background-accent-solid)));
+    }
+
+    &:not([data-state="checked"], [data-state="indeterminate"]) {
+      --checkbox-paint-border-color: var(--android-checkbox-ring);
+      --checkbox-paint-background: transparent;
+    }
+  }
+
+  [data-platform="android"] .IndicatorBox {
+    transition:
+      border-color 150ms var(--android-checkbox-ease),
+      background-color 150ms var(--android-checkbox-ease);
+  }
+
+  [data-platform="android"] :is(.CheckMark, .GhostMark) {
+    inset: calc(-1 * var(--checkbox-border-width));
+    color: var(--checkbox-checkmark-color, var(--color-text-accent-solid));
+    clip-path: inset(0);
+    transition:
+      opacity 150ms var(--android-checkbox-ease),
+      clip-path 150ms var(--android-checkbox-ease) 150ms;
+
+    > svg {
+      display: none;
+    }
+
+    &::before {
+      width: 20px;
+      height: 20px;
+      background-color: currentcolor;
+      content: "";
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.2 11l3 3 6.6-6.6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 20px 20px no-repeat;
+    }
+  }
+
+  [data-platform="android"] .Checkbox[aria-invalid="true"]:not(:where([data-row] *)) :is(.CheckMark, .GhostMark) {
+    color: var(--color-text-danger-solid, var(--white));
+  }
+
+  [data-platform="android"] .Checkbox[data-state="indeterminate"] :is(.CheckMark, .GhostMark)::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M6 10h8' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  [data-platform="android"] .Checkbox[data-state="unchecked"] :is(.CheckMark, .GhostMark) {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transition:
+      opacity 150ms var(--android-checkbox-ease),
+      clip-path 0s 150ms;
+  }
+
+  [data-platform="android"] .Container[data-has-label]:not([data-orientation="right"]) > .Checkbox {
+    margin-inline: -14px -3px;
+  }
+
+  [data-platform="android"] .Container[data-has-label][data-orientation="right"] > .Checkbox {
+    margin-inline: -3px -14px;
+  }
+
+  [data-platform="android"] .Container[data-orientation="right"] :is(.Label, .LabelGroup) {
+    padding-right: 0;
+  }
+}

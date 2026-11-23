@@ -171,3 +171,34 @@
     outline: none;
   }
 }
+
+/* The Plex Android look (`data-platform="android"`): a row that opens a setting is an Android value row, its value
+   in the accent ending 17 from the card's edge, with no chevron; disabled, its label and value at half. A picked
+   choice's tint is the accent's box, as @plexui/react-native's Checkbox with the accent selection color. */
+@media (max-width: 767px) {
+  [data-platform="android"] :is(.Screen, .Dialog) {
+    --checkbox-ghost-check-color: var(--color-background-accent-solid);
+    --checkbox-checkmark-color: var(--color-text-accent-solid);
+  }
+
+  [data-platform="android"] .RowContent {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-platform="android"] .Disclosure {
+    display: none;
+  }
+
+  [data-platform="android"] .RowValue {
+    margin-inline-end: -3px;
+    color: var(--android-accent-text);
+  }
+
+  [data-platform="android"] .RowButton:disabled .RowLabel {
+    color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  }
+
+  [data-platform="android"] .RowButton:disabled .RowValue {
+    color: color-mix(in srgb, var(--android-accent-text) 50%, transparent);
+  }
+}

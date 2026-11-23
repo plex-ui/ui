@@ -82,3 +82,26 @@
     transition-duration: 0ms;
   }
 }
+
+/* =============================================
+  The Plex Android look (`data-platform="android"`, android.css), after @plexui/react-native's PageControl on
+  Android (decision 0026): 5px dots 6 apart, a light gray (a dark one at night), the current one in the accent; every
+  page keeps its full dot (no shrinking window) and the row never fills a capsule. The target is 48 tall.
+============================================= */
+@media (max-width: 767px) {
+  [data-platform="android"] .PageControl {
+    --page-control-dot-size: 5px;
+    --page-control-dot-size-small: 5px;
+    --page-control-dot-size-smaller: 5px;
+    --page-control-gap: 6px;
+    --page-control-dot-color: var(--android-dot);
+    --page-control-dot-color-current: var(--color-background-accent-solid);
+    --page-control-target-size: 48px;
+    --page-control-background: transparent;
+  }
+
+  [data-platform="android"] .Dot[data-size] {
+    display: block;
+    margin-inline: 0;
+  }
+}

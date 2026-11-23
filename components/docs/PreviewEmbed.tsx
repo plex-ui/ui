@@ -257,12 +257,18 @@ export function PreviewEmbed({ target, platform = null, children }: { target: st
     return () => root.removeAttribute('data-preview-standalone');
   }, []);
 
-  // The frame's insets differ by device: an Android phone's status bar and gesture handle (PreviewEmbed.module.css)
+  // The frame's insets differ by device: an Android phone's status bar and gesture handle (PreviewEmbed.module.css).
+  // `data-platform` is what PlexUIProvider sets on a phone: the web components take the Plex Android look in the
+  // Android frame, as they do in an Android phone's browser.
   useEffect(() => {
     if (!platform) return;
     const root = document.documentElement;
     root.setAttribute('data-preview-platform', platform);
-    return () => root.removeAttribute('data-preview-platform');
+    root.setAttribute('data-platform', platform);
+    return () => {
+      root.removeAttribute('data-preview-platform');
+      root.removeAttribute('data-platform');
+    };
   }, [platform]);
 
   useEffect(() => {

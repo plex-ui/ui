@@ -363,3 +363,102 @@
     backdrop-filter: var(--dialog-alert-backdrop-filter, none);
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css), after @plexui/react-native's Tip on Android
+   (decision 0026): a card of the screen's cells with Material 3's rich tooltip inside: 16px corners and 16 inside, a
+   24px symbol 16 before the text, a title 16/24 Medium over a message 14/20 in the secondary text 2 under it, 12 over
+   the actions; Close a bare 24px glyph in the secondary label, in a 48px target 4 from the top and the end. The actions are text buttons side by
+   side, 8 apart: 40 tall, 12 at their sides, a pill, Medium 14 in the accent (red for a danger one), 8 over the
+   card's edge; with `mobileActions="buttons"` they are 40px capsules. A popover tip is the glass of the popups. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Tip {
+    --tip-padding-top: 16px;
+    --tip-padding-inline: 16px;
+    --tip-padding-bottom: 16px;
+    --tip-gap: 12px;
+    --tip-icon-size: 24px;
+    --tip-icon-frame-width: 24px;
+    --tip-icon-frame-height: 24px;
+    --tip-close-size: 24px;
+    --tip-close-offset: 16px;
+    --tip-close-icon-size: 24px;
+    --tip-description-gap: 2px;
+    column-gap: 16px;
+    border-radius: 16px;
+  }
+
+  [data-platform="android"] .Tip .Title {
+    font-size: 16px;
+    font-weight: var(--font-weight-medium);
+    line-height: 24px;
+  }
+
+  [data-platform="android"] .Tip .Description {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  [data-platform="android"] .Tip > .Close[data-variant] {
+    --tip-close-target-inset: 12px;
+    --button-uniform-size: 48px;
+    --button-text-color: var(--mobile-label-secondary, var(--color-text-secondary));
+    --button-text-color-hover: var(--mobile-label-secondary, var(--color-text-secondary));
+    top: 4px;
+    inset-inline-end: 4px;
+  }
+
+  [data-platform="android"] .Tip:not([data-mobile-actions="buttons"]):has(> .Actions) {
+    --tip-padding-bottom: 8px;
+  }
+
+  [data-platform="android"] .Tip:not([data-mobile-actions="buttons"]) > .Actions {
+    flex-flow: row wrap;
+    gap: 8px;
+    margin-inline-start: -12px;
+    padding-inline-start: 0;
+  }
+
+  [data-platform="android"] .Tip:not([data-mobile-actions="buttons"]):has(> .Icon) > .Actions {
+    padding-inline-start: 40px;
+  }
+
+  [data-platform="android"] .Tip:not([data-mobile-actions="buttons"]) > .Actions > [data-variant] {
+    --button-size: 40px;
+    --button-gutter: 12px;
+    --button-radius: 20px;
+    --button-font-size: 14px;
+    --button-line-height: 20px;
+    --button-background-color-active: color-mix(in srgb, var(--tip-action-color, var(--color-text)) 10%, transparent);
+    width: auto;
+    min-height: 40px;
+    padding: 10px 12px;
+    border-top: 0;
+    font-weight: var(--font-weight-medium);
+  }
+
+  [data-platform="android"] .Tip > .Actions > :is([data-color="primary"], [data-color="secondary"], [data-color="info"]) {
+    --tip-action-color: var(--android-accent-text);
+  }
+
+  [data-platform="android"] .Tip > .Actions > [data-color="danger"] {
+    --tip-action-color: var(--android-danger-text);
+  }
+
+  [data-platform="android"] .Tip[data-mobile-actions="buttons"] > .Actions > [data-variant] {
+    --button-size: 40px;
+    --button-font-size: 14px;
+    --button-line-height: 20px;
+  }
+
+  [data-platform="android"] .Popover > .Tip,
+  [data-platform="android"] .Arrow {
+    background: var(--android-bar-glass);
+    -webkit-backdrop-filter: var(--mobile-glass-backdrop-filter);
+    backdrop-filter: var(--mobile-glass-backdrop-filter);
+  }
+
+  [data-platform="android"] .Popover > .Tip {
+    box-shadow: var(--android-bar-shadow);
+  }
+}

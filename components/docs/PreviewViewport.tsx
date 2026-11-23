@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useReducer, useState, type ReactNode } from 'react';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
-import { Desktop, Mobile } from '@plexui/ui/components/Icon';
+import { AndroidMark, AppleMark, DesktopMark } from './PlatformIcons';
 import type { NativePlatform } from './react-native/platform';
 
 export type PreviewViewport = 'desktop' | 'phone';
@@ -90,22 +90,30 @@ export function usePreviewViewport() {
 export function PreviewViewportControl() {
   const { viewport, change, hasPhoneExamples, hasPhoneOnlyExamples, platform, changePlatform } = usePreviewViewport();
   if (!hasPhoneExamples && !hasPhoneOnlyExamples) return null;
+  // One switch for the screen and the phone's platform: the desktop, or a phone's browser on iOS or Android. A page
+  // whose examples are all phones (such as Toolbar) offers the two platforms alone; its phones keep the platform on
+  // Desktop too.
+  const value = hasPhoneExamples && viewport === 'desktop' ? 'desktop' : platform;
   return (
     <div className="hidden items-center gap-3 md:flex">
-      {/* The device every phone stands in, an iPhone or an Android phone: in the Phone view, or always on a page with
-          examples that are only phones */}
-      {((hasPhoneExamples && viewport === 'phone') || hasPhoneOnlyExamples) && (
-        <SegmentedControl value={platform} onChange={changePlatform} size="sm" pill aria-label="All phones">
-          <SegmentedControl.Option value="ios">iOS</SegmentedControl.Option>
-          <SegmentedControl.Option value="android">Android</SegmentedControl.Option>
-        </SegmentedControl>
-      )}
-      {hasPhoneExamples && (
-        <SegmentedControl value={viewport} onChange={change} size="sm" pill aria-label="All examples">
-          <SegmentedControl.Option value="desktop" icon={<Desktop />}>Desktop</SegmentedControl.Option>
-          <SegmentedControl.Option value="phone" icon={<Mobile />}>Phone</SegmentedControl.Option>
-        </SegmentedControl>
-      )}
+      <SegmentedControl
+        value={value}
+        onChange={(next) => {
+          if (next === 'desktop') {
+            change('desktop');
+          } else {
+            changePlatform(next as NativePlatform);
+            if (hasPhoneExamples) change('phone');
+          }
+        }}
+        size="sm"
+        pill
+        aria-label={hasPhoneExamples ? 'All examples' : 'All phones'}
+      >
+        {hasPhoneExamples && <SegmentedControl.Option value="desktop" icon={<DesktopMark />}>Desktop</SegmentedControl.Option>}
+        <SegmentedControl.Option value="ios" icon={<AppleMark />}>iOS</SegmentedControl.Option>
+        <SegmentedControl.Option value="android" icon={<AndroidMark />}>Android</SegmentedControl.Option>
+      </SegmentedControl>
     </div>
   );
 }
@@ -117,8 +125,8 @@ export function NativePlatformControl() {
   return (
     <div className="flex items-center gap-3">
       <SegmentedControl value={platform} onChange={changePlatform} size="sm" pill aria-label="All examples">
-        <SegmentedControl.Option value="ios">iOS</SegmentedControl.Option>
-        <SegmentedControl.Option value="android">Android</SegmentedControl.Option>
+        <SegmentedControl.Option value="ios" icon={<AppleMark />}>iOS</SegmentedControl.Option>
+        <SegmentedControl.Option value="android" icon={<AndroidMark />}>Android</SegmentedControl.Option>
       </SegmentedControl>
     </div>
   );

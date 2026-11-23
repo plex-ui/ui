@@ -438,3 +438,12 @@
     }
   }
 }
+
+/* The Plex Android slider (its sizes and colors: android.css): the knob stays as it is while it is dragged */
+@media (max-width: 767px) {
+  [data-platform="android"] .Slider {
+    --mobile-knob-lens-scale: none;
+    --mobile-knob-lens-background: var(--slider-thumb-background);
+    --mobile-knob-lens-shadow: none;
+  }
+}

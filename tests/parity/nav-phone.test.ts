@@ -18,13 +18,22 @@ const sections = (page: string) => read(page).split(/\n### /).slice(1).map((part
 const desktopOnly = (page: string) => sections(page).filter(({ preview }) => preview.includes('phonePresentation="none"')).map(({ title }) => title)
 const both = (page: string) => [`content/components/${page}.mdx`, `content/vue/components/${page}.mdx`]
 
-/** The declarations of the rules for `selector` inside the phone media query of a stylesheet. */
+/** Whether a rule is, or sits inside, a rule of the Android look (`[data-platform="android"]`, android.css). */
+const inAndroid = (rule: postcss.Rule) => {
+  for (let node: postcss.Node | undefined = rule; node; node = node.parent as postcss.Node | undefined) {
+    if (node.type === "rule" && (node as postcss.Rule).selector.includes('[data-platform="android"]')) return true
+  }
+  return false
+}
+
+/** The declarations of the rules for `selector` inside the phone media query of a stylesheet (the iOS rules: the
+ *  Android look's own rules are left out). */
 const phoneRule = (path: string, selector: string) => {
   const decls: Record<string, string> = {}
   postcss.parse(read(path)).walkAtRules("media", (media) => {
     if (media.params !== "(max-width: 767px)") return
     media.walkRules((rule) => {
-      if (rule.selector !== selector) return
+      if (rule.selector !== selector || inAndroid(rule)) return
       rule.each((node) => { if (node.type === "decl") decls[node.prop] = node.important ? `${node.value} !important` : node.value })
     })
   })

@@ -172,4 +172,68 @@
   .Thumb[data-disabled] {
     background: var(--switch-thumb-color);
   }
+
+  /* The Plex Android switch (@plexui/react-native on Android): a 37 x 20 view holding a 31 x 14 track (corners 7)
+     and a 20 thumb over it, a 2px ring of the track's color around a 16 knob of the card's color, its center 7 along
+     the track off and 24 on. Off the track is a mid gray, on the accent solid (Android's own
+     selection color, as the reference app); the color changes as the thumb moves, in Android's 200ms ease-in-out. A held switch shows no
+     lens (a row lights instead); disabled, it fades to half with its colors. The label is 16/24, 11 from the
+     switch, a description 13/16. At the end of a row with no text of its own it stands at the row's inset, 21 from
+     the card's edge. */
+  [data-platform="android"] .Container {
+    --android-switch-on: var(--color-background-accent-solid);
+    --android-switch-ease: cubic-bezier(0.37, 0, 0.63, 1);
+    --switch-track-width: 37px;
+    --switch-track-height: 20px;
+    --switch-thumb-width: 20px;
+    --switch-thumb-size: 20px;
+    --switch-thumb-offset: 0px;
+    --switch-thumb-color: var(--mobile-surface-grouped-secondary, var(--color-surface));
+    --switch-track-color: transparent;
+    --switch-track-color-hover: transparent;
+    --switch-track-color-checked: transparent;
+    --switch-track-color-checked-disabled: transparent;
+    --switch-track-color-disabled: transparent;
+    --switch-track-top-offset: 2px;
+    --switch-label-padding-top: 0px;
+    --switch-label-gap: 11px;
+    --switch-label-font-size: 16px;
+    --switch-label-line-height: 24px;
+    --switch-description-font-size: 13px;
+    --switch-description-line-height: 16px;
+  }
+
+  [data-platform="android"] .Container[data-color="accent"] {
+    --android-switch-on: var(--color-background-accent-solid);
+  }
+
+  [data-platform="android"] .Track {
+    --android-switch-track: var(--android-switch-off);
+    --switch-thumb-shadow: inset 0 0 0 2px var(--android-switch-track);
+    --mobile-switch-knob-lens-scale: none;
+    --mobile-knob-lens-background: var(--switch-thumb-color);
+    --mobile-knob-lens-shadow: var(--switch-thumb-shadow);
+
+    &[data-state="checked"] {
+      --android-switch-track: var(--android-switch-on);
+    }
+
+    &::before {
+      position: absolute;
+      inset: 3px;
+      border-radius: 7px;
+      background: var(--android-switch-track);
+      content: "";
+      transition: background-color 200ms var(--android-switch-ease);
+    }
+  }
+
+  [data-platform="android"] .Thumb {
+    transition-timing-function: var(--android-switch-ease);
+
+    &[data-disabled] {
+      box-shadow: var(--switch-thumb-shadow);
+    }
+  }
+
 }

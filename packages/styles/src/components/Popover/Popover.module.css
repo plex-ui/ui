@@ -76,6 +76,16 @@
     -webkit-backdrop-filter: var(--popover-mobile-backdrop-filter, none);
     backdrop-filter: var(--popover-mobile-backdrop-filter, none);
   }
+
+  /* The Plex Android look (`data-platform="android"`, android.css): a popup as the Android reference's current
+     popups and the Menu on Android draw one, the glass of the bar's circles (the card at 80% over the blurred
+     screen, their rim and soft shadow) with 22px corners. */
+  [data-platform="android"] .Popover {
+    --popover-radius: 22px;
+    --popover-mobile-background: var(--android-bar-glass);
+    --popover-mobile-shadow: var(--android-bar-shadow);
+    --popover-mobile-backdrop-filter: var(--mobile-glass-backdrop-filter);
+  }
 }
 
 @keyframes shake {

@@ -1327,3 +1327,173 @@
   font-weight: var(--font-weight-normal);
   line-height: 20px;
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css): a Sheet as the reference messenger draws its sheets:
+   24px top corners, no grabber, its bar the bar of 46px circles 11 under the top edge (Toolbar.module.css); the content
+   13 under the circles (2 under the bar), 12 from the sides (as a page's groups) and 16 over the gesture bar; a footer's
+   actions 48 tall, 4 apart, 12 from the sides (in line with the groups) and 12 over the gesture bar, over the sheet's
+   color at 80% that fades in over its top 24px (no line, no blur). */
+@media (max-width: 767px) {
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] {
+    --dialog-sheet-radius: 24px;
+    --dialog-sheet-action-height: 48px;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Panel > .Body,
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Panel > .Body:has(> .LargeTitle > *) {
+    padding-inline: 12px;
+    padding-top: calc(var(--dialog-header-height, 0px) + 2px);
+    padding-bottom: calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 16px + var(--dialog-footer-height, 0px));
+    scroll-padding-top: calc(var(--dialog-header-height, 0px) + 2px);
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Panel:has(> .Footer, > [data-toolbar][data-placement="bottom"]) > .Body {
+    padding-bottom: calc(8px + var(--dialog-footer-height, 0px));
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Footer {
+    gap: 4px;
+    padding: 12px 12px calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 12px);
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Footer > :where(button, a, [role="link"]) {
+    padding-block: 12px;
+  }
+
+  /* A sheet's Header meets content scrolled under it as the sheet's bar does on Android (Toolbar.module.css), whatever
+     its `background`: no line, the sheet's color at 63% over a light blur, let go over the last 32px. */
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Header[data-background]::after,
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Header::after {
+    inset: 0 0 -12px;
+    border-bottom: 0;
+    background: color-mix(in srgb, var(--dialog-panel-background, var(--color-surface-elevated)) 63%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Header[data-scrolled][data-background]::after,
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Header[data-scrolled]::after {
+    opacity: 1;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Header::before {
+    display: none;
+  }
+
+  /* Under a sheet's actions Android lays the sheet's color at 80%, faded in over the footer's top 24px: content scrolls
+     away under it, unblurred, and stands clear of it at rest. */
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] .Footer::before {
+    inset: 0;
+    background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--dialog-panel-background, var(--color-surface-elevated)) 80%, transparent) 24px);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* The Plex Android look (`data-platform="android"`, android.css) of an alert, after @plexui/react-native's Dialog on
+   Android (decision 0026) and the Android reference's dialogs: a flat panel 24 from the screen's sides and at most
+   356 wide, 21px corners, the card's
+   color (white; at night the gray of a container), no glass and no shadow, over a dim of 50% black. The title Medium
+   20/24 and the message 16/22 in the text color stand 24 in, 19 from the top, 10 apart and 20 over the actions. The
+   actions are text buttons in a row at the end, 9 from the sides (their labels 21 in), 6 over and 9 under them, 8
+   apart: 40 tall, at least 64 wide, 12 at their sides, Medium 16 in the accent's text (a destructive one red), a
+   press the label's color at
+   10% in a pill. Three or more stack at the end, the last on top. A field stands 24 in, 20 over the actions. */
+@media (max-width: 767px) {
+  [data-platform="android"] .Overlay:has(+ .Content[data-mobile-variant="alert"]) {
+    background: rgb(0 0 0 / 50%);
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] {
+    --dialog-alert-width: min(100vw - 48px, 356px);
+    --dialog-alert-radius: 21px;
+    --dialog-alert-padding: 0;
+    --dialog-alert-background: var(--android-dialog-surface);
+    --dialog-alert-backdrop-filter: none;
+    --dialog-alert-shadow: none;
+    --dialog-alert-header-gap: 10px;
+    --dialog-alert-header-padding: 19px 24px 20px;
+    --dialog-alert-message-color: var(--color-text);
+    --dialog-alert-message-size: 16px;
+    --dialog-alert-message-leading: 22px;
+    --dialog-alert-action-height: 40px;
+    --dialog-alert-action-gap: 8px;
+    --dialog-alert-action-font-weight: var(--font-weight-medium);
+    --dialog-alert-preferred-font-weight: var(--font-weight-medium);
+    --dialog-alert-field-height: 48px;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Panel {
+    gap: 0;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Header,
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Header:not(:has(.Description)) {
+    text-align: start;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Header + .Footer {
+    margin-top: 0;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Title {
+    font-size: 20px;
+    font-weight: var(--font-weight-medium);
+    line-height: 24px;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Body {
+    margin-inline: 0;
+    padding: 0 24px 20px;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer,
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"], :has(> :nth-child(3))) {
+    flex-flow: row wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 6px 9px 9px;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer:is([data-mobile-layout="stacked"], :has(> :nth-child(3))) {
+    flex-flow: column-reverse;
+    align-items: flex-end;
+    padding-block: 8px;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer > :where(button, a, [role="link"]),
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer:not([data-mobile-layout="stacked"]) > :where(:first-child:nth-last-child(-n + 2), :nth-child(2):last-child) {
+    --button-size: 40px;
+    --button-radius: 20px;
+    --button-gutter: 12px;
+    --button-font-size: 16px;
+    --button-background-color: transparent;
+    --button-background-color-hover: transparent;
+    --button-background-color-active: color-mix(in srgb, var(--button-text-color) 10%, transparent);
+    --button-text-color: var(--android-accent-text);
+    --button-text-color-hover: var(--android-accent-text);
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 64px;
+    min-height: 40px;
+    padding-block: 8px;
+    line-height: 20px;
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer > [data-color="danger"] {
+    --button-text-color: var(--android-danger-text);
+    --button-text-color-hover: var(--android-danger-text);
+    --button-background-color: transparent;
+    --button-background-color-hover: transparent;
+    --button-background-color-active: color-mix(in srgb, var(--android-danger-text) 10%, transparent);
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="alert"] .Footer > :where(button, a, [role="link"])[data-disabled] {
+    opacity: 0.5;
+  }
+}

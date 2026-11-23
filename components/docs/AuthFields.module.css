@@ -234,3 +234,10 @@ button.OAuthTextAction[data-variant="ghost"] {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+/* The Plex Android look (`data-platform="android"`): a group of fields is an Android card, its corners 16 */
+@media (max-width: 767px) {
+  [data-platform="android"] .Group {
+    --field-group-radius: 16px;
+  }
+}

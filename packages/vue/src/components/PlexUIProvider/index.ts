@@ -1,1 +1,1 @@
-export { PlexUIProvider, type LinkComponent } from "./PlexUIProvider.js"
+export { PlexUIProvider, type LinkComponent, type PlexUIPlatform } from "./PlexUIProvider.js"

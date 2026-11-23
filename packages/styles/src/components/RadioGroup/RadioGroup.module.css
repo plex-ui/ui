@@ -192,3 +192,89 @@
   margin: -2px;
   color: var(--radio-group-checkmark-color, var(--color-text));
 }
+
+/* The Plex Android radio (@plexui/react-native on Android): a 20 ring 2px wide in a 48 target, the empty ring the
+   text at 30% over the card, the chosen one the accent solid (Android's own selection color) with a 10 dot in it, in Android's 200ms ease-in-out.
+   The target reaches past the ring without taking room: the ring keeps the edge of its line and the label starts 13
+   after it. Options in a column stand 48 apart. No checkmark: Android draws the ring in a list row too. */
+@media (max-width: 767px) {
+  [data-platform="android"] .RadioGroup {
+    --android-radio-idle: color-mix(in srgb, var(--color-text) 30%, var(--mobile-surface-grouped-secondary, var(--color-surface)));
+    --android-radio-chosen: var(--color-background-accent-solid);
+    --android-radio-ease: cubic-bezier(0.37, 0, 0.63, 1);
+    --radio-group-target-size: 48px;
+    --radio-group-indicator-size: 20px;
+    --radio-group-item-gap: 0px;
+    --radio-group-col-gap: 0px;
+    --radio-group-item-font-size: 16px;
+    --radio-group-item-line-height: 24px;
+    --radio-group-description-font-size: 14px;
+    --radio-group-description-line-height: 20px;
+    --radio-group-checkmark-display: none;
+    --radio-group-dot-display: block;
+  }
+
+  [data-platform="android"] .RadioLabel[data-has-label]:not([data-orientation="right"]) > .RadioIndicatorWrapper {
+    margin-inline: -14px -1px;
+  }
+
+  [data-platform="android"] .RadioLabel[data-has-label][data-orientation="right"] > .RadioIndicatorWrapper {
+    margin-inline: -1px -14px;
+  }
+
+  [data-platform="android"] .RadioItemGroup:not([data-orientation="right"]) .RadioDescription {
+    padding-inline-start: 33px;
+  }
+
+  [data-platform="android"] .RadioItem {
+    --android-radio-color: var(--android-radio-idle);
+
+    box-shadow: none;
+
+    &[data-state="checked"] {
+      --android-radio-color: var(--android-radio-chosen);
+    }
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      width: 20px;
+      height: 20px;
+      margin: auto;
+      border-radius: var(--radius-full);
+      box-shadow: inset 0 0 0 2px var(--android-radio-color);
+      content: "";
+      transition: box-shadow 200ms var(--android-radio-ease);
+    }
+  }
+
+  [data-platform="android"] .RadioIndicator {
+    &::before {
+      width: 10px;
+      height: 10px;
+      animation: android-radio-dot 200ms var(--android-radio-ease);
+      background-color: var(--android-radio-chosen);
+    }
+
+    &::after {
+      display: none;
+    }
+  }
+}
+
+@keyframes android-radio-dot {
+  0%,
+  50% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+
+  50.1% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

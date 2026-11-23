@@ -288,4 +288,34 @@
     background: transparent;
     opacity: 0;
   }
+
+  /* The Plex Android look (`data-platform="android"`, android.css): the same cell with Material's icon buttons, 40px
+     circles with a 24px glyph in a 48px target, 8 apart and 12 above and under them, under a divider of the
+     Android list. */
+  [data-platform="android"] .Container {
+    --markdown-editor-button-size: 40px;
+  }
+
+  [data-platform="android"] .Toolbar::before {
+    background: var(--android-divider);
+  }
+
+  [data-platform="android"] .ToolbarGroup {
+    gap: 8px;
+    padding-block: 12px;
+  }
+
+  [data-platform="android"] .Container .Toolbar .ToolbarButton.ToolbarButton {
+    font-size: 24px;
+
+    > span > svg,
+    > svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  [data-platform="android"] .Container .Toolbar .ToolbarButton.ToolbarButton::before {
+    inset: calc((var(--markdown-editor-button-size) - 48px) / 2);
+  }
 }

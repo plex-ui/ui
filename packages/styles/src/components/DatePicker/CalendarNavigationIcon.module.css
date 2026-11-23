@@ -21,3 +21,16 @@
     height: 24px;
   }
 }
+
+/* The Plex Android look (`data-platform="android"`, android.css): Material's 24px chevrons */
+@media (max-width: 767px) {
+  [data-platform="android"] .DesktopIcon {
+    display: block;
+    width: 24px;
+    height: 24px;
+  }
+
+  [data-platform="android"] .PhoneIcon {
+    display: none;
+  }
+}

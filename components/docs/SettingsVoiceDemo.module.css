@@ -184,3 +184,16 @@
 .NumberRow > .NumberField[data-size] {
   --input-gutter: 0px;
 }
+
+/* The Plex Android look (`data-platform="android"`): a row that opens a choice is an Android value row, its value in
+   the accent ending 17 from the card's edge, with no chevron. */
+@media (max-width: 767px) {
+  [data-platform="android"] .ValueRowValue {
+    margin-inline-end: -3px;
+    color: var(--android-accent-text);
+  }
+
+  [data-platform="android"] .ValueRowContent > svg {
+    display: none;
+  }
+}
