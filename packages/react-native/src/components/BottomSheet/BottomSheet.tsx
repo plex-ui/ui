@@ -1,5 +1,5 @@
 import { isValidElement, useId, useLayoutEffect, useState, type ReactNode } from "react"
-import { Animated, Easing, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { childrenOfType, flattenChildren } from "../../internal/children"
 import { useKeyboardHeight } from "../../internal/keyboard"
@@ -70,17 +70,31 @@ type GestureState = { dismissible: boolean; height: number; onOpenChange: (open:
  * On iOS its bar takes the drag. On Android the whole sheet does: a drag that starts on the content takes the sheet
  * only while the content is scrolled to its top, and only down, mostly (three times as far as sideways); else the
  * content scrolls.
+ *
+ * On a phone the sheet stands in a React Native `Modal`, which takes every touch that nothing in it takes, and a touch
+ * the Modal holds is never offered to the views in it as it moves. So there the sheet takes a touch as it starts (on
+ * iOS its bar; on Android its title and footer, and its content while that cannot scroll, since a sheet that holds a
+ * touch keeps its content from scrolling) and follows it once it has moved past the slop. A touch that a row or a
+ * field takes as it starts is taken from it as it moves, as on the web.
  */
 function sheetGesture(drag: Animated.Value) {
   let state: GestureState = { dismissible: false, height: 0, onOpenChange: () => {}, android: false, reduced: false }
   // Where the content stands scrolled, and whether the touch started on it (Android)
   let scrollY = 0
   let onContent = false
+  // Whether the touch started on the title or the footer, and how tall the content and its view are (Android)
+  let onChrome = false
+  let viewport = 0
+  let contentHeight = 0
+  // Whether the sheet took the touch as it started, whether it follows the finger, and from which point of the drag
+  let tookStart = false
+  let tracking = false
+  let from = 0
   const settle = () => {
     if (state.reduced) drag.setValue(0)
     else if (state.android) {
-      drag.stopAnimation((from) => {
-        const duration = (ANDROID_SETTLE.duration * Math.max(0, from)) / ANDROID_SETTLE.distance
+      drag.stopAnimation((value) => {
+        const duration = (ANDROID_SETTLE.duration * Math.max(0, value)) / ANDROID_SETTLE.distance
         Animated.timing(drag, { toValue: 0, duration: Math.max(1, duration), easing: ANDROID_SETTLE.easing, useNativeDriver: false }).start()
       })
     } else Animated.spring(drag, { toValue: 0, useNativeDriver: false, bounciness: 0 }).start()
@@ -88,27 +102,57 @@ function sheetGesture(drag: Animated.Value) {
   const vertical = (dx: number, dy: number) => Math.abs(dy) > 4 && Math.abs(dy) > Math.abs(dx)
   // Android's sheet starts tracking a drag down past its slop, three times as far as sideways
   const androidDown = (dx: number, dy: number) => dy >= ANDROID_SLOP && dy / 3 > Math.abs(dx) && (!onContent || scrollY <= 0)
+  const native = Platform.OS !== "web"
   const responder = PanResponder.create({
+    // Each touch starts off the title and the footer until they say otherwise (they hear it after the sheet)
+    onStartShouldSetPanResponderCapture: () => {
+      onChrome = false
+      return false
+    },
+    // On a phone the sheet takes a touch that nothing in it took, before the Modal does
+    onStartShouldSetPanResponder: () => {
+      tookStart = native && state.dismissible && (!state.android || onChrome || contentHeight <= viewport + 1)
+      return tookStart
+    },
     // A sheet that cannot be dismissed does not follow the finger
     onMoveShouldSetPanResponder: (_, gesture) => state.dismissible && !state.android && vertical(gesture.dx, gesture.dy),
     // Android takes the drag from the content (its rows and its scroll) as it starts down at the content's top
     onMoveShouldSetPanResponderCapture: (_, gesture) => state.dismissible && state.android && androidDown(gesture.dx, gesture.dy),
-    // The drag counts from where it took the sheet (PanResponder starts it there), so the sheet does not jump by the slop
-    onPanResponderMove: (_, gesture) => drag.setValue(Math.max(0, gesture.dy)),
+    // A sheet that takes the touch as it moves follows it from there (PanResponder counts the drag from that point), so
+    // it does not jump by the slop; one that took it as it started waits for the slop
+    onPanResponderGrant: () => {
+      tracking = !tookStart
+      tookStart = false
+      from = 0
+    },
+    onPanResponderMove: (_, gesture) => {
+      if (!tracking) {
+        if (!(state.android ? androidDown(gesture.dx, gesture.dy) : vertical(gesture.dx, gesture.dy))) return
+        tracking = true
+        from = gesture.dy
+      }
+      drag.setValue(Math.max(0, gesture.dy - from))
+    },
     onPanResponderRelease: (_, gesture) => {
       onContent = false
+      const followed = tracking
+      tracking = false
+      // A tap, or a touch that never moved past the slop, leaves the sheet in its place
+      if (!followed) return
+      const dy = gesture.dy - from
       const release = state.android ? RELEASE.android : RELEASE.ios
       const distance = release.distance(state.height)
       // Android's sheet closes past the distance or on a flick down (more down than sideways), never on a flick up
       const closes = state.android
-        ? !(gesture.vy < 0 && -gesture.vy >= release.velocity) && (gesture.dy >= distance || (gesture.vy >= release.velocity && Math.abs(gesture.vy) >= Math.abs(gesture.vx)))
-        : gesture.vy > release.velocity || (gesture.dy > distance && gesture.vy > -release.velocity)
+        ? !(gesture.vy < 0 && -gesture.vy >= release.velocity) && (dy >= distance || (gesture.vy >= release.velocity && Math.abs(gesture.vy) >= Math.abs(gesture.vx)))
+        : gesture.vy > release.velocity || (dy > distance && gesture.vy > -release.velocity)
       // The sheet leaves from where the finger let it go; the drag resets when it opens again
       if (state.dismissible && closes) state.onOpenChange(false)
       else settle()
     },
     onPanResponderTerminate: () => {
       onContent = false
+      tracking = false
       settle()
     },
   })
@@ -117,7 +161,7 @@ function sheetGesture(drag: Animated.Value) {
     update: (next: GestureState) => {
       state = next
     },
-    /** The content's scroll (Android). */
+    /** The content's scroll and size (Android). */
     content: {
       onTouchStart: () => {
         onContent = true
@@ -125,6 +169,17 @@ function sheetGesture(drag: Animated.Value) {
       onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         scrollY = event.nativeEvent.contentOffset.y
       },
+      onLayout: (event: LayoutChangeEvent) => {
+        viewport = event.nativeEvent.layout.height
+      },
+      onContentSizeChange: (_: number, height: number) => {
+        contentHeight = height
+      },
+    },
+    /** A touch starts on the title or the footer (Android): the sheet takes it even over content that scrolls. */
+    chrome: () => {
+      onChrome = true
+      return false
     },
     /** A touch on the sheet ends. */
     end: () => {
@@ -204,7 +259,7 @@ export function BottomSheetBase({
   const margin = theme.length("--mobile-layout-margin", 16)
   // Android's sheet has no handle: the whole sheet takes the drag, its top with the title (Medium 20, 21 in)
   const header = android ? (
-    <View style={title != null ? styles.androidHeader : styles.androidGrip}>
+    <View onStartShouldSetResponderCapture={gesture.chrome} style={title != null ? styles.androidHeader : styles.androidGrip}>
       {title != null ? (
         <Text nativeID={titleId} accessibilityRole="header" weight="medium" color={m.onSurface} style={{ fontSize: titleType.fontSize, lineHeight: titleType.lineHeight }}>
           {title}
@@ -287,7 +342,7 @@ export function BottomSheetBase({
                 content's top */}
             <ScrollView
               style={styles.scroll}
-              {...(android ? { onTouchStart: gesture.content.onTouchStart, onScroll: gesture.content.onScroll, scrollEventThrottle: 16 } : null)}
+              {...(android ? { ...gesture.content, scrollEventThrottle: 16 } : null)}
               contentContainerStyle={[android ? [styles.androidContent, footer ? styles.androidContentOverFooter : null] : iosContent, contentStyle]}
               keyboardShouldPersistTaps="handled"
               bounces={false}
@@ -296,6 +351,7 @@ export function BottomSheetBase({
             </ScrollView>
             {footer ? (
               <View
+                onStartShouldSetResponderCapture={android ? gesture.chrome : undefined}
                 style={[
                   android ? styles.androidFooter : [styles.iosFooter, { paddingHorizontal: margin, paddingBottom: keyboard ? 16 : Math.max(16, insets.bottom) }],
                   footer.props.style,
@@ -332,7 +388,8 @@ const isFooter = (child: ReactNode) => isValidElement(child) && child.type === B
  * a bar 16 under its top edge with Close at the leading edge and the title centered, as the web's phone Sheet; no
  * grabber, since its height does not change), on Android a flat sheet (24dp top corners, white, a Medium 20 title
  * at 21, no handle, a 20% dim, the screen's width in portrait). Drag it down to close it: its bar on iOS, anywhere on
- * Android (from the content once it is scrolled to its top).
+ * Android (from content that scrolls once it is at its top, and on a phone only from its rows and fields, since its
+ * plain parts keep the drag for the scroll).
  * `BottomSheet.Footer` pins actions under the content.
  */
 export const BottomSheet = Object.assign(BottomSheetRoot, { Footer: BottomSheetFooter })
