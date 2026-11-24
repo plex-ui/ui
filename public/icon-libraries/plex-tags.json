@@ -1033,6 +1033,13 @@
     "keyboard",
     "shortcut"
   ],
+  "LayoutGrid": [
+    "layout",
+    "grid",
+    "squares",
+    "group",
+    "apps"
+  ],
   "LayoutList": [
     "layout",
     "list"
