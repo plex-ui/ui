@@ -1,5 +1,6 @@
-import type { ReactNode } from "react"
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import type { ComponentRef, ReactNode } from "react"
+import { Platform, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
+import { useRTL } from "../../internal/direction"
 import { useTheme } from "../../theme/ThemeProvider"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text } from "../Text/Text"
@@ -19,7 +20,7 @@ export type IntroHeaderProps = {
   /**
    * What the title and description line up with. `cells`: the column the content under them stands on, the edge of
    * the fields, cards and buttons (a step with a field or a few rows, as Apple Account or Set Up eSIM); `text`: the text
-   * inside the cells, the row inset (20pt, 16dp) in, over a long grouped list (as Health's Choose the Medication Type).
+   * inside the cells, the row inset (20pt, 21dp) in, over a long grouped list (as Health's Choose the Medication Type).
    * @default "cells"
    */
   align?: IntroHeaderAlign
@@ -39,11 +40,17 @@ export type IntroHeaderProps = {
 export function IntroHeader({ title, description, media, align = "cells", testID, style }: IntroHeaderProps) {
   const theme = useTheme()
   const android = theme.isAndroid
-  const inset = align === "text" ? (android ? 16 : theme.length("--list-row-inset", 20)) : 0
+  // On the rows' text: Android's list rows keep their text 21 in (List's ANDROID_INSET), iOS's the row inset
+  const inset = align === "text" ? (android ? 21 : theme.length("--list-row-inset", 20)) : 0
+  // The text at the start: React Native turns `left` to the right in a right-to-left layout on a phone, the web keeps
+  // it left, so there the side is read from the header's direction
+  const { ref, rtl } = useRTL<ComponentRef<typeof View>>()
+  const start: TextStyle = { textAlign: Platform.OS === "web" && rtl ? "right" : "left" }
   return (
-    <View testID={testID} style={[{ paddingHorizontal: inset }, style]}>
+    <View ref={ref} testID={testID} style={[{ paddingHorizontal: inset }, style]}>
       {media != null ? (
         <View
+          aria-hidden
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
           // A symbol's box keeps about 7 round its drawing at 80: 24 under the box is the drawing's 31 over the title
@@ -54,11 +61,11 @@ export function IntroHeader({ title, description, media, align = "cells", testID
           </IconDefaultsProvider>
         </View>
       ) : null}
-      <Text variant="title2" weight={android ? "regular" : "bold"} accessibilityRole="header" style={styles.start}>
+      <Text variant="title2" weight={android ? "regular" : "bold"} accessibilityRole="header" style={start}>
         {title}
       </Text>
       {description != null ? (
-        <Text variant={android ? "body" : "title2"} color="secondary" style={[styles.start, android ? styles.androidDescription : null]}>
+        <Text variant={android ? "body" : "title2"} color="secondary" style={[start, android ? styles.androidDescription : null]}>
           {description}
         </Text>
       ) : null}
@@ -68,7 +75,5 @@ export function IntroHeader({ title, description, media, align = "cells", testID
 
 const styles = StyleSheet.create({
   media: { alignItems: "center", justifyContent: "center" },
-  // `left` is the start: React Native turns it to the right in a right-to-left layout
-  start: { textAlign: "left" },
   androidDescription: { marginTop: 16 },
 })
