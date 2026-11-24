@@ -3,6 +3,7 @@ import { Animated, Easing, Platform, Pressable, StyleSheet, View, type StyleProp
 import ChevronDownSm from "../../icons/plex/ChevronDownSm"
 import CloseBold from "../../icons/plex/CloseBold"
 import { spaceToggles } from "../../internal/a11y"
+import { Glass } from "../../internal/Glass"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { IconDefaultsProvider } from "../Icon/createIcon"
@@ -10,7 +11,8 @@ import { MaterialArrowDropDown } from "../Icon/material"
 import { Text, textStyle } from "../Text/Text"
 
 export type ChipProps = {
-  children: ReactNode
+  /** The label. Leave it out with an `icon` for a chip of the symbol alone, a circle named by `accessibilityLabel`. */
+  children?: ReactNode
   /** A filter chip: chosen or not. Leave it out for an action chip. */
   selected?: boolean
   defaultSelected?: boolean
@@ -30,6 +32,12 @@ export type ChipProps = {
   /** Whether the chip's menu is open (`aria-expanded`). */
   expanded?: boolean
   accessibilityLabel?: string
+  /**
+   * iOS: `tag`, a capsule of the gray fill 40pt tall (a tag cloud in a sheet, as Maps' Filters), or `glass`, a glass
+   * capsule 44pt tall (a filter in a row over content, as Maps' filters under its search). Android draws its chip with
+   * either. @default "tag"
+   */
+  appearance?: "tag" | "glass"
   /** An input chip: a cross at the end that calls this. */
   onRemove?: () => void
   /** @default "Remove" */
@@ -41,8 +49,9 @@ export type ChipProps = {
 
 /**
  * A compact choice or action. Android: a chip (a 32dp capsule filled with the text color at 5%, Regular 14; a
- * selected one in the Plex primary, as on iOS). iOS has no chip control: the filter capsules of iOS apps (a 34pt
- * capsule, 15/20 medium, the soft gray fill, the Plex primary when selected, as a selected Plex Button). The web has
+ * selected one in the Plex primary). iOS has no chip control: the filter capsules of iOS 26 apps (Maps), measured on
+ * an iPhone: a `tag` 40pt tall in the gray fill, or a `glass` capsule 44pt tall, the label 17/22 Regular; a selected
+ * one in the app's accent (its tint) with a white label. The web has
  * no Chip; the props follow Toggle-like controls (`selected`, `onSelectedChange`) and Badge's `onRemove`.
  */
 export function Chip({
@@ -56,6 +65,7 @@ export function Chip({
   menu,
   expanded,
   accessibilityLabel,
+  appearance = "tag",
   onRemove,
   removeLabel = "Remove",
   disabled = false,
@@ -75,6 +85,7 @@ export function Chip({
     onPress?.()
   }
   const android = theme.isAndroid
+  const glass = !android && appearance === "glass"
   const m = theme.material
   // Android: the label and the fill of either state, which a selection blends between
   const androidColor = { off: m.onSurface, on: theme.color("--color-text-primary-solid") }
@@ -85,7 +96,7 @@ export function Chip({
       ? androidColor.on
       : androidColor.off
     : selected
-      ? theme.color("--color-text-primary-solid")
+      ? theme.color("--color-text-accent-solid", "#FFFFFF")
       : disabled
         ? theme.colors.textDisabled
         : theme.colors.text
@@ -94,9 +105,12 @@ export function Chip({
       ? androidFill.on
       : androidFill.off
     : selected
-      ? // A disabled selected chip stays selected: its fill fades to 40%, so it still stands apart from an off one
-        withAlpha(theme.color("--color-background-primary-solid"), disabled ? 0.4 : 1)
-      : theme.color("--color-background-secondary-soft-alpha")
+      ? // The app's accent, as iOS tints a chosen filter; a disabled selected chip fades to 40%, so it still stands
+        // apart from an off one
+        withAlpha(theme.colors.accent, disabled ? 0.4 : 1)
+      : glass
+        ? "transparent"
+        : theme.color("--color-background-secondary-soft-alpha")
   // Android blends the fill and the label from one state to the other in 120ms, linear; iOS changes at once
   const [blend] = useState(() => new Animated.Value(selected ? 1 : 0))
   const blends = android && !theme.reducedMotion
@@ -113,13 +127,16 @@ export function Chip({
   }, [blend, blends, selected])
   const fillPaint = blends ? blend.interpolate({ inputRange: [0, 1], outputRange: [androidFill.off, androidFill.on] }) : fill
   const labelPaint = blends ? blend.interpolate({ inputRange: [0, 1], outputRange: [androidColor.off, androidColor.on] }) : color
-  const height = android ? 32 : 34
-  const label = android ? { fontSize: 14, lineHeight: 18 } : { fontSize: 15, lineHeight: 20 }
+  const height = android ? 32 : glass ? 44 : 40
+  const label = android ? { fontSize: 14, lineHeight: 18 } : { fontSize: 17, lineHeight: 22 }
   const leading = icon
-  const iconSize = android ? 18 : 17
+  // iOS: a 17pt symbol draws about 20 (the label's size)
+  const iconSize = android ? 18 : 20
   // A menu chip's chevron: Material's 18dp arrow_drop_down, iOS's small chevron.down at the label's weight
-  const trailing = trailingIcon ?? (menu ? android ? <MaterialArrowDropDown size={18} /> : <ChevronDownSm size={14} /> : null)
+  const trailing = trailingIcon ?? (menu ? android ? <MaterialArrowDropDown size={18} /> : <ChevronDownSm size={16} /> : null)
   const leadingColor = color
+  // A symbol alone (Maps' filter button before its chips): a circle as tall as the chip, named by accessibilityLabel
+  const symbolOnly = leading != null && (children == null || children === "") && trailing == null && !onRemove
   // The chip is drawn 32 (34) tall inside a 48dp (44pt) touch target, as Compose's minimum interactive size and the
   // HIG ask: the target is the layout box, the chip a layer inside it, so every press in the target reaches it
   const target = android ? 48 : 44
@@ -127,7 +144,10 @@ export function Chip({
   // A capsule, which stays one when a large text size makes it taller
   const radius = 999
   const [pressed, setPressed] = useState(false)
-  const layer = (
+  // iOS's glass filter: a glass capsule (its rim and sheen), filled with the accent once chosen
+  const glassLayer =
+    glass && !selected ? <Glass pointerEvents="none" radius={radius} style={[StyleSheet.absoluteFill, { top: inset, bottom: inset }]} /> : null
+  const layer = glassLayer ?? (
     <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { top: inset, bottom: inset, borderRadius: radius, backgroundColor: fillPaint, borderCurve: "continuous" }]}>
       {/* Android's press: the list selector over the chip, 6% black and 5% white at night (the dark theme's); over a
           selected chip's solid fill its label's color at 12%, which shows on either scheme */}
@@ -142,9 +162,9 @@ export function Chip({
     minHeight: target,
     paddingVertical: inset + (height - label.lineHeight) / 2,
     // Android: 12 at the sides, 8 before an icon and 6 after it
-    paddingLeft: leading != null ? (android ? 8 : 12) : android ? 12 : 14,
-    // Android: 8 after a trailing icon (Compose's FilterChip), iOS 10
-    paddingRight: onRemove ? 0 : trailing != null ? (android ? 8 : 10) : android ? 12 : 14,
+    paddingLeft: symbolOnly ? (height - iconSize) / 2 : leading != null ? (android ? 8 : 12) : android ? 12 : 16,
+    // Android: 8 after a trailing icon (Compose's FilterChip), iOS 12
+    paddingRight: symbolOnly ? (height - iconSize) / 2 : onRemove ? 0 : trailing != null ? (android ? 8 : 12) : android ? 12 : 16,
     gap: 6,
     opacity: !android && pressed ? 0.7 : 1,
   }
@@ -158,7 +178,7 @@ export function Chip({
           </IconDefaultsProvider>
         </View>
       ) : null}
-      {android ? (
+      {symbolOnly ? null : android ? (
         // Text's own face and tracking, in a color that blends
         <Animated.Text
           numberOfLines={1}
@@ -167,7 +187,7 @@ export function Chip({
           {children}
         </Animated.Text>
       ) : (
-        <Text color={color} weight="medium" numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight }}>
+        <Text color={color} weight="regular" numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight }}>
           {children}
         </Text>
       )}

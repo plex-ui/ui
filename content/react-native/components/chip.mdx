@@ -6,48 +6,91 @@ metaDescription: Compact chip for filters, actions and removable tags, with an o
 
 import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `import { Button, Chip } from "@plexui/react-native"
-import { AtSign, AvatarProfile, Email, Star } from "@plexui/react-native/icons"
+export const overviewCode = `import { Chip, Input, List, ListItem, Menu, NavigationButton } from "@plexui/react-native"
+import { Filter, SearchSm } from "@plexui/react-native/icons"
 
-const CHIPS = [
-  { value: "unread", label: "Unread", icon: <Email /> },
-  { value: "starred", label: "Starred", icon: <Star /> },
-  { value: "mentions", label: "Mentions", icon: <AtSign /> },
+const FILTERS = [
+  { value: "rated", label: "Top Rated" },
+  { value: "open", label: "Open Now" },
 ]
-// Input chips: the recipients of a message
-const RECIPIENTS = [
-  { value: "anna", label: "Anna Kim", icon: <AvatarProfile /> },
-  { value: "ben", label: "Ben Carter", icon: <AvatarProfile /> },
-  { value: "maya", label: "Maya Patel", icon: <AvatarProfile /> },
+const SORTS = [
+  { value: "match", label: "Best Match" },
+  { value: "distance", label: "Distance" },
+  { value: "rating", label: "Ratings" },
 ]
 
-const [type, setType] = useState<"filter" | "action" | "input">("filter") // which of the props below the chips set
-const [icon, setIcon] = useState(false)
-const [disabled, setDisabled] = useState(false)
-const [selected, setSelected] = useState(["unread"])
-const [shown, setShown] = useState(RECIPIENTS.map((chip) => chip.value))
+const [appearance, setAppearance] = useState<"glass" | "tag">("glass") // iOS
+const [on, setOn] = useState<string[]>([])
+const [sortOpen, setSortOpen] = useState(false)
+const [sort, setSort] = useState("match")
+const sortLabel = SORTS.find((option) => option.value === sort).label
+// A filter that is on moves to the start of the row, as in Maps
+const filters = [...on.map((value) => FILTERS.find((filter) => filter.value === value)), ...FILTERS.filter((filter) => !on.includes(filter.value))]
 
-<View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", columnGap: 8 }}>
-  {(type === "input" ? RECIPIENTS.filter((chip) => shown.includes(chip.value)) : CHIPS).map((chip) => (
+<View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16 }}>
+  <View style={{ flex: 1 }}>
+    <Input variant="soft" pill inputMode="search" placeholder="Search Maps" startAdornment={<SearchSm />} value={query} onChangeText={setQuery} onClear={() => setQuery("")} />
+  </View>
+  <NavigationButton action="close" accessibilityLabel="Close search" />
+</View>
+<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
+  <Chip appearance={appearance} icon={<Filter />} accessibilityLabel="Filters" onPress={openFilters} />
+  {filters.map((filter) => (
     <Chip
-      key={chip.value}
-      icon={icon ? chip.icon : undefined}
-      disabled={disabled}
-      selected={type === "filter" ? selected.includes(chip.value) : undefined}
-      onSelectedChange={type === "filter" ? (on) => setSelected((list) => (on ? [...list, chip.value] : list.filter((value) => value !== chip.value))) : undefined}
-      onPress={type === "action" ? () => markAs(chip.value) : undefined}
-      onRemove={type === "input" ? () => setShown((list) => list.filter((value) => value !== chip.value)) : undefined}
-      removeLabel={\`Remove \${chip.label}\`}
+      key={filter.value}
+      appearance={appearance}
+      selected={on.includes(filter.value)}
+      onSelectedChange={(next) => setOn((list) => (next ? [...list, filter.value] : list.filter((value) => value !== filter.value)))}
     >
-      {chip.label}
+      {filter.label}
     </Chip>
   ))}
-</View>
-{type === "input" && shown.length === 0 && (
-  <Button color="secondary" variant="outline" size="sm" onPress={() => setShown(RECIPIENTS.map((chip) => chip.value))}>
-    Show again
-  </Button>
-)}`
+  <Menu open={sortOpen} onOpenChange={setSortOpen}>
+    <Menu.Trigger>
+      <Chip appearance={appearance} menu expanded={sortOpen} accessibilityLabel={\`Sort by, \${sortLabel}\`}>
+        {\`Sort by \${sortLabel}\`}
+      </Chip>
+    </Menu.Trigger>
+    <Menu.Content aria-label="Sort by">
+      {SORTS.map((option) => (
+        <Menu.Item key={option.value} checked={option.value === sort} onSelect={() => setSort(option.value)}>
+          {option.label}
+        </Menu.Item>
+      ))}
+    </Menu.Content>
+  </Menu>
+</ScrollView>
+<List>
+  {places.map((place) => <ListItem key={place.name} label={place.name} description={place.details} />)}
+</List>`
+
+export const tagsCode = `import { Chip, List } from "@plexui/react-native"
+
+const [prices, setPrices] = useState<string[]>(["$$"])
+const toggle = (value) => (next) => setPrices((list) => (next ? [...list, value] : list.filter((item) => item !== value)))
+
+<List header="Prices">
+  <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, padding: 16 }}>
+    {["$", "$$", "$$$"].map((price) => (
+      <Chip key={price} appearance="tag" selected={prices.includes(price)} onSelectedChange={toggle(price)}>
+        {price}
+      </Chip>
+    ))}
+  </View>
+</List>
+<List header="Amenities">{/* the same, many on at once */}</List>`
+
+export const removableCode = `import { Chip, Text } from "@plexui/react-native"
+import { AvatarProfile } from "@plexui/react-native/icons"
+
+<View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+  <Text size="md" color="secondary">To:</Text>
+  {recipients.map((recipient) => (
+    <Chip key={recipient.value} icon={<AvatarProfile />} onRemove={() => remove(recipient.value)} removeLabel={\`Remove \${recipient.label}\`}>
+      {recipient.label}
+    </Chip>
+  ))}
+</View>`
 
 export const disabledCode = `import { Chip, Text } from "@plexui/react-native"
 
@@ -61,34 +104,6 @@ export const disabledCode = `import { Chip, Text } from "@plexui/react-native"
   <Text size="sm" color="secondary">Account emails are always on. Add a phone number to get SMS.</Text>
 </View>`
 
-export const menuCode = `import { Chip, Menu } from "@plexui/react-native"
-
-const DATES = [
-  { value: "any", label: "Any time" },
-  { value: "week", label: "Past week" },
-  { value: "month", label: "Past month" },
-  { value: "year", label: "Past year" },
-]
-
-const [open, setOpen] = useState(false)
-const [date, setDate] = useState("any")
-const chosen = DATES.find((option) => option.value === date)
-
-<Menu open={open} onOpenChange={setOpen}>
-  <Menu.Trigger>
-    <Chip menu expanded={open} selected={date !== "any"} accessibilityLabel={\`Date, \${chosen.label}\`}>
-      {date === "any" ? "Date" : chosen.label}
-    </Chip>
-  </Menu.Trigger>
-  <Menu.Content aria-label="Date">
-    {DATES.map((option) => (
-      <Menu.Item key={option.value} checked={option.value === date} onSelect={() => setDate(option.value)}>
-        {option.label}
-      </Menu.Item>
-    ))}
-  </Menu.Content>
-</Menu>`
-
 <UsageBlock>{`import { Chip } from "@plexui/react-native"`}</UsageBlock>
 
 The web has no chip; a filter chip does what [Toggle Group](/components/toggle-group) does with items of text.
@@ -98,22 +113,30 @@ The web has no chip; a filter chip does what [Toggle Group](/components/toggle-g
 <span id="filter-chips" />
 <span id="with-a-symbol" />
 <span id="action-chips" />
-<span id="removable" />
+<span id="filter-with-a-menu" />
+<span id="tags" />
 
 ### Overview
 
 <ComponentPreview details={<>
-  <p>Chip's examples follow the Toggle Group page's, and its props follow the toggles of <code>@plexui/ui</code> (<code>selected</code>, <code>onSelectedChange</code>) and Badge's <code>onRemove</code>. iOS has no chip control, so a chip is drawn as the filter capsules of iOS apps: a 34pt capsule in 15/20 medium on the soft gray fill, filled in the Plex primary when selected, as a selected Button. On Android a chip is a 32dp capsule filled with the text color at 5%, its label 14sp Regular, pressed in the press color of a List row (black at 6%, white at 5% in dark mode); a selected filter chip fills in the Plex primary, as on iOS. On both, the chip stands in a 44pt (iOS) or 48dp (Android) touch target.</p>
-  <p>Chips of text take the width of their label, 8 points apart, here the filters of a mailbox that can be on together, as the Toggle Group's Text example. <code>type</code> says which props they take. A chip with <code>selected</code>, <code>defaultSelected</code> or <code>onSelectedChange</code> is a filter chip: a press toggles it, and VoiceOver and TalkBack read it as a checkbox. A chip with <code>onPress</code> alone is an action chip (Material's assist chip): it runs the action and keeps no state. <code>onRemove</code> makes an input chip: a cross after the label, a button of its own named by <code>removeLabel</code>; here the chips are the recipients of a message, the cross removes one, and Show again brings them back.</p>
-  <p><code>icon</code> puts a symbol before the label, 18dp on Android. <code>disabled</code> dims a chip (on Android to half, its fill with it; on iOS the label of an off chip turns the disabled gray and a selected chip's primary fades to 40%) and takes no presses; a selected chip stays selected. On iOS a chip is a capsule as wide as its label, selected in the Plex primary; on Android a 32dp capsule, selected in the Plex primary too.</p>
+  <p>Chip's props follow the toggles of <code>@plexui/ui</code> (<code>selected</code>, <code>onSelectedChange</code>) and Badge's <code>onRemove</code>. iOS has no chip control, so a chip is drawn as the filter capsules of iOS 26 apps, measured on an iPhone in Maps: <code>appearance="tag"</code>, the default, a 40pt capsule of the gray fill (a tag cloud in a sheet, see Filters), or <code>glass</code>, a 44pt glass capsule (filters in a row over content, under a search); the label 17/22 Regular, and a selected chip filled in the app's accent (its tint) with a white label. On Android a chip is a 32dp capsule filled with the text color at 5%, its label 14sp Regular, pressed in the press color of a List row (black at 6%, white at 5% in dark mode); a selected filter chip fills in the Plex primary. On both, the chip stands in a 44pt (iOS) or 48dp (Android) touch target.</p>
+  <p>Here a search for breakfast, as in Maps: under the search field a row of glass chips over the results, the filter button first, scrolling sideways when it is wider than the screen. Top Rated and Open Now are filter chips: a chip with <code>selected</code>, <code>defaultSelected</code> or <code>onSelectedChange</code> toggles on a press, and VoiceOver and TalkBack read it as a checkbox. Once on, a filter moves to the start of the row, as Maps moves it; that order is the app's. A chip with <code>onPress</code> alone is an action chip (Material's assist chip): it runs the action and keeps no state, as the filter button at the start of the row, a chip of an <code>icon</code> alone: with no label it is a circle as tall as the chip, named by <code>accessibilityLabel</code>.</p>
+  <p>Sort by picks among options, so it opens a menu: <code>menu</code> puts a chevron after the label (iOS's small chevron down, Material's drop-down arrow) and tells a screen reader the chip opens a popup, <code>true</code> or <code>"menu"</code> a menu, <code>"listbox"</code> or <code>"dialog"</code> what else it opens; <code>expanded</code> says whether it is open. A menu chip is read as a button, not a checkbox, and <code>accessibilityLabel</code> names it with the chosen value. <code>trailingIcon</code> puts another symbol after the label in the chevron's place.</p>
+  <p><code>icon</code> puts a symbol before the label (20pt on iOS, 18dp on Android). <code>disabled</code> dims a chip (on Android to half, its fill with it; on iOS the label of an off chip turns the disabled gray and a selected chip's accent fades to 40%) and takes no presses; a selected chip stays selected.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="chip/Overview" />
 </ComponentPreview>
 
-### Filter with a menu
+### Filters
 
-<ComponentPreview details={<>A chip that picks among options opens a menu: <code>menu</code> puts a chevron after the label (iOS's small chevron down, Material's drop-down arrow) and tells a screen reader the chip opens a popup, <code>true</code> or <code>"menu"</code> a menu, <code>"listbox"</code> or <code>"dialog"</code> what else it opens; <code>expanded</code> says whether it is open. A menu chip is read as a button, not a checkbox, even while <code>selected</code> shows that a filter is chosen, and <code>accessibilityLabel</code> names it with the filter's value. <code>trailingIcon</code> puts another symbol after the label in the chevron's place. Here the chip shows Date until a date is chosen, then the date, in the selected fill.</>} code={menuCode} previewMinHeight={168}>
-  <RNExample demo="chip/FilterMenu" />
+<ComponentPreview details={<>The Filters sheet of the same search: the gray <code>tag</code> chips of iOS, wrapping in grouped cards 8 apart, a price and the amenities of a place, many on at once, each in the accent while on. Android draws its chip the same in either appearance.</>} code={tagsCode} previewMinHeight={168}>
+  <RNExample demo="chip/Filters" />
+</ComponentPreview>
+
+### Removable
+
+<ComponentPreview details={<>Input chips are values the reader entered and can take back, here the recipients of a message: <code>onRemove</code> puts a cross after the label, a button of its own named by <code>removeLabel</code>. Add back is an action chip that brings them back.</>} code={removableCode} previewMinHeight={168}>
+  <RNExample demo="chip/Removable" />
 </ComponentPreview>
 
 ### Disabled
@@ -127,12 +150,12 @@ The web has no chip; a filter chip does what [Toggle Group](/components/toggle-g
 | | iOS 26 | Android |
 | --- | --- | --- |
 | Native component | None: drawn as the filter capsules of iOS apps | Chip (assist, filter, input) |
-| Look | A 34pt capsule, filled in the Plex primary when selected | A 32dp capsule in a light gray fill, filled in the Plex primary when selected |
+| Look | A 40pt gray capsule (`tag`) or a 44pt glass one (`glass`), filled in the accent when selected | A 32dp capsule in a light gray fill, filled in the Plex primary when selected |
 
 ## API
 
 <PropsTable data={[
-  { prop: "children", type: "ReactNode", description: "The label (required)" },
+  { prop: "children", type: "ReactNode", description: "The label. Without it a chip of an `icon` alone is a circle, named by `accessibilityLabel`" },
   { prop: "selected", type: "boolean", description: "A filter chip's state (controlled). Leave it, defaultSelected and onSelectedChange out for an action chip" },
   { prop: "defaultSelected", type: "boolean", description: "A filter chip's initial state (uncontrolled)" },
   { prop: "onSelectedChange", type: "(selected: boolean) => void", description: "Called when a filter chip is toggled" },
@@ -142,6 +165,7 @@ The web has no chip; a filter chip does what [Toggle Group](/components/toggle-g
   { prop: "menu", type: 'boolean | "menu" | "listbox" | "dialog"', description: "The chip opens a menu: a chevron after the label and aria-haspopup for screen readers; true is a menu, \"listbox\" and \"dialog\" name what it opens. A menu chip is read as a button" },
   { prop: "expanded", type: "boolean", description: "Whether the chip's menu is open (aria-expanded)" },
   { prop: "accessibilityLabel", type: "string", description: "Name of the chip for screen readers, in place of its label" },
+  { prop: "appearance", type: '"tag" | "glass"', default: '"tag"', description: "iOS: a 40pt capsule of the gray fill, or a 44pt glass capsule for filters over content. Android draws its chip with either" },
   { prop: "onRemove", type: "() => void", description: "An input chip: a cross after the label that calls it" },
   { prop: "removeLabel", type: "string", default: '"Remove"', description: "Accessible name of the cross" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the chip and takes no presses" },

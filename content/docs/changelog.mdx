@@ -23,6 +23,22 @@ Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.
 - **Sidebar open branch.** An open submenu leaves 4px (`--sidebar-menu-sub-open-gap`) before the row after it.
 - **Icons named as globals.** The icon modules `Object`, `Array`, `Boolean`, `Clipboard`, `Comment`, `Error`, `Function`, `Number`, `Report`, `Storage`, `String` and `Text` bound their component to that global's name, which broke the global in Metro ("Cannot access 'Object' before initialization"). The binding is now `ObjectIcon` and so on; the exports and display names are unchanged (React and Vue).
 
+## @plexui/react-native 0.2.1 (2026-11-24)
+
+### Added
+
+- **Chip `appearance`.** On iOS a chip is `tag` by default, a 40pt capsule of the gray fill (a tag cloud in a sheet), or `glass`, a 44pt glass capsule for filters in a row over content, as in iOS 26 Maps. Android draws its chip with either.
+- **Chip of a symbol alone.** A chip with an `icon` and no label is a circle as tall as the chip, named by `accessibilityLabel`: the filter button at the start of a row of filters, as in Maps.
+
+### Changed
+
+- **Chip on iOS** takes iOS 26's filter capsules: the label 17/22 Regular (was 15/20 Medium on a 34pt capsule), 16pt at the sides, and a selected chip filled in the app's accent with a white label (was the Plex primary).
+- **ActionSheet on iOS:** every action in one weight, Medium, Cancel too (0.2.0 drew them Semibold).
+
+### Fixed
+
+- **ActionSheet with a `source`** open as its screen appears waits for the source's layout instead of standing off the screen; a source that never measures puts the sheet in the middle with Cancel.
+
 ## @plexui/react-native 0.2.0 (2026-11-24)
 
 The components added since 0.1.1 reach npm: Alert, Field, FloatingLabelInput, the indicators (LoadingIndicator, CircularProgress, LoadingDots), InputGroup, Popover, Progress, ProgressSteps, RollingNumber, Separator, ShimmerText, Stepper, TagInput, TextLink, Textarea, Tip and Tooltip.

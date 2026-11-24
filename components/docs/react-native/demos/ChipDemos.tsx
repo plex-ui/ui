@@ -1,81 +1,210 @@
-import { useState, type ReactNode } from 'react';
-import { Button, Chip, Menu, Text } from '@plexui/react-native';
-import { AtSign, AvatarProfile, Email, Star } from '@plexui/react-native/icons';
-import { View } from 'react-native';
+import { useState } from 'react';
+import { Chip, Input, List, ListItem, Menu, NavigationButton, Text, Toolbar, useTheme } from '@plexui/react-native';
+import { AvatarProfile, Filter, SearchSm, Star } from '@plexui/react-native/icons';
+import { ScrollView, View } from 'react-native';
 import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { RNScreen, docsDemo } from '../RNScreen';
+import { useNativePlatform } from '../platform';
 
-// Which of the props the chips set: `selected` and `onSelectedChange` (a filter chip), `onPress` alone (an action
-// chip) or `onRemove` (an input chip)
-const TYPES = ['filter', 'action', 'input'] as const;
-const CHIPS: readonly { value: string; label: string; icon: ReactNode }[] = [
-  { value: 'unread', label: 'Unread', icon: <Email /> },
-  { value: 'starred', label: 'Starred', icon: <Star /> },
-  { value: 'mentions', label: 'Mentions', icon: <AtSign /> },
-];
-// An input chip is a value the reader entered and can take back: the recipients of a message
-const RECIPIENTS: readonly { value: string; label: string; icon: ReactNode }[] = [
-  { value: 'anna', label: 'Anna Kim', icon: <AvatarProfile /> },
-  { value: 'ben', label: 'Ben Carter', icon: <AvatarProfile /> },
-  { value: 'maya', label: 'Maya Patel', icon: <AvatarProfile /> },
-];
+const APPEARANCES = ['glass', 'tag'] as const;
 
-/** A row of chips, 8 apart, centered as the React Toggle Group centers its row on a phone */
-const row = { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', columnGap: 8 } as const;
+// The places a search for breakfast finds, as Maps lists them under its filters
+const PLACES = [
+  { name: 'Portobello Horno', kind: 'Cafe', distance: 700, open: 'Open till 21:00', openNow: true, rating: 4.5 },
+  { name: 'Del Mundo Bistro', kind: 'Brunch restaurant', distance: 100, open: 'Open till 23:30', openNow: true, rating: 4.0 },
+  { name: 'Soho Café', kind: 'Coffee shop', distance: 100, open: 'Closed', openNow: false, rating: 4.2 },
+  { name: 'Milk and Butter', kind: 'Brunch restaurant', distance: 2100, open: 'Open till 15:00', openNow: true, rating: 4.6 },
+  { name: 'Pasteleria La Moderna', kind: 'Dessert shop', distance: 150, open: 'Closed', openNow: false, rating: 4.4 },
+];
+const FILTERS = [
+  { value: 'rated', label: 'Top Rated' },
+  { value: 'open', label: 'Open Now' },
+] as const;
+const SORTS = [
+  { value: 'match', label: 'Best Match' },
+  { value: 'distance', label: 'Distance' },
+  { value: 'rating', label: 'Ratings' },
+] as const;
+
+const meters = (distance: number) => (distance < 1000 ? `${distance} m` : `${(distance / 1000).toFixed(1)} km`);
+
+/** Maps' search bar: the field and Close, in the bar over the grouped screen (the theme read inside the screen) */
+function SearchBar({ query, onQueryChange }: { query: string; onQueryChange: (query: string) => void }) {
+  const theme = useTheme();
+  return (
+    <Toolbar background="soft" canvasColor={theme.colors.groupedBackground}>
+      <Toolbar.Content fill>
+        <Input
+          variant="soft"
+          pill
+          inputMode="search"
+          returnKeyType="search"
+          placeholder="Search Maps"
+          accessibilityLabel="Search places"
+          startAdornment={<SearchSm />}
+          value={query}
+          onChangeText={onQueryChange}
+          onClear={() => onQueryChange('')}
+        />
+      </Toolbar.Content>
+      <Toolbar.Trailing>
+        <NavigationButton action="close" accessibilityLabel="Close search" />
+      </Toolbar.Trailing>
+    </Toolbar>
+  );
+}
 
 /**
- * Chips with every setting, as the filters of the React Toggle Group page's Text example (Unread, Starred and
- * Mentions, Unread on): `type` makes them filter chips that toggle, action chips that keep no state, or input chips,
- * the recipients of a message, with a cross that removes them (as the React Badge's `onRemove`); `icon` puts a symbol
- * before each label and `disabled` dims them.
+ * A search's filters, as in iOS 26 Maps: under the search field a row of glass chips over the results, the filter
+ * button first. Top Rated and Open Now are filter chips that move to the start of the row once on; Sort by is a menu
+ * chip that shows the chosen order. On iOS `appearance` turns the row's glass to the gray tags; `icon` puts a symbol
+ * before the filters' labels and `disabled` dims them.
  */
 export const Overview = docsDemo(function Overview() {
-  const [type, setType] = useState<(typeof TYPES)[number]>('filter');
+  const ios = useNativePlatform() !== 'android';
+  const [appearance, setAppearance] = useState<(typeof APPEARANCES)[number]>('glass');
   const [icon, setIcon] = useState(false);
   const [disabled, setDisabled] = useState(false);
-  const [selected, setSelected] = useState<string[]>(['unread']);
-  const [shown, setShown] = useState<string[]>(RECIPIENTS.map((chip) => chip.value));
-  const chips = type === 'input' ? RECIPIENTS.filter((chip) => shown.includes(chip.value)) : CHIPS;
+  const [query, setQuery] = useState('Breakfast');
+  const [on, setOn] = useState<string[]>([]);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [sort, setSort] = useState<(typeof SORTS)[number]['value']>('match');
+  const sortLabel = SORTS.find((option) => option.value === sort)?.label ?? 'Best Match';
+  // Maps moves a filter that is on to the start of the row, in the order they were turned on
+  const filters = [...on.map((value) => FILTERS.find((filter) => filter.value === value)!), ...FILTERS.filter((filter) => !on.includes(filter.value))];
+  const places = PLACES.filter((place) => (!on.includes('open') || place.openNow) && (!on.includes('rated') || place.rating >= 4.5)).sort((a, b) =>
+    sort === 'distance' ? a.distance - b.distance : sort === 'rating' ? b.rating - a.rating : 0,
+  );
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <Segments name="type" options={TYPES} value={type} onChange={setType} />
+        {ios && <Segments name="appearance" options={APPEARANCES} value={appearance} onChange={setAppearance} />}
         <DemoControlBoolean name="icon" value={icon} onChange={setIcon} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
-      <RNScreen minHeight={168}>
-        {chips.length > 0 ? (
-          <View style={row}>
-            {chips.map((chip) => (
+      <RNScreen screen grouped minHeight={520}>
+        <View style={{ flex: 1 }}>
+          <SearchBar query={query} onQueryChange={setQuery} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 4 }}>
+            <Chip appearance={appearance} icon={<Filter />} accessibilityLabel="Filters" disabled={disabled} onPress={() => {}} />
+            {filters.map((filter) => (
               <Chip
-                key={chip.value}
-                icon={icon ? chip.icon : undefined}
+                key={filter.value}
+                appearance={appearance}
+                icon={icon ? <Star /> : undefined}
                 disabled={disabled}
-                selected={type === 'filter' ? selected.includes(chip.value) : undefined}
-                onSelectedChange={
-                  type === 'filter'
-                    ? (on: boolean) => setSelected((list) => (on ? [...list, chip.value] : list.filter((value) => value !== chip.value)))
-                    : undefined
-                }
-                onPress={type === 'action' ? () => {} : undefined}
-                onRemove={type === 'input' ? () => setShown((list) => list.filter((value) => value !== chip.value)) : undefined}
-                removeLabel={`Remove ${chip.label}`}
+                selected={on.includes(filter.value)}
+                onSelectedChange={(next: boolean) => setOn((list) => (next ? [...list, filter.value] : list.filter((value) => value !== filter.value)))}
               >
-                {chip.label}
+                {filter.label}
               </Chip>
             ))}
-          </View>
-        ) : (
-          <View style={{ alignSelf: 'center' }}>
-            <Button color="secondary" variant="outline" size="sm" onPress={() => setShown(RECIPIENTS.map((chip) => chip.value))}>
-              Show again
-            </Button>
-          </View>
-        )}
+            <Menu open={sortOpen} onOpenChange={setSortOpen}>
+              <Menu.Trigger>
+                <Chip appearance={appearance} menu expanded={sortOpen} disabled={disabled} accessibilityLabel={`Sort by, ${sortLabel}`}>
+                  {`Sort by ${sortLabel}`}
+                </Chip>
+              </Menu.Trigger>
+              <Menu.Content aria-label="Sort by">
+                {SORTS.map((option) => (
+                  <Menu.Item key={option.value} checked={option.value === sort} onSelect={() => setSort(option.value)}>
+                    {option.label}
+                  </Menu.Item>
+                ))}
+              </Menu.Content>
+            </Menu>
+          </ScrollView>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingTop: 8 }}>
+            <List>
+              {places.map((place) => (
+                <ListItem
+                  key={place.name}
+                  label={place.name}
+                  description={`${place.kind} · ${meters(place.distance)}\n${place.open} · ★ ${place.rating.toFixed(1)}`}
+                />
+              ))}
+            </List>
+          </ScrollView>
+        </View>
       </RNScreen>
     </>
   );
 });
+
+const PRICES = ['$', '$$', '$$$'];
+const AMENITIES = ['Contactless payments', 'Credit cards', 'Good for groups', 'Wi-Fi', 'Good for kids', 'Reservations', 'Outdoor seating'];
+
+/** A wrapping row of chips, 8 apart both ways, inside a card's 16pt padding */
+const cloud = { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 16 } as const;
+
+/**
+ * The Filters sheet of the same search: the gray `tag` chips of iOS in grouped cards, a price and the amenities,
+ * many on at once, each in the accent while on.
+ */
+export const Filters = docsDemo(function Filters() {
+  const [prices, setPrices] = useState<string[]>(['$$']);
+  const [amenities, setAmenities] = useState<string[]>(['Good for groups']);
+  const toggle = (set: typeof setPrices, value: string) => (next: boolean) =>
+    set((list) => (next ? [...list, value] : list.filter((item) => item !== value)));
+  return (
+    <RNScreen grouped minHeight={520}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 24 }}>
+        <List header="Prices">
+          <View style={cloud}>
+            {PRICES.map((price) => (
+              <Chip key={price} appearance="tag" selected={prices.includes(price)} onSelectedChange={toggle(setPrices, price)}>
+                {price}
+              </Chip>
+            ))}
+          </View>
+        </List>
+        <List header="Amenities">
+          <View style={cloud}>
+            {AMENITIES.map((amenity) => (
+              <Chip key={amenity} appearance="tag" selected={amenities.includes(amenity)} onSelectedChange={toggle(setAmenities, amenity)}>
+                {amenity}
+              </Chip>
+            ))}
+          </View>
+        </List>
+      </ScrollView>
+    </RNScreen>
+  );
+});
+
+const RECIPIENTS = [
+  { value: 'anna', label: 'Anna Kim' },
+  { value: 'ben', label: 'Ben Carter' },
+  { value: 'maya', label: 'Maya Patel' },
+];
+
+/**
+ * Input chips, the recipients of a message: `onRemove` puts a cross after the label, a button of its own named by
+ * `removeLabel`, that takes the recipient back.
+ */
+export function Removable() {
+  const [shown, setShown] = useState(RECIPIENTS.map((recipient) => recipient.value));
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+      <Text size="md" color="secondary">
+        To:
+      </Text>
+      {RECIPIENTS.filter((recipient) => shown.includes(recipient.value)).map((recipient) => (
+        <Chip
+          key={recipient.value}
+          icon={<AvatarProfile />}
+          onRemove={() => setShown((list) => list.filter((value) => value !== recipient.value))}
+          removeLabel={`Remove ${recipient.label}`}
+        >
+          {recipient.label}
+        </Chip>
+      ))}
+      {shown.length < RECIPIENTS.length && (
+        <Chip onPress={() => setShown(RECIPIENTS.map((recipient) => recipient.value))}>Add back</Chip>
+      )}
+    </View>
+  );
+}
 
 /**
  * Disabled chips keep their state, as the React Toggle Group page's Disabled example keeps its items: Email stays on,
@@ -97,41 +226,6 @@ export function Disabled() {
       <Text size="sm" color="secondary">
         Account emails are always on. Add a phone number to get SMS.
       </Text>
-    </View>
-  );
-}
-
-const DATES = [
-  { value: 'any', label: 'Any time' },
-  { value: 'week', label: 'Past week' },
-  { value: 'month', label: 'Past month' },
-  { value: 'year', label: 'Past year' },
-];
-
-/**
- * A filter chip that opens a menu of its options, as a search's Date filter: `menu` adds the chevron and the popup's
- * role, `expanded` follows the menu, and the chip shows the chosen date in the selected fill.
- */
-export function FilterMenu() {
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState('any');
-  const chosen = DATES.find((option) => option.value === date) ?? DATES[0];
-  return (
-    <View style={row}>
-      <Menu open={open} onOpenChange={setOpen}>
-        <Menu.Trigger>
-          <Chip menu expanded={open} selected={date !== 'any'} accessibilityLabel={`Date, ${chosen.label}`}>
-            {date === 'any' ? 'Date' : chosen.label}
-          </Chip>
-        </Menu.Trigger>
-        <Menu.Content aria-label="Date">
-          {DATES.map((option) => (
-            <Menu.Item key={option.value} checked={option.value === date} onSelect={() => setDate(option.value)}>
-              {option.label}
-            </Menu.Item>
-          ))}
-        </Menu.Content>
-      </Menu>
     </View>
   );
 }
