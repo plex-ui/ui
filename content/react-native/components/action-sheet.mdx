@@ -6,7 +6,7 @@ metaDescription: "A React Native action sheet: UIAlertController's action sheet 
 
 import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `import { ActionSheet, Button } from "@plexui/react-native"
+export const overviewCode = `import { ActionSheet, List, ListItem } from "@plexui/react-native"
 import { Copy, EditPencil, RemoveTrash } from "@plexui/react-native/icons"
 
 const [open, setOpen] = useState(false)
@@ -16,9 +16,10 @@ const [destructive, setDestructive] = useState(true)
 const [disabled, setDisabled] = useState(false)
 const [icons, setIcons] = useState(true) // Android: iOS leaves icons out
 
-<Button color="secondary" variant="outline" onPress={() => setOpen(true)}>
-  Project actions
-</Button>
+<List>
+  <ListItem label="Website redesign" value="128 files" disclosure onPress={() => setOpen(true)} />
+  {/* ... */}
+</List>
 <ActionSheet
   open={open}
   onOpenChange={setOpen}
@@ -35,9 +36,10 @@ export const actionsOnlyCode = `import { CameraPhoto, Folder, Images } from "@pl
 
 const [open, setOpen] = useState(false)
 
-<Button color="secondary" variant="outline" onPress={() => setOpen(true)}>
-  Add a photo
-</Button>
+<List>
+  <ListItem label="Change photo" disclosure onPress={() => setOpen(true)} />
+  <ListItem label="Name" value="Anna Petrova" />
+</List>
 <ActionSheet
   open={open}
   onOpenChange={setOpen}
@@ -49,22 +51,35 @@ const [open, setOpen] = useState(false)
   ]}
 />`
 
-export const fromSourceCode = `import { useRef } from "react"
-import { ActionSheet, Button } from "@plexui/react-native"
-import { RemoveTrash } from "@plexui/react-native/icons"
+export const fromSourceCode = `import { useRef, useState } from "react"
+import { ActionSheet, IconButton, List, ListItem, Toolbar } from "@plexui/react-native"
+import { RemoveTrash, Share } from "@plexui/react-native/icons"
 
-const button = useRef(null)
+const trash = useRef(null)
 const [open, setOpen] = useState(false)
 
-<Button ref={button} color="danger" variant="soft" onPress={() => setOpen(true)}>
-  Delete project
-</Button>
+<Toolbar>
+  <Toolbar.Title>Website redesign</Toolbar.Title>
+</Toolbar>
+<List>
+  <ListItem label="Owner" value="Anna Petrova" />
+  <ListItem label="Members" value="6" />
+  {/* ... */}
+</List>
+<Toolbar placement="bottom">
+  <Toolbar.Leading>
+    <IconButton icon={<Share />} accessibilityLabel="Share" />
+  </Toolbar.Leading>
+  <Toolbar.Trailing>
+    <IconButton ref={trash} icon={<RemoveTrash />} accessibilityLabel="Delete project" onPress={() => setOpen(true)} />
+  </Toolbar.Trailing>
+</Toolbar>
 <ActionSheet
   open={open}
   onOpenChange={setOpen}
-  source={button}
+  source={trash}
   message="This project and its files will be deleted for everyone."
-  actions={[{ label: "Delete project", icon: <RemoveTrash />, destructive: true, onPress: remove }]}
+  actions={[{ label: "Delete project", destructive: true, onPress: remove }]}
 />`
 
 <UsageBlock>{`import { ActionSheet } from "@plexui/react-native"`}</UsageBlock>
@@ -78,8 +93,8 @@ A question with its answers is a [Dialog](/react-native/components/dialog).
 <ComponentPreview details={<>
   <p>ActionSheet is React Native only: on the web a choice of actions is a <a href="/components/menu">Menu</a>, and a question with its answers a <a href="/components/dialog">Dialog</a>'s alert. On iOS it is the action sheet of iOS 26 on an iPhone: a glass panel of 48pt capsule actions with the title and message over them, drawn as the alert's. With a <code>source</code> the panel stands at the button it opens from, with no cancel capsule (see From its button); without one it stands in the middle of the screen, Cancel the last capsule of the same panel. On Android it is a menu sheet, a <a href="/react-native/components/bottom-sheet">Bottom Sheet</a> with a list of 48dp rows in 16sp, each icon in a 56dp slot at the start (with no icons the labels start 16dp in). It has no cancel row there: a tap outside, a drag down or Back closes it.</p>
   <p>One sheet with every setting: the actions of the web Menu's Destructive items, Rename, Duplicate and Delete project, the destructive one last. An action runs its <code>onPress</code> and closes the sheet. As the web Dialog's alerts and sheets do in its phone preview, the sheet here opens with the phone's screen.</p>
-  <p><code>title</code> and <code>message</code> stand over the actions: on iOS centered in 13pt, the title semibold, both in the alert's message color; on Android the title in 16sp and the message in 14sp, both gray, at the top of the sheet. A <code>destructive</code> action is red, its icon too on Android. A <code>disabled</code> one is dimmed and takes no presses. <code>icon</code> puts a symbol before an action's label in Android's list, in the text color (gray at night); iOS leaves it out, as UIAlertController does, so the iOS example does not offer it.</p>
-  <p>On iOS without a <code>source</code> the cancel capsule is the last of the panel, semibold, and a tap on the dim closes the sheet as Cancel does. Many actions scroll inside the panel while the cancel capsule stays in view.</p>
+  <p><code>title</code> and <code>message</code> stand over the actions: on iOS as the iOS 27 kit's action sheet, both 17/22 in the label color at the start, the title Semibold, every action Medium, Cancel too; on Android the title in 16sp and the message in 14sp, both gray, at the top of the sheet. A <code>destructive</code> action is red, its icon too on Android. A <code>disabled</code> one is dimmed and takes no presses. <code>icon</code> puts a symbol before an action's label in Android's list, in the text color (gray at night); iOS leaves it out, as UIAlertController does, so the iOS example does not offer it.</p>
+  <p>On iOS without a <code>source</code> the cancel capsule is the last of the panel, and a tap on the dim closes the sheet as Cancel does. Many actions scroll inside the panel while the cancel capsule stays in view.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="action-sheet/Overview" />
 </ComponentPreview>
@@ -92,7 +107,7 @@ A question with its answers is a [Dialog](/react-native/components/dialog).
 
 ### From its button
 
-<ComponentPreview details={<>On iOS 26 an action sheet opens from the control that shows it: <code>source</code> takes a ref to that Button (or a Pressable, a View), and the sheet stands at it as a glass panel, over or under it, as an iPhone's action sheet with a source item. It has no cancel capsule there: a tap anywhere else closes it. Here it confirms a destructive Delete project. Android keeps its sheet from the bottom of the screen.</>} code={fromSourceCode} previewMinHeight={168}>
+<ComponentPreview details={<>On iOS 26 an action sheet opens from the control that shows it: <code>source</code> takes a ref to that Button (or a Pressable, a View), and the sheet stands at it as a glass panel, over or under it, as an iPhone's action sheet with a source item. It has no cancel capsule there: a tap anywhere else closes it. Here a project's screen asks at its bottom bar's trash button before a destructive Delete project. A sheet open as its screen appears waits for its source's layout; a source that never measures (no view) puts the sheet in the middle with Cancel. Android keeps its sheet from the bottom of the screen.</>} code={fromSourceCode} previewMinHeight={168}>
   <RNExample demo="action-sheet/FromSource" />
 </ComponentPreview>
 

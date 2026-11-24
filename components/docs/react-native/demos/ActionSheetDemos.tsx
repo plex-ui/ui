@@ -1,7 +1,7 @@
 import { useRef, useState, type ReactElement } from 'react';
-import { ActionSheet, Button } from '@plexui/react-native';
-import { CameraPhoto, Copy, EditPencil, Folder, Images, RemoveTrash } from '@plexui/react-native/icons';
-import { View } from 'react-native';
+import { ActionSheet, IconButton, List, ListItem, Toolbar } from '@plexui/react-native';
+import { CameraPhoto, Copy, EditPencil, Folder, Images, RemoveTrash, Share } from '@plexui/react-native/icons';
+import { ScrollView, View } from 'react-native';
 import { DemoControlBoolean, controlsTableStyle } from '../../ButtonDemos';
 import { usePreviewEmbed } from '../../PreviewEmbed';
 import { RNScreen, docsDemo } from '../RNScreen';
@@ -14,18 +14,23 @@ import { useNativePlatform } from '../platform';
 function useSheetState() {
   const embed = usePreviewEmbed() !== null;
   const [open, setOpen] = useState(embed);
-  return { open, setOpen, hideTrigger: embed && open };
+  return { open, setOpen };
 }
 
-function Trigger({ label, hidden, onPress }: { label: string; hidden: boolean; onPress: () => void }) {
+/** A screen of an app: its title in the bar and a grouped list, a row of which opens the sheet */
+function AppScreen({ title, rows }: { title: string; rows: { label: string; value?: string; onPress?: () => void }[] }) {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 16, opacity: hidden ? 0 : 1 }}>
-      {/* A Button stands at the start of its row (alignSelf): centered here as the React stage centers it */}
-      <View style={{ alignSelf: 'center' }}>
-        <Button color="secondary" variant="outline" onPress={onPress}>
-          {label}
-        </Button>
-      </View>
+    <View style={{ flex: 1 }}>
+      <Toolbar>
+        <Toolbar.Title>{title}</Toolbar.Title>
+      </Toolbar>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+        <List>
+          {rows.map((row) => (
+            <ListItem key={row.label} label={row.label} value={row.value} disclosure={row.onPress != null} onPress={row.onPress} />
+          ))}
+        </List>
+      </ScrollView>
     </View>
   );
 }
@@ -38,7 +43,7 @@ function Trigger({ label, hidden, onPress }: { label: string; hidden: boolean; o
  */
 export const Overview = docsDemo(function Overview() {
   const android = useNativePlatform() === 'android';
-  const { open, setOpen, hideTrigger } = useSheetState();
+  const { open, setOpen } = useSheetState();
   const [title, setTitle] = useState(true);
   const [message, setMessage] = useState(true);
   const [destructive, setDestructive] = useState(true);
@@ -54,8 +59,16 @@ export const Overview = docsDemo(function Overview() {
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
         {android && <DemoControlBoolean name="icons" value={icons} onChange={setIcons} />}
       </div>
-      <RNScreen screen minHeight={200}>
-        <Trigger label="Project actions" hidden={hideTrigger} onPress={() => setOpen(true)} />
+      {/* The projects of an app: a project's row asks what to do with it */}
+      <RNScreen screen grouped minHeight={420}>
+        <AppScreen
+          title="Projects"
+          rows={[
+            { label: 'Website redesign', value: '128 files', onPress: () => setOpen(true) },
+            { label: 'Mobile app', value: '64 files', onPress: () => setOpen(true) },
+            { label: 'Brand refresh', value: '32 files', onPress: () => setOpen(true) },
+          ]}
+        />
         <ActionSheet
           open={open}
           onOpenChange={setOpen}
@@ -77,10 +90,18 @@ export const Overview = docsDemo(function Overview() {
  * and a `disabled` action is dimmed.
  */
 export const ActionsOnly = docsDemo(function ActionsOnly() {
-  const { open, setOpen, hideTrigger } = useSheetState();
+  const { open, setOpen } = useSheetState();
+  // A profile's settings: Change photo asks where the photo comes from
   return (
-    <RNScreen screen minHeight={200}>
-      <Trigger label="Add a photo" hidden={hideTrigger} onPress={() => setOpen(true)} />
+    <RNScreen screen grouped minHeight={420}>
+      <AppScreen
+        title="Edit profile"
+        rows={[
+          { label: 'Change photo', onPress: () => setOpen(true) },
+          { label: 'Name', value: 'Anna Petrova' },
+          { label: 'Username', value: '@anna' },
+        ]}
+      />
       <ActionSheet
         open={open}
         onOpenChange={setOpen}
@@ -102,22 +123,38 @@ export const ActionsOnly = docsDemo(function ActionsOnly() {
  */
 export const FromSource = docsDemo(function FromSource() {
   const { open, setOpen } = useSheetState();
-  const button = useRef(null);
+  const trash = useRef(null);
+  // A project's screen: its details in a list and its actions in the bottom bar; Delete asks at its button, as an
+  // iPhone's confirmation from a toolbar button stands at it
   return (
-    <RNScreen screen minHeight={200}>
-      <View style={{ flex: 1, justifyContent: 'center', padding: 16 }}>
-        <View style={{ alignSelf: 'center' }}>
-          <Button ref={button} color="danger" variant="soft" onPress={() => setOpen(true)}>
-            Delete project
-          </Button>
-        </View>
+    <RNScreen screen grouped minHeight={420}>
+      <View style={{ flex: 1 }}>
+        <Toolbar>
+          <Toolbar.Title>Website redesign</Toolbar.Title>
+        </Toolbar>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+          <List>
+            <ListItem label="Owner" value="Anna Petrova" />
+            <ListItem label="Members" value="6" />
+            <ListItem label="Files" value="128" />
+            <ListItem label="Updated" value="Today" />
+          </List>
+        </ScrollView>
+        <Toolbar placement="bottom">
+          <Toolbar.Leading>
+            <IconButton icon={<Share />} accessibilityLabel="Share" />
+          </Toolbar.Leading>
+          <Toolbar.Trailing>
+            <IconButton ref={trash} icon={<RemoveTrash />} accessibilityLabel="Delete project" onPress={() => setOpen(true)} />
+          </Toolbar.Trailing>
+        </Toolbar>
       </View>
       <ActionSheet
         open={open}
         onOpenChange={setOpen}
-        source={button}
+        source={trash}
         message="This project and its files will be deleted for everyone."
-        actions={[{ label: 'Delete project', icon: <RemoveTrash />, destructive: true }]}
+        actions={[{ label: 'Delete project', destructive: true }]}
       />
     </RNScreen>
   );

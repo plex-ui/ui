@@ -86,18 +86,33 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
   const { width: windowWidth } = useWindowDimensions()
   const sourced = !theme.isAndroid && source != null && !unplaced
   useEffect(() => {
-    if (!open || theme.isAndroid || source == null) return
+    if (theme.isAndroid || source == null) return
+    // Closed, the next opening tries its source again
+    if (!open) {
+      setUnplaced(false)
+      return
+    }
     let live = true
     // A new opening measures again: the panel never shows at the source's last place first
     setAnchor(null)
-    measure(source.current as Measurable | null, (box) => {
-      if (!live) return
-      const placed = box.width > 0 || box.height > 0
-      setAnchor(placed ? box : null)
-      setUnplaced(!placed)
-    })
+    // A frame at a time: a sheet open as its screen appears waits for its source's layout, up to 120 frames (2s), then
+    // stands in the middle
+    let frame = 0
+    const attempt = (left: number) => {
+      frame = requestAnimationFrame(() =>
+        measure(source.current as Measurable | null, (box) => {
+          if (!live) return
+          const placed = box.width > 0 || box.height > 0
+          if (!placed && left > 0) return attempt(left - 1)
+          setAnchor(placed ? box : null)
+          setUnplaced(!placed)
+        }),
+      )
+    }
+    attempt(120)
     return () => {
       live = false
+      cancelAnimationFrame(frame)
     }
   }, [open, theme.isAndroid, source, windowWidth, screen])
   if (theme.isAndroid) {
@@ -186,9 +201,10 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
         },
       ]}
     >
-      {/* iOS 27's action sheet: every action Semibold 17/22, a destructive one in the native red (the danger solid) */}
+      {/* iOS 27's action sheet: every action one weight, 17/22, a destructive one in the native red (the danger
+          solid). The kit's SF Semibold draws as heavy as Inter's Medium, so Medium, Cancel too */}
       <Text
-        weight="semibold"
+        weight="medium"
         color={item.disabled ? theme.color("--mobile-label-tertiary") : item.destructive ? theme.color("--color-background-danger-solid") : theme.colors.text}
         style={styles.iosLabel}
       >
