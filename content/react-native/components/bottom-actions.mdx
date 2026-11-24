@@ -6,15 +6,16 @@ metaDescription: "A React Native bar for a screen's main action at its bottom, s
 
 import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `import { BottomActions, Button, List, ListItem, Text } from "@plexui/react-native"
+export const overviewCode = `import { BottomActions, Button, List, ListItem, Text, useTheme, type BottomActionsBackground } from "@plexui/react-native"
 import { CheckMd, Health } from "@plexui/react-native/icons"
 import { ScrollView, View } from "react-native"
 
+const theme = useTheme()
 const [second, setSecond] = useState(true)
 const [floating, setFloating] = useState(true)
-const [background, setBackground] = useState("soft") // or "fade", with floating
-const [form, setForm] = useState(null)
-const row = (choice) => (
+const [background, setBackground] = useState<BottomActionsBackground>("soft") // or "fade", with floating
+const [form, setForm] = useState<string | null>(null)
+const row = (choice: string) => (
   <ListItem key={choice} label={choice} trailing={form === choice ? <CheckMd color={theme.colors.accent} /> : undefined} disclosure={false} onPress={() => setForm(choice)} />
 )
 

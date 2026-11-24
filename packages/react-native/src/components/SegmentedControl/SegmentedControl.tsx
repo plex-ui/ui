@@ -44,6 +44,11 @@ export type SegmentedControlProps<T extends string> = {
    * @default "equal"
    */
   mobileSegmentWidth?: "equal" | "content"
+  /**
+   * Draws each tab's `badge`: a count in a small capsule after its label, as a messenger's folder tabs set their
+   * unread counts. Off, the count is only read with the segment's name, as the native controls draw none. @default false
+   */
+  showBadges?: boolean
   style?: StyleProp<ViewStyle>
   testID?: string
   /** `SegmentedControl.Tab` elements. */
@@ -60,7 +65,10 @@ export type SegmentedControlOptionProps = {
   children?: ReactNode
   /** A symbol before the label; with a label, iOS shows the symbol alone, as UISegmentedControl. */
   icon?: ReactNode
-  /** A count. Segmented controls draw none on a phone (iOS and Material alike): it is read with the segment's name. */
+  /**
+   * A count. Read with the segment's name; drawn only with the control's `showBadges`, as the native controls (iOS and
+   * Material alike) draw none.
+   */
   badge?: SegmentedControlBadgeProp
   disabled?: boolean
   testID?: string
@@ -105,7 +113,7 @@ function iosLook(theme: Theme, size: ControlSize, material: "glass" | "flat" | u
       glass: true,
       fill: theme.color("--segmented-control-mobile-glass-background"),
       thumb: theme.color("--segmented-control-mobile-thumb-background"),
-      duration: 400,
+      duration: 300,
     }
   }
   return {
@@ -122,42 +130,6 @@ function iosLook(theme: Theme, size: ControlSize, material: "glass" | "flat" | u
     thumb: theme.color("--segmented-control-mobile-plain-thumb-background"),
     duration: 250,
   }
-}
-
-/**
- * The curve the large control's lens lands on (touch.css `--tabs-thumb-transition-easing`, iOS 27.2 frame by frame):
- * CSS `linear()` stops, each [progress, time], read between them as the browser does.
- */
-const LENS_STOPS: [number, number][] = [
-  [0, 0],
-  [0.2, 0.03],
-  [0.33, 0.0625],
-  [0.45, 0.1],
-  [0.538, 0.1225],
-  [0.623, 0.1625],
-  [0.69, 0.2],
-  [0.747, 0.2425],
-  [0.793, 0.2875],
-  [0.83, 0.325],
-  [0.862, 0.3675],
-  [0.887, 0.41],
-  [0.908, 0.45],
-  [0.925, 0.4925],
-  [0.943, 0.535],
-  [0.956, 0.58],
-  [0.975, 0.66],
-  [0.981, 0.7],
-  [0.989, 0.7475],
-  [0.994, 0.825],
-  [1, 1],
-]
-const lensEasing = (t: number) => {
-  if (t <= 0) return 0
-  if (t >= 1) return 1
-  const after = LENS_STOPS.findIndex(([, at]) => at >= t)
-  const [fromValue, fromAt] = LENS_STOPS[after - 1]
-  const [toValue, toAt] = LENS_STOPS[after]
-  return fromValue + ((toValue - fromValue) * (t - fromAt)) / (toAt - fromAt)
 }
 
 type ControlContext = { inRow: boolean }
@@ -197,6 +169,7 @@ function SegmentedControlRoot<T extends string>({
   block = false,
   mobileMaterial,
   mobileSegmentWidth = "equal",
+  showBadges = false,
   style,
   testID,
   children,
@@ -215,7 +188,7 @@ function SegmentedControlRoot<T extends string>({
       if (option) select(option)
     },
   )
-  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" }
+  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal", showBadges }
   return (
     <View accessibilityRole="tablist" aria-label={ariaLabel} accessibilityState={{ disabled }} testID={testID} style={[block ? styles.block : styles.hug, style]}>
       {theme.isAndroid ? <AndroidControl {...common} size={size} /> : <IOSControl {...common} size={size} material={mobileMaterial} />}
@@ -232,9 +205,10 @@ type ControlProps = {
   disabled: boolean
   block: boolean
   equal: boolean
+  showBadges: boolean
 }
 
-function IOSControl({ options, value, select, keys, disabled, block, equal, size, material }: ControlProps & { size: ControlSize; material?: "glass" | "flat" }) {
+function IOSControl({ options, value, select, keys, disabled, block, equal, showBadges, size, material }: ControlProps & { size: ControlSize; material?: "glass" | "flat" }) {
   const theme = useTheme()
   const inBar = !!useContext(BarItemContext)
   const { inRow } = useContext(SegmentedControlRowContext)
@@ -266,13 +240,14 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
       placed.current = true
       return
     }
-    // The large control's lens lands in 400ms on touch.css's own curve; the small one eases (CSS `ease`) in 250
-    const easing = look.glass && look.height >= 40 ? lensEasing : Easing.bezier(0.25, 0.1, 0.25, 1)
+    // The thumb eases (CSS `ease`): in 300ms on the large control, 250 on the small one. The lens's own curve (fast,
+    // then a long settle) reads as a jump and a crawl when no lens is drawn over it (owner, 24.11)
+    const easing = Easing.bezier(0.25, 0.1, 0.25, 1)
     Animated.parallel([
       Animated.timing(x, { toValue: selectedX, duration: look.duration, easing, useNativeDriver: false }),
       Animated.timing(width, { toValue: selectedWidth, duration: look.duration, easing, useNativeDriver: false }),
     ]).start()
-  }, [selectedX, selectedWidth, look.duration, look.glass, look.height, theme.reducedMotion, x, width])
+  }, [selectedX, selectedWidth, look.duration, theme.reducedMotion, x, width])
   // The segments take the capsule's whole height, so a press anywhere on it lands (the thumb keeps its inset); a
   // minimum, so text a person enlarges is not cut
   const track: ViewStyle = {
@@ -343,6 +318,7 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, size
                   {option.children}
                 </Text>
               )}
+              {showBadges ? <SegmentCount badge={option.badge} selected={isSelected} off={off} /> : null}
             </View>
           </Pressable>
         )
@@ -382,7 +358,7 @@ const ANDROID_MOVE = { duration: 320, easing: curves.easeOutQuint }
  * its label in the accent, the others in the secondary gray. The pill slides to a new selection and takes its width.
  * In a bar's row of controls the capsule takes the height of the circles beside it (46dp).
  */
-function AndroidControl({ options, value, select, keys, disabled, block, equal, size }: ControlProps & { size: ControlSize }) {
+function AndroidControl({ options, value, select, keys, disabled, block, equal, showBadges, size }: ControlProps & { size: ControlSize }) {
   const theme = useTheme()
   const m = theme.material
   const bar = useContext(BarItemContext)
@@ -434,6 +410,7 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal, 
           selected={option.value === value}
           off={disabled || !!option.disabled}
           framed={frame}
+          showBadges={showBadges}
           height={inner}
           // In a filled row equal segments share the width and the others take their label and share what is left; a
           // control that hugs its segments gives equal ones the widest one's width
@@ -453,6 +430,7 @@ type AndroidSegmentProps = {
   off: boolean
   /** The pill is placed: the selected segment draws none of its own. */
   framed: boolean
+  showBadges: boolean
   height: number
   size: ViewStyle | null
   keys: ReturnType<typeof useTabKeys>
@@ -461,7 +439,7 @@ type AndroidSegmentProps = {
 }
 
 /** One segment of the capsule: its label turns from the gray to the accent as the pill comes, and back as it goes. */
-function AndroidSegment({ option, selected, off, framed, height, size, keys, select, onWidth }: AndroidSegmentProps) {
+function AndroidSegment({ option, selected, off, framed, showBadges, height, size, keys, select, onWidth }: AndroidSegmentProps) {
   const theme = useTheme()
   const m = theme.material
   const [tint] = useState(() => new Animated.Value(selected ? 1 : 0))
@@ -509,7 +487,36 @@ function AndroidSegment({ option, selected, off, framed, height, size, keys, sel
           {option.children}
         </Animated.Text>
       ) : null}
+      {showBadges ? <SegmentCount badge={option.badge} selected={selected} off={off} /> : null}
     </Pressable>
+  )
+}
+
+/**
+ * A tab's count drawn after its label (`showBadges`): a capsule 18 tall, the digits 12 semibold in the screen's color.
+ * iOS: the label's color on the selected segment, so it reads on the thumb, the secondary label on the others.
+ * Android: the accent on the selected segment, as its label, the gray on the others.
+ */
+function SegmentCount({ badge, selected, off }: { badge: SegmentedControlBadgeProp | undefined; selected: boolean; off: boolean }) {
+  const theme = useTheme()
+  const text = badge != null ? badgeText(badge) : undefined
+  if (!text) return null
+  const fill = off
+    ? theme.color("--alpha-20")
+    : theme.isAndroid
+      ? selected
+        ? theme.material.primary
+        : theme.colors.labelSecondary
+      : selected
+        ? theme.colors.text
+        : theme.colors.labelSecondary
+  const ink = theme.isAndroid ? theme.material.surface : theme.colors.background
+  return (
+    <View aria-hidden style={[styles.count, { backgroundColor: fill }]}>
+      <Text numberOfLines={1} weight="semibold" color={ink} style={styles.countText}>
+        {text}
+      </Text>
+    </View>
   )
 }
 
@@ -523,6 +530,8 @@ const styles = StyleSheet.create({
   stretch: { alignSelf: "stretch" },
   heldControl: { transform: [{ scale: 1.07 }] },
   heldLabel: { opacity: 0.2 },
+  count: { minWidth: 18, height: 18, paddingHorizontal: 5, borderRadius: 9, alignItems: "center", justifyContent: "center" },
+  countText: { fontSize: 12, lineHeight: 16, fontVariant: ["tabular-nums"] },
   thumb: { position: "absolute", borderCurve: "continuous" },
   option: { alignItems: "center", justifyContent: "center", minWidth: 0 },
   label: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },

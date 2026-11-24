@@ -60,8 +60,12 @@ function Agenda() {
  * above a day that scrolls under the bars; `placement` picks one. In a Toolbar every control is the large
  * glass one, so `size` and `mobileMaterial` are settings of a control in the content; Android's capsule has
  * no glass, so it offers `size` alone. A phone's segment shows a label
- * or a symbol alone. Vertical tabs, the underline variant, flush, block, pill and badges are not drawn on a phone.
+ * or a symbol alone; `showBadges` draws each view's count of events after it. Vertical tabs, the underline variant,
+ * flush, block and pill are not drawn on a phone.
  */
+/** Each view's count of events, read with its name and drawn with `showBadges` */
+const EVENTS: Record<string, number | undefined> = { day: 3, week: 12, month: 41 };
+
 export const Overview = docsDemo(function Overview() {
   const [tab, setTab] = useState('day');
   const [placement, setPlacement] = useState<(typeof PLACEMENTS)[number]>('top');
@@ -73,6 +77,7 @@ export const Overview = docsDemo(function Overview() {
   const [icon, setIcon] = useState<(typeof ICONS)[number]>('none');
   const [disabled, setDisabled] = useState(false);
   const [monthDisabled, setMonthDisabled] = useState(false);
+  const [showBadges, setShowBadges] = useState(false);
   const inContent = placement === 'content';
   // Without a bar of its own at the top, the screen keeps the app's top bar, titled as a phone page's (the calendar's
   // own name where the page gives none)
@@ -86,6 +91,7 @@ export const Overview = docsDemo(function Overview() {
       mobileMaterial={material}
       mobileSegmentWidth={segmentWidth}
       disabled={disabled}
+      showBadges={showBadges}
     >
       {VIEWS.map((view) => (
         <SegmentedControl.Tab
@@ -94,6 +100,7 @@ export const Overview = docsDemo(function Overview() {
           icon={icon === 'only' ? view.icon : undefined}
           aria-label={icon === 'only' ? view.label : undefined}
           disabled={view.value === 'month' ? monthDisabled : undefined}
+          badge={EVENTS[view.value]}
         >
           {icon === 'only' ? undefined : view.label}
         </SegmentedControl.Tab>
@@ -110,6 +117,7 @@ export const Overview = docsDemo(function Overview() {
         <Segments name="icon" options={ICONS} value={icon} onChange={setIcon} />
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
         <DemoControlBoolean name="monthDisabled" value={monthDisabled} onChange={setMonthDisabled} />
+        <DemoControlBoolean name="showBadges" value={showBadges} onChange={setShowBadges} />
       </div>
       <RNScreen screen grouped minHeight={320}>
         {/* The day scrolls under the bars, which show its edge once content is under them */}

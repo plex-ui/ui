@@ -27,6 +27,15 @@
   margin-inline: auto;
 }
 
+/* A phone's page takes the screen's width at every width: the column and the wide width are the desktop's. */
+@media (max-width: 767px) {
+  .Head,
+  .Column,
+  .FooterContent {
+    max-width: none;
+  }
+}
+
 .Footer {
   flex: none;
   padding: var(--page-footer-padding-top, 16px) var(--page-footer-gutter, var(--page-gutter)) var(--page-footer-padding-bottom, max(16px, env(safe-area-inset-bottom, 0px)));

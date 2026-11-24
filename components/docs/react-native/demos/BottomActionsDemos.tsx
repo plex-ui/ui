@@ -39,7 +39,8 @@ export const Overview = docsDemo(function Overview() {
 /** The step's content and its actions, inside the screen so that they take its theme */
 function MedicationType({ second, floating, background }: { second: boolean; floating: boolean; background: Background }) {
   const theme = useTheme();
-  // The screen is the window's height at most, so the lists scroll inside it, under floating actions
+  // The screen is the window's height at most (on a narrow page, the screen's own 560), so the lists scroll inside it,
+  // under floating actions
   const { height } = useWindowDimensions();
   const [form, setForm] = useState<string | null>(null);
   const row = (choice: string) => (
@@ -52,7 +53,7 @@ function MedicationType({ second, floating, background }: { second: boolean; flo
     />
   );
   return (
-    <View style={{ flex: 1, maxHeight: height }}>
+    <View style={{ flex: 1, maxHeight: Math.max(height, 560) }}>
       <ScrollView
         style={{ flex: 1 }}
         // Floating actions stand over the lists: their end keeps the actions' room, so the last row scrolls clear of them

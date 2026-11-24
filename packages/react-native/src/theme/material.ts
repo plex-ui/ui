@@ -242,13 +242,20 @@ export const elevationShadow = {
 
 /** A color with its alpha multiplied: a state layer or a disabled container. */
 export function withAlpha(color: string, alpha: number): string {
-  // `#rrggbb(aa)`, `rgb()` or `rgba()`, with or without spaces; any other form is returned as it is
+  // `#rgb(a)`, `#rrggbb(aa)`, `rgb()`, `rgba()`, `white` or `black`; any other form is returned as it is
   const c = channels(color)
   return c ? `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${Math.round(c[3] * alpha * 1000) / 1000})` : color
 }
 
-/** The channels of a `#rrggbb(aa)` or `rgb(a)()` color, alpha 0–1; undefined for any other form. */
+/** The channels of a `#rgb(a)`, `#rrggbb(aa)`, `rgb(a)()`, `white` or `black` color, alpha 0–1; undefined for any other form. */
 function channels(color: string): [number, number, number, number] | undefined {
+  // `#rgb(a)` reads as `#rrggbb(aa)`; `white` and `black`, the names a canvas is likeliest to be given
+  if (color === "white") return [255, 255, 255, 1]
+  if (color === "black") return [0, 0, 0, 1]
+  if (color.startsWith("#") && (color.length === 4 || color.length === 5)) {
+    const [r, g, b, a = "f"] = color.slice(1)
+    return [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16), parseInt(a + a, 16) / 255]
+  }
   if (color.startsWith("#") && (color.length === 7 || color.length === 9)) {
     const a = color.length === 9 ? parseInt(color.slice(7, 9), 16) / 255 : 1
     return [parseInt(color.slice(1, 3), 16), parseInt(color.slice(3, 5), 16), parseInt(color.slice(5, 7), 16), a]
