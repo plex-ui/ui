@@ -46,7 +46,8 @@ export type SegmentedControlProps<T extends string> = {
   mobileSegmentWidth?: "equal" | "content"
   /**
    * Draws each tab's `badge`: a count in a small capsule after its label, as a messenger's folder tabs set their
-   * unread counts. Off, the count is only read with the segment's name, as the native controls draw none. @default false
+   * unread counts; each segment then takes its own width (`mobileSegmentWidth` content), 10 beside its label and
+   * count. Off, the count is only read with the segment's name, as the native controls draw none. @default false
    */
   showBadges?: boolean
   style?: StyleProp<ViewStyle>
@@ -188,7 +189,9 @@ function SegmentedControlRoot<T extends string>({
       if (option) select(option)
     },
   )
-  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal", showBadges }
+  // Drawn counts differ from tab to tab, so each segment takes its own width with them, as a messenger's folder tabs
+  const counted = showBadges && options.some((option) => option.badge != null)
+  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" && !counted, showBadges }
   return (
     <View accessibilityRole="tablist" aria-label={ariaLabel} accessibilityState={{ disabled }} testID={testID} style={[block ? styles.block : styles.hug, style]}>
       {theme.isAndroid ? <AndroidControl {...common} size={size} /> : <IOSControl {...common} size={size} material={mobileMaterial} />}
@@ -218,6 +221,9 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
   const [widths, setWidths] = useState<Record<string, number>>({})
   const widest = Math.max(0, ...options.map((option) => labels[option.value] ?? 0))
   const optionRadius = look.height / 2 - look.gutter
+  // A drawn count ends a label in a capsule of its own: the thumb keeps 10 beside the label and the capsule, so the
+  // capsule does not touch the thumb's end
+  const gutter = showBadges && options.some((option) => option.badge != null) ? Math.max(look.optionGutter, 10) : look.optionGutter
   // The large glass control held down, as the phone CSS ports it: the capsule grows 7% and whitens, the held label
   // fades to 20%, with no capsule of its own under the finger
   const largeGlass = look.glass && look.height >= 40
@@ -292,8 +298,8 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
             }}
             style={[
               styles.option,
-              { paddingHorizontal: look.optionGutter, borderRadius: look.height / 2 },
-              block ? styles.grow : equal && widest ? { width: widest + 2 * look.optionGutter } : null,
+              { paddingHorizontal: gutter, borderRadius: look.height / 2 },
+              block ? styles.grow : equal && widest ? { width: widest + 2 * gutter } : null,
             ]}
           >
             <View
