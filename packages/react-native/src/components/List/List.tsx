@@ -586,7 +586,8 @@ export function ListStackedRow({ label, description, error, disabled = false, ac
   return (
     <View testID={testID} style={[styles.stackedRow, { paddingStart: inset }]}>
       <View style={[styles.stackedColumn, { paddingEnd: inset, paddingVertical: padding, gap: android ? 4 : 0 }]}>
-        {last ? null : <View pointerEvents="none" style={[styles.iosSeparator, { backgroundColor: android ? divider(theme) : theme.colors.separator }]} />}
+        {/* iOS stops the line 20 before the group's end, as its rows' text (Settings, iOS 26 and 27) */}
+        {last ? null : <View pointerEvents="none" style={[styles.iosSeparator, { backgroundColor: android ? divider(theme) : theme.colors.separator }, android ? null : { end: inset }]} />}
         {labelText != null && action != null ? (
           <View style={[styles.pair, { gap: 8 }, !android && error != null ? { marginBottom: theme.length("--mobile-field-error-offset", 4) } : null]}>
             {labelText}
@@ -829,8 +830,9 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
             : { gap: below ? disclosureGap : gap },
         ]}
       >
-        {/* Over the row's bottom edge, not under it: the row keeps its height, as the web's separator */}
-        {last ? null : <View pointerEvents="none" style={[styles.iosSeparator, { backgroundColor: theme.colors.separator }]} />}
+        {/* Over the row's bottom edge, not under it: the row keeps its height, as the web's separator. It runs from the
+            text to 20 before the group's end (the row's end inset), as Settings draws it on iOS 26 and 27 */}
+        {last ? null : <View pointerEvents="none" style={[styles.iosSeparator, { backgroundColor: theme.colors.separator, end: inset }]} />}
         {probe}
         {line(
           <>
