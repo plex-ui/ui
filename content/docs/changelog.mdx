@@ -31,6 +31,17 @@ Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.
 
 - **Dialog's iOS alert on a phone:** its preferred action is the accent alone, one flat color from top to bottom, with no sheen, rim or shadow, as native draws a `preferredAction` (iOS 27.2: 0082f7 on every row). A sheet's main action keeps the glass edge of a bar's prominent button.
 
+## @plexui/react-native 0.2.4 (2026-11-24)
+
+### Added
+
+- **ContextMenu.** A menu of actions for an element, opened by a touch and hold (and a right click on the web): on iOS the screen dims and blurs, the element stays clear over it, lifted, and the glass menu of Menu stands 16 from it by the third of the screen it is in, over it when it is in the lower half; on Android Material's popup under the element, the screen dimmed around it. Parts as `@plexui/ui`: `ContextMenu.Trigger`, `ContextMenu.Content`, `ContextMenu.Item`, `ContextMenu.Separator`, `ContextMenu.Label`. [Context Menu](/react-native/components/context-menu).
+- **ListItem `onLongPress`.** A touch and hold on the row (half a second), with the long-press action for VoiceOver and TalkBack.
+
+### Changed
+
+- **Toolbar docs:** the search under a large title opens into the bar on iOS, the field beside a close button, as Apple's apps do; Android keeps the field in place.
+
 ## @plexui/react-native 0.2.3 (2026-11-24)
 
 ### Added

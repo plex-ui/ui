@@ -378,7 +378,9 @@ export const SearchUnderTitle = docsDemo(function SearchUnderTitle() {
   const [titleAlign, setTitleAlign] = useTitleAlign();
   const [subtitle, setSubtitle] = useState(false);
   // iOS: a tap on the row's field brings it up into the bar, beside a glass close, as UISearchController does
-  const [active, setActive] = useState(false);
+  const [opened, setActive] = useState(false);
+  // Android has no such state: switched to Android, the bar is its own again
+  const active = opened && !android;
   const field = (row: boolean) => (
     <Input
       variant="soft"

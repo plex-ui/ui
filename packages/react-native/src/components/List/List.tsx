@@ -330,6 +330,8 @@ export type ListItemProps = {
   /** The chevron of a row that opens a page. @default true when the row has `onPress`, no `trailing` and is not `destructive` */
   disclosure?: boolean
   onPress?: () => void
+  /** A touch and hold on the row (half a second): a ContextMenu around the row sets it. */
+  onLongPress?: () => void
   disabled?: boolean
   /** A row in red, as a destructive action row. */
   destructive?: boolean
@@ -363,6 +365,7 @@ export function ListItem({
   onCheckedChange,
   disclosure,
   onPress,
+  onLongPress,
   disabled = false,
   destructive = false,
   accessibilityLabel,
@@ -452,7 +455,7 @@ export function ListItem({
       </RowFrameContext.Provider>
     )
   }
-  if (press) {
+  if (press || onLongPress) {
     // Android's rows press in the list selector: the native ripple on a device, the drawn one on the web
     const highlight = controlHighlight(theme.scheme)
     const drawn = theme.isAndroid && !nativeRipple
@@ -472,6 +475,10 @@ export function ListItem({
         aria-checked={switchRow ? checked : undefined}
         disabled={disabled}
         onPress={press}
+        onLongPress={onLongPress}
+        delayLongPress={onLongPress ? 500 : undefined}
+        accessibilityActions={onLongPress ? [{ name: "longpress" }] : undefined}
+        onAccessibilityAction={onLongPress ? (event) => event.nativeEvent.actionName === "longpress" && onLongPress() : undefined}
         onPressIn={drawn ? ripple.start : undefined}
         onPressOut={drawn ? ripple.end : undefined}
         android_ripple={nativeRipple ? { color: highlight, foreground: true } : undefined}

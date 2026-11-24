@@ -80,6 +80,7 @@ export { TagInput, type Tag, type TagInputProps } from "./components/TagInput/Ta
 export { OTPInput, type OTPInputProps } from "./components/OTPInput/OTPInput"
 export { Select, type SelectOption, type SelectProps } from "./components/Select/Select"
 export { Menu, type MenuContentProps, type MenuItemProps, type MenuProps } from "./components/Menu/Menu"
+export { ContextMenu, type ContextMenuContentProps, type ContextMenuProps } from "./components/ContextMenu/ContextMenu"
 export { ActionSheet, type ActionSheetAction, type ActionSheetProps } from "./components/ActionSheet/ActionSheet"
 export { BottomSheet, type BottomSheetFooterProps, type BottomSheetProps } from "./components/BottomSheet/BottomSheet"
 export { Dialog, type DialogAction, type DialogProps } from "./components/Dialog/Dialog"

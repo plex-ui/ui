@@ -1,0 +1,76 @@
+---
+title: Context Menu
+description: A menu of actions for an element, opened by a touch and hold, with the element lifted over the dimmed screen.
+metaDescription: "A React Native context menu: a touch and hold opens a glass menu beside the lifted element over a dimmed screen on iOS 27, Material's popup under the element on Android."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { ContextMenu, List, ListItem } from "@plexui/react-native"
+import { Copy, RemoveTrash, Share } from "@plexui/react-native/icons"
+
+<List>
+  {notes.map((note) => (
+    <ContextMenu key={note.id}>
+      <ContextMenu.Trigger>
+        <ListItem label={note.title} description={note.detail} onPress={() => open(note)} />
+      </ContextMenu.Trigger>
+      <ContextMenu.Content aria-label={note.title}>
+        <ContextMenu.Item icon={<Copy />} onSelect={() => copy(note)}>Copy</ContextMenu.Item>
+        <ContextMenu.Item icon={<Share />} onSelect={() => share(note)}>Share</ContextMenu.Item>
+        <ContextMenu.Separator />
+        <ContextMenu.Item icon={<RemoveTrash />} danger onSelect={() => remove(note)}>Delete</ContextMenu.Item>
+      </ContextMenu.Content>
+    </ContextMenu>
+  ))}
+</List>`
+
+<UsageBlock>{`import { ContextMenu } from "@plexui/react-native"`}</UsageBlock>
+
+A menu from a button is a [Menu](/react-native/components/menu).
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A touch and hold on the element opens its menu after half a second; a tap still runs the element's own press, here opening the note. On the web a right click opens it too. On iOS 27 the screen dims (black at 20%, 50% at night, over a 30px blur on the web) and the element stays clear over it, lifted, its corners rounded to half its height up to 30 and a soft shadow around it, as iOS lifts a context menu's preview; the glass menu of <a href="/react-native/components/menu">Menu</a> stands 16 under it, or over it when the element is in the lower half of the screen, and keeps to where the element stands: its left edge in the left third of the screen, its right edge in the right third, its centre otherwise (a full-width row, as here). A tap on the dimming closes it. On Android it is Material's popup under the element at its end, the screen dimmed around the element.</p>
+  <p>The items are Menu's: <code>ContextMenu.Item</code> with an <code>icon</code>, <code>danger</code> for a destructive one, <code>ContextMenu.Separator</code> and <code>ContextMenu.Label</code>; items that say <code>checked</code> make a set of options with a checkmark, as in Menu. With <code>open</code> the menu measures the element as it opens; a turn of the screen closes it. Delete takes the note off the list. VoiceOver and TalkBack reach the menu through the element's long-press action.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="context-menu/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 27 | Android |
+| --- | --- | --- |
+| Native component | Context menu (UIContextMenuInteraction, `.contextMenu`) | Popup menu on a long press |
+| Look | The element lifted over a dimmed, blurred screen, the glass menu 16 from it by the third of the screen it is in | Material's popup under the element at its end, the screen dimmed around it |
+
+## API
+
+### ContextMenu
+
+<PropsTable data={[
+  { prop: "open", type: "boolean", description: "Holds the menu open or closed" },
+  { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called as the menu opens or closes" },
+  { prop: "children", type: "ReactNode", description: "The trigger and the content (required)" },
+]} />
+
+### ContextMenu.Trigger
+
+<PropsTable data={[
+  { prop: "children", type: "ReactElement", description: "The element: a ListItem, a Pressable, anything with onLongPress (required). Its own onPress and onLongPress still run; the iOS preview is drawn again from its props" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the wrapper the element is measured in" },
+]} />
+
+### ContextMenu.Content
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The items (required)" },
+  { prop: "width", type: "number", default: "250 on iOS", description: "The menu's width; on Android the popup fits its items" },
+  { prop: "aria-label", type: "string", description: "The menu's name, the element's" },
+  { prop: "testID", type: "string", description: "Test id" },
+]} />
+
+`ContextMenu.Item`, `ContextMenu.Separator` and `ContextMenu.Label` are [Menu's](/react-native/components/menu#api).

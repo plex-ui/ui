@@ -124,7 +124,9 @@ const closeSearch = <NavigationButton action="close" accessibilityLabel="Close s
   </Toolbar>
 )}`
 
-export const searchCode = `const [query, setQuery] = useState("")
+export const searchCode = `import { Platform } from "react-native"
+
+const [query, setQuery] = useState("")
 const [active, setActive] = useState(false) // iOS: the search is open
 
 const field = (row: boolean) => (
@@ -140,7 +142,7 @@ const field = (row: boolean) => (
     onChangeText={setQuery}
     onClear={() => setQuery("")}
     autoFocus={!row}
-    onFocus={row ? () => setActive(true) : undefined}
+    onFocus={row && Platform.OS === "ios" ? () => setActive(true) : undefined} // iOS only
   />
 )
 

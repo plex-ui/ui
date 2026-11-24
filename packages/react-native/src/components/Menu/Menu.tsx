@@ -199,7 +199,7 @@ function MenuContent(props: MenuContentProps) {
   return <MenuSurface {...props} check={hasCheckedItems(props.children)} open={menu.open} anchor={menu.anchor} row={menu.row} header={menu.header} onClose={() => menu.setOpen(false)} />
 }
 
-function hasCheckedItems(children: ReactNode): boolean {
+export function hasCheckedItems(children: ReactNode): boolean {
   return Children.toArray(children).some((child) =>
     isValidElement<{ checked?: boolean; children?: ReactNode }>(child) ? child.props.checked !== undefined || (child.type === Fragment && hasCheckedItems(child.props.children)) : false,
   )
@@ -219,6 +219,11 @@ type SurfaceProps = MenuContentProps & {
   row?: MenuRow | null
   /** Opened from a bar's button: on Android the header menu, in the bar's glass. */
   header?: boolean
+  /**
+   * A context menu's touch and hold (ContextMenu): on iOS the screen dims and blurs but the element, drawn again
+   * over the dimming as its lifted `preview`, and the menu stands 16 from it, by the third of the screen it is in.
+   */
+  context?: { preview: ReactNode; radius: number }
 }
 
 /** The floating panel of a menu, placed under its anchor (over it when the screen ends first). */
@@ -228,7 +233,7 @@ export function MenuSurface(props: SurfaceProps) {
 }
 
 /** iOS 26's pop-up menu: glass, a submenu over the menu at its row while the menu steps back. */
-function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check = false, multiple = false, cover, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
+function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check = false, multiple = false, cover, context, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const window = useWindowDimensions()
@@ -269,9 +274,33 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
   const below = over ? box.y : box.y + box.height + gap
   const fitsBelow = below + height <= window.height - bottomEdge
   const above = over ? box.y + box.height - height : box.y - gap - height
-  const top = size == null ? -window.height - 1000 : fitsBelow ? below : Math.max(topEdge, above)
+  let top = size == null ? -window.height - 1000 : fitsBelow ? below : Math.max(topEdge, above)
+  let previewTop = box.y
+  if (context) {
+    // iOS 27.2 places a context menu by where the element stands (ref-app menus-context): in the left third at its
+    // left edge, in the right third at its right edge, else at its centre; 16 under it, or over it when the element
+    // is in the lower half and the menu fits there (the web's ContextMenu, contextMenuPreview)
+    const centre = box.x + box.width / 2
+    left = centre < window.width / 3 ? box.x : centre > (window.width * 2) / 3 ? box.x + box.width - measured : centre - measured / 2
+    left = Math.max(margin, Math.min(left, window.width - measured - margin))
+    const lift = 16
+    const overIt = box.y - lift - height
+    const underIt = box.y + box.height + lift
+    const lower = box.y + box.height / 2 > window.height / 2
+    if (size != null) {
+      if (lower && overIt >= topEdge) top = overIt
+      else {
+        // Where the menu does not fit under the element it lifts the element up with it, as iOS moves the preview, so
+        // the menu never covers it
+        const overflow = underIt + height - (window.height - bottomEdge)
+        previewTop = overflow > 0 ? Math.max(topEdge, box.y - overflow) : box.y
+        top = Math.max(topEdge, Math.min(previewTop + box.height + lift, window.height - bottomEdge - height))
+      }
+    }
+  }
   // The measures are from the screen's left; a phone in a right-to-left layout reads `left` as the start edge
-  const horizontal = Platform.OS !== "web" && I18nManager.isRTL && I18nManager.doLeftAndRightSwapInRTL ? { right: left } : { left }
+  const swap = Platform.OS !== "web" && I18nManager.isRTL && I18nManager.doLeftAndRightSwapInRTL
+  const horizontal = swap ? { right: left } : { left }
   const maxHeight = window.height - topEdge - bottomEdge
   const timing = overlayTiming(theme, "menu")
   const moveTo = (value: Animated.Value, to: number, enter: boolean, done?: () => void) => {
@@ -347,6 +376,36 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
     <Overlay open={open} onDismiss={onClose} motion="menu" testID={testID}>
       {(progress, opening) => (
         <>
+          {context ? (
+            <>
+              {/* The page dims (black at 20%, 50% at night) over a 30px blur on the web; the element stays clear */}
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  StyleSheet.absoluteFill,
+                  { backgroundColor: theme.color("--context-menu-dimming-background", theme.scheme === "dark" ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.2)"), opacity: progress },
+                  web ? ({ backdropFilter: "blur(30px)", WebkitBackdropFilter: "blur(30px)" } as ViewStyle) : null,
+                ]}
+              />
+              <View
+                pointerEvents="none"
+                style={[
+                  styles.preview,
+                  swap ? { right: box.x } : { left: box.x },
+                  {
+                    top: previewTop,
+                    width: box.width,
+                    height: box.height,
+                    borderRadius: context.radius,
+                    backgroundColor: theme.colors.groupedSurface,
+                    boxShadow: String(theme.token("--context-menu-preview-shadow") ?? "0 0 32px rgba(0, 0, 0, 0.2)"),
+                  },
+                ]}
+              >
+                {context.preview}
+              </View>
+            </>
+          ) : null}
           <Animated.View
             ref={panel as never}
             // The panel takes the focus of a menu opened by a pointer (the web), with no ring of its own
@@ -996,7 +1055,7 @@ type RowExtras = {
   rowRef?: { current: unknown }
 }
 
-function MenuItem(props: MenuItemProps) {
+export function MenuItem(props: MenuItemProps) {
   return <MenuRow {...props} />
 }
 MenuItem.displayName = "Menu.Item"
@@ -1216,7 +1275,7 @@ MenuSubTrigger.displayName = "Menu.SubTrigger"
 const MenuSubContent: ((props: MenuSubContentProps) => null) & { displayName?: string } = () => null
 MenuSubContent.displayName = "Menu.SubContent"
 
-function MenuSeparator() {
+export function MenuSeparator() {
   const theme = useTheme()
   const surface = useContext(SurfaceContext)
   // Android parts a popup's groups with an 8dp band: a light gray (#F5F5F5, #262626 at night) in a row's menu, the text
@@ -1245,7 +1304,7 @@ function MenuSeparator() {
 MenuSeparator.displayName = "Menu.Separator"
 
 /** A heading over a group of items. */
-function MenuLabel({ children }: { children: ReactNode }) {
+export function MenuLabel({ children }: { children: ReactNode }) {
   const theme = useTheme()
   const surface = useContext(SurfaceContext)
   if (theme.isAndroid) {
@@ -1295,6 +1354,7 @@ export const Menu = Object.assign(MenuRoot, {
 })
 
 const styles = StyleSheet.create({
+  preview: { position: "absolute", overflow: "hidden" },
   trigger: { alignSelf: "flex-start" },
   surface: { position: "absolute", outlineWidth: 0, outlineStyle: "none" as "solid" },
   shrink: { flexShrink: 1 },
