@@ -829,7 +829,7 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
           error != null ? styles.iosColumn : styles.iosMain,
           { minHeight: iosMinHeight(theme, description != null || error != null), paddingEnd: inset },
           error != null
-            ? { paddingVertical: Math.max(theme.length("--field-row-text-padding-block", 12), (iosMinHeight(theme, true) - labelType.lineHeight - errorOffset - errorLine) / 2) }
+            ? { paddingVertical: Math.max(descriptionPadding, (iosMinHeight(theme, true) - labelType.lineHeight - errorOffset - errorLine) / 2) }
             : { gap: below ? disclosureGap : gap },
         ]}
       >
