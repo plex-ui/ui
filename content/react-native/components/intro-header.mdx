@@ -1,0 +1,89 @@
+---
+title: Intro Header
+description: "The header of a step in a sheet or a setup flow: an optional symbol, the step's title and what it asks."
+metaDescription: "A React Native header for a setup step, as iOS 27's own steps set it: a symbol in the middle, a Title 2 bold title and a Title 2 description in the secondary label at the start of the column; the setup wizard's header on Android."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { BottomActions, Button, Input, IntroHeader, NavigationButton, Toolbar } from "@plexui/react-native"
+import { Email } from "@plexui/react-native/icons"
+import { ScrollView, View } from "react-native"
+
+const [media, setMedia] = useState(true)
+const [description, setDescription] = useState(true)
+const [align, setAlign] = useState<"cells" | "text">("cells")
+const [email, setEmail] = useState("")
+
+<View style={{ flex: 1 }}>
+  <Toolbar>
+    <Toolbar.Leading><NavigationButton action="back" onPress={back} /></Toolbar.Leading>
+    <Toolbar.Trailing><NavigationButton action="close" onPress={close} /></Toolbar.Trailing>
+  </Toolbar>
+  {/* The column 36 from the screen's edges, as the actions; the symbol's drawing about 24 under the bar's buttons, the field 24 under the header */}
+  <ScrollView contentContainerStyle={{ paddingHorizontal: 36, paddingTop: 8, gap: 24 }}>
+    <IntroHeader
+      media={media ? <Email /> : undefined}
+      title="Add Email Address"
+      description={description ? "A verification code will be sent to this address. Once you have added it, you can use it to sign in." : undefined}
+      align={align}
+    />
+    <Input accessibilityLabel="Email address" placeholder="Email address" variant="soft" size="3xl" pill value={email} onChangeText={setEmail} />
+  </ScrollView>
+  <BottomActions>
+    <Button color="primary" variant="solid" disabled={!email.includes("@")} onPress={next}>Continue</Button>
+  </BottomActions>
+</View>`
+
+export const overListCode = `import { IntroHeader, List, ListItem } from "@plexui/react-native"
+import { Health } from "@plexui/react-native/icons"
+
+<ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8 }}>
+  {/* On the rows' text: 20 in from the cards' edge, as the section headers */}
+  <IntroHeader media={<Health />} title="Choose the Medication Type" align="text" style={{ marginBottom: 8 }} />
+  <List surface="plain" header="Common Forms">
+    {["Capsule", "Tablet", "Liquid", "Topical"].map((form) => <ListItem key={form} label={form} disclosure={false} onPress={() => choose(form)} />)}
+  </List>
+</ScrollView>`
+
+<UsageBlock>{`import { IntroHeader } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>IntroHeader opens a step of a sheet or a setup flow: what the step is for, before the field, the rows or the choices it asks for. The example is a step after iOS 27's Add Email Address. Use it once at the top of a step; a screen people come back to takes a bar title instead (<a href="/react-native/components/toolbar">Toolbar</a>), and a screen with nothing to show an <a href="/react-native/components/empty-message">Empty Message</a>.</p>
+  <p>On iOS it is set as Apple's own steps set it (Apple Account, Add Email Address, Recovery Key, Pair Hearing Device, Set Up eSIM, Health's medication steps), measured on a 430pt phone: <code>media</code>, a symbol in the middle whose drawing is about 70pt (a kit icon takes 80pt and the accent), its bottom about 31pt over the title's line; the <code>title</code> in Title 2 bold (22/28); the <code>description</code>, optional, right under it in Title 2 in the secondary label. Both stand at the start of the column. On Android it is the setup wizard's header: a 40dp symbol in the primary at the start, 16 over a Headline Small title, the description in Body Large 16 under it.</p>
+  <p><code>align</code> sets what the text lines up with. <code>cells</code>, the default, keeps it on the column of the content under it, the edge of the fields, cards and buttons, as a step with a field or a few rows; <code>text</code> moves it in by the row inset (20pt, 16dp), onto the text inside the cells. The header keeps no space round it: set the symbol's drawing about 24 under the bar's buttons (the bar keeps 10 under them, a symbol's box about 7 round its drawing) and the content 24 under the header.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="intro-header/Overview" />
+</ComponentPreview>
+
+### Over a long list
+
+<ComponentPreview details={<>
+  <p>Over a long grouped list the title stands on the rows' text, as Health's Choose the Medication Type: the cards keep the page's margin and the title, like the section headers, is 20 in from their edge (<code>align="text"</code>). This step has no description.</p>
+</>} code={overListCode} previewMinHeight={168}>
+  <RNExample demo="intro-header/OverList" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 27 | Android |
+| --- | --- | --- |
+| Native component | None: the header of iOS's own setup steps | None: the setup wizard's header |
+| Look | A ~70pt symbol in the middle, a Title 2 bold title, a Title 2 secondary description | A 40dp primary symbol at the start, a Headline Small title, a Body Large description |
+
+## API
+
+### IntroHeader
+
+<PropsTable data={[
+  { prop: "title", type: "ReactNode", description: "The step's title, read as a header: Title 2 bold on iOS, Headline Small on Android (required)" },
+  { prop: "description", type: "ReactNode", description: "What the step asks, right under the title: Title 2 in the secondary label on iOS, Body Large 16 under it on Android" },
+  { prop: "media", type: "ReactNode", description: "A symbol or picture over the title: in the middle on iOS (a kit icon 80pt in the accent), at the start on Android (40dp in the primary)" },
+  { prop: "align", type: '"cells" | "text"', default: '"cells"', description: "What the text lines up with: the column of the content under it, or the text inside its cells (the row inset in)" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the header" },
+]} />

@@ -10,6 +10,7 @@ export const demoModules: Record<string, () => Promise<DemoModule>> = {
   'action-sheet': () => import('./ActionSheetDemos'),
   'bottom-sheet': () => import('./BottomSheetDemos'),
   'bottom-actions': () => import('./BottomActionsDemos'),
+  'intro-header': () => import('./IntroHeaderDemos'),
   'context-menu': () => import('./ContextMenuDemos'),
   'date-picker': () => import('./DatePickerDemos'),
   'scroll-edge': () => import('./ScrollEdgeDemos'),
