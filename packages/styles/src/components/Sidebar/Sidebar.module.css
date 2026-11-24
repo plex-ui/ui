@@ -209,6 +209,11 @@
   transition: opacity var(--sidebar-collapse-duration) var(--cubic-move);
 }
 
+/* A label over a panel of fields, not rows: it starts at the panel's edge */
+.GroupLabel[data-inset="false"] {
+  padding-inline: 0;
+}
+
 /* Small header - compact dashboard/settings style */
 .GroupLabel[data-size="sm"] {
   margin: 0;
@@ -338,9 +343,10 @@
   transform: scale(0.98);
 }
 
-/* Focus visible */
+/* Focus visible: the ring inside the row, so a list that clips its rows
+   (a submenu's collapse, a scroller) never cuts its corners */
 .MenuButton:focus-visible::before {
-  box-shadow: 0 0 0 2px var(--color-ring);
+  box-shadow: inset 0 0 0 2px var(--color-ring);
 }
 
 /* Inner container - controls height like reference .abr-y */
@@ -668,7 +674,19 @@
 }
 
 .MenuSubButton:focus-visible::before {
-  box-shadow: 0 0 0 2px var(--color-ring);
+  box-shadow: inset 0 0 0 2px var(--color-ring);
+}
+
+/* The text of a submenu row: over the row's fill, cut with an ellipsis */
+.MenuSubButtonLabel {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (min-width: 768px) {
@@ -697,9 +715,25 @@
   padding-left: 48px;
 }
 
-/* When parent has icons, level 1 children align with parent text at 38px */
+/* When parent has icons, level 1 children align with parent text at 38px,
+   and each level below steps 12px further */
 .MenuSub[data-has-icons="true"] .MenuSubButton.indent1 {
   padding-left: 38px;
+}
+
+.MenuSub[data-has-icons="true"] .MenuSubButton.indent2 {
+  padding-left: 50px;
+}
+
+.MenuSub[data-has-icons="true"] .MenuSubButton.indent3 {
+  padding-left: 62px;
+}
+
+/* An open branch of a tree leaves a gap before the row after it */
+@media (min-width: 768px) {
+  .MenuSub[data-state="open"] {
+    padding-bottom: var(--sidebar-menu-sub-open-gap, 4px);
+  }
 }
 
 /* Submenu visibility with animation */
@@ -1428,8 +1462,16 @@
       --sidebar-row-inset: calc(var(--sidebar-list-inset) + 2 * var(--sidebar-list-indent));
     }
 
+    & .MenuSub[data-has-icons="true"] .MenuSubButton.indent2 {
+      --sidebar-row-inset: calc(var(--sidebar-list-inset) + var(--sidebar-list-icon-column) + var(--sidebar-list-indent));
+    }
+
     & .MenuSubButton.indent3 {
       --sidebar-row-inset: calc(var(--sidebar-list-inset) + 3 * var(--sidebar-list-indent));
+    }
+
+    & .MenuSub[data-has-icons="true"] .MenuSubButton.indent3 {
+      --sidebar-row-inset: calc(var(--sidebar-list-inset) + var(--sidebar-list-icon-column) + 2 * var(--sidebar-list-indent));
     }
 
     /* A selected or pressed row fills its cell edge to edge; the card clips

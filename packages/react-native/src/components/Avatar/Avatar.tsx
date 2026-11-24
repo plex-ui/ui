@@ -1,5 +1,5 @@
 import { Children, isValidElement, useId, useState, type ComponentType, type ReactNode } from "react"
-import { Animated, Easing, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, Pressable, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from "react-native"
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -16,6 +16,8 @@ export type AvatarProps = {
   name?: string
   /** A picture over the placeholder; when it fails to load, the placeholder stays. */
   imageUrl?: string
+  /** A picture as an Image source (a `require()`d asset, `{ uri }`), as `Card.Media` takes it; it wins over `imageUrl`. */
+  source?: ImageSourcePropType
   /**
    * @default "secondary". A `gradient` avatar in the secondary color takes one of the seven gradients from its name,
    * the same each time; the other colors take the nearest gradient
@@ -106,13 +108,15 @@ export function avatarColors(theme: Theme, color: AvatarColor, variant: "soft" |
  * `variant="gradient"` it is a gradient of one of seven colors from top to bottom with up to two white initials,
  * Medium at 18/50 of the circle.
  */
-export function Avatar({ name, imageUrl, color = "secondary", variant = "soft", size: sizeProp, Icon, overflowCount, onPress, accessibilityLabel, testID, style }: AvatarProps) {
+export function Avatar({ name, imageUrl, source: sourceProp, color = "secondary", variant = "soft", size: sizeProp, Icon, overflowCount, onPress, accessibilityLabel, testID, style }: AvatarProps) {
   const theme = useTheme()
   const [failed, setFailed] = useState(false)
+  const source: ImageSourcePropType | undefined = sourceProp ?? (imageUrl ? { uri: imageUrl } : undefined)
   // A new picture gets its own try, even one that failed before
-  const [shown, setShown] = useState(imageUrl)
-  if (shown !== imageUrl) {
-    setShown(imageUrl)
+  const pictureKey = sourceKey(source)
+  const [shown, setShown] = useState(pictureKey)
+  if (shown !== pictureKey) {
+    setShown(pictureKey)
     setFailed(false)
   }
   const size = sizeProp ?? theme.length("--avatar-size", 28)
@@ -141,7 +145,7 @@ export function Avatar({ name, imageUrl, color = "secondary", variant = "soft", 
       {initialOf(name ?? "")}
     </Text>
   )
-  const showImage = !!imageUrl && !failed
+  const showImage = source != null && !failed
   const body = (
     <>
       {fill ? (
@@ -160,7 +164,7 @@ export function Avatar({ name, imageUrl, color = "secondary", variant = "soft", 
       {showImage ? (
         <View style={[StyleSheet.absoluteFill, { borderRadius: size / 2, overflow: "hidden" }]}>
           {/* A picture of its own for each address, so a new one fades in afresh */}
-          <Picture key={imageUrl} uri={imageUrl} fade={theme.isAndroid ? (theme.reducedMotion ? 0 : 150) : undefined} onError={() => setFailed(true)} />
+          <Picture key={pictureKey} source={source} fade={theme.isAndroid ? (theme.reducedMotion ? 0 : 150) : undefined} onError={() => setFailed(true)} />
           {/* The hairline over the picture, inside its edge, so it does not change the size */}
           <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: size / 2, borderWidth: 1, borderColor: theme.color("--avatar-image-border-color") }]} />
         </View>
@@ -194,12 +198,20 @@ export function Avatar({ name, imageUrl, color = "secondary", variant = "soft", 
  * The picture. Android fades it in over `fade` ms, linear, once it has loaded: a device's Image does it itself (its
  * own fade is 300ms), elsewhere the picture's opacity runs. Left out, the platform's own way stays.
  */
-function Picture({ uri, fade, onError }: { uri: string; fade?: number; onError: () => void }) {
+/** What tells one picture from another: its address, or the asset a `require()` gives. */
+function sourceKey(source: ImageSourcePropType | undefined): string | undefined {
+  if (source == null) return undefined
+  if (typeof source === "number") return `asset:${source}`
+  if (Array.isArray(source)) return source.map((item) => item.uri ?? "").join("|")
+  return (source as { uri?: string }).uri ?? JSON.stringify(source)
+}
+
+function Picture({ source, fade, onError }: { source: ImageSourcePropType; fade?: number; onError: () => void }) {
   const fades = fade != null && fade > 0 && Platform.OS !== "android"
   const [opacity] = useState(() => new Animated.Value(fades ? 0 : 1))
   return (
     <Animated.Image
-      source={{ uri }}
+      source={source}
       onError={onError}
       fadeDuration={Platform.OS === "android" ? fade : undefined}
       onLoad={fades ? () => Animated.timing(opacity, { toValue: 1, duration: fade, easing: Easing.linear, useNativeDriver: false }).start() : undefined}

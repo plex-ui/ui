@@ -32,6 +32,30 @@ export default function App() {
 
 `ThemeProvider` follows the device: iOS draws the iOS 26 look, Android the Plex Android look, and Android 16's Material 3 Expressive where it has no pattern of its own; the web the iOS look. `platform` overrides it, `scheme` takes `"light"`, `"dark"` or `"system"`, and `brand` sets a product's colors, faces and radii over the Plex UI defaults. `selectionColor` is the on color of every Switch, Checkbox and RadioGroup that sets none of its own, and a nested `ThemeProvider` takes its parent's: `"primary"` (the default) is the Plex primary, the ink, as on the web; `"accent"` is each platform's own, on iOS a green switch and accent checkboxes and checkmarks, the iOS tint, and on Android the accent for all of them.
 
+`fonts` sets the kit's faces; without it each platform draws its own system face. It takes one set of faces for every platform, or a set per drawn platform, `{ ios, android }`, of which a provider takes the one of its `platform` (a platform left out draws its system face). `interFonts` and `robotoFonts` are the family names that `@expo-google-fonts/inter` and `@expo-google-fonts/roboto` register. An Android device has Roboto as its system face already, but the web needs it loaded for the Android look: in a browser on a Mac the Material look would otherwise draw in the browser's system face, not Roboto.
+
+```tsx
+import { ThemeProvider, interFonts, robotoFonts } from "@plexui/react-native"
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter"
+import { Roboto_400Regular, Roboto_500Medium, Roboto_600SemiBold, Roboto_700Bold } from "@expo-google-fonts/roboto"
+import { useFonts } from "expo-font"
+
+export default function App() {
+  const [loaded] = useFonts({
+    Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold,
+    Roboto_400Regular, Roboto_500Medium, Roboto_600SemiBold, Roboto_700Bold,
+  })
+  if (!loaded) return null
+  return (
+    <ThemeProvider fonts={{ ios: interFonts, android: robotoFonts }}>
+      <Screens />
+    </ThemeProvider>
+  )
+}
+```
+
+`viewportWidth` is the width the phone layer is laid out for, in place of the window's: a phone drawn in a frame inside a wider window, such as a gallery or a review page, sets the frame's width (402 for an iPhone 17 Pro). A nested `ThemeProvider` takes its parent's.
+
 ## Components
 
 One name on every platform, as in `@plexui/ui`. The table gives each component's native name, in the order of the sidebar's groups; a dash means the platform has no system component, and Plex draws one in the platform's style.
@@ -62,6 +86,7 @@ One name on every platform, as in `@plexui/ui`. The table gives each component's
 | [Tab Bar](/react-native/components/tab-bar) | Tab bar | Navigation bar (drawn as a glass capsule of tabs) |
 | [Toolbar](/react-native/components/toolbar), top | Navigation bar | Top app bar (drawn as glass circles and capsules) |
 | [Toolbar](/react-native/components/toolbar), bottom | Toolbar | — (a bottom row: one wide action, or a field with its circles) |
+| [Bottom Actions](/react-native/components/bottom-actions) | — (the bottom action of a setup screen) | — (a full-width bottom button) |
 | [Action Sheet](/react-native/components/action-sheet) | Action sheet (confirmation dialog) | Modal bottom sheet with a list |
 | [Bottom Sheet](/react-native/components/bottom-sheet) | Sheet | Modal bottom sheet |
 | [Dialog](/react-native/components/dialog) | Alert | Dialog |

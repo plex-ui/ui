@@ -40,7 +40,7 @@
  * SidebarMenuSkeleton
  *   - showIcon?: boolean (default: true)
  *
- * SidebarMenuSub / SidebarMenuSubItem / SidebarMenuSubButton
+ * SidebarMenuSub / SidebarMenuSubItem / SidebarMenuSubButton / SidebarMenuSubButtonLabel
  *   - Same as parent menu components
  *
  * SidebarSeparator
@@ -278,15 +278,21 @@ export type SidebarGroupLabelProps = ComponentProps<"span"> & {
    * @default "lg"
    */
   size?: "sm" | "lg"
+  /**
+   * Starts the label 12px in, at the rows' text. Off, it starts at the group's edge: a label over a panel of fields.
+   * @default true
+   */
+  inset?: boolean
 }
 
 export const SidebarGroupLabel = forwardRef<HTMLSpanElement, SidebarGroupLabelProps>(
-  ({ asChild = false, size = "lg", className, ...props }, ref) => {
+  ({ asChild = false, size = "lg", inset = true, className, ...props }, ref) => {
     const Comp = asChild ? Slot.Root : "span"
     return (
       <Comp
         ref={ref}
         data-size={size}
+        data-inset={inset ? undefined : "false"}
         className={clsx(s.GroupLabel, className)}
         {...cleanProps(props)}
       />
@@ -594,6 +600,16 @@ export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSub
   },
 )
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
+
+export type SidebarMenuSubButtonLabelProps = ComponentProps<"span">
+
+/** The text of a SidebarMenuSubButton: it fills the row, starts at its start and ends in an ellipsis. */
+export const SidebarMenuSubButtonLabel = forwardRef<HTMLSpanElement, SidebarMenuSubButtonLabelProps>(
+  ({ className, ...props }, ref) => (
+    <span ref={ref} className={clsx(s.MenuSubButtonLabel, className)} {...cleanProps(props)} />
+  ),
+)
+SidebarMenuSubButtonLabel.displayName = "SidebarMenuSubButtonLabel"
 
 // =============================================
 // Separator

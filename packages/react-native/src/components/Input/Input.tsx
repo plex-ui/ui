@@ -297,7 +297,8 @@ export function fieldLook(
     } as ViewStyle,
     gap: theme.length(`--input-gap-${row.gap}`, IOS_GAP[row.gap]),
     text: { fontSize: 17, lineHeight: 22, color: theme.color("--input-text-color", theme.colors.text) },
-    placeholder: theme.color("--input-placeholder-text-color", theme.colors.textTertiary),
+    // iOS's placeholder is the tertiary label (UIColor.placeholderText, the ink at 25%), as in a form row
+    placeholder: theme.colors.labelTertiary,
     icon: theme.color("--mobile-label-secondary"),
     frame: null as FieldFrame | null,
     trailingIcon: theme.color("--mobile-label-secondary"),

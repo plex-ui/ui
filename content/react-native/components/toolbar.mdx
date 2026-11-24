@@ -262,7 +262,9 @@ iOS calls only the bottom bar a toolbar; here `Toolbar` is both bars, and `place
 ### Toolbar.Title
 
 <PropsTable data={[
-  { prop: "children", type: "ReactNode", description: "The title, announced as a header" },
+  { prop: "children", type: "ReactNode", description: "The title, announced as a header; with an image, the name it is announced by unless accessibilityLabel is set" },
+  { prop: "image", type: "ReactNode", description: "A logo in the title's place; it stays the bar's header, hidden from screen readers itself" },
+  { prop: "accessibilityLabel", type: "string", description: "The header's name with an image, when it has no text children" },
   { prop: "subtitle", type: "ReactNode", description: "A second, smaller line under the title" },
   { prop: "numberOfLines", type: "number", default: "1", description: "Lines of the title before it truncates" },
 ]} />

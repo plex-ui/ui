@@ -7,6 +7,55 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.1 (2026-11-24)
+
+Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.0 (below). React and Vue need `@plexui/styles` ^0.17.1 for the Sidebar changes.
+
+### Added
+
+- **SidebarMenuSubButtonLabel.** The text part of a submenu row: it fills the row, starts at its start and ends in an ellipsis, over the row's fill (React and Vue).
+- **SidebarGroupLabel `inset`.** `inset={false}` starts the label at the group's edge, for a label over a panel of fields; by default it stays 12px in, at the rows' text.
+
+### Fixed
+
+- **Sidebar tree under icons.** Under a parent with icons (`hasIcons`) submenu levels 2 and 3 now step 12px past level 1: 50px and 62px (they stayed at the plain 36 and 48).
+- **Sidebar focus ring.** A row's focus ring is drawn inside it, so a submenu that clips its rows no longer cuts its corners.
+- **Sidebar open branch.** An open submenu leaves 4px (`--sidebar-menu-sub-open-gap`) before the row after it.
+- **Icons named as globals.** The icon modules `Object`, `Array`, `Boolean`, `Clipboard`, `Comment`, `Error`, `Function`, `Number`, `Report`, `Storage`, `String` and `Text` bound their component to that global's name, which broke the global in Metro ("Cannot access 'Object' before initialization"). The binding is now `ObjectIcon` and so on; the exports and display names are unchanged (React and Vue).
+
+## @plexui/react-native 0.2.0 (2026-11-24)
+
+The components added since 0.1.1 reach npm: Alert, Field, FloatingLabelInput, the indicators (LoadingIndicator, CircularProgress, LoadingDots), InputGroup, Popover, Progress, ProgressSteps, RollingNumber, Separator, ShimmerText, Stepper, TagInput, TextLink, Textarea, Tip and Tooltip.
+
+### Added
+
+- **BottomActions.** The main action at the bottom of a phone screen: on iOS 26 a 52pt capsule 36pt from the screen's sides, just over the home indicator; on Android a 48dp button 16dp from the sides.
+- **ActionSheet `source`.** With the button it opens from, the iOS 26 sheet is a glass panel at that button with no Cancel, closed by a tap outside (as an iPhone's action sheet with a source item).
+- **Chip `trailingIcon` and `menu`.** A symbol after the label; `menu` adds the chevron of a filter that opens a menu (iOS `chevron.down`, Material `arrow_drop_down`) and `aria-haspopup`, with `expanded`.
+- **Card `color`.** A card filled with the accent or a color of the palette, its text and icons in the color made for that fill and the description at 80%.
+- **PageControl `indicator="pill"` and `tone="onColor"`.** The current page as a short capsule among the dots, and white dots for a page of color or a photo.
+- **OTPInput `aria-label` (`label`) and `digitLabel`.** The code's name: the cells' group on the web, the start of each cell's name on iOS and Android.
+- **Toolbar.Title `image`.** A logo in the title's place that stays the bar's header, named by `accessibilityLabel`.
+- **List `action` without a header**, and a plain text or a number there (a count such as "2/3") takes the header's type on the title's line.
+- **Theme colors** `success`, `onSuccess`, `textSuccess` and `danger`.
+- **ThemeProvider `fonts` per platform and `robotoFonts`.** `fonts={{ android: robotoFonts }}` draws the Android look in Roboto in a browser too, where the system face would be SF on a Mac; iOS keeps the system face.
+- **ThemeProvider `viewportWidth`.** The width the phone layer is laid out for, for a phone drawn in a frame inside a wider window.
+- **Button `ref`** reaches its native view (an ActionSheet's `source`).
+- **Avatar `source`.** The picture as an Image source (a bundled `require()`d asset, `{ uri }`), as `Card.Media` takes it, besides `imageUrl`.
+
+### Changed
+
+- **ActionSheet without a source, iOS 26.** The panel stands in the middle of the screen with Cancel as its last capsule, as an iPhone draws an action sheet with no source; it was at the bottom with Cancel apart.
+- **Button `variant="outline"` on iOS** is iOS's Gray button (the neutral soft fill, the label in the button's color): iOS has no outlined button. Android keeps the outline.
+- **Placeholder on iOS.** Every field's placeholder is the tertiary label (UIColor.placeholderText), as a form row's already was: Input, Textarea and TagInput.
+- **List error.** A section's error takes the footer's place and type (iOS 13/16, 8pt under the section; Android 14sp), only in the danger color; on iOS it was 15/20 and 4pt lower.
+
+### Fixed
+
+- **ListItem without `onPress`** keeps its `accessibilityLabel`: a row that only shows is one element named by it.
+- **Text on the web as heavy as on an iPhone.** Text sets grayscale smoothing (`-webkit-font-smoothing: antialiased`): Chromium on a Mac drew it 11–20% heavier with subpixel smoothing. With no font family set (the browser's system font), Medium is 500 on the web: Chromium drew 510 of it as a synthesized bold, heavier than Semibold. A family the app sets (Inter's variable font) keeps 510 and 590; iOS and Android are unchanged.
+- **Icons on the web** take `role="img"` and `aria-label`, or `aria-hidden`, instead of the native accessibility props, which reached the `<svg>` and made React warn.
+
 ## 0.62.0 (2026-11-23)
 
 Released together with Vue 0.42.0 and styles 0.17.0. React 0.62.0 and Vue 0.42.0 need `@plexui/styles` ^0.17.0 (the spring tokens). `@plexui/mcp` is 0.2.46, with the new props.

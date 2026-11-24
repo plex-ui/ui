@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode, type RefObject } from "react"
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { FloatingPanel } from "../../internal/FloatingPanel"
 import { Glass } from "../../internal/Glass"
 import { glassOpacity, iosDim, Overlay } from "../../internal/Overlay"
 import { dangerText } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { BottomSheetBase } from "../BottomSheet/BottomSheet"
 import { IconDefaultsProvider } from "../Icon/createIcon"
+import { measure, type MenuAnchor, type Measurable } from "../Menu/Menu"
 import { Text } from "../Text/Text"
 
 export type ActionSheetAction = {
@@ -25,18 +27,26 @@ export type ActionSheetProps = {
   title?: ReactNode
   message?: ReactNode
   actions: ActionSheetAction[]
-  /** The cancel action of iOS, apart from the others. Android closes the sheet with a tap outside or Back. @default "Cancel" */
+  /** The cancel action of iOS, the last of the panel. Android closes the sheet with a tap outside or Back. @default "Cancel" */
   cancelLabel?: string
+  /**
+   * The control the sheet opens from (a ref to a Button, a Pressable, a View). On iOS 26 the sheet then stands at it
+   * as a glass panel, over or under it, with no Cancel: a tap anywhere else closes it (an iPhone's action sheet with a
+   * `sourceItem`, WWDC25 "Build a UIKit app with the new design"). Android keeps its sheet from the bottom.
+   */
+  source?: RefObject<unknown>
   testID?: string
 }
 
 /**
- * A choice of actions from the bottom of the screen (React Native only: the web has a Menu). iOS 26 draws
- * UIAlertController's `.actionSheet` on an iPhone: a glass panel of 48pt capsule actions with the title and message
- * over them, and the cancel capsule apart under it; Android a menu sheet (its items: 48dp rows of Regular 16, the
- * icon in a 56dp slot in the ink, gray at night, the text 16 in with no icons, a gray title of 16 over them).
+ * A choice of actions (React Native only: the web has a Menu, a Popover or an alert Dialog). iOS 26 draws
+ * UIAlertController's `.actionSheet` on an iPhone: with a `source`, a glass panel at that control (as the web's
+ * Popover "Confirmation"), its 48pt capsule actions under the title and message, no Cancel, closed by a tap outside;
+ * with no source, the same panel in the middle of the screen, Cancel its last capsule (as the web's alert Dialog with a
+ * stacked footer). Android a menu sheet (its items: 48dp rows of Regular 16, the icon in a 56dp slot in the ink, gray
+ * at night, the text 16 in with no icons, a gray title of 16 over them).
  */
-export function ActionSheet({ open, onOpenChange, title, message, actions, cancelLabel = "Cancel", testID }: ActionSheetProps) {
+export function ActionSheet({ open, onOpenChange, title, message, actions, cancelLabel = "Cancel", source, testID }: ActionSheetProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const { height: screen } = useWindowDimensions()
@@ -69,6 +79,27 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
     close()
   }
   const ids = { title: useId(), message: useId() }
+  // The source's place, measured as the sheet opens (and again when the window turns)
+  const [anchor, setAnchor] = useState<MenuAnchor | null>(null)
+  // A source that measures to nothing (no view yet, or one with no size): the sheet stands in the middle instead
+  const [unplaced, setUnplaced] = useState(false)
+  const { width: windowWidth } = useWindowDimensions()
+  const sourced = !theme.isAndroid && source != null && !unplaced
+  useEffect(() => {
+    if (!open || theme.isAndroid || source == null) return
+    let live = true
+    // A new opening measures again: the panel never shows at the source's last place first
+    setAnchor(null)
+    measure(source.current as Measurable | null, (box) => {
+      if (!live) return
+      const placed = box.width > 0 || box.height > 0
+      setAnchor(placed ? box : null)
+      setUnplaced(!placed)
+    })
+    return () => {
+      live = false
+    }
+  }, [open, theme.isAndroid, source, windowWidth, screen])
   if (theme.isAndroid) {
     const m = theme.material
     const icons = actions.some((action) => action.icon)
@@ -164,6 +195,56 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
       </Text>
     </Pressable>
   )
+  const header =
+    title != null || message != null ? (
+      <View style={styles.iosHeader}>
+        {title != null ? (
+          <Text nativeID={ids.title} weight="semibold" color={theme.color("--dialog-alert-message-color")} accessibilityRole="header" style={styles.iosHeaderText}>
+            {title}
+          </Text>
+        ) : null}
+        {message != null ? (
+          <Text nativeID={ids.message} color={theme.color("--dialog-alert-message-color")} style={styles.iosHeaderText}>
+            {message}
+          </Text>
+        ) : null}
+      </View>
+    ) : null
+  if (sourced) {
+    // At its source: the phone popover's glass and corners (the web's Popover "Confirmation"), no Cancel
+    return (
+      <FloatingPanel
+        open={open && anchor != null}
+        onDismiss={close}
+        anchor={anchor}
+        side="top"
+        align="center"
+        sideOffset={8}
+        collisionPadding={{ top: Math.max(insets.top, 8), bottom: Math.max(insets.bottom, 8), left: 8, right: 8 }}
+        glass
+        role="dialog"
+        aria-label={typeof title === "string" ? title : undefined}
+        testID={testID}
+        style={{ width: Math.min(windowWidth - 16, theme.length("--action-sheet-source-width", 300)), maxHeight: screen - insets.top - insets.bottom - 16 }}
+      >
+        {() => (
+          <Glass
+            radius={theme.length("--popover-radius", 34)}
+            elevation="raised"
+            fillToken="--popover-mobile-background"
+            filterToken="--popover-mobile-backdrop-filter"
+            shadowToken="--menu-shadow"
+            style={styles.iosPanel}
+          >
+            <ScrollView style={styles.scroll} contentContainerStyle={styles.iosList} bounces={false}>
+              {header}
+              {actions.map((item, index) => action(item, index))}
+            </ScrollView>
+          </Glass>
+        )}
+      </FloatingPanel>
+    )
+  }
   // The web names the sheet by its title and describes it by its message; a phone keeps the modal view
   const a11y =
     Platform.OS === "web"
@@ -175,9 +256,9 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
         }
       : { accessibilityViewIsModal: true }
   return (
-    <Overlay open={open} onDismiss={close} scrim={iosDim(theme)} motion="sheet" testID={testID}>
+    <Overlay open={open} onDismiss={close} scrim={iosDim(theme)} testID={testID}>
       {(progress, opening, focus) => (
-        <View pointerEvents="box-none" style={styles.bottom}>
+        <View pointerEvents="box-none" style={styles.center}>
           <Animated.View
             {...a11y}
             // On the web the sheet itself takes the first focus, not its first action with a ring
@@ -186,37 +267,21 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
             style={[
               focus.style,
               styles.iosStack,
-              // An offset, not a transform: a transform would stop the glass's blur on the web
               {
-                maxHeight: screen - insets.top - 8,
-                paddingBottom: Math.max(insets.bottom, 8),
+                maxHeight: screen - insets.top - insets.bottom - 16,
                 opacity: glassOpacity(progress, opening),
-                // With reduced motion it fades in place
-                top: theme.reducedMotion ? 0 : progress.interpolate({ inputRange: [0, 1], outputRange: [80, 0] }),
+                // An alert's entrance: it grows from 1.1 as it fades in; with reduced motion it fades in place. A
+                // transform would stop the glass's blur on the web, so the web only fades
+                transform: theme.reducedMotion || Platform.OS === "web" ? undefined : [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [1.1, 1] }) }],
               },
             ]}
           >
             <Glass radius={theme.length("--dialog-alert-radius", 34)} elevation="raised" fillToken="--dialog-alert-background" style={[styles.iosPanel, styles.shrink]}>
-              {/* Many actions scroll inside the panel; the cancel capsule stays in view */}
+              {/* Many actions scroll inside the panel; Cancel stays in view at its end */}
               <ScrollView style={styles.scroll} contentContainerStyle={styles.iosList} bounces={false}>
-                {title != null || message != null ? (
-                  <View style={styles.iosHeader}>
-                    {title != null ? (
-                      <Text nativeID={ids.title} weight="semibold" color={theme.color("--dialog-alert-message-color")} accessibilityRole="header" style={styles.iosHeaderText}>
-                        {title}
-                      </Text>
-                    ) : null}
-                    {message != null ? (
-                      <Text nativeID={ids.message} color={theme.color("--dialog-alert-message-color")} style={styles.iosHeaderText}>
-                        {message}
-                      </Text>
-                    ) : null}
-                  </View>
-                ) : null}
+                {header}
                 {actions.map((item, index) => action(item, index))}
               </ScrollView>
-            </Glass>
-            <Glass radius={theme.length("--dialog-alert-radius", 34)} elevation="raised" fillToken="--dialog-alert-background" style={styles.iosPanel}>
               {action(
                 {
                   label: cancelLabel,
@@ -237,8 +302,9 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
 const ANDROID_PICK_EXIT = 180
 
 const styles = StyleSheet.create({
-  bottom: { flex: 1, justifyContent: "flex-end" },
-  iosStack: { paddingHorizontal: 8, gap: 8 },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  // An alert's width at most (the kit's 300), 8 from the screen's edges on a narrow phone
+  iosStack: { width: "100%", maxWidth: 316, paddingHorizontal: 8 },
   iosPanel: { padding: 16, gap: 8 },
   iosList: { gap: 8 },
   shrink: { flexShrink: 1 },

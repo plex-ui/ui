@@ -49,6 +49,27 @@ for (const platform of ["ios", "android"] as const) {
     await expect(page.getByTestId("overlay-last")).toHaveText("Last: Share")
   })
 
+  test(`an action sheet from its button stands at it, with no Cancel on iOS (${platform})`, async ({ page }) => {
+    await page.setViewportSize(PHONE)
+    await openGallery(page, { platform, scheme: "light", screen: "overlays" })
+    const trigger = page.getByTestId("open-sourced")
+    await trigger.click()
+    await expect(page.getByTestId("sourced-delete")).toBeVisible()
+    if (platform === "ios") {
+      await page.waitForTimeout(450)
+      const triggerBox = (await trigger.boundingBox())!
+      const panel = (await page.getByTestId("sourced").getByRole("dialog").boundingBox())!
+      // Over its button, not at the bottom of the screen, and no Cancel
+      expect(panel.y + panel.height).toBeLessThanOrEqual(triggerBox.y)
+      expect(triggerBox.y - (panel.y + panel.height)).toBeLessThan(24)
+      await expect(page.getByTestId("sourced-cancel")).toHaveCount(0)
+      await expectOverlay(page, `action-sheet-source-${platform}-light.png`)
+    }
+    await page.getByTestId("sourced-delete").click()
+    await expect(page.getByTestId("sourced")).toHaveCount(0)
+    await expect(page.getByTestId("overlay-last")).toHaveText("Last: Delete draft")
+  })
+
   test(`a menu opens over its trigger and runs an item (${platform})`, async ({ page }) => {
     await page.setViewportSize(PHONE)
     await openGallery(page, { platform, scheme: "light", screen: "overlays" })

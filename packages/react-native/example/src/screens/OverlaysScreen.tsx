@@ -1,6 +1,6 @@
 import { ActionSheet, Avatar, BottomSheet, Button, Dialog, Input, Menu, Text, toast, useTheme } from "@plexui/react-native"
 import { Copy, Download, Email, Link, Pencil, RemoveTrash, Share } from "@plexui/react-native/icons"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState, type ComponentRef } from "react"
 import { StyleSheet, View } from "react-native"
 import { Labeled, Row, Section } from "../demo"
 import { LinkContext, type Settings } from "../settings"
@@ -18,6 +18,9 @@ export function OverlaysScreen() {
   const [dialog, setDialog] = useState<"two" | "three" | "field" | null>(null)
   const [sheet, setSheet] = useState(false)
   const [actions, setActions] = useState(false)
+  // An action sheet from its button: on iOS 26 a glass panel at the button, no Cancel
+  const [sourced, setSourced] = useState(false)
+  const deleteButton = useRef<ComponentRef<typeof View>>(null)
   const [last, setLast] = useState("nothing yet")
   const [menu, setMenu] = useState(false)
   // A share target runs and closes the sheet
@@ -66,6 +69,11 @@ export function OverlaysScreen() {
           </Button>
           <Button color="secondary" variant="soft" onPress={() => setActions(true)} testID="open-actions">
             Action sheet
+          </Button>
+        </Row>
+        <Row>
+          <Button ref={deleteButton} color="danger" variant="soft" onPress={() => setSourced(true)} testID="open-sourced">
+            Delete draft
           </Button>
         </Row>
       </Section>
@@ -199,6 +207,14 @@ export function OverlaysScreen() {
           { label: "Delete", icon: <RemoveTrash />, destructive: true, onPress: () => setLast("Delete") },
         ]}
         testID="actions"
+      />
+      <ActionSheet
+        open={sourced}
+        onOpenChange={setSourced}
+        source={deleteButton}
+        message="This draft will be deleted. You can't undo this action."
+        actions={[{ label: "Delete draft", destructive: true, onPress: () => setLast("Delete draft"), testID: "sourced-delete" }]}
+        testID="sourced"
       />
     </>
   )

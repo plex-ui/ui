@@ -9,6 +9,7 @@ export const demoModules: Record<string, () => Promise<DemoModule>> = {
   dialog: () => import('./DialogDemos'),
   'action-sheet': () => import('./ActionSheetDemos'),
   'bottom-sheet': () => import('./BottomSheetDemos'),
+  'bottom-actions': () => import('./BottomActionsDemos'),
   menu: () => import('./MenuDemos'),
   toast: () => import('./ToastDemos'),
   toolbar: () => import('./ToolbarDemos'),

@@ -1,5 +1,5 @@
 import type { SVGProps } from "react"
-const Text = (props: SVGProps<SVGSVGElement>) => (
+const TextIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
     <path
       fillRule="evenodd"
@@ -9,5 +9,5 @@ const Text = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 )
-Text.displayName = "Text"
-export default Text
+TextIcon.displayName = "Text"
+export default TextIcon

@@ -49,6 +49,24 @@ const [open, setOpen] = useState(false)
   ]}
 />`
 
+export const fromSourceCode = `import { useRef } from "react"
+import { ActionSheet, Button } from "@plexui/react-native"
+import { RemoveTrash } from "@plexui/react-native/icons"
+
+const button = useRef(null)
+const [open, setOpen] = useState(false)
+
+<Button ref={button} color="danger" variant="soft" onPress={() => setOpen(true)}>
+  Delete project
+</Button>
+<ActionSheet
+  open={open}
+  onOpenChange={setOpen}
+  source={button}
+  message="This project and its files will be deleted for everyone."
+  actions={[{ label: "Delete project", icon: <RemoveTrash />, destructive: true, onPress: remove }]}
+/>`
+
 <UsageBlock>{`import { ActionSheet } from "@plexui/react-native"`}</UsageBlock>
 
 A question with its answers is a [Dialog](/react-native/components/dialog).
@@ -58,18 +76,24 @@ A question with its answers is a [Dialog](/react-native/components/dialog).
 ### Overview
 
 <ComponentPreview details={<>
-  <p>ActionSheet is React Native only: on the web a choice of actions is a <a href="/components/menu">Menu</a>, and a question with its answers a <a href="/components/dialog">Dialog</a>'s alert. On iOS it is the action sheet of iOS 26 on an iPhone: a glass panel of 48pt capsule actions with the title and message over them, drawn as the alert's, and the cancel capsule apart under it. On Android it is a menu sheet, a <a href="/react-native/components/bottom-sheet">Bottom Sheet</a> with a list of 48dp rows in 16sp, each icon in a 56dp slot at the start (with no icons the labels start 16dp in). It has no cancel row there: a tap outside, a drag down or Back closes it.</p>
+  <p>ActionSheet is React Native only: on the web a choice of actions is a <a href="/components/menu">Menu</a>, and a question with its answers a <a href="/components/dialog">Dialog</a>'s alert. On iOS it is the action sheet of iOS 26 on an iPhone: a glass panel of 48pt capsule actions with the title and message over them, drawn as the alert's. With a <code>source</code> the panel stands at the button it opens from, with no cancel capsule (see From its button); without one it stands in the middle of the screen, Cancel the last capsule of the same panel. On Android it is a menu sheet, a <a href="/react-native/components/bottom-sheet">Bottom Sheet</a> with a list of 48dp rows in 16sp, each icon in a 56dp slot at the start (with no icons the labels start 16dp in). It has no cancel row there: a tap outside, a drag down or Back closes it.</p>
   <p>One sheet with every setting: the actions of the web Menu's Destructive items, Rename, Duplicate and Delete project, the destructive one last. An action runs its <code>onPress</code> and closes the sheet. As the web Dialog's alerts and sheets do in its phone preview, the sheet here opens with the phone's screen.</p>
   <p><code>title</code> and <code>message</code> stand over the actions: on iOS centered in 13pt, the title semibold, both in the alert's message color; on Android the title in 16sp and the message in 14sp, both gray, at the top of the sheet. A <code>destructive</code> action is red, its icon too on Android. A <code>disabled</code> one is dimmed and takes no presses. <code>icon</code> puts a symbol before an action's label in Android's list, in the text color (gray at night); iOS leaves it out, as UIAlertController does, so the iOS example does not offer it.</p>
-  <p>On iOS the cancel capsule stands apart under the actions, semibold, and a tap on the dim closes the sheet as Cancel does. Many actions scroll inside the panel while the cancel capsule stays in view.</p>
+  <p>On iOS without a <code>source</code> the cancel capsule is the last of the panel, semibold, and a tap on the dim closes the sheet as Cancel does. Many actions scroll inside the panel while the cancel capsule stays in view.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="action-sheet/Overview" />
 </ComponentPreview>
 
 ### Actions alone
 
-<ComponentPreview details={<>Without a title and a message the sheet holds its actions alone. <code>cancelLabel</code> names the cancel capsule of iOS (Cancel by default); Android has no cancel row. Take photo is <code>disabled</code>, as on a device without a camera.</>} code={actionsOnlyCode} previewMinHeight={168}>
+<ComponentPreview details={<>Without a title and a message the sheet holds its actions alone. <code>cancelLabel</code> names the cancel capsule of iOS, the last of the panel (Cancel by default); Android has no cancel row. Take photo is <code>disabled</code>, as on a device without a camera.</>} code={actionsOnlyCode} previewMinHeight={168}>
   <RNExample demo="action-sheet/ActionsOnly" />
+</ComponentPreview>
+
+### From its button
+
+<ComponentPreview details={<>On iOS 26 an action sheet opens from the control that shows it: <code>source</code> takes a ref to that Button (or a Pressable, a View), and the sheet stands at it as a glass panel, over or under it, as an iPhone's action sheet with a source item. It has no cancel capsule there: a tap anywhere else closes it. Here it confirms a destructive Delete project. Android keeps its sheet from the bottom of the screen.</>} code={fromSourceCode} previewMinHeight={168}>
+  <RNExample demo="action-sheet/FromSource" />
 </ComponentPreview>
 
 ## Platforms
@@ -77,7 +101,7 @@ A question with its answers is a [Dialog](/react-native/components/dialog).
 | | iOS 26 | Android |
 | --- | --- | --- |
 | Native component | Action sheet (confirmation dialog) | Modal bottom sheet with a list |
-| Look | Glass capsules, cancel apart | A menu sheet: 48dp rows, each icon in a 56dp slot, no handle |
+| Look | A glass panel of capsules: in the middle of the screen with Cancel its last capsule, or at its `source` with no Cancel | A menu sheet: 48dp rows, each icon in a 56dp slot, no handle |
 
 ## API
 
@@ -89,7 +113,8 @@ A question with its answers is a [Dialog](/react-native/components/dialog).
   { prop: "title", type: "ReactNode", description: "A title over the actions" },
   { prop: "message", type: "ReactNode", description: "A message under the title" },
   { prop: "actions", type: "ActionSheetAction[]", description: "The actions (required)" },
-  { prop: "cancelLabel", type: "string", default: '"Cancel"', description: "The cancel action of iOS, apart from the others. Android has none" },
+  { prop: "cancelLabel", type: "string", default: '"Cancel"', description: "The cancel action of iOS, the last capsule of the panel; a sheet with a source has none. Android has none" },
+  { prop: "source", type: "RefObject<View>", description: "The control the sheet opens from (a ref to a Button, a Pressable, a View): on iOS 26 the sheet stands at it as a glass panel, with no Cancel, and a tap elsewhere closes it. Android keeps its sheet from the bottom" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />
 

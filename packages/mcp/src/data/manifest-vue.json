@@ -4655,6 +4655,12 @@
               "description": "sm: compact, tertiary. lg: larger, primary, more spacing"
             },
             {
+              "name": "inset",
+              "type": "boolean",
+              "default": "true",
+              "description": "Starts the label 12px in, at the rows' text. false starts it at the group's edge, for a label over a panel of fields"
+            },
+            {
               "name": "as-child",
               "type": "boolean",
               "default": "false",
@@ -4726,7 +4732,7 @@
               "name": "indent",
               "type": "0 | 1 | 2 | 3",
               "default": "0",
-              "description": "Nesting level; each level adds 12px of left margin"
+              "description": "Nesting level; each level adds 12px of left padding. Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px"
             },
             {
               "name": "as-child",
@@ -7403,5 +7409,5 @@
       "docsUrl": "https://plexui.com/vue/components/table"
     }
   ],
-  "generatedAt": "2026-11-23T20:08:18.196Z"
+  "generatedAt": "2026-11-24T08:07:06.704Z"
 }

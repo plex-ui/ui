@@ -26,6 +26,16 @@ export type PageControlProps = {
    * turns off scrubbing there. @default "automatic"
    */
   background?: "automatic" | "prominent" | "minimal"
+  /**
+   * How the current page shows: `dots`, iOS's and Android's own (the current dot solid); `pill`, the current page a
+   * short capsule (two and a half dots wide) among the dots, as many onboarding pagers draw it. @default "dots"
+   */
+  indicator?: "dots" | "pill"
+  /**
+   * `default` draws the dots in the label colors; `onColor` in white for a page of color or a photo behind them (the
+   * current white, the rest white at 40%), the capsule a white veil. @default "default"
+   */
+  tone?: "default" | "onColor"
   /** @default (index, count) => `Page ${index + 1} of ${count}` */
   valueText?: (index: number, count: number) => string
   /** @default "Pages" */
@@ -80,7 +90,19 @@ type Press = { startX: number; startIndex: number; scrubbing: boolean; rtl: bool
  * page and back as it moves), in a 48dp target, with no capsule at all. For a screen reader it is adjustable: swipe
  * up or down for the next or previous page.
  */
-export function PageControl({ count, value: valueProp, defaultValue = 0, onChange, background = "automatic", valueText = defaultValueText, "aria-label": ariaLabel = "Pages", testID, style }: PageControlProps) {
+export function PageControl({
+  count,
+  value: valueProp,
+  defaultValue = 0,
+  onChange,
+  background = "automatic",
+  indicator = "dots",
+  tone = "default",
+  valueText = defaultValueText,
+  "aria-label": ariaLabel = "Pages",
+  testID,
+  style,
+}: PageControlProps) {
   const theme = useTheme()
   const [own, setOwn] = useState(defaultValue)
   const current = clampIndex(valueProp ?? own, count)
@@ -102,17 +124,23 @@ export function PageControl({ count, value: valueProp, defaultValue = 0, onChang
   const sizes = android ? Array.from({ length: Math.max(0, count) }, (): PageControlDotSize => "full") : pageControlDots(count, current)
   const dotSize = (size: PageControlDotSize) =>
     size === "full" ? dot : android ? (size === "small" ? 4 : 3) : size === "small" ? theme.length("--page-control-dot-size-small", 6) : theme.length("--page-control-dot-size-smaller", 4)
+  const pill = indicator === "pill"
+  // A pill: the current page two and a half dots wide
+  const dotWidth = (size: PageControlDotSize, index: number) => (pill && index === current ? dot * 2.5 : dotSize(size))
   // The center of the current dot, for a tap on either side of it
   let x = padding
   let currentCenter = padding
   sizes.forEach((size, index) => {
     if (size === "hidden") return
-    if (index === current) currentCenter = x + dotSize(size) / 2
-    x += dotSize(size) + gap
+    if (index === current) currentCenter = x + dotWidth(size, index) / 2
+    x += dotWidth(size, index) + gap
   })
-  const on = android ? theme.material.primary : theme.color("--page-control-dot-color-current", theme.colors.text)
+  const onColor = tone === "onColor"
+  const on = onColor ? "#FFFFFF" : android ? theme.material.primary : theme.color("--page-control-dot-color-current", theme.colors.text)
   // Android's page dots: #BBBBBB, #555555 in a dark theme
-  const off = android ? (theme.scheme === "dark" ? "#555555" : "#BBBBBB") : theme.color("--page-control-dot-color", theme.colors.labelTertiary)
+  const off = onColor ? "rgba(255, 255, 255, 0.4)" : android ? (theme.scheme === "dark" ? "#555555" : "#BBBBBB") : theme.color("--page-control-dot-color", theme.colors.labelTertiary)
+  // Android's current dot is drawn over the gray ones (it stretches between pages); a pill is a dot of its own
+  const worm = android && !pill
   // Android draws no capsule, not even for `prominent`
   const capsuleHeight = theme.length("--page-control-height", 24)
   const target = android ? 48 : theme.length("--page-control-target-size", 44)
@@ -177,15 +205,15 @@ export function PageControl({ count, value: valueProp, defaultValue = 0, onChang
         style={[
           styles.capsule,
           { height: capsuleHeight, paddingHorizontal: padding, gap, borderRadius: capsuleHeight / 2 },
-          showBackground ? { backgroundColor: theme.color("--page-control-background") } : null,
+          showBackground ? { backgroundColor: onColor ? "rgba(255, 255, 255, 0.2)" : theme.color("--page-control-background") } : null,
         ]}
       >
         {sizes.map((size, index) =>
           size === "hidden" ? null : (
-            <View key={index} style={{ width: dotSize(size), height: dotSize(size), borderRadius: dot / 2, backgroundColor: index === current && !android ? on : off }} />
+            <View key={index} style={{ width: dotWidth(size, index), height: dotSize(size), borderRadius: dot / 2, backgroundColor: index === current && !worm ? on : off }} />
           ),
         )}
-        {android ? <AndroidCurrent start={currentCenter - dot / 2} color={on} reduced={theme.reducedMotion} /> : null}
+        {worm ? <AndroidCurrent start={currentCenter - dot / 2} color={on} reduced={theme.reducedMotion} /> : null}
       </View>
     </View>
   )

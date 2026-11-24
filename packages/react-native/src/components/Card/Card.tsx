@@ -2,14 +2,17 @@ import { cloneElement, createContext, isValidElement, useContext, type ReactElem
 import { Image, Platform, Pressable, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from "react-native"
 import { flattenChildren } from "../../internal/children"
 import { space } from "../../internal/spacing"
-import { controlHighlight } from "../../theme/material"
+import { controlHighlight, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { materialType } from "../../theme/typography"
-import { Text } from "../Text/Text"
+import { IconDefaultsProvider } from "../Icon/createIcon"
+import { Text, TextColorProvider } from "../Text/Text"
 
 export type CardVariant = "outline" | "solid" | "ghost"
 export type CardSize = "sm" | "md" | "lg"
+/** A fill of the palette: the accent, the Plex primary, or a semantic color. */
+export type CardColor = "accent" | "primary" | "info" | "success" | "warning" | "caution" | "danger" | "discovery"
 
 export type CardProps = {
   children: ReactNode
@@ -17,6 +20,12 @@ export type CardProps = {
   variant?: CardVariant
   /** The padding: 12, 16 or 20 on a phone. @default "md" */
   size?: CardSize
+  /**
+   * Fills the card with a color of the palette (`--color-background-<color>-solid`, the accent for `accent`) in place
+   * of its variant's surface: the title, the text and the icons in the color made for it (`--color-text-<color>-solid`),
+   * the description that color at 80%. The press is a veil of that text color.
+   */
+  color?: CardColor
   /** Makes the whole card a button. */
   onPress?: () => void
   /** Shows the press of a card whose own parts take it. */
@@ -27,7 +36,7 @@ export type CardProps = {
 }
 
 /** `padding`: the card's own (0 on a ghost card); `inset`: its size's, which a picture's caption keeps. */
-type CardContext = { padding: number; inset: number; radius: number; theme: Theme }
+type CardContext = { padding: number; inset: number; radius: number; theme: Theme; ink?: string }
 const Context = createContext<CardContext | null>(null)
 
 function useCard(part: string) {
@@ -67,8 +76,15 @@ export function cardSurface(theme: Theme, variant: CardVariant) {
  * section card of a settings screen (16dp corners, no border, the white card on the gray page; `solid` a gray fill),
  * 16dp padding, Title M and Body M, pressed in the list selector as a List row.
  */
-function CardRoot({ children, variant = "outline", size = "md", onPress, interactive = false, accessibilityLabel, testID, style }: CardProps) {
+/** A colored card's fill and the color of what stands on it. */
+export function cardColors(theme: Theme, color: CardColor) {
+  if (color === "accent") return { fill: theme.colors.accent, ink: theme.color("--color-text-accent-solid", "#FFFFFF") }
+  return { fill: theme.color(`--color-background-${color}-solid`), ink: theme.color(`--color-text-${color}-solid`, "#FFFFFF") }
+}
+
+function CardRoot({ children, variant = "outline", size = "md", color, onPress, interactive = false, accessibilityLabel, testID, style }: CardProps) {
   const theme = useTheme()
+  const tint = color ? cardColors(theme, color) : null
   const inset = theme.isAndroid ? (size === "lg" ? 24 : size === "sm" ? 12 : 16) : theme.length(`--card-padding-${size}`, PADDING[size])
   // A ghost card has no padding, as the web's: its parts stand at its edges, unclipped (it has no fill to clip to)
   const ghost = variant === "ghost"
@@ -83,11 +99,19 @@ function CardRoot({ children, variant = "outline", size = "md", onPress, interac
       ? cloneElement(child as ReactElement<CardMediaProps & EdgeProps>, { first: index === 0, last: index === parts.length - 1 })
       : child,
   )
-  const box = [styles.card, { padding, gap, borderRadius: radius }, ghost ? styles.ghost : null, cardSurface(theme, variant), style]
-  const content = <Context.Provider value={{ padding, inset, radius, theme }}>{body}</Context.Provider>
+  const box = [styles.card, { padding, gap, borderRadius: radius }, ghost && !tint ? styles.ghost : null, tint ? { backgroundColor: tint.fill } : cardSurface(theme, variant), style]
+  const content = tint ? (
+    <Context.Provider value={{ padding, inset, radius, theme, ink: tint.ink }}>
+      <TextColorProvider value={tint.ink}>
+        <IconDefaultsProvider color={tint.ink}>{body}</IconDefaultsProvider>
+      </TextColorProvider>
+    </Context.Provider>
+  ) : (
+    <Context.Provider value={{ padding, inset, radius, theme }}>{body}</Context.Provider>
+  )
   if (onPress || interactive) {
     // Android: the press of a row in a section (the settings list selector), as a List row's
-    const layer = theme.isAndroid ? controlHighlight(theme.scheme) : theme.color("--alpha-08")
+    const layer = tint ? withAlpha(tint.ink, 0.12) : theme.isAndroid ? controlHighlight(theme.scheme) : theme.color("--alpha-08")
     // The ripple on a device, clipped to the card's corners; a layer elsewhere
     const nativeRipple = theme.isAndroid && Platform.OS === "android"
     return (
@@ -153,11 +177,11 @@ function CardTitle({ children }: { children: ReactNode }) {
 CardTitle.displayName = "Card.Title"
 
 function CardDescription({ children }: { children: ReactNode }) {
-  const { theme } = useCard("Card.Description")
+  const { theme, ink } = useCard("Card.Description")
   const type = theme.isAndroid ? materialType.bodyMedium : { fontSize: theme.length("--card-description-font-size", 15), lineHeight: theme.length("--card-description-line-height", 20) }
   return (
     <Text
-      color={theme.isAndroid ? "secondary" : theme.color("--card-description-color", theme.colors.textSecondary)}
+      color={ink ? withAlpha(ink, 0.8) : theme.isAndroid ? "secondary" : theme.color("--card-description-color", theme.colors.textSecondary)}
       style={[{ fontSize: type.fontSize, lineHeight: type.lineHeight }, theme.isIOS ? { marginTop: -space(theme, 1.5) } : null]}
     >
       {children}

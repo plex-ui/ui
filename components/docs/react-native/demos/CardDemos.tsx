@@ -3,7 +3,7 @@ import { Button, Card, IconButton, Text, Toolbar, useTheme } from '@plexui/react
 import { MoreIcon } from './MoreIcon';
 import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
+import { DemoControlBoolean, DemoControlSelect, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { RNScreen, docsDemo } from '../RNScreen';
 import { NativeScreenTitleContext } from '../platform';
 
@@ -83,6 +83,39 @@ export const Overview = docsDemo(function Overview() {
                 )}
               </Card.Footer>
             )}
+          </Card>
+        </GroupedScreen>
+      </RNScreen>
+    </>
+  );
+});
+
+const COLORS = ['accent', 'primary', 'info', 'success', 'warning', 'caution', 'danger', 'discovery'] as const;
+
+/**
+ * A card filled with a color of the palette, an offer that stands out on the screen: the title, the description and
+ * the description in the color made to stand on that fill.
+ */
+export const Colored = docsDemo(function Colored() {
+  const { page } = useContext(NativeScreenTitleContext);
+  const [color, setColor] = useState<(typeof COLORS)[number]>('accent');
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlSelect name="color" options={COLORS} value={color} onChange={setColor} />
+      </div>
+      <RNScreen screen grouped minHeight={168}>
+        <GroupedScreen bar={page}>
+          <Card color={color}>
+            <Card.Header>
+              <Card.Title>Upgrade to Pro</Card.Title>
+              <Card.Description>Unlimited projects, a shared library and priority support for your team.</Card.Description>
+            </Card.Header>
+            <Card.Footer>
+              <Button color="secondary" variant="solid" size="sm">
+                See plans
+              </Button>
+            </Card.Footer>
           </Card>
         </GroupedScreen>
       </RNScreen>

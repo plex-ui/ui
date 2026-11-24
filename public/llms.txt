@@ -1058,6 +1058,7 @@ Props:
     - open (boolean) — Controlled open state, also exposed as data-state. The group has no toggle of its own: change open from your own control
   SidebarGroupLabel:
     - size ("sm" | "lg") default: "lg" — sm: compact, tertiary. lg: larger, primary, more spacing
+    - inset (boolean) default: true — Starts the label 12px in, at the rows' text. false starts it at the group's edge, for a label over a panel of fields
     - asChild (boolean) default: false — Render the single child element as the label
   SidebarMenuItem:
     - expanded (boolean) — Marks the item expanded, which turns its SidebarMenuChevron. Pair it with open on its SidebarMenuSub
@@ -1070,7 +1071,7 @@ Props:
     - hasIcons (boolean) default: false — Align child items with parent text that has icons
   SidebarMenuSubButton:
     - isActive (boolean) default: false — Highlight the current page (aria-current="page")
-    - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left margin
+    - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left padding. Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px
     - asChild (boolean) default: false — Render the single child element (e.g. a router link) as the button
   SidebarMobile:
     - contained (boolean) default: false — Positions the drawer and backdrop absolute inside a frame instead of fixed to the window

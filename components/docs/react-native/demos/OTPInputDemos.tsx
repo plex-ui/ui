@@ -64,6 +64,7 @@ function VerificationStep({ value, onChange, grouping, error, disabled }: {
         </Text>
       </View>
       <OTPInput
+        aria-label="Verification code"
         value={value}
         onChange={onChange}
         grouping={grouping === '3+3' ? [3, 3] : undefined}

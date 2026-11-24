@@ -42,6 +42,20 @@ const [pressable, setPressable] = useState(false)
   )}
 </Card>`
 
+export const coloredCode = `import { Button, Card, type CardColor } from "@plexui/react-native"
+
+const [color, setColor] = useState<CardColor>("accent")
+
+<Card color={color}>
+  <Card.Header>
+    <Card.Title>Upgrade to Pro</Card.Title>
+    <Card.Description>Unlimited projects, a shared library and priority support for your team.</Card.Description>
+  </Card.Header>
+  <Card.Footer>
+    <Button color="secondary" variant="solid" size="sm">See plans</Button>
+  </Card.Footer>
+</Card>`
+
 <UsageBlock>{`import { Card } from "@plexui/react-native"`}</UsageBlock>
 
 ## Examples
@@ -61,6 +75,12 @@ const [pressable, setPressable] = useState(false)
   <RNExample demo="card/Overview" />
 </ComponentPreview>
 
+### Colored
+
+<ComponentPreview details={<><code>color</code> fills the card with a color of the palette in place of its variant's surface: <code>accent</code>, <code>primary</code> or a semantic color (<code>info</code>, <code>success</code>, <code>warning</code>, <code>caution</code>, <code>danger</code>, <code>discovery</code>), the solid background of that color. The title, the text and the icons take the color made to stand on it, and the description that color at 80%. A colored card that is a button shows its press as a veil of that text color. Use it for one card that should stand out, such as an offer or a status, not for every card of a screen.</>} code={coloredCode} previewMinHeight={168}>
+  <RNExample demo="card/Colored" />
+</ComponentPreview>
+
 ## Platforms
 
 | | iOS 26 | Android |
@@ -76,6 +96,7 @@ const [pressable, setPressable] = useState(false)
   { prop: "children", type: "ReactNode", description: "The card's parts" },
   { prop: "variant", type: '"outline" | "solid" | "ghost"', default: '"outline"', description: "Fill style" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "The padding: 12, 16 or 20 on iOS; 12, 16 or 24 on Android" },
+  { prop: "color", type: '"accent" | "primary" | "info" | "success" | "warning" | "caution" | "danger" | "discovery"', description: "Fills the card with a color of the palette in place of its variant's surface; the title, text and icons take the color made for it, the description that color at 80%" },
   { prop: "onPress", type: "() => void", description: "Makes the whole card a button" },
   { prop: "interactive", type: "boolean", default: "false", description: "Shows the press of a card whose own parts take it" },
   { prop: "accessibilityLabel", type: "string", description: "Name of the card for screen readers" },

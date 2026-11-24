@@ -1,6 +1,6 @@
 {
   "name": "@plexui/react-native",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Plex UI components for React Native and Expo: iOS 26 and Material 3, on the shared @plexui/styles tokens",
   "license": "MIT",
   "homepage": "https://plexui.com",
@@ -84,7 +84,7 @@
     "test": "npm run typecheck && npm run lint && npm run test:web --prefix example"
   },
   "dependencies": {
-    "@plexui/styles": "^0.16.7"
+    "@plexui/styles": "^0.17.1"
   },
   "peerDependencies": {
     "expo-blur": ">=15",

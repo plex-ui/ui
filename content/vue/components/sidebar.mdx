@@ -468,6 +468,7 @@ Renders a section label within a `SidebarGroup`. Supports two size variants.
 
 <PropsTable data={[
   { prop: "size", type: '"sm" | "lg"', default: '"lg"', description: "sm: compact, tertiary. lg: larger, primary, more spacing" },
+  { prop: "inset", type: "boolean", default: "true", description: "Starts the label 12px in, at the rows' text. false starts it at the group's edge, for a label over a panel of fields" },
   { prop: "as-child", type: "boolean", default: "false", description: "Render the single child element as the label" },
 ]} />
 
@@ -504,9 +505,11 @@ Renders a collapsible submenu container for nested navigation.
 
 <PropsTable data={[
   { prop: "is-active", type: "boolean", default: "false", description: "Highlight the current page (aria-current=\"page\")" },
-  { prop: "indent", type: "0 | 1 | 2 | 3", default: "0", description: "Nesting level; each level adds 12px of left margin" },
+  { prop: "indent", type: "0 | 1 | 2 | 3", default: "0", description: "Nesting level; each level adds 12px of left padding. Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px" },
   { prop: "as-child", type: "boolean", default: "false", description: "Render the single child element (e.g. a RouterLink) as the button" },
 ]} />
+
+Wrap the row's text in `SidebarMenuSubButtonLabel`: it fills the row, starts at its start and ends in an ellipsis when it does not fit, over the row's fill. The focus ring of a row is drawn inside it, so a submenu that clips its rows never cuts its corners. An open submenu leaves 4px (`--sidebar-menu-sub-open-gap`) before the row after it.
 
 ### SidebarMobile
 

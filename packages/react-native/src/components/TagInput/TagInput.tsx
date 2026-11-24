@@ -204,7 +204,7 @@ export function TagInput({
             autoFocus={autoFocus}
             editable={!disabled}
             placeholder={placeholder}
-            placeholderTextColor={theme.colors.textTertiary}
+            placeholderTextColor={theme.isAndroid ? theme.colors.textTertiary : theme.colors.labelTertiary}
             accessibilityLabel={accessibilityLabel ?? placeholder}
             autoCapitalize="none"
             autoCorrect={false}

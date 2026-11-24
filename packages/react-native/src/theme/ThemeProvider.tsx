@@ -27,8 +27,17 @@ export type ThemeProviderProps = {
    * parent's brand and lays its own over it.
    */
   brand?: BrandTheme
-  /** Faces of the kit (a nested ThemeProvider takes its parent's). Without them the platform's own face is used; see `interFonts`. */
-  fonts?: FontFamilies
+  /**
+   * Faces of the kit (a nested ThemeProvider takes its parent's). Without them the platform's own face is used; see
+   * `interFonts` and `robotoFonts`. Faces per drawn platform, `{ ios, android }`, take the one of `platform`: the
+   * Material 3 look in a browser on a Mac would otherwise draw in SF, the browser's system face, not Roboto.
+   */
+  fonts?: FontFamilies | PlatformFonts
+  /**
+   * The width the phone layer is laid out for, in place of the window's: a phone drawn in a frame inside a wider window
+   * (a gallery, a review page) sets the frame's width, 402 for an iPhone 17 Pro.
+   */
+  viewportWidth?: number
   children?: ReactNode
 }
 
@@ -44,6 +53,24 @@ export const interFonts: FontFamilies = {
   sans: { regular: "Inter_400Regular", medium: "Inter_500Medium", semibold: "Inter_600SemiBold", bold: "Inter_700Bold" },
 }
 
+/**
+ * The family names `@expo-google-fonts/roboto` registers, for `fonts`: the face of Material 3. An Android device has
+ * Roboto as its system face already; the web needs it loaded, for the Android look in a browser.
+ *
+ * ```tsx
+ * const [loaded] = useFonts({ Roboto_400Regular, Roboto_500Medium, Roboto_600SemiBold, Roboto_700Bold })
+ * <ThemeProvider platform={platform} fonts={{ android: robotoFonts }}>
+ * ```
+ */
+export const robotoFonts: FontFamilies = {
+  sans: { regular: "Roboto_400Regular", medium: "Roboto_500Medium", semibold: "Roboto_600SemiBold", bold: "Roboto_700Bold" },
+}
+
+/** Faces for each drawn platform: iOS (the system face when left out) and Android. */
+export type PlatformFonts = { ios?: FontFamilies; android?: FontFamilies }
+
+const isPlatformFonts = (fonts: FontFamilies | PlatformFonts): fonts is PlatformFonts => "ios" in fonts || "android" in fonts
+
 const ThemeContext = createContext<Theme | null>(null)
 
 /** What a ThemeProvider was given, for a ThemeProvider nested in it to start from. */
@@ -51,15 +78,22 @@ type ThemeSettings = {
   scheme: ColorScheme | "system"
   platform: PlatformStyle
   selectionColor: SelectionColor | undefined
-  overrides: Record<string, string> | undefined; fonts: FontFamilies | undefined }
+  overrides: Record<string, string> | undefined
+  fonts: FontFamilies | undefined
+  viewportWidth: number | undefined
+}
 const ThemeSettingsContext = createContext<ThemeSettings | null>(null)
 
-// On the web (react-native-web) the type is Inter's variable font, which the Plex UI tokens set at SF's own Medium and
-// Semibold strokes, 510 and 590 (touch.css); a device's system font takes the named weights
+// On the web (react-native-web) a family the app sets (Inter's variable font in the docs) takes the Plex UI tokens' SF
+// strokes, Medium 510 and Semibold 590 (touch.css); a device's system font takes the named weights
 const WEIGHTS: Record<FontWeightName, TextStyle["fontWeight"]> =
   Platform.OS === "web"
     ? { regular: "400", medium: "510" as TextStyle["fontWeight"], semibold: "590" as TextStyle["fontWeight"], bold: "700" }
     : { regular: "400", medium: "500", semibold: "600", bold: "700" }
+// The web's system font (react-native-web's own stack, no family set): Chromium draws 501–549 of it as a synthesized bold,
+// heavier than 590, so Medium is 500 there; 590 is SF's own Semibold, as an iPhone draws it
+const SYSTEM_WEIGHTS: Record<FontWeightName, TextStyle["fontWeight"]> =
+  Platform.OS === "web" ? { ...WEIGHTS, medium: "500" } : WEIGHTS
 
 /** The platform a ThemeProvider draws by default. */
 export function defaultPlatform(): PlatformStyle {
@@ -118,7 +152,7 @@ function fontFor(fonts: FontFamilies | undefined, weight: FontWeightName) {
   const family = sans?.[weight] ?? (weight === "semibold" ? sans?.bold : undefined) ?? sans?.regular
   // A family per weight carries its weight: a weight on top would be synthesized on Android
   if (family && sans?.[weight]) return { fontFamily: family }
-  return family ? { fontFamily: family, fontWeight: WEIGHTS[weight] } : { fontWeight: WEIGHTS[weight] }
+  return family ? { fontFamily: family, fontWeight: WEIGHTS[weight] } : { fontWeight: SYSTEM_WEIGHTS[weight] }
 }
 
 /** Builds a theme for a scheme and a platform (ThemeProvider does it for its children). */
@@ -181,7 +215,11 @@ export function createTheme(options: {
     textInverse: color("--color-text-inverse"),
     textAccent: color("--color-text-accent"),
     textDanger: color("--color-text-danger"),
+    textSuccess: color("--color-text-success"),
     accent: color("--color-accent"),
+    success: color("--color-background-success-solid"),
+    onSuccess: color("--color-text-success-solid"),
+    danger: color("--color-background-danger-solid"),
     background: color("--mobile-surface-plain-primary", color("--color-surface")),
     groupedBackground: color("--mobile-surface-grouped-primary", color("--color-surface-secondary")),
     groupedSurface: color("--mobile-surface-grouped-secondary", color("--color-surface")),
@@ -203,13 +241,14 @@ export function createTheme(options: {
  * Gives its children the Plex UI theme: tokens resolved from @plexui/styles for the scheme, the brand and a phone,
  * and the platform the components draw. Nest one to theme a part of a screen (a dark sheet on a light page).
  */
-export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts, children }: ThemeProviderProps) {
+export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts: fontsProp, viewportWidth, children }: ThemeProviderProps) {
   // A nested provider starts from its parent: a dark sheet on a light page keeps the page's platform, brand and faces
   const parent = useContext(ThemeSettingsContext)
   const system = useColorScheme()
   const wantedScheme = scheme ?? parent?.scheme ?? "system"
   const resolvedScheme: ColorScheme = wantedScheme === "system" ? (system === "dark" ? "dark" : "light") : wantedScheme
-  const { width } = useWindowDimensions()
+  const window = useWindowDimensions()
+  const width = viewportWidth ?? parent?.viewportWidth ?? window.width
   const reducedMotion = useReducedMotion()
   // The phone layers of the CSS apply up to 767px: a tablet keeps the touch sizes. Only the bands of the CSS matter.
   const band = width >= 414 ? 414 : 393
@@ -225,9 +264,11 @@ export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts, 
   useEffect(() => {
     warnUnresolvedColors(JSON.parse(brandKey) === null ? undefined : { colors: JSON.parse(brandKey) }, resolver)
   }, [brandKey, resolver])
-  const faces = brand?.fonts ?? fonts ?? parent?.fonts
-  const facesKey = JSON.stringify(faces ?? null)
   const resolvedPlatform = platform ?? parent?.platform ?? defaultPlatform()
+  const fonts = fontsProp && isPlatformFonts(fontsProp) ? (fontsProp[resolvedPlatform] ?? null) : fontsProp
+  // `null`: faces per platform that leave this platform out draw the system face, not the parent's
+  const faces = brand?.fonts ?? (fonts === null ? undefined : (fonts ?? parent?.fonts))
+  const facesKey = JSON.stringify(faces ?? null)
   // The color a provider was given (or its parent's); unset, iOS takes the ink and Android its accent
   const chosenSelection = selectionColor ?? parent?.selectionColor
   const selection: SelectionColor = chosenSelection ?? (resolvedPlatform === "android" ? "accent" : "primary")
@@ -244,8 +285,15 @@ export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts, 
     [resolver, resolvedScheme, resolvedPlatform, facesKey, reducedMotion, selection],
   )
   const settings = useMemo<ThemeSettings>(
-    () => ({ scheme: wantedScheme, platform: resolvedPlatform, selectionColor: chosenSelection, overrides: JSON.parse(overridesKey) ?? undefined, fonts: JSON.parse(facesKey) ?? undefined }),
-    [wantedScheme, resolvedPlatform, chosenSelection, overridesKey, facesKey],
+    () => ({
+      scheme: wantedScheme,
+      platform: resolvedPlatform,
+      selectionColor: chosenSelection,
+      overrides: JSON.parse(overridesKey) ?? undefined,
+      fonts: JSON.parse(facesKey) ?? undefined,
+      viewportWidth: viewportWidth ?? parent?.viewportWidth,
+    }),
+    [wantedScheme, resolvedPlatform, chosenSelection, overridesKey, facesKey, viewportWidth, parent?.viewportWidth],
   )
   return (
     <ThemeSettingsContext.Provider value={settings}>

@@ -272,11 +272,16 @@ const SidebarGroupLabelComponent = defineComponent({
      * @default "lg"
      */
     size: { type: String as PropType<"sm" | "lg">, default: "lg" },
+    /**
+     * Starts the label 12px in, at the rows' text. Off, it starts at the group's edge: a label over a panel of fields.
+     * @default true
+     */
+    inset: { type: Boolean, default: true },
   },
   setup(props, { attrs, slots }) {
     return () => {
       const { className, rest } = cleanAttrs(attrs)
-      const ownProps = { "data-size": props.size, "class": [s.GroupLabel, className], ...rest }
+      const ownProps = { "data-size": props.size, "data-inset": props.inset ? undefined : "false", "class": [s.GroupLabel, className], ...rest }
       return props.asChild ? renderAsChild(slots.default?.(), ownProps) : h("span", ownProps, slots.default?.())
     }
   },
@@ -612,6 +617,11 @@ export type SidebarMenuSubButtonProps = InstanceType<typeof SidebarMenuSubButton
 export const SidebarMenuSubButton = SidebarMenuSubButtonComponent as typeof SidebarMenuSubButtonComponent & {
   new (): { $props: SidebarMenuSubButtonProps }
 }
+
+export type SidebarMenuSubButtonLabelProps = HTMLAttributes
+
+/** The text of a SidebarMenuSubButton: it fills the row, starts at its start and ends in an ellipsis. */
+export const SidebarMenuSubButtonLabel = part<SidebarMenuSubButtonLabelProps>("SidebarMenuSubButtonLabel", "span", s.MenuSubButtonLabel)
 
 // =============================================
 // Separator

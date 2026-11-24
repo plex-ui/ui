@@ -15,6 +15,7 @@ import { physicalPadding, useRTL } from "../../internal/direction"
 import { Glass } from "../../internal/Glass"
 import { curves } from "../../internal/motion"
 import { divider, withAlpha } from "../../theme/material"
+import { textOf } from "../../internal/children"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { flattenChildren } from "../../internal/children"
@@ -201,9 +202,17 @@ function ToolbarGroup({ children, style, ...rest }: ViewProps) {
 ToolbarGroup.displayName = "Toolbar.Group"
 
 export type ToolbarTitleProps = {
-  children: ReactNode
+  /** The title's text. With `image` it may be left out. */
+  children?: ReactNode
   subtitle?: ReactNode
   numberOfLines?: number
+  /**
+   * A picture in the title's place: a logo (an Image, an svg). It stays the bar's header for a screen reader, named by
+   * `accessibilityLabel` (or the text in `children`, which is then not drawn).
+   */
+  image?: ReactNode
+  /** The header's name, for an `image` title. */
+  accessibilityLabel?: string
 }
 
 /** The title of the bar, and an optional subtitle under it. Announced as a header. */
@@ -331,8 +340,22 @@ function BarTitle({
         android && start && !large ? { marginStart: plain ? (afterLeading ? 20 : 14) : 18 } : null,
       ]}
     >
+      {title.image != null ? (
+        // A logo is the header: one element named for a screen reader, the picture itself hidden from it
+        <View
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel={title.accessibilityLabel ?? (textOf(title.children) || undefined)}
+          style={styles.titleImage}
+        >
+          <View importantForAccessibility="no-hide-descendants" accessibilityElementsHidden aria-hidden>
+            {title.image}
+          </View>
+        </View>
+      ) : (
       <Text
         accessibilityRole="header"
+        accessibilityLabel={title.accessibilityLabel}
         numberOfLines={title.numberOfLines ?? 1}
         weight={android ? "medium" : large ? "bold" : "semibold"}
         align={start || large ? "auto" : "center"}
@@ -340,6 +363,7 @@ function BarTitle({
       >
         {title.children}
       </Text>
+      )}
       {subtitle ? (
         <Text
           numberOfLines={1}
@@ -661,6 +685,7 @@ export const Toolbar = Object.assign(ToolbarRoot, {
 })
 
 const styles = StyleSheet.create({
+  titleImage: { flexDirection: "row", alignItems: "center" },
   slot: { flexDirection: "row", alignItems: "center" },
   trailing: { justifyContent: "flex-end" },
   content: { justifyContent: "center" },

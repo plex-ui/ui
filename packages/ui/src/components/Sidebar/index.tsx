@@ -39,6 +39,7 @@ export {
   // Submenu
   SidebarMenuSub,
   SidebarMenuSubButton,
+  SidebarMenuSubButtonLabel,
   SidebarMenuSubItem,
   SidebarMobile,
   SidebarMobileFooter,
@@ -86,6 +87,7 @@ export type {
   SidebarMenuProps,
   SidebarMenuSkeletonProps,
   SidebarMenuSubButtonProps,
+  SidebarMenuSubButtonLabelProps,
   SidebarMenuSubItemProps,
   SidebarMenuSubProps,
   SidebarMobileFooterProps,

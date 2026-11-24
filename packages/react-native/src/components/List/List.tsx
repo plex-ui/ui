@@ -27,8 +27,8 @@ export type ListProps = {
   /** A note under the section. */
   footer?: ReactNode
   /**
-   * An error under the rows, as the web's FieldError in a group's footer: the danger color, 15/20, 4 lower than a
-   * footer on iOS. It stands in place of the footer while it is set, and is announced when it appears.
+   * An error under the rows: it stands in the footer's place, in the footer's type (iOS 13/16, 8 under the section;
+   * Android 14sp), only in the danger color, while it is set, and is announced when it appears.
    */
   error?: ReactNode
   /**
@@ -40,7 +40,9 @@ export type ListProps = {
   surface?: "grouped" | "plain"
   /**
    * Content at the end of the header, as the web's FieldGroup `action`: a ghost Button there is the list header's text
-   * action (iOS: tinted 17/22 text on the title's line with a 44pt target; Android: 14sp Medium in its color).
+   * action (iOS: tinted 17/22 text on the title's line with a 44pt target; Android: 14sp Medium in its color). A string,
+   * a number or a Text (a count such as "2/3") takes the header's type in the secondary label, on the title's line. With
+   * no `header` the action stands alone at the header's end.
    */
   action?: ReactNode
   /**
@@ -77,10 +79,28 @@ type RowPlace = { first: boolean; last: boolean; top: number; bottom: number }
 const PlaceContext = createContext<RowPlace>({ first: true, last: true, top: 0, bottom: 0 })
 
 /**
+ * A header's action that is not a Button (a count such as "2/3") takes the header's type, so it stands on the title's
+ * line: iOS 17/22 on its last line, Android the header's 15sp on its 40dp row. Its own style still wins.
+ */
+function headerAction(action: ReactNode, type: StyleProp<TextStyle>, color: string): ReactNode {
+  if (typeof action === "string" || typeof action === "number") {
+    return (
+      <Text color={color} tabularNums style={type}>
+        {action}
+      </Text>
+    )
+  }
+  if (isValidElement<{ style?: StyleProp<TextStyle> }>(action) && action.type === Text) {
+    return cloneElement(action, { style: [type, action.props.style] })
+  }
+  return action
+}
+
+/**
  * A section of rows. iOS 26: a section of an inset grouped list, as @plexui/ui's FieldGroup on a phone
  * (`--field-group-radius` 26, the grouped secondary surface, rows 20 in from its edges, hairlines between rows from
  * the text's start; the header 17/22 at 590 in the secondary label over its description 15/20, the footer 13/16, an
- * error 15/20 in the danger color). Android: a section of a settings screen: one card of the section's rows,
+ * error in its place and type in the danger color). Android: a section of a settings screen: one card of the section's rows,
  * 16dp round, a 1px divider between rows from the text's start to the card's end; the header inside the card, a 40dp
  * row of 15sp Medium in the accent 21 in (14 above it), its description 14sp in the secondary label under it; the
  * footer under the card, 14sp in the secondary label 13 in (25 from the screen's edge, as the screen insets the card
@@ -135,19 +155,27 @@ export function List({
     return (
       <View testID={testID} style={style}>
         <View style={plain ? { backgroundColor: theme.colors.groupedSurface } : [styles.androidCard, { backgroundColor: fill }]}>
-          {header == null ? null : plain ? (
+          {header == null && action == null ? null : plain ? (
             <View style={[styles.androidBand, action != null ? styles.androidBandRow : null, { backgroundColor: band }]}>
-              <Text accessibilityRole="header" color={theme.colors.labelSecondary} weight="medium" numberOfLines={1} style={[styles.androidBandText, action != null ? styles.grow : null]}>
-                {header}
-              </Text>
-              {action != null ? <ListActionContext.Provider value="header">{action}</ListActionContext.Provider> : null}
+              {header != null ? (
+                <Text accessibilityRole="header" color={theme.colors.labelSecondary} weight="medium" numberOfLines={1} style={[styles.androidBandText, action != null ? styles.grow : null]}>
+                  {header}
+                </Text>
+              ) : (
+                <View style={styles.grow} />
+              )}
+              {action != null ? <ListActionContext.Provider value="header">{headerAction(action, styles.androidBandText, theme.colors.labelSecondary)}</ListActionContext.Provider> : null}
             </View>
           ) : action != null ? (
             <View style={styles.androidHeaderRow}>
-              <Text accessibilityRole="header" color={increased ? theme.colors.text : accentText(theme)} weight="medium" style={[styles.androidHeaderTitle, increased ? styles.androidHeaderIncreased : null]}>
-                {header}
-              </Text>
-              <ListActionContext.Provider value="header">{action}</ListActionContext.Provider>
+              {header != null ? (
+                <Text accessibilityRole="header" color={increased ? theme.colors.text : accentText(theme)} weight="medium" style={[styles.androidHeaderTitle, increased ? styles.androidHeaderIncreased : null]}>
+                  {header}
+                </Text>
+              ) : (
+                <View style={styles.grow} />
+              )}
+              <ListActionContext.Provider value="header">{headerAction(action, styles.androidHeaderTitleType, theme.colors.labelSecondary)}</ListActionContext.Provider>
             </View>
           ) : (
             <Text accessibilityRole="header" color={increased ? theme.colors.text : accentText(theme)} weight="medium" style={[styles.androidHeader, increased ? styles.androidHeaderIncreased : null]}>
@@ -182,7 +210,7 @@ export function List({
   const footerBox = cssBox(theme, "--field-group-footer-padding", [8, inset, 6, inset])
   return (
     <View testID={testID} style={style}>
-      {header != null || description != null ? (
+      {header != null || description != null || action != null ? (
         <View
           style={{
             // The prominent header: 20/25 Semibold in the primary label, 10 above and below (45 at least), as the kit's
@@ -194,9 +222,10 @@ export function List({
             paddingHorizontal: theme.length("--field-group-title-padding-inline", inset),
           }}
         >
-          {header != null ? (
+          {header != null || action != null ? (
             <View style={action != null ? styles.iosHeaderRow : null}>
-              <Text
+              {header == null ? <View style={styles.grow} /> : null}
+              {header == null ? null : <Text
                 accessibilityRole="header"
                 weight="semibold"
                 color={increased ? theme.colors.text : theme.colors.labelSecondary}
@@ -206,9 +235,17 @@ export function List({
                 ]}
               >
                 {header}
-              </Text>
+              </Text>}
               {/* On the title's last line, its target reaching over and under the line without making the header taller */}
-              {action != null ? <ListActionContext.Provider value="header">{action}</ListActionContext.Provider> : null}
+              {action != null ? (
+                <ListActionContext.Provider value="header">
+                  {headerAction(
+                    action,
+                    { fontSize: theme.length("--field-group-title-font-size", 17), lineHeight: theme.length("--field-group-title-line-height", 22) },
+                    theme.colors.labelSecondary,
+                  )}
+                </ListActionContext.Provider>
+              ) : null}
             </View>
           ) : null}
           {description != null ? (
@@ -228,25 +265,11 @@ export function List({
       >
         <ListOptionsContext.Provider value={options}>{body}</ListOptionsContext.Provider>
       </View>
-      {error != null ? (
-        // The web's FieldError in the footer: its 4 offset over the footer's padding
+      {error != null || footer != null ? (
+        // An error takes the footer's place and type (13/16, 8 under the section), only in the danger color
         <Text
-          color={errorColor(theme)}
-          accessibilityLiveRegion="polite"
-          style={{
-            fontSize: theme.length("--mobile-field-error-font-size", 15),
-            lineHeight: theme.length("--mobile-field-error-line-height", 20),
-            paddingTop: footerBox.top + theme.length("--mobile-field-error-offset", 4),
-            paddingEnd: footerBox.right,
-            paddingBottom: footerBox.bottom,
-            paddingStart: footerBox.left,
-          }}
-        >
-          {error}
-        </Text>
-      ) : footer != null ? (
-        <Text
-          color={theme.colors.labelSecondary}
+          color={error != null ? errorColor(theme) : theme.colors.labelSecondary}
+          accessibilityLiveRegion={error != null ? "polite" : undefined}
           style={{
             fontSize: theme.length("--field-group-footer-font-size", 13),
             lineHeight: theme.length("--field-group-footer-line-height", 16),
@@ -256,7 +279,7 @@ export function List({
             paddingStart: footerBox.left,
           }}
         >
-          {footer}
+          {error ?? footer}
         </Text>
       ) : null}
     </View>
@@ -464,8 +487,20 @@ export function ListItem({
       </Pressable>
     )
   }
+  // A row that only shows (a detail, a value) is one element named by `accessibilityLabel` when it has one; with a
+  // control at its end it stays a group, so the control is still reached
+  const named = accessibilityLabel != null && trailing == null && found == null
   return (
-    <View ref={frameNode as never} collapsable={false} testID={testID} style={row(false)}>
+    <View
+      ref={frameNode as never}
+      collapsable={false}
+      testID={testID}
+      accessible={named || undefined}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole={named && Platform.OS !== "web" ? "text" : undefined}
+      role={named && Platform.OS === "web" ? "group" : undefined}
+      style={row(false)}
+    >
       {content(false)}
     </View>
   )
@@ -994,6 +1029,7 @@ const styles = StyleSheet.create({
   iosHeaderRow: { flexDirection: "row", alignItems: "flex-end", gap: 16 },
   androidHeaderRow: { flexDirection: "row", alignItems: "flex-start", minHeight: 40, paddingHorizontal: ANDROID_INSET, paddingTop: 14, paddingBottom: 6, gap: 16 },
   androidHeaderTitle: { flex: 1, minWidth: 0, fontSize: 15, lineHeight: 20 },
+  androidHeaderTitleType: { fontSize: 15, lineHeight: 20 },
   // A prominent header: the title 16sp in the text color
   androidHeaderIncreased: { fontSize: 16, lineHeight: 20 },
   androidBandRow: { flexDirection: "row", alignItems: "center", gap: 16 },

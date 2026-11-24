@@ -1,0 +1,60 @@
+---
+title: Bottom Actions
+description: "The main action at the bottom of a phone screen, with an optional second action under it."
+metaDescription: "A React Native bar for a screen's main action at its bottom, such as an onboarding's Continue: a wide capsule just over the home indicator on iOS 26, a full-width 48dp button on Android."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { BottomActions, Button, Text } from "@plexui/react-native"
+import { Sparkles } from "@plexui/react-native/icons"
+import { ScrollView, View } from "react-native"
+
+const [second, setSecond] = useState(true)
+const [floating, setFloating] = useState(false)
+
+<View style={{ flex: 1 }}>
+  <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 32 }}>
+    <Sparkles size={48} />
+    <Text variant="title2" weight="bold" align="center">Welcome to Projects</Text>
+    <Text variant="body" color="secondary" align="center">
+      Plan the work, share the files and follow every change with your team, in one place.
+    </Text>
+  </ScrollView>
+  <BottomActions floating={floating}>
+    <Button color="primary" variant="solid" onPress={next}>Continue</Button>
+    {second && <Button color="secondary" variant="ghost" onPress={skip}>Not now</Button>}
+  </BottomActions>
+</View>`
+
+<UsageBlock>{`import { BottomActions } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>BottomActions holds a screen's main action at its bottom: an onboarding's Continue, a form's Create account. Use it for the one action that moves a person on from the screen, with at most a second, quieter one under it (a ghost Not now); actions of the content stay in the content. It is React Native only: the web has no bottom of a screen to stand at.</p>
+  <p>On iOS the action is a capsule across the screen, 36pt from its sides and 52pt tall, its bottom just over the home indicator (2pt above the safe area), as iOS 26's own setup screens set it. On Android it is a full-width 48dp button, 16dp from the sides and 16dp above the gesture bar. Each Button inside is a block of the size <code>3xl</code> unless it sets its own <code>block</code> or <code>size</code>; a second action stands under the first, 8 apart.</p>
+  <p><code>floating</code> lays the actions over the content, a scroll view under them, which then keeps their room at its end so its last line scrolls clear of them. Without it the actions take their own room at the end of the screen.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="bottom-actions/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: the bottom action of iOS 26's setup screens | None: the Plex Android look's bottom button |
+| Look | A 52pt capsule 36pt from the sides, just over the home indicator | A full-width 48dp button 16dp from the sides, 16dp above the gesture bar |
+
+## API
+
+### BottomActions
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The screen's main action, a Button, and an optional second Button under it (a ghost Not now). Each Button is a block of the size 3xl unless it sets its own (required)" },
+  { prop: "floating", type: "boolean", default: "false", description: "Puts the actions over the content (a scroll view under them); off, they take their room at the end of the screen" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the bar" },
+]} />

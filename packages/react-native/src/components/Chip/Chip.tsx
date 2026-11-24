@@ -1,10 +1,12 @@
 import { useEffect, useState, type ReactNode } from "react"
-import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import ChevronDownSm from "../../icons/plex/ChevronDownSm"
 import CloseBold from "../../icons/plex/CloseBold"
 import { spaceToggles } from "../../internal/a11y"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { IconDefaultsProvider } from "../Icon/createIcon"
+import { MaterialArrowDropDown } from "../Icon/material"
 import { Text, textStyle } from "../Text/Text"
 
 export type ChipProps = {
@@ -17,6 +19,17 @@ export type ChipProps = {
   onPress?: () => void
   /** A symbol before the label. */
   icon?: ReactNode
+  /** A symbol after the label. */
+  trailingIcon?: ReactNode
+  /**
+   * The chip opens a menu (a filter that picks among options): a chevron after the label (iOS `chevron.down`, Material
+   * `arrow_drop_down`) unless `trailingIcon` is given, and `aria-haspopup` for a screen reader. `true` is a menu;
+   * `"listbox"` and `"dialog"` name what it opens.
+   */
+  menu?: boolean | "menu" | "listbox" | "dialog"
+  /** Whether the chip's menu is open (`aria-expanded`). */
+  expanded?: boolean
+  accessibilityLabel?: string
   /** An input chip: a cross at the end that calls this. */
   onRemove?: () => void
   /** @default "Remove" */
@@ -32,7 +45,23 @@ export type ChipProps = {
  * capsule, 15/20 medium, the soft gray fill, the Plex primary when selected, as a selected Plex Button). The web has
  * no Chip; the props follow Toggle-like controls (`selected`, `onSelectedChange`) and Badge's `onRemove`.
  */
-export function Chip({ children, selected: selectedProp, defaultSelected, onSelectedChange, onPress, icon, onRemove, removeLabel = "Remove", disabled = false, testID, style }: ChipProps) {
+export function Chip({
+  children,
+  selected: selectedProp,
+  defaultSelected,
+  onSelectedChange,
+  onPress,
+  icon,
+  trailingIcon,
+  menu,
+  expanded,
+  accessibilityLabel,
+  onRemove,
+  removeLabel = "Remove",
+  disabled = false,
+  testID,
+  style,
+}: ChipProps) {
   const theme = useTheme()
   const [own, setOwn] = useState(defaultSelected ?? false)
   const filter = selectedProp !== undefined || defaultSelected !== undefined || onSelectedChange !== undefined
@@ -88,6 +117,8 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
   const label = android ? { fontSize: 14, lineHeight: 18 } : { fontSize: 15, lineHeight: 20 }
   const leading = icon
   const iconSize = android ? 18 : 17
+  // A menu chip's chevron: Material's 18dp arrow_drop_down, iOS's small chevron.down at the label's weight
+  const trailing = trailingIcon ?? (menu ? android ? <MaterialArrowDropDown size={18} /> : <ChevronDownSm size={14} /> : null)
   const leadingColor = color
   // The chip is drawn 32 (34) tall inside a 48dp (44pt) touch target, as Compose's minimum interactive size and the
   // HIG ask: the target is the layout box, the chip a layer inside it, so every press in the target reaches it
@@ -112,7 +143,8 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
     paddingVertical: inset + (height - label.lineHeight) / 2,
     // Android: 12 at the sides, 8 before an icon and 6 after it
     paddingLeft: leading != null ? (android ? 8 : 12) : android ? 12 : 14,
-    paddingRight: onRemove ? 0 : android ? 12 : 14,
+    // Android: 8 after a trailing icon (Compose's FilterChip), iOS 10
+    paddingRight: onRemove ? 0 : trailing != null ? (android ? 8 : 10) : android ? 12 : 14,
     gap: 6,
     opacity: !android && pressed ? 0.7 : 1,
   }
@@ -139,6 +171,13 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
           {children}
         </Text>
       )}
+      {trailing != null ? (
+        <View>
+          <IconDefaultsProvider size={iconSize} color={leadingColor}>
+            {trailing}
+          </IconDefaultsProvider>
+        </View>
+      ) : null}
     </>
   )
   const interactive = filter || !!onPress
@@ -146,9 +185,13 @@ export function Chip({ children, selected: selectedProp, defaultSelected, onSele
   const dim = android && disabled ? styles.dim : null
   const handlers = {
     ...(filter ? spaceToggles(press) : {}),
-    accessibilityRole: filter ? ("checkbox" as const) : ("button" as const),
-    accessibilityState: { disabled, checked: filter ? selected : undefined },
-    "aria-checked": filter ? selected : undefined,
+    // A menu chip is a button that opens its menu, even when it shows a chosen filter
+    accessibilityRole: filter && !menu ? ("checkbox" as const) : ("button" as const),
+    accessibilityLabel,
+    accessibilityState: { disabled, checked: filter && !menu ? selected : undefined, selected: filter && menu && Platform.OS !== "web" ? selected : undefined, expanded },
+    "aria-checked": filter && !menu ? selected : undefined,
+    "aria-haspopup": menu ? (menu === true ? ("menu" as const) : menu) : undefined,
+    "aria-expanded": menu ? expanded : undefined,
     disabled,
     onPress: press,
     onPressIn: () => setPressed(true),

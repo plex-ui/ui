@@ -38,6 +38,15 @@ export type OTPInputProps = {
   disabled?: boolean
   /** Focuses the first cell on mount. @default false */
   autoFocus?: boolean
+  /**
+   * Names the code ("Verification code"): the cells' group on the web, and the start of each cell's name on iOS and
+   * Android ("Verification code, digit 1 of 6"), where a group is not announced.
+   */
+  "aria-label"?: string
+  /** The same name as `aria-label`. */
+  label?: string
+  /** The name of a cell, for another language. @default (index, length) => `Digit ${index + 1}`, with `of ${length}` once the code is named */
+  digitLabel?: (index: number, length: number) => string
   /** Applied to the root; each cell's field gets `${testID}-digit-${n}`. */
   testID?: string
   style?: StyleProp<ViewStyle>
@@ -235,6 +244,9 @@ export function OTPInput({
   errorMessage,
   disabled = false,
   autoFocus = false,
+  "aria-label": ariaLabel,
+  label,
+  digitLabel,
   testID,
   style,
 }: OTPInputProps) {
@@ -388,8 +400,15 @@ export function OTPInput({
     Animated.spring(shake, { toValue: 0, velocity: -1000, ...stiffSpring(600, 0.5), useNativeDriver: false }).start()
   }, [failing, shake, theme.isAndroid, theme.reducedMotion])
 
+  const name = ariaLabel ?? label
+  const cellName = (index: number) => {
+    const own = digitLabel ? digitLabel(index, length) : name ? `${Platform.OS === "web" ? "Digit" : "digit"} ${index + 1} of ${length}` : `Digit ${index + 1}`
+    // The web names the group; a native screen reader hears the code's name on each cell instead
+    return name && Platform.OS !== "web" ? `${name}, ${own}` : own
+  }
+
   return (
-    <View style={style} testID={testID}>
+    <View style={style} testID={testID} role={name ? "group" : undefined} aria-label={Platform.OS === "web" ? name : undefined}>
       <Animated.View style={[styles.cells, { gap }, theme.isAndroid ? { transform: [{ translateX: shake }] } : null]}>
         {Array.from({ length }, (_, index) => {
           const isGroupGap = grouping ? shouldShowGap(index, grouping) : false
@@ -416,7 +435,7 @@ export function OTPInput({
               autoComplete={index === 0 ? ONE_TIME_CODE : "off"}
               autoCorrect={false}
               spellCheck={false}
-              accessibilityLabel={`Digit ${index + 1}`}
+              accessibilityLabel={cellName(index)}
               aria-invalid={invalid || undefined}
               aria-disabled={disabled || undefined}
               selectionColor={look.caret}

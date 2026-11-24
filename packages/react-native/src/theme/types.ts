@@ -82,7 +82,15 @@ export type ThemeColors = {
   textInverse: string
   textAccent: string
   textDanger: string
+  /** The positive color as text: a "Verified" or "Saved" line (`--color-text-success`). */
+  textSuccess: string
   accent: string
+  /** The positive color as a fill or a glyph: a verified checkmark, a done state (`--color-background-success-solid`; iOS's systemGreen place). */
+  success: string
+  /** The color of text and glyphs on `success`. */
+  onSuccess: string
+  /** The destructive color as a fill (`--color-background-danger-solid`). */
+  danger: string
   /** The canvas of a plain screen. */
   background: string
   /** The canvas of a grouped screen (iOS grouped lists). */

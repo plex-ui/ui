@@ -1,5 +1,5 @@
 import type { SVGProps } from "react"
-const Report = (props: SVGProps<SVGSVGElement>) => (
+const ReportIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
     <path
       fillRule="evenodd"
@@ -9,5 +9,5 @@ const Report = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 )
-Report.displayName = "Report"
-export default Report
+ReportIcon.displayName = "Report"
+export default ReportIcon

@@ -78,6 +78,27 @@ const open = (id: string) => navigation.navigate("Choices", { id })
   </List>
 </ScrollView>`
 
+export const countCode = `import { Checkbox, List, ListItem } from "@plexui/react-native"
+
+const STEPS = ["Add a profile photo", "Verify your email", "Invite your team"]
+const [done, setDone] = useState([true, true, false])
+
+<List header="Set up your account" action={\`\${done.filter(Boolean).length}/\${STEPS.length}\`}>
+  {STEPS.map((step, index) => (
+    <ListItem
+      key={step}
+      label={step}
+      trailing={
+        <Checkbox
+          checked={done[index]}
+          onCheckedChange={(on) => setDone((list) => list.map((value, i) => (i === index ? on : value)))}
+          accessibilityLabel={step}
+        />
+      }
+    />
+  ))}
+</List>`
+
 <UsageBlock>{`import { List, ListItem } from "@plexui/react-native"`}</UsageBlock>
 
 End a row with a [Switch](/react-native/components/switch) for a setting that turns on and off.
@@ -92,6 +113,12 @@ End a row with a [Switch](/react-native/components/switch) for a setting that tu
   <p><code>header</code> titles a section and names it for screen readers, <code>description</code> adds a line under the title, <code>footer</code> a note under the rows and <code>error</code> a message in the danger color in its place (a row has its own <code>error</code>, under the row, as a form row's); on Android the header is the first row of the card, 14sp Medium in the accent (a lighter blue in dark mode), and the footer a 14sp gray note under the card, 10dp above it and 17dp below. <code>leading</code> puts a symbol at the start: with <code>leadingColor</code> iOS draws it white on a rounded tile of that color, the look of the Settings app, and Android a white 24dp symbol on a 28dp tile of that color with 10dp corners, with no divider under the row; without it Android draws the symbol plain in the text color (a gray in dark mode). <code>surface</code> is the canvas the section stands on: <code>grouped</code>, the gray grouped background of a settings screen with white sections, or <code>plain</code>, a plain screen with sections in the plain secondary gray, the same on both platforms. A List sets no space around itself: the screen spaces its sections, 35pt apart on iOS less what a header or a footer between them takes, as the React FieldGroup does, and 12dp from the screen's edges and 12dp apart on Android.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="list/Overview" />
+</ComponentPreview>
+
+### Count in the header
+
+<ComponentPreview details={<><code>action</code> puts content at the end of the header. A string, a number or a Text, such as the count of steps done here, takes the header's type in the secondary label, on the title's line; a ghost Button there is the header's text action. With no <code>header</code> the action stands alone at the header's end.</>} code={countCode} previewMinHeight={168}>
+  <RNExample demo="list/CountInHeader" headerFirst grouped />
 </ComponentPreview>
 
 ## Platforms
@@ -111,7 +138,8 @@ End a row with a [Switch](/react-native/components/switch) for a setting that tu
   { prop: "header", type: "ReactNode", description: "The title over the section; it names the list for screen readers" },
   { prop: "description", type: "ReactNode", description: "A line under the header, in the secondary label" },
   { prop: "footer", type: "ReactNode", description: "A note under the section" },
-  { prop: "error", type: "ReactNode", description: "An error under the section in the danger color, in place of the footer; announced when it appears" },
+  { prop: "error", type: "ReactNode", description: "An error under the section: it takes the footer's place and type (iOS 13/16, Android 14sp), only in the danger color, and is announced when it appears" },
+  { prop: "action", type: "ReactNode", description: "Content at the end of the header: a ghost Button is its text action; a string, a number or a Text (a count such as \"2/3\") takes the header's type in the secondary label, on the title's line. Without a header it stands alone at the header's end" },
   { prop: "surface", type: '"grouped" | "plain"', default: '"grouped"', description: "The canvas the section stands on: the grouped background of a settings screen, or a plain screen" },
   { prop: "aria-label", type: "string", description: "Name of the list for screen readers; defaults to the header's text" },
   { prop: "testID", type: "string", description: "Test id" },

@@ -1,5 +1,5 @@
 import type { SVGProps } from "react"
-const Error = (props: SVGProps<SVGSVGElement>) => (
+const ErrorIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
     <path
       d="M14 19C14 20.1046 13.1046 21 12 21C10.8954 21 10 20.1046 10 19C10 17.8954 10.8954 17 12 17C13.1046 17 14 17.8954 14 19Z"
@@ -11,5 +11,5 @@ const Error = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 )
-Error.displayName = "Error"
-export default Error
+ErrorIcon.displayName = "Error"
+export default ErrorIcon

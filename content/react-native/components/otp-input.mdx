@@ -19,6 +19,7 @@ const [grouping, setGrouping] = useState("none") // or "3+3"
     <Text size="sm" color="secondary" align="center">We sent a 6-digit code to alex.johnson@example.com</Text>
   </View>
   <OTPInput
+    aria-label="Verification code"
     value={value}
     onChange={setValue}
     grouping={grouping === "3+3" ? [3, 3] : undefined}
@@ -66,6 +67,9 @@ const [grouping, setGrouping] = useState("none") // or "3+3"
   { prop: "errorMessage", type: "string", description: "Error message below the input" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable all cells" },
   { prop: "autoFocus", type: "boolean", default: "false", description: "Auto-focus first cell on mount" },
+  { prop: "aria-label", type: "string", description: "Names the code (\"Verification code\"): the cells' group on the web, and the start of each cell's name on iOS and Android (\"Verification code, digit 1 of 6\"), where a group is not announced" },
+  { prop: "label", type: "string", description: "The same name as aria-label" },
+  { prop: "digitLabel", type: "(index: number, length: number) => string", default: "Digit 1, or digit 1 of 6 once the code is named", description: "The name of a cell, for another language" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the root" },
   { prop: "testID", type: "string", description: "Test id of the root; each cell's field takes it with -digit-1, -digit-2 and so on" },
 ]} />

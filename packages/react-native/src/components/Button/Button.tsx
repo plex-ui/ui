@@ -1,4 +1,4 @@
-import { createContext, Fragment, isValidElement, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, Fragment, isValidElement, useContext, useEffect, useState, type ComponentRef, type ReactNode, type Ref } from "react"
 import {
   ActivityIndicator,
   Animated,
@@ -31,7 +31,11 @@ export type ControlSize = "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2x
 export type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   /** @default "primary" */
   color?: ButtonColor
-  /** @default "solid" */
+  /**
+   * iOS's styles are Filled (`solid`), Tinted or Gray (`soft`) and Plain (`ghost`); it has no outlined button, so on
+   * iOS `outline` is the Gray button (the neutral soft fill, the label in the button's color). Android draws the
+   * outline. @default "solid"
+   */
   variant?: ButtonVariant
   /**
    * Height step of the Plex UI scale. iOS takes the native sizes of the phone layer (small 28, medium 34, large 50);
@@ -63,6 +67,8 @@ export type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   /** Icons and text; an icon element takes the label's color and the size of the button's icons. */
   children?: ReactNode
   style?: StyleProp<ViewStyle>
+  /** The button's native view: an ActionSheet's `source`, a measure. */
+  ref?: Ref<ComponentRef<typeof View>>
 }
 
 type Metrics = {
@@ -221,11 +227,11 @@ export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVa
     }
     // The phone CSS: the tertiary label in every style (iOS 27's disabled content-area button), the fill of a gray
     // button behind a solid or soft one
+    // An outline button is iOS's Gray (below): disabled, the gray fill as the others
     return {
-      background: variant === "solid" || variant === "soft" ? theme.color("--button-mobile-disabled-background") : "transparent",
+      background: variant === "ghost" ? "transparent" : theme.color("--button-mobile-disabled-background"),
       pressed: "transparent",
       text: theme.colors.labelTertiary,
-      border: variant === "outline" ? theme.colors.border : undefined,
     }
   }
   const colors = ((): Colors => {
@@ -237,6 +243,15 @@ export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVa
           ? { background: c(`background-${color}-solid`), pressed: c(`background-${color}-solid-active`), text: c(`text-${color}-solid`) }
           : { background: c(`background-${color}-soft`), pressed: c(`background-${color}-soft-active`), text: c(`text-${color}-soft`) }
       case "outline":
+        // iOS has no outlined button: its styles are Filled, Tinted, Gray and Plain. An outline button is the Gray
+        // one there, the neutral soft fill with the label in the button's color
+        if (theme.isIOS) {
+          return {
+            background: selected ? c(`background-${color}-outline-active`) : c("background-secondary-soft"),
+            pressed: c("background-secondary-soft-active"),
+            text: c(`text-${color}-outline`),
+          }
+        }
         return {
           background: selected ? c(`background-${color}-outline-active`) : "transparent",
           pressed: c(`background-${color}-outline-active`),

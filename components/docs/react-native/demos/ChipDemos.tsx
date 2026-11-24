@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Button, Chip, Text } from '@plexui/react-native';
+import { Button, Chip, Menu, Text } from '@plexui/react-native';
 import { AtSign, AvatarProfile, Email, Star } from '@plexui/react-native/icons';
 import { View } from 'react-native';
 import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
@@ -97,6 +97,41 @@ export function Disabled() {
       <Text size="sm" color="secondary">
         Account emails are always on. Add a phone number to get SMS.
       </Text>
+    </View>
+  );
+}
+
+const DATES = [
+  { value: 'any', label: 'Any time' },
+  { value: 'week', label: 'Past week' },
+  { value: 'month', label: 'Past month' },
+  { value: 'year', label: 'Past year' },
+];
+
+/**
+ * A filter chip that opens a menu of its options, as a search's Date filter: `menu` adds the chevron and the popup's
+ * role, `expanded` follows the menu, and the chip shows the chosen date in the selected fill.
+ */
+export function FilterMenu() {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState('any');
+  const chosen = DATES.find((option) => option.value === date) ?? DATES[0];
+  return (
+    <View style={row}>
+      <Menu open={open} onOpenChange={setOpen}>
+        <Menu.Trigger>
+          <Chip menu expanded={open} selected={date !== 'any'} accessibilityLabel={`Date, ${chosen.label}`}>
+            {date === 'any' ? 'Date' : chosen.label}
+          </Chip>
+        </Menu.Trigger>
+        <Menu.Content aria-label="Date">
+          {DATES.map((option) => (
+            <Menu.Item key={option.value} checked={option.value === date} onSelect={() => setDate(option.value)}>
+              {option.label}
+            </Menu.Item>
+          ))}
+        </Menu.Content>
+      </Menu>
     </View>
   );
 }

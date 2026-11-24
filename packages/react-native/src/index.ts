@@ -1,6 +1,6 @@
 // @plexui/react-native: the components of Plex UI for React Native, drawn as iOS 26 or Material 3 from one set of
 // tokens (@plexui/styles).
-export { ThemeProvider, createTheme, defaultPlatform, interFonts, useTheme, type ThemeProviderProps } from "./theme/ThemeProvider"
+export { ThemeProvider, createTheme, defaultPlatform, interFonts, robotoFonts, useTheme, type PlatformFonts, type ThemeProviderProps } from "./theme/ThemeProvider"
 export type {
   BrandTheme,
   ColorScheme,
@@ -87,7 +87,8 @@ export { Toaster, toast, type ToasterProps, type ToastId, type ToastOptions, typ
 
 export { Avatar, AvatarGroup, type AvatarColor, type AvatarGroupProps, type AvatarProps, type AvatarVariant } from "./components/Avatar/Avatar"
 export { Badge, type BadgeColor, type BadgeProps, type BadgeSize, type BadgeVariant } from "./components/Badge/Badge"
-export { Card, type CardMediaProps, type CardProps, type CardSize, type CardVariant } from "./components/Card/Card"
+export { BottomActions, type BottomActionsProps } from "./components/BottomActions/BottomActions"
+export { Card, cardColors, type CardColor, type CardMediaProps, type CardProps, type CardSize, type CardVariant } from "./components/Card/Card"
 export { List, ListItem, type ListItemProps, type ListProps } from "./components/List/List"
 export { Chip, type ChipProps } from "./components/Chip/Chip"
 export { Skeleton, type SkeletonProps } from "./components/Skeleton/Skeleton"

@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react';
+import { useRef, useState, type ReactElement } from 'react';
 import { ActionSheet, Button } from '@plexui/react-native';
 import { CameraPhoto, Copy, EditPencil, Folder, Images, RemoveTrash } from '@plexui/react-native/icons';
 import { View } from 'react-native';
@@ -90,6 +90,34 @@ export const ActionsOnly = docsDemo(function ActionsOnly() {
           { label: 'Photo library', icon: <Images /> },
           { label: 'Browse files', icon: <Folder /> },
         ]}
+      />
+    </RNScreen>
+  );
+});
+
+/**
+ * A destructive confirmation that opens from its button: `source` takes the Button's ref, and on iOS 26 the sheet
+ * stands at it as a glass panel with no Cancel, closed by a tap elsewhere. Android keeps its sheet from the bottom.
+ * The button stays in view while the sheet is open, as the sheet stands at it.
+ */
+export const FromSource = docsDemo(function FromSource() {
+  const { open, setOpen } = useSheetState();
+  const button = useRef(null);
+  return (
+    <RNScreen screen minHeight={200}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 16 }}>
+        <View style={{ alignSelf: 'center' }}>
+          <Button ref={button} color="danger" variant="soft" onPress={() => setOpen(true)}>
+            Delete project
+          </Button>
+        </View>
+      </View>
+      <ActionSheet
+        open={open}
+        onOpenChange={setOpen}
+        source={button}
+        message="This project and its files will be deleted for everyone."
+        actions={[{ label: 'Delete project', icon: <RemoveTrash />, destructive: true }]}
       />
     </RNScreen>
   );

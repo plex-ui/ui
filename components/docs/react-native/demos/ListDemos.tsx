@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { List, ListItem, NavigationButton, Switch, Toolbar, useTheme } from '@plexui/react-native';
+import { Checkbox, List, ListItem, NavigationButton, Switch, Toolbar, useTheme } from '@plexui/react-native';
 import { Calendar, CheckMd, Clock, Globe } from '@plexui/react-native/icons';
 import { View } from 'react-native';
 import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
@@ -156,3 +156,30 @@ export const Overview = docsDemo(function Overview() {
     </>
   );
 });
+
+const STEPS = ['Add a profile photo', 'Verify your email', 'Invite your team'];
+
+/**
+ * A checklist whose header counts the steps done: a string `action` takes the header's type in the secondary label,
+ * on the title's line.
+ */
+export function CountInHeader() {
+  const [done, setDone] = useState([true, true, false]);
+  return (
+    <List header="Set up your account" action={`${done.filter(Boolean).length}/${STEPS.length}`}>
+      {STEPS.map((step, index) => (
+        <ListItem
+          key={step}
+          label={step}
+          trailing={
+            <Checkbox
+              checked={done[index]}
+              onCheckedChange={(on: boolean) => setDone((list) => list.map((value, i) => (i === index ? on : value)))}
+              accessibilityLabel={step}
+            />
+          }
+        />
+      ))}
+    </List>
+  );
+}

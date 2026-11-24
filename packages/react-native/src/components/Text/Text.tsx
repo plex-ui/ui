@@ -91,6 +91,7 @@ export function textStyle(
     base = style.weight
   }
   return {
+    ...WEB_SMOOTHING,
     fontSize,
     lineHeight,
     ...(mono ? { ...theme.monoFont, fontWeight: weight ? weightNumber(weight) : undefined } : theme.font(weight ?? base)),
@@ -108,11 +109,14 @@ function trackingFor(theme: Theme, style: StyleProp<TextStyle>, mono: boolean | 
   return typeof flat?.fontSize === "number" && flat.letterSpacing === undefined ? { letterSpacing: theme.tracking(flat.fontSize) } : null
 }
 
-// On the web (react-native-web) the type is Inter's variable font, which the Plex UI tokens set at SF's own Medium and
-// Semibold strokes, 510 and 590 (touch.css); a device's system font takes the named weights
+// On the web, Chromium and Firefox on a Mac draw text with subpixel smoothing, 11–20% heavier than an iPhone draws the
+// same words; grayscale smoothing draws them within 1–2% of it
+const WEB_SMOOTHING = (Platform.OS === "web" ? { WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" } : {}) as TextStyle
+
+// A mono face's weights: the web's 501–549 of a system face draw as a synthesized bold in Chromium, so Medium is 500
 const weightNumber = (weight: FontWeightName) =>
   (Platform.OS === "web"
-    ? { regular: "400", medium: "510", semibold: "590", bold: "700" } as Record<FontWeightName, string>
+    ? { regular: "400", medium: "500", semibold: "590", bold: "700" } as Record<FontWeightName, string>
     : { regular: "400", medium: "500", semibold: "600", bold: "700" })[weight] as TextStyle["fontWeight"]
 
 /**
@@ -154,7 +158,7 @@ export function Heading({ size = "md", weight = "semibold", color, align, mono, 
       accessibilityRole="header"
       {...rest}
       style={[
-        { fontSize, lineHeight },
+        { ...WEB_SMOOTHING, fontSize, lineHeight },
         mono ? { ...theme.monoFont, fontWeight: weightNumber(weight), letterSpacing: 0 } : { letterSpacing: theme.tracking(fontSize), ...theme.font(weight) },
         tabularNums ? { fontVariant: ["tabular-nums"] } : null,
         { color: textColor(theme, color ?? "primary") },

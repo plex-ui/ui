@@ -83,6 +83,7 @@ export const COMPONENT_GROUPS: readonly ComponentGroup[] = [
  */
 export const NATIVE_ONLY_GROUPS: Readonly<Record<string, ComponentGroup['id']>> = {
   'action-sheet': 'overlays',
+  'bottom-actions': 'actions',
   'bottom-sheet': 'overlays',
   chip: 'selection',
   list: 'content',

@@ -1,5 +1,5 @@
 import { createContext, createElement, memo, useContext, type ComponentType, type ReactNode } from "react"
-import { StyleSheet, type StyleProp, type ViewStyle } from "react-native"
+import { Platform, StyleSheet, type StyleProp, type ViewStyle } from "react-native"
 import Svg, { Circle, Ellipse, G, Line, Path, Polygon, Polyline, Rect } from "react-native-svg"
 import { useTheme } from "../../theme/ThemeProvider"
 
@@ -64,6 +64,20 @@ function renderNodes(nodes: IconNode[], color: string, accent: string, keyPrefix
   })
 }
 
+/** A named icon is an image for VoiceOver and TalkBack; an unnamed one is hidden from them. */
+const nativeA11y = (label: string | undefined) => ({
+  accessible: !!label,
+  accessibilityLabel: label,
+  accessibilityRole: label ? ("image" as const) : undefined,
+  importantForAccessibility: label ? ("yes" as const) : ("no-hide-descendants" as const),
+  accessibilityElementsHidden: !label,
+})
+
+// On the web react-native-svg hands its props to the <svg> as they are, so the native names would reach the DOM (and
+// React warns of them): there an icon takes the ARIA attributes instead
+const webA11y = (label: string | undefined) =>
+  (label ? { role: "img", "aria-label": label } : { "aria-hidden": true, focusable: "false" }) as Record<string, unknown>
+
 /** Makes an icon component from its SVG data (scripts/build-icons.mjs writes one per icon of the shared sets). */
 export function createIcon(name: string, viewBox: string, nodes: IconNode[]): IconComponent {
   const Icon = memo(function Icon({ size, color, style, accessibilityLabel, testID }: IconProps) {
@@ -80,11 +94,7 @@ export function createIcon(name: string, viewBox: string, nodes: IconNode[]): Ic
         // does not reach a web icon then
         style={StyleSheet.flatten([styles.reset, { width: px, height: px }, style])}
         testID={testID}
-        accessible={!!accessibilityLabel}
-        accessibilityLabel={accessibilityLabel}
-        accessibilityRole={accessibilityLabel ? "image" : undefined}
-        importantForAccessibility={accessibilityLabel ? "yes" : "no-hide-descendants"}
-        accessibilityElementsHidden={!accessibilityLabel}
+        {...(Platform.OS === "web" ? webA11y(accessibilityLabel) : nativeA11y(accessibilityLabel))}
       >
         {renderNodes(nodes, fill, theme.colors.accent, "", defaults.weight === "semibold" ? 1.25 : 1)}
       </Svg>
