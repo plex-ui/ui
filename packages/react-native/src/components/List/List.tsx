@@ -525,7 +525,8 @@ function ActionRow({ children }: { children: ReactNode }) {
       {last ? null : (
         <View
           pointerEvents="none"
-          style={[styles.actionSeparator, { start: theme.isAndroid ? ANDROID_INSET : theme.length("--list-row-inset", 20), backgroundColor: theme.isAndroid ? divider(theme) : theme.colors.separator }]}
+          // iOS: from the text to 20 before the group's end, as the other rows' lines
+          style={[styles.actionSeparator, theme.isAndroid ? { start: ANDROID_INSET } : { start: theme.length("--list-row-inset", 20), end: theme.length("--list-row-inset", 20) }, { backgroundColor: theme.isAndroid ? divider(theme) : theme.colors.separator }]}
         />
       )}
     </View>
