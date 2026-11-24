@@ -14,9 +14,10 @@ export const NAVIGATION_ROW_GROUPS: NavigationRowChoice[][] = [
     { id: 'weekStart', label: 'Start week on', choices: ['Monday', 'Sunday', 'Saturday'] },
     { id: 'dayStart', label: 'Day starts at', choices: ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM'] },
   ],
+  // A row with a value takes no description, as in iOS Settings
   [
-    { id: 'sync', label: 'Sync', description: 'How far back events are kept', choices: ['1 month back', '3 months back', '6 months back', 'All events'] },
-    { id: 'calendar', label: 'Default calendar', description: 'Managed by your organization', choices: ['Work', 'Home', 'Family'], disabled: true },
+    { id: 'sync', label: 'Sync', choices: ['1 month back', '3 months back', '6 months back', 'All events'] },
+    { id: 'calendar', label: 'Default calendar', choices: ['Work', 'Home', 'Family'], disabled: true },
     {
       id: 'alerts',
       label: 'Default alerts',
