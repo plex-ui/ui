@@ -79,6 +79,7 @@ export {
 } from "./components/InputGroup/InputGroup"
 export { TagInput, type Tag, type TagInputProps } from "./components/TagInput/TagInput"
 export { OTPInput, type OTPInputProps } from "./components/OTPInput/OTPInput"
+export { PhoneInput, type CountryCode, type PhoneDetails, type PhoneInputProps } from "./components/PhoneInput/PhoneInput"
 export { Select, type SelectOption, type SelectProps } from "./components/Select/Select"
 export { Menu, type MenuContentProps, type MenuItemProps, type MenuProps } from "./components/Menu/Menu"
 export { ContextMenu, type ContextMenuContentProps, type ContextMenuProps } from "./components/ContextMenu/ContextMenu"

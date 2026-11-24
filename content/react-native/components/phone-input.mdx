@@ -1,0 +1,74 @@
+---
+title: Phone Input
+description: "A phone number field: the region and the number, with the value in E.164."
+metaDescription: "A React Native phone number field as iOS's Add Phone Number sets it: the region's row with a searchable list of regions, then the number alone; Material's region dropdown on Android. E.164 out, paste and autofill of international numbers, the national trunk prefix dropped, each region's lengths checked."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { useState } from "react"
+import { PhoneInput, type CountryCode } from "@plexui/react-native"
+
+const [phone, setPhone] = useState("")
+const [country, setCountry] = useState<CountryCode>("GB")
+
+<PhoneInput
+  value={phone}
+  onChange={(value, { valid }) => {
+    setPhone(value) // "+447400123456"
+    setCanContinue(valid)
+  }}
+  country={country}
+  onCountryChange={setCountry}
+  description="A verification code will be sent to this number."
+/>`
+
+<UsageBlock>{`import { PhoneInput } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>PhoneInput asks for a phone number and gives it in E.164 (<code>+447400123456</code>), with the region it was typed in and whether it fits that region. On iOS it is Settings' Add Phone Number: one group of two rows, the region's code and name in the label color with a chevron, then the number alone, with no code repeated in it. The region's row opens the list of regions in a sheet: a search field (by name, ISO code or calling code), the picked and the device's regions first, then A to Z with the section index at the trailing edge, a checkmark on the picked one. On Android it is Material's region dropdown field over the number's outlined field, and the list is a full-screen dialog with a search field.</p>
+  <p>The field reads what people paste or autofill: an international number (<code>+44 7700 900123</code>, <code>0044…</code>) picks its region by its code and leaves only the national number in the field; where regions share a code (+1, +7, +44) the picked one stays when the number fits it. A national trunk prefix (the UK's <code>0</code>, Russia's <code>8</code>) is kept as typed and dropped from the value. The field takes no more digits than the region's longest number. It knows each region's lengths and leading digits from Google's libphonenumber (<code>libphonenumber-js</code>, its compact metadata, about 37 kB gzipped).</p>
+  <p><code>formatting</code> groups the digits as the region writes them (<code>07400 123456</code>, <code>(201) 555-0123</code>) while they are typed at the end; an edit inside the number keeps the text as it is until the field loses focus, so the caret does not jump. iOS shows the digits as typed, as Settings does (<code>false</code>); Android groups them (<code>true</code>). The number's field asks for the phone keypad and the phone number autofill (<code>textContentType="telephoneNumber"</code>, <code>autoComplete="tel"</code>). The region starts at <code>defaultCountry</code>, else the device's region; keep the picked one with <code>country</code> and <code>onCountryChange</code>. The regions' names follow <code>locale</code> where the engine has <code>Intl.DisplayNames</code>, and are English elsewhere (Hermes).</p>
+</>} code={overviewCode} previewMinHeight={360}>
+  <RNExample demo="phone-input/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 27 | Android |
+| --- | --- | --- |
+| Native component | None: Settings' Add Phone Number (a region row and a number row in one group) | None: an exposed dropdown field over an outlined text field |
+| Region list | A sheet: search, the section index, a checkmark | A full-screen dialog with search |
+| Digits | As typed | Grouped as the region writes them |
+
+## API
+
+### PhoneInput
+
+<PropsTable data={[
+  { prop: "value", type: "string", description: "The number in E.164 (+447400123456), or the digits typed so far after the code; \"\" when empty" },
+  { prop: "defaultValue", type: "string", description: "The first value of an uncontrolled field" },
+  { prop: "onChange", type: "(value: string, details: PhoneDetails) => void", description: "Each change: the value and { value, country, text, possible, valid }" },
+  { prop: "country", type: "CountryCode", description: "The region the number is typed in (ISO 3166-1 alpha-2)" },
+  { prop: "defaultCountry", type: "CountryCode", default: "the device's region, else \"US\"", description: "The first region of an uncontrolled field" },
+  { prop: "onCountryChange", type: "(country: CountryCode) => void", description: "The region changed: picked from the list, or named by a pasted number" },
+  { prop: "countries", type: "CountryCode[]", default: "every region", description: "The regions the list offers" },
+  { prop: "locale", type: "string", default: "the device's", description: "The locale of the regions' names" },
+  { prop: "formatting", type: "boolean", default: "false on iOS, true on Android", description: "Groups the digits as the region writes them" },
+  { prop: "flags", type: "boolean", default: "false", description: "Flags before the regions' names in the list" },
+  { prop: "label", type: "string", default: '"Phone number"', description: "The number field's placeholder (iOS), label (Android) and name" },
+  { prop: "countryLabel", type: "string", default: '"Country or Region"', description: "The region field's name and the list's title" },
+  { prop: "searchPlaceholder", type: "string", default: '"Search"', description: "The list's search placeholder" },
+  { prop: "header", type: "ReactNode", description: "iOS: the group's header" },
+  { prop: "description", type: "ReactNode", description: "Words under the field (iOS: the group's footer)" },
+  { prop: "errorMessage", type: "string", description: "An error under the field; it marks the field invalid" },
+  { prop: "invalid", type: "boolean", description: "Marks the field invalid" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Locks both fields" },
+  { prop: "autoFocus, onBlur, onSubmitEditing, returnKeyType", type: "TextInputProps", description: "The number field's" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the field" },
+]} />

@@ -88,6 +88,7 @@ export const NATIVE_ONLY_GROUPS: Readonly<Record<string, ComponentGroup['id']>> 
   chip: 'selection',
   'intro-header': 'content',
   list: 'content',
+  'phone-input': 'text-input',
   'scroll-edge': 'navigation',
   text: 'content',
 };
