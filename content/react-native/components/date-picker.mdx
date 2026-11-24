@@ -1,0 +1,73 @@
+---
+title: Date Picker
+description: "A date and time picker: iOS 27's compact capsules, inline calendar and wheels; Material 3's date and time dialogs on Android."
+metaDescription: "A React Native date picker: the compact capsules of iOS 27 that open a calendar or the time's wheels, an inline calendar and wheels; Material 3's date picker and time dial dialogs on Android."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { DatePicker, List, ListItem } from "@plexui/react-native"
+
+<List>
+  <ListItem
+    label="Starts"
+    trailing={<DatePicker value={starts} onChange={setStarts} mode="datetime" min={new Date()} aria-label="Starts" />}
+  />
+  <ListItem
+    label="Ends"
+    trailing={<DatePicker value={ends} onChange={setEnds} mode="datetime" min={starts} aria-label="Ends" />}
+  />
+</List>
+
+// In place
+<DatePicker value={starts} onChange={setStarts} mode="datetime" display="inline" />
+<DatePicker value={starts} onChange={setStarts} mode="time" display="wheels" />`
+
+<UsageBlock>{`import { DatePicker } from "@plexui/react-native"`}</UsageBlock>
+
+The value is a plain `Date` in the device's time zone; a day keeps its time when only the day changes, and the other way round.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A new event, as in Calendar. With <code>display="compact"</code>, the default, iOS 27 draws UIDatePicker's capsules: the date and the time 8 apart, 34 tall with their text 12 in, on the secondary soft fill, the text in the accent while open. The date opens the month's calendar in the glass popover: seven 44 columns side by side, the month's title Semibold 17 with its arrows at the end, the chosen day white on a circle of the text's color and today marked with a dot, closing on a tap on a day. The time opens the wheels: rows 32 apart and a 32 band 20 in from the popover's sides, as iOS 27.2 draws them. The popover stands at most 32 from the screen's edge.</p>
+  <p>On Android the values stand at the row's end in the accent, and a press anywhere on the row opens Material 3's date picker dialog: "Select date", the headline date, then the month in 40dp circles, the chosen day in the primary color and today ringed in it. The time opens the time picker dial: the hour and the minute in their boxes over the 256dp dial (a 24-hour clock adds the inner ring); a tap or a drag sets the hour, then the minutes. OK applies, Cancel leaves the value as it was. Outside a list Android draws an outlined field with the calendar (or clock) icon at its end, opening the same dialog.</p>
+  <p><code>display="inline"</code> draws the calendar in place, with a Time row under it for <code>mode="datetime"</code>; <code>display="wheels"</code> draws the wheels, Android's spinners on Android: the date's month, day and year in the locale's order. <code>min</code> and <code>max</code> bound the value: days out of range are faded and cannot be chosen, wheels skip their rows. <code>disabled</code> drops the capsule and fades the text. The week starts on the locale's first day and the clock follows its 12 or 24 hours; <code>weekStartsOn</code>, <code>hour12</code> and <code>locale</code> set them.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="date-picker/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 27 | Android |
+| --- | --- | --- |
+| Native component | UIDatePicker (`.compact`, `.inline`, `.wheels`), SwiftUI DatePicker | DatePicker and TimePicker of Material 3 (DatePickerDialog, TimePicker dial); spinner mode |
+| Compact | Capsules that open the calendar and the wheels in a popover | A row's value or an outlined field that opens the dialog; OK applies |
+| Inline | The month's calendar in place, a Time row under it | Material's calendar in place |
+| Wheels | Wheels with a 32 band | Spinners between two lines |
+
+## API
+
+<PropsTable data={[
+  { prop: "value", type: "Date | null", description: "The date and time chosen, null for none yet (required)" },
+  { prop: "onChange", type: "(value: Date) => void", description: "Called with the new date (required)" },
+  { prop: "mode", type: '"date" | "time" | "datetime"', default: '"date"', description: "A day, a time, or both" },
+  { prop: "display", type: '"compact" | "inline" | "wheels"', default: '"compact"', description: "Capsules or a field that open a popover or a dialog, the calendar in place, or wheels" },
+  { prop: "min", type: "Date", description: "The earliest date that can be chosen" },
+  { prop: "max", type: "Date", description: "The latest date that can be chosen" },
+  { prop: "locale", type: "string", description: "The locale of the names and formats; the device's by default" },
+  { prop: "weekStartsOn", type: "number", description: "The first day of the week, 0 Sunday to 6 Saturday; the locale's by default" },
+  { prop: "hour12", type: "boolean", description: "A 12-hour clock with AM and PM; the locale's by default" },
+  { prop: "placeholder", type: "string", default: '"Select date" / "Select time"', description: "Shown while there is no value" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Dims it and takes no presses" },
+  { prop: "aria-label", type: "string", description: "Its name for a screen reader, a row's label" },
+  { prop: "dateTitle", type: "string", default: '"Select date"', description: "Android: the date dialog's header; the iOS popover's name" },
+  { prop: "timeTitle", type: "string", default: '"Select time"', description: "Android: the time dialog's header; the iOS popover's name" },
+  { prop: "cancelLabel", type: "string", default: '"Cancel"', description: "Android: the dialog's Cancel" },
+  { prop: "okLabel", type: "string", default: '"OK"', description: "Android: the dialog's OK" },
+  { prop: "timeLabel", type: "string", default: '"Time"', description: "The row under an inline calendar with the time" },
+  { prop: "testID", type: "string", description: "Test id; the parts add -date, -time, -popover, -dialog, -calendar, -day-N" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the picker's view" },
+]} />

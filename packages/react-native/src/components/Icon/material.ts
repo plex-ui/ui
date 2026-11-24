@@ -40,3 +40,21 @@ export const MaterialCheckSymbol = createIcon("MaterialCheckSymbol", "0 -960 960
  * `abc_ic_ab_back_material` that Settings' toolbar shows); it is mirrored right to left.
  */
 export const MaterialArrowBack = createIcon("MaterialArrowBack", "0 0 24 24", [["path", { d: "M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z", fill: 0 }]])
+
+/** Material Symbols' chevron_left and chevron_right (24, the outlined weight 400): a month's arrows in the date picker. */
+export const MaterialChevronLeft = createIcon("MaterialChevronLeft", "0 -960 960 960", [["path", { d: "M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z", fill: 0 }]])
+export const MaterialChevronRight = createIcon("MaterialChevronRight", "0 -960 960 960", [["path", { d: "M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z", fill: 0 }]])
+
+/** Material Symbols' calendar_today and schedule (24, outlined weight 400): the trailing icons of a date and a time field. */
+export const MaterialCalendarToday = createIcon("MaterialCalendarToday", "0 -960 960 960", [
+  ["path", { d: "M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z", fill: 0 }],
+])
+export const MaterialSchedule = createIcon("MaterialSchedule", "0 -960 960 960", [
+  [
+    "path",
+    {
+      d: "m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z",
+      fill: 0,
+    },
+  ],
+])

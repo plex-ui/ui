@@ -234,6 +234,52 @@ export function ChoiceDialog({ open, onClose, title, cancelLabel, okLabel, onOk,
   )
 }
 
+export type PickerDialogProps = {
+  open: boolean
+  onClose: () => void
+  /** Applies the choice and closes the dialog. */
+  onOk: () => void
+  cancelLabel: string
+  okLabel: string
+  /** The dialog's name for a screen reader. */
+  label?: string
+  /** The picker, across the dialog's whole width (its own header in it). */
+  children: ReactNode
+  testID?: string
+}
+
+/**
+ * Android's picker dialog: the dialog's panel holding a picker of its own (Material 3's date picker or time picker
+ * dial), Cancel and OK at the end. DatePicker's dialog on Android; not part of the public API.
+ */
+export function PickerDialog({ open, onClose, onOk, cancelLabel, okLabel, label, children, testID }: PickerDialogProps) {
+  const theme = useTheme()
+  const ids = { title: useId(), description: useId() }
+  const a11y =
+    Platform.OS === "web"
+      ? { role: "dialog" as const, "aria-modal": true, "aria-label": label }
+      : { accessibilityViewIsModal: true, accessibilityLabel: label }
+  const run = (action: DialogAction) => {
+    if (!open) return
+    action.onPress?.()
+    onClose()
+  }
+  return (
+    <AndroidFrame open={open} onClose={onClose} dismissible a11y={a11y} testID={testID}>
+      <AndroidDialog
+        theme={theme}
+        actions={[
+          { label: cancelLabel, variant: "cancel", testID: testID ? `${testID}-cancel` : undefined },
+          { label: okLabel, preferred: true, onPress: onOk, testID: testID ? `${testID}-ok` : undefined },
+        ]}
+        run={run}
+        ids={ids}
+        list={children}
+      />
+    </AndroidFrame>
+  )
+}
+
 type PanelProps = {
   theme: Theme
   title: ReactNode

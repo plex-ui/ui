@@ -11,6 +11,7 @@ export const demoModules: Record<string, () => Promise<DemoModule>> = {
   'bottom-sheet': () => import('./BottomSheetDemos'),
   'bottom-actions': () => import('./BottomActionsDemos'),
   'context-menu': () => import('./ContextMenuDemos'),
+  'date-picker': () => import('./DatePickerDemos'),
   menu: () => import('./MenuDemos'),
   toast: () => import('./ToastDemos'),
   toolbar: () => import('./ToolbarDemos'),
