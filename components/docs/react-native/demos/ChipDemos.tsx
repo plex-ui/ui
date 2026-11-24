@@ -178,33 +178,46 @@ const RECIPIENTS = [
   { value: 'maya', label: 'Maya Patel' },
 ];
 
+const REMOVE_STYLES = ['token', 'button'] as const;
+
 /**
- * Input chips, the recipients of a message: `onRemove` puts a cross after the label, a button of its own named by
- * `removeLabel`, that takes the recipient back.
+ * Input chips, the recipients of a message. On iOS `removeStyle` picks Apple's way: `token`, as the tokens of Mail and
+ * Messages, no cross (a press selects the chip, a second press or Delete removes it), or `button`, a cross in the
+ * field's clear button. Android keeps Material's cross.
  */
-export function Removable() {
+export const Removable = docsDemo(function Removable() {
+  const ios = useNativePlatform() !== 'android';
+  const [removeStyle, setRemoveStyle] = useState<(typeof REMOVE_STYLES)[number]>('token');
   const [shown, setShown] = useState(RECIPIENTS.map((recipient) => recipient.value));
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-      <Text size="md" color="secondary">
-        To:
-      </Text>
-      {RECIPIENTS.filter((recipient) => shown.includes(recipient.value)).map((recipient) => (
-        <Chip
-          key={recipient.value}
-          icon={<AvatarProfile />}
-          onRemove={() => setShown((list) => list.filter((value) => value !== recipient.value))}
-          removeLabel={`Remove ${recipient.label}`}
-        >
-          {recipient.label}
-        </Chip>
-      ))}
-      {shown.length < RECIPIENTS.length && (
-        <Chip onPress={() => setShown(RECIPIENTS.map((recipient) => recipient.value))}>Add back</Chip>
-      )}
-    </View>
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        {ios && <Segments name="removeStyle" options={REMOVE_STYLES} value={removeStyle} onChange={setRemoveStyle} />}
+      </div>
+      <RNScreen minHeight={168}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+          <Text size="md" color="secondary">
+            To:
+          </Text>
+          {RECIPIENTS.filter((recipient) => shown.includes(recipient.value)).map((recipient) => (
+            <Chip
+              key={recipient.value}
+              icon={<AvatarProfile />}
+              removeStyle={removeStyle}
+              onRemove={() => setShown((list) => list.filter((value) => value !== recipient.value))}
+              removeLabel={`Remove ${recipient.label}`}
+            >
+              {recipient.label}
+            </Chip>
+          ))}
+          {shown.length < RECIPIENTS.length && (
+            <Chip onPress={() => setShown(RECIPIENTS.map((recipient) => recipient.value))}>Add back</Chip>
+          )}
+        </View>
+      </RNScreen>
+    </>
   );
-}
+});
 
 /**
  * Disabled chips keep their state, as the React Toggle Group page's Disabled example keeps its items: Email stays on,

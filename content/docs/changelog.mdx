@@ -25,6 +25,14 @@ Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.
 
 ## @plexui/react-native 0.2.2 (2026-11-24)
 
+### Added
+
+- **Chip `removeStyle`.** How an input chip is removed on iOS, where Apple draws no chip with a cross: `token`, the default, as Apple's tokens (search tokens, Mail's recipients) with no cross, a press selecting the chip in the accent and a second press or Delete on the web removing it, one chosen at a time, read as selected and with a VoiceOver action; or `button`, a cross drawn as the field's clear button (xmark.circle.fill, 17pt, tertiary label, 44pt target). Android keeps its 18dp cross.
+
+### Changed
+
+- **Chip on iOS:** an input chip has no cross by default (`removeStyle="token"`); the old 14pt cross is gone.
+
 ### Fixed
 
 - **Chip** label is not selectable: a double click or a long press on a chip no longer selects its text on the web.

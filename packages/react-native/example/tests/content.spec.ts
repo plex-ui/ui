@@ -11,7 +11,25 @@ for (const platform of ["ios", "android"] as const) {
     await expect(page.getByTestId("chip-value")).toHaveText("Filters: Nearby, Open now")
     await page.getByRole("checkbox", { name: "Nearby" }).click()
     await expect(page.getByTestId("chip-value")).toHaveText("Filters: Open now")
-    await page.getByRole("button", { name: "Remove Mobile" }).click()
+    if (platform === "android") {
+      await page.getByRole("button", { name: "Remove Mobile" }).click()
+    } else {
+      // iOS's token: no cross; a first press selects the chip, a second removes it, and Delete removes a focused one
+      const mobile = page.getByRole("button", { name: "Mobile", exact: true })
+      const plex = page.getByTestId("screen-content").getByRole("button", { name: "Plex", exact: true })
+      await mobile.click()
+      await expect(mobile).toHaveAttribute("aria-pressed", "true")
+      // Choosing another token lets the first go: its next press chooses it again, not removes it
+      await plex.click()
+      await expect(mobile).toHaveAttribute("aria-pressed", "false")
+      await mobile.click()
+      await expect(page.getByText("Mobile", { exact: true })).toHaveCount(1)
+      await mobile.click()
+      const design = page.getByRole("button", { name: "Design", exact: true })
+      await design.focus()
+      await page.keyboard.press("Backspace")
+      await expect(design).toHaveCount(0)
+    }
     await expect(page.getByText("Mobile", { exact: true })).toHaveCount(0)
     await expect(page.getByRole("button", { name: "Grace Hopper" })).toBeVisible()
     await expect(page.getByRole("img", { name: "Ada" }).first()).toBeVisible()

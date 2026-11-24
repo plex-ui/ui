@@ -83,10 +83,18 @@ const toggle = (value) => (next) => setPrices((list) => (next ? [...list, value]
 export const removableCode = `import { Chip, Text } from "@plexui/react-native"
 import { AvatarProfile } from "@plexui/react-native/icons"
 
+const [removeStyle, setRemoveStyle] = useState<"token" | "button">("token") // iOS
+
 <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
   <Text size="md" color="secondary">To:</Text>
   {recipients.map((recipient) => (
-    <Chip key={recipient.value} icon={<AvatarProfile />} onRemove={() => remove(recipient.value)} removeLabel={\`Remove \${recipient.label}\`}>
+    <Chip
+      key={recipient.value}
+      icon={<AvatarProfile />}
+      removeStyle={removeStyle}
+      onRemove={() => remove(recipient.value)}
+      removeLabel={\`Remove \${recipient.label}\`}
+    >
       {recipient.label}
     </Chip>
   ))}
@@ -135,7 +143,7 @@ The web has no chip; a filter chip does what [Toggle Group](/components/toggle-g
 
 ### Removable
 
-<ComponentPreview details={<>Input chips are values the reader entered and can take back, here the recipients of a message: <code>onRemove</code> puts a cross after the label, a button of its own named by <code>removeLabel</code>. Add back is an action chip that brings them back.</>} code={removableCode} previewMinHeight={168}>
+<ComponentPreview details={<>Input chips are values the reader entered and can take back, here the recipients of a message. iOS has no chip with a cross: Apple's removable values are tokens (the search tokens of Mail, Photos and Files, the recipients of Mail and Messages), so <code>removeStyle="token"</code>, the default, draws none: a press selects the chip in the accent, a second press or Delete on a web keyboard removes it, choosing another token lets the first go, and VoiceOver reads it as selected and offers <code>removeLabel</code> as an action; leaving the chip lets the selection go. <code>removeStyle="button"</code> puts a cross after the label drawn as the field's clear button, xmark.circle.fill at 17pt in the tertiary label in a 44pt target. Android keeps Material's input chip: an 18dp cross, a button of its own named by <code>removeLabel</code>. Add back is an action chip that brings them back.</>} code={removableCode} previewMinHeight={168}>
   <RNExample demo="chip/Removable" />
 </ComponentPreview>
 
@@ -166,8 +174,9 @@ The web has no chip; a filter chip does what [Toggle Group](/components/toggle-g
   { prop: "expanded", type: "boolean", description: "Whether the chip's menu is open (aria-expanded)" },
   { prop: "accessibilityLabel", type: "string", description: "Name of the chip for screen readers, in place of its label" },
   { prop: "appearance", type: '"tag" | "glass"', default: '"tag"', description: "iOS: a 40pt capsule of the gray fill, or a 44pt glass capsule for filters over content. Android draws its chip with either" },
-  { prop: "onRemove", type: "() => void", description: "An input chip: a cross after the label that calls it" },
-  { prop: "removeLabel", type: "string", default: '"Remove"', description: "Accessible name of the cross" },
+  { prop: "removeStyle", type: '"token" | "button"', default: '"token"', description: "iOS: how an input chip is removed: as Apple's tokens, with no cross (a press selects it, a second press or Delete on the web removes it), or by a cross drawn as the field's clear button. Android keeps its cross" },
+  { prop: "onRemove", type: "() => void", description: "An input chip: called when the reader takes it back (Android's cross; on iOS see `removeStyle`)" },
+  { prop: "removeLabel", type: "string", default: '"Remove"', description: "The name of the remove action: the cross's name, or a token's VoiceOver action on iOS" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the chip and takes no presses" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the chip's outer box (its touch target)" },

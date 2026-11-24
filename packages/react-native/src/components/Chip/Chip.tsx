@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react"
 import { Animated, Easing, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import ChevronDownSm from "../../icons/plex/ChevronDownSm"
 import CloseBold from "../../icons/plex/CloseBold"
+import XCircleFilled from "../../icons/plex/XCircleFilled"
 import { spaceToggles } from "../../internal/a11y"
 import { Glass } from "../../internal/Glass"
 import { withAlpha } from "../../theme/material"
@@ -38,10 +39,19 @@ export type ChipProps = {
    * either. @default "tag"
    */
   appearance?: "tag" | "glass"
-  /** An input chip: a cross at the end that calls this. */
+  /** An input chip: called when the reader takes the value back (a cross on Android; see `removeStyle` on iOS). */
   onRemove?: () => void
-  /** @default "Remove" */
+  /** The remove action's name, for screen readers. @default "Remove" */
   removeLabel?: string
+  /**
+   * How an input chip is removed on iOS. `token`, as Apple's tokens (search tokens in Mail, Photos and Files; Mail's
+   * recipients): no cross; a press selects the chip in the accent (and lets the last chosen token go) and a second press, or Delete on a
+   * keyboard on the web, removes
+   * it; VoiceOver offers `removeLabel` as an action. `button`: a cross after the label in the field's clear button
+   * (xmark.circle.fill, 17pt in the tertiary label, a 44pt target). Android keeps Material's 18dp cross with either.
+   * @default "token"
+   */
+  removeStyle?: "token" | "button"
   disabled?: boolean
   testID?: string
   style?: StyleProp<ViewStyle>
@@ -54,6 +64,9 @@ export type ChipProps = {
  * one in the app's accent (its tint) with a white label. The web has
  * no Chip; the props follow Toggle-like controls (`selected`, `onSelectedChange`) and Badge's `onRemove`.
  */
+/** The chosen token's way to let go, so that choosing another lets it go */
+let disarmToken: (() => void) | null = null
+
 export function Chip({
   children,
   selected: selectedProp,
@@ -68,16 +81,47 @@ export function Chip({
   appearance = "tag",
   onRemove,
   removeLabel = "Remove",
+  removeStyle = "token",
   disabled = false,
   testID,
   style,
 }: ChipProps) {
   const theme = useTheme()
   const [own, setOwn] = useState(defaultSelected ?? false)
-  const filter = selectedProp !== undefined || defaultSelected !== undefined || onSelectedChange !== undefined
-  const selected = filter ? (selectedProp ?? own) : false
+  // iOS's token: an input chip with no cross, chosen by a first press and removed by a second (or by Delete); it is
+  // never a filter as well
+  const token = !theme.isAndroid && onRemove != null && removeStyle === "token"
+  const filter = !token && (selectedProp !== undefined || defaultSelected !== undefined || onSelectedChange !== undefined)
+  const [armed, setArmedState] = useState(false)
+  // One token is chosen at a time, as in a token field: choosing one lets the last one go (a tap on a native view
+  // never moves focus, so a blur alone cannot)
+  const [disarm] = useState(() => () => setArmedState(false))
+  const setArmed = (on: boolean) => {
+    if (on) {
+      if (disarmToken !== disarm) disarmToken?.()
+      disarmToken = disarm
+    } else if (disarmToken === disarm) {
+      disarmToken = null
+    }
+    setArmedState(on)
+  }
+  useEffect(
+    () => () => {
+      if (disarmToken === disarm) disarmToken = null
+    },
+    [disarm],
+  )
+  const selected = filter ? (selectedProp ?? own) : token && armed
   const press = () => {
     if (disabled) return
+    if (token) {
+      if (armed) {
+        setArmed(false)
+        onRemove?.()
+        return
+      }
+      setArmed(true)
+    }
     if (filter) {
       if (selectedProp === undefined) setOwn(!selected)
       onSelectedChange?.(!selected)
@@ -137,6 +181,9 @@ export function Chip({
   const leadingColor = color
   // A symbol alone (Maps' filter button before its chips): a circle as tall as the chip, named by accessibilityLabel
   const symbolOnly = leading != null && (children == null || children === "") && trailing == null && !onRemove
+  // An input chip's cross stands in a target of its own after the chip's press: on iOS the field's clear button
+  const cross = onRemove != null && !token
+  const clearSize = 17 * 1.2
   // The chip is drawn 32 (34) tall inside a 48dp (44pt) touch target, as Compose's minimum interactive size and the
   // HIG ask: the target is the layout box, the chip a layer inside it, so every press in the target reaches it
   const target = android ? 48 : 44
@@ -164,7 +211,7 @@ export function Chip({
     // Android: 12 at the sides, 8 before an icon and 6 after it
     paddingLeft: symbolOnly ? (height - iconSize) / 2 : leading != null ? (android ? 8 : 12) : android ? 12 : 16,
     // Android: 8 after a trailing icon (Compose's FilterChip), iOS 12
-    paddingRight: symbolOnly ? (height - iconSize) / 2 : onRemove ? 0 : trailing != null ? (android ? 8 : 12) : android ? 12 : 16,
+    paddingRight: symbolOnly ? (height - iconSize) / 2 : cross ? 0 : trailing != null ? (android ? 8 : 12) : android ? 12 : 16,
     gap: 6,
     opacity: !android && pressed ? 0.7 : 1,
   }
@@ -201,7 +248,7 @@ export function Chip({
       ) : null}
     </>
   )
-  const interactive = filter || !!onPress
+  const interactive = filter || !!onPress || token
   // Android dims a disabled chip, its fill with it, to half (as its other disabled controls)
   const dim = android && disabled ? styles.dim : null
   const handlers = {
@@ -209,18 +256,40 @@ export function Chip({
     // A menu chip is a button that opens its menu, even when it shows a chosen filter
     accessibilityRole: filter && !menu ? ("checkbox" as const) : ("button" as const),
     accessibilityLabel,
-    accessibilityState: { disabled, checked: filter && !menu ? selected : undefined, selected: filter && menu && Platform.OS !== "web" ? selected : undefined, expanded },
+    accessibilityState: {
+      disabled,
+      checked: filter && !menu ? selected : undefined,
+      // A chosen token says so before the next press removes it
+      selected: token ? armed : filter && menu && Platform.OS !== "web" ? selected : undefined,
+      expanded,
+    },
     "aria-checked": filter && !menu ? selected : undefined,
+    // react-native-web drops `selected` on a button: the web reads a chosen token as pressed
+    "aria-pressed": token && Platform.OS === "web" ? armed : undefined,
     "aria-haspopup": menu ? (menu === true ? ("menu" as const) : menu) : undefined,
     "aria-expanded": menu ? expanded : undefined,
     disabled,
     onPress: press,
+    // A token: VoiceOver's action and a keyboard's Delete remove it; leaving it lets the selection go
+    ...(token
+      ? {
+          accessibilityActions: [{ name: "delete", label: removeLabel }],
+          onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) => {
+            if (event.nativeEvent.actionName === "delete" && !disabled) onRemove?.()
+          },
+          onBlur: () => armed && setArmed(false),
+          onKeyDown: (event: { nativeEvent: { key?: string } }) => {
+            if ((event.nativeEvent.key === "Backspace" || event.nativeEvent.key === "Delete") && !disabled) onRemove?.()
+          },
+          "aria-keyshortcuts": "Delete Backspace",
+        }
+      : {}),
     onPressIn: () => setPressed(true),
     onPressOut: () => setPressed(false),
   }
   // An input chip holds its cross beside the chip's own press, never a button inside a button; each takes the
   // target's full height
-  if (onRemove) {
+  if (cross) {
     return (
       <View testID={testID} style={[styles.chip, { minHeight: target }, dim, style]}>
         {layer}
@@ -236,9 +305,9 @@ export function Chip({
           accessibilityLabel={removeLabel}
           disabled={disabled}
           onPress={onRemove}
-          style={[styles.part, { paddingLeft: android ? 4 : 6, paddingRight: android ? 8 : 10 }]}
+          style={[styles.part, android ? { paddingLeft: 4, paddingRight: 8 } : { width: 44, justifyContent: "center" }]}
         >
-          <CloseBold size={android ? 18 : 14} color={color} />
+          {android ? <CloseBold size={18} color={color} /> : <XCircleFilled size={clearSize} color={theme.color("--mobile-label-tertiary")} />}
         </Pressable>
       </View>
     )
