@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { BottomActions, Button, List, ListItem, Text, useTheme } from '@plexui/react-native';
+import { BottomActions, Button, List, ListItem, NavigationButton, Text, Toolbar, useTheme } from '@plexui/react-native';
 import { CheckMd, Health } from '@plexui/react-native/icons';
-import { ScrollView, View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { RNScreen, docsDemo } from '../RNScreen';
+import { PhonePage } from './ToolbarDemos';
 
 const BACKGROUNDS = ['soft', 'fade'] as const;
 type Background = (typeof BACKGROUNDS)[number];
@@ -13,8 +14,8 @@ const COMMON_FORMS = ['Capsule', 'Tablet', 'Liquid', 'Topical'];
 const MORE_FORMS = ['Cream', 'Device', 'Drops', 'Foam', 'Gel', 'Inhaler', 'Injection', 'Lotion', 'Patch', 'Powder', 'Spray'];
 
 /**
- * A step of a setup flow with every setting, after the iOS 27 Health app's "Choose the Medication Type": a symbol, the
- * step's title and two lists of choices, Next at the bottom (disabled until a choice is made) and, with `second`, Skip
+ * A step of a setup flow with every setting, after the iOS 27 Health app's "Choose the Medication Type": the sheet's
+ * bar (Back, the medication's name, Close), a symbol 24 under it, the step's title and two lists of choices, Next at the bottom (disabled until a choice is made) and, with `second`, Skip
  * under it (iOS's glass capsule, Android's ghost button). `floating` lays the actions over the lists, which then scroll
  * under them and keep their room at their end; `background` sets the edge under them.
  */
@@ -29,7 +30,7 @@ export const Overview = docsDemo(function Overview() {
         <DemoControlBoolean name="floating" value={floating} onChange={setFloating} />
         {floating ? <Segments name="background" options={BACKGROUNDS} value={background} onChange={setBackground} /> : null}
       </div>
-      <RNScreen screen minHeight={560}>
+      <RNScreen screen minHeight={640}>
         <MedicationType second={second} floating={floating} background={background} />
       </RNScreen>
     </>
@@ -39,9 +40,6 @@ export const Overview = docsDemo(function Overview() {
 /** The step's content and its actions, inside the screen so that they take its theme */
 function MedicationType({ second, floating, background }: { second: boolean; floating: boolean; background: Background }) {
   const theme = useTheme();
-  // The screen is the window's height at most (on a narrow page, the screen's own 560), so the lists scroll inside it,
-  // under floating actions
-  const { height } = useWindowDimensions();
   const [form, setForm] = useState<string | null>(null);
   const row = (choice: string) => (
     <ListItem
@@ -53,32 +51,44 @@ function MedicationType({ second, floating, background }: { second: boolean; flo
     />
   );
   return (
-    <View style={{ flex: 1, maxHeight: Math.max(height, 560) }}>
-      <ScrollView
-        style={{ flex: 1 }}
-        // Floating actions stand over the lists: their end keeps the actions' room, so the last row scrolls clear of them
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 72, paddingBottom: floating ? (second ? 160 : 104) : 24 }}
-      >
-        {/* The symbol in the middle, the title at the rows' text, as Health sets a step over long lists */}
-        <View style={{ alignItems: 'center', marginBottom: 24 }}>
-          <Health size={64} color={theme.colors.accent} />
-        </View>
-        <Text variant="title2" weight="bold" style={{ marginHorizontal: 20, marginBottom: 8 }}>
-          Choose the Medication Type
-        </Text>
-        <List surface="plain" header="Common Forms">
-          {COMMON_FORMS.map(row)}
-        </List>
-        <List surface="plain" header="More Forms" style={{ marginTop: 16 }}>
-          {MORE_FORMS.map(row)}
-        </List>
-      </ScrollView>
-      <BottomActions floating={floating} background={background}>
-        <Button color="primary" variant="solid" disabled={form === null}>
-          Next
-        </Button>
-        {second ? <Button color="secondary">Skip</Button> : null}
-      </BottomActions>
-    </View>
+    <PhonePage
+      top={(scrolled, canvas) => (
+        <Toolbar scrolled={scrolled} canvasColor={canvas}>
+          <Toolbar.Leading>
+            <NavigationButton action="back" />
+          </Toolbar.Leading>
+          <Toolbar.Title>Ibuprofen</Toolbar.Title>
+          <Toolbar.Trailing>
+            <NavigationButton action="close" />
+          </Toolbar.Trailing>
+        </Toolbar>
+      )}
+      // Floating actions stand over the lists, which scroll under them and keep their room at their end
+      bottom={() => (
+        <BottomActions floating={floating} background={background}>
+          <Button color="primary" variant="solid" disabled={form === null}>
+            Next
+          </Button>
+          {second ? <Button color="secondary">Skip</Button> : null}
+        </BottomActions>
+      )}
+    >
+      {/* As Health sets a step over long lists (measured on iOS 27): the symbol's drawing in the middle 24 under the
+          bar's buttons, the title's line 29 under it at the rows' text, no description (a step that needs one sets it
+          under the title, in the secondary label). The page starts 16 under the bar's 10 of padding, and the symbol's
+          box keeps 5 round its drawing: -8 over it, 24 under it */}
+      <View style={{ alignItems: 'center', marginTop: -8, marginBottom: 24 }}>
+        <Health size={64} color={theme.colors.accent} />
+      </View>
+      <Text variant="title2" weight="bold" style={{ marginHorizontal: 20, marginBottom: 8 }}>
+        Choose the Medication Type
+      </Text>
+      <List surface="plain" header="Common Forms">
+        {COMMON_FORMS.map(row)}
+      </List>
+      <List surface="plain" header="More Forms" style={{ marginTop: 16 }}>
+        {MORE_FORMS.map(row)}
+      </List>
+    </PhonePage>
   );
 }
