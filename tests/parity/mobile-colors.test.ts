@@ -31,7 +31,7 @@ describe("phone colors use PlexUI tokens", () => {
     const roles = [...declarations.matchAll(/(--mobile-[\w-]+):\s*([^;]+);/g)]
     expect(roles.length).toBeGreaterThan(12)
     for (const [, name, value] of roles) {
-      expect(`${name}: ${value}`).toMatch(/^--mobile-[\w-]+: (var\(--(gray|alpha)-\d+\)|light-dark\(var\(--gray-\d+\), var\(--gray-\d+\)\)|var\(--mobile-label-secondary\))$/)
+      expect(`${name}: ${value}`).toMatch(/^--mobile-[\w-]+: (var\(--(gray|alpha)-\d+\)|light-dark\(var\(--gray-\d+\), var\(--(gray-\d+|black)\)\)|var\(--mobile-label-secondary\))$/)
     }
   })
 

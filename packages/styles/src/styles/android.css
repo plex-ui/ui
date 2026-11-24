@@ -444,6 +444,15 @@
   }
 }
 
+/* The screens of the Plex Android look stay on the PlexUI canvas at night (gray-0, #0d0d0d): Material's dark
+   surfaces are not black, unlike iOS's (mobile-surfaces.css). */
+@media (max-width: 767px) {
+  :root[data-platform="android"] {
+    --mobile-surface-plain-primary: var(--gray-0);
+    --mobile-surface-grouped-primary: light-dark(var(--gray-75), var(--gray-0));
+  }
+}
+
 /* A segmented control in a bar's own row (Tabs.module.css, the Plex Android segmented control in a bar): the
    reference's in-bar capsule shows its selected segment in the screen's gray, the grouped page's color (#f1f1f3 on
    its white capsule), and at night the dark page's, under the glass of the bar. */

@@ -23,6 +23,14 @@ Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.
 - **Sidebar open branch.** An open submenu leaves 4px (`--sidebar-menu-sub-open-gap`) before the row after it.
 - **Icons named as globals.** The icon modules `Object`, `Array`, `Boolean`, `Clipboard`, `Comment`, `Error`, `Function`, `Number`, `Report`, `Storage`, `String` and `Text` bound their component to that global's name, which broke the global in Metro ("Cannot access 'Object' before initialization"). The binding is now `ObjectIcon` and so on; the exports and display names are unchanged (React and Vue).
 
+## styles 0.17.3 and @plexui/react-native 0.2.7 (2026-11-24)
+
+`@plexui/styles` 0.17.3 and `@plexui/react-native` 0.2.7 (on ^0.17.3); React and Vue keep 0.62.1 and 0.42.1 and take it through ^0.17.1.
+
+### Changed
+
+- **iOS screens are black at night.** A phone screen's background (`--mobile-surface-plain-primary`) and a grouped list's (`--mobile-surface-grouped-primary`) are black in the dark theme, as UIKit's `systemBackground` and `systemGroupedBackground`, so a grouped list's cards (gray-150, #1c1c1c) stand off the screen as natively; they were the PlexUI canvas gray-0 (#0d0d0d). The web's canvas and the Plex Android look keep gray-0, as Material's dark surfaces are not black.
+
 ## styles 0.17.2 (2026-11-24)
 
 `@plexui/styles` 0.17.2 alone; React and Vue keep 0.62.1 and 0.42.1 and take it through ^0.17.1.

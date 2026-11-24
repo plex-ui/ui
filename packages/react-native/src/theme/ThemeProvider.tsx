@@ -220,8 +220,12 @@ export function createTheme(options: {
     success: color("--color-background-success-solid"),
     onSuccess: color("--color-text-success-solid"),
     danger: color("--color-background-danger-solid"),
-    background: color("--mobile-surface-plain-primary", color("--color-surface")),
-    groupedBackground: color("--mobile-surface-grouped-primary", color("--color-surface-secondary")),
+    // iOS's screens are black at night (systemBackground); Android's stay on the PlexUI canvas, as android.css
+    background: platform === "android" ? color("--gray-0", color("--color-surface")) : color("--mobile-surface-plain-primary", color("--color-surface")),
+    groupedBackground:
+      platform === "android"
+        ? color(scheme === "dark" ? "--gray-0" : "--gray-75", color("--color-surface-secondary"))
+        : color("--mobile-surface-grouped-primary", color("--color-surface-secondary")),
     groupedSurface: color("--mobile-surface-grouped-secondary", color("--color-surface")),
     surface: color("--color-surface"),
     surfaceSecondary: color("--color-surface-secondary"),

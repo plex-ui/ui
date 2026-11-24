@@ -14,11 +14,14 @@
     --mobile-accessory-secondary: var(--mobile-label-secondary);
     /* The iOS background roles take the nearest PlexUI gray of each theme: white stays gray-0, iOS #f2f2f7
        is gray-75 (#f3f3f3, without the blue cast), #1c1c1e gray-150 (#1c1c1c), #2c2c2e gray-300 (#303030, the
-       PlexUI elevated surface), #3a3a3c gray-350 (#393939), and black the PlexUI canvas gray-0 (#0d0d0d). */
-    --mobile-surface-plain-primary: var(--gray-0);
+       PlexUI elevated surface), #3a3a3c gray-350 (#393939). Black is black (--black), as UIKit's systemBackground and
+       systemGroupedBackground at night: on the PlexUI canvas gray-0 (#0d0d0d) a grouped list's gray-150 cards were
+       hard to tell from the screen (owner 24.11). Android keeps gray-0 (android.css): Material's dark surfaces are
+       not black. */
+    --mobile-surface-plain-primary: light-dark(var(--gray-0), var(--black));
     --mobile-surface-plain-secondary: light-dark(var(--gray-75), var(--gray-150));
     --mobile-surface-plain-tertiary: light-dark(var(--gray-0), var(--gray-300));
-    --mobile-surface-grouped-primary: light-dark(var(--gray-75), var(--gray-0));
+    --mobile-surface-grouped-primary: light-dark(var(--gray-75), var(--black));
     --mobile-surface-grouped-secondary: light-dark(var(--gray-0), var(--gray-150));
     --mobile-surface-grouped-tertiary: light-dark(var(--gray-75), var(--gray-300));
     --mobile-surface-elevated-plain-primary: light-dark(var(--gray-0), var(--gray-150));
