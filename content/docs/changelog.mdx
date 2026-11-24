@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## styles 0.17.4 and @plexui/react-native 0.2.9 (2026-11-24)
+
+`@plexui/styles` 0.17.4 and `@plexui/react-native` 0.2.9 (on ^0.17.4); React and Vue keep 0.62.1 and 0.42.1 and take it through ^0.17.1.
+
+### Added
+
+- **IntroHeader (React Native).** The header of a step in a sheet or a setup flow: an optional symbol, the step's title and what it asks, as iOS 27's own steps set them (a symbol in the middle, a Title 2 bold title, a Title 2 description in the secondary label); `align` puts the text on the column of the content under it (`cells`) or on the text inside its cells (`text`). Android: the setup wizard's header.
+
+### Changed
+
+- **Two-line list rows are 62pt on a phone.** A row with a description under its label is 62pt with 10 over the label and under the description, as iOS Settings sets its two-line rows (`--field-row-description-min-height` 70 → 62, new `--field-row-description-padding-block`); web NavigationRow and Field rows and React Native List. Android keeps its 64dp and 12.
+- **The iOS list separator stops 20pt before the group's end** in React Native, as Settings and the web draw it.
+- **Page column 672px.** `--page-width-column` is 672px, the readable width of iOS (was 768); on a phone (under 768px) a page takes the screen's width at every width.
+
 ## @plexui/react-native 0.2.8 (2026-11-24)
 
 `@plexui/react-native` 0.2.8 alone, on `@plexui/styles` ^0.17.3.
