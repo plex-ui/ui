@@ -5573,6 +5573,12 @@
               "type": "boolean",
               "default": "false",
               "description": "Align child items with parent text that has icons"
+            },
+            {
+              "name": "tree",
+              "type": "boolean",
+              "default": "false",
+              "description": "A tree: rows start 12px in and each level (indent) adds a whole 24px cell; icons stand in 24px cells with a 16px glyph. A group row starts with SidebarMenuChevron placement=\"start\" and folds on a press anywhere on it (aria-expanded on the row)"
             }
           ]
         },
@@ -5587,15 +5593,32 @@
             },
             {
               "name": "indent",
-              "type": "0 | 1 | 2 | 3",
+              "type": "number",
               "default": "0",
-              "description": "Nesting level; each level adds 12px of left padding. Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px"
+              "description": "Nesting level; each level adds 12px of left padding (up to 3). Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px. In a tree each level adds a whole 24px cell, at any depth"
             },
             {
               "name": "asChild",
               "type": "boolean",
               "default": "false",
               "description": "Render the single child element (e.g. a router link) as the button"
+            }
+          ]
+        },
+        {
+          "name": "SidebarMenuChevron",
+          "props": [
+            {
+              "name": "placement",
+              "type": "\"end\" | \"start\"",
+              "default": "\"end\"",
+              "description": "end: at the row's end. start: first in a tree row, in a 24px cell, the glyph 16px in the secondary color, right when closed and down when open; a picture of the row's state, hidden from assistive technology"
+            },
+            {
+              "name": "blank",
+              "type": "boolean",
+              "default": "false",
+              "description": "A start cell with no glyph, keeping a leaf's icon and text in line with its groups"
             }
           ]
         },
@@ -7520,5 +7543,5 @@
       "docsUrl": "https://plexui.com/components/tooltip"
     }
   ],
-  "generatedAt": "2026-11-24T14:50:56.685Z"
+  "generatedAt": "2026-11-24T19:32:31.087Z"
 }

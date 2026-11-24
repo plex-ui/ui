@@ -20,6 +20,7 @@ import {
   type PropType,
   type Ref,
   type Slots,
+  type StyleValue,
   type VNode,
   type VNodeArrayChildren,
 } from "vue"
@@ -473,18 +474,37 @@ export const SidebarMenuButtonLabel = SidebarMenuButtonLabelComponent as typeof 
 // Menu Chevron (Expand/Collapse Toggle)
 // =============================================
 
-export type SidebarMenuChevronProps = HTMLAttributes
-
-export const SidebarMenuChevron = defineComponent({
+const SidebarMenuChevronComponent = defineComponent({
   name: "SidebarMenuChevron",
   inheritAttrs: false,
-  setup(_props, { attrs }) {
+  props: {
+    /**
+     * Where the chevron stands. `end`: at the row's end, as a menu's group. `start`: first in the row, before its
+     * icon, in a 24px cell of its own (a 16px glyph in the secondary color), as a file or layer tree; right while the
+     * row is closed, down while it is open (`aria-expanded` on the row, or `data-expanded` on its item).
+     * @default "end"
+     */
+    placement: { type: String as PropType<"end" | "start">, default: "end" },
+    /** An empty cell in the chevron's place, on a tree row with nothing under it, so that the icons and the text line up. @default false */
+    blank: { type: Boolean, default: false },
+  },
+  setup(props, { attrs }) {
     return () => {
       const { className, rest } = cleanAttrs(attrs)
-      return h("span", { class: [s.MenuChevron, className], ...rest }, [h(ChevronRightMd)])
+      return h(
+        "span",
+        { "aria-hidden": "true", "data-placement": props.placement === "start" ? "start" : undefined, class: [s.MenuChevron, className], ...rest },
+        props.blank ? [] : [h(ChevronRightMd)],
+      )
     }
   },
-}) as unknown as ReturnType<typeof part<SidebarMenuChevronProps>>
+})
+
+export type SidebarMenuChevronProps = InstanceType<typeof SidebarMenuChevronComponent>["$props"] & HTMLAttributes
+
+export const SidebarMenuChevron = SidebarMenuChevronComponent as typeof SidebarMenuChevronComponent & {
+  new (): { $props: SidebarMenuChevronProps }
+}
 
 // =============================================
 // Menu Badge & Action
@@ -544,6 +564,12 @@ const SidebarMenuSubComponent = defineComponent({
      * @default false
      */
     hasIcons: { type: Boolean, default: false },
+    /**
+     * A tree (files, layers, screens): each `indent` level moves a row one whole 24px cell, the cell of a leading
+     * chevron or of an icon (12px, 36, 60…), in place of `hasIcons`'s steps.
+     * @default false
+     */
+    tree: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
     return () => {
@@ -552,7 +578,8 @@ const SidebarMenuSubComponent = defineComponent({
         "ul",
         {
           "data-state": props.open ? "open" : "closed",
-          "data-has-icons": props.hasIcons ? "true" : undefined,
+          "data-has-icons": props.hasIcons && !props.tree ? "true" : undefined,
+          "data-tree": props.tree ? "true" : undefined,
           // Collapsed items are only hidden visually: keep them out of the tab
           // order. "" renders `inert=""` (a DOM property in browsers)
           "inert": props.open ? undefined : "",
@@ -584,11 +611,10 @@ const SidebarMenuSubButtonComponent = defineComponent({
     /** Merges into the slot's first element instead of rendering a `<button>`. @default false */
     asChild: { type: Boolean, default: false },
     /**
-     * Indent level for nested items (0-3).
-     * Each level adds 12px of left margin.
+     * Indent level for nested items: 0-3 add 12px each; in a `tree` submenu any level adds a 24px cell.
      * @default 0
      */
-    indent: { type: Number as PropType<0 | 1 | 2 | 3>, default: 0 },
+    indent: { type: Number, default: 0 },
   },
   setup(props, { attrs, slots }) {
     const drawerRows = inject(sidebarDrawerKey, notInDrawer)
@@ -597,8 +623,9 @@ const SidebarMenuSubButtonComponent = defineComponent({
       const ownProps = {
         "data-active": props.isActive ? "true" : "false",
         "aria-current": props.isActive ? "page" : undefined,
-        "class": [s.MenuSubButton, s[`indent${props.indent}`], className],
+        "class": [s.MenuSubButton, s[`indent${Math.min(3, Math.max(0, Math.round(props.indent)))}`], className],
         ...rest,
+        "style": [{ "--sidebar-menu-indent": props.indent }, rest.style as StyleValue],
       }
       const content = slots.default?.()
       if (!drawerRows.value) return props.asChild ? renderAsChild(content, ownProps) : h("button", ownProps, content)

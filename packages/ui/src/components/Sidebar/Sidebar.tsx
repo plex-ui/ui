@@ -80,6 +80,7 @@ import {
   useRef,
   useState,
   type ComponentProps,
+  type CSSProperties,
   type PointerEvent,
   type ReactNode,
 } from "react"
@@ -470,12 +471,28 @@ SidebarMenuButtonLabel.displayName = "SidebarMenuButtonLabel"
 // Menu Chevron (Expand/Collapse Toggle)
 // =============================================
 
-export type SidebarMenuChevronProps = ComponentProps<"span">
+export type SidebarMenuChevronProps = ComponentProps<"span"> & {
+  /**
+   * Where the chevron stands. `end`: at the row's end, as a menu's group. `start`: first in the row, before its icon,
+   * in a 24px cell of its own (a 16px glyph in the secondary color), as a file or layer tree; right while the row is
+   * closed, down while it is open (`aria-expanded` on the row, or `data-expanded` on its item).
+   * @default "end"
+   */
+  placement?: "end" | "start"
+  /** An empty cell in the chevron's place, on a tree row with nothing under it, so that the icons and the text line up. */
+  blank?: boolean
+}
 
 export const SidebarMenuChevron = forwardRef<HTMLSpanElement, SidebarMenuChevronProps>(
-  ({ className, ...props }, ref) => (
-    <span ref={ref} className={clsx(s.MenuChevron, className)} {...cleanProps(props)}>
-      <ChevronRightMd />
+  ({ placement = "end", blank = false, className, ...props }, ref) => (
+    <span
+      ref={ref}
+      aria-hidden="true"
+      data-placement={placement === "start" ? "start" : undefined}
+      className={clsx(s.MenuChevron, className)}
+      {...cleanProps(props)}
+    >
+      {blank ? null : <ChevronRightMd />}
     </span>
   ),
 )
@@ -539,14 +556,20 @@ export type SidebarMenuSubProps = ComponentProps<"ul"> & {
    * This adjusts the padding so level 2 text aligns with level 1 text.
    */
   hasIcons?: boolean
+  /**
+   * A tree (files, layers, screens): each `indent` level moves a row one whole 24px cell, the cell of a leading
+   * chevron or of an icon (12px, 36, 60…), in place of `hasIcons`'s steps.
+   */
+  tree?: boolean
 }
 
 export const SidebarMenuSub = forwardRef<HTMLUListElement, SidebarMenuSubProps>(
-  ({ open = true, hasIcons = false, className, ...props }, ref) => (
+  ({ open = true, hasIcons = false, tree = false, className, ...props }, ref) => (
     <ul
       ref={ref}
       data-state={open ? "open" : "closed"}
-      data-has-icons={hasIcons ? "true" : undefined}
+      data-has-icons={hasIcons && !tree ? "true" : undefined}
+      data-tree={tree ? "true" : undefined}
       // Collapsed items are only hidden visually: keep them out of the tab order
       inert={open ? undefined : true}
       className={clsx(s.MenuSub, className)}
@@ -569,11 +592,10 @@ export type SidebarMenuSubButtonProps = ComponentProps<"button"> & {
   isActive?: boolean
   asChild?: boolean
   /**
-   * Indent level for nested items (0-3).
-   * Each level adds 12px of left margin.
+   * Indent level for nested items: 0-3 add 12px each; in a `tree` submenu any level adds a 24px cell.
    * @default 0
    */
-  indent?: 0 | 1 | 2 | 3
+  indent?: number
 }
 
 export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSubButtonProps>(
@@ -591,8 +613,9 @@ export const SidebarMenuSubButton = forwardRef<HTMLButtonElement, SidebarMenuSub
         ref={ref}
         data-active={isActive ? "true" : "false"}
         aria-current={isActive ? "page" : undefined}
-        className={clsx(s.MenuSubButton, s[`indent${indent}`], className)}
+        className={clsx(s.MenuSubButton, s[`indent${Math.min(3, Math.max(0, Math.round(indent)))}`], className)}
         {...cleanProps(props)}
+        style={{ "--sidebar-menu-indent": indent, ...props.style } as CSSProperties}
       >
         {content}
       </Comp>

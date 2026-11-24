@@ -729,6 +729,24 @@
   padding-left: 62px;
 }
 
+/* A tree: each level moves a row one whole 24px cell (the cell of a leading chevron or of an icon), 12px in at the
+   first; its icons stand in 24px cells too, the glyph 16px, so the text of a row with a chevron and an icon starts
+   at 60, 84, 108… */
+.MenuSub[data-tree="true"] .MenuSubButton {
+  padding-left: calc(12px + var(--sidebar-menu-indent, 0) * 24px);
+}
+
+.MenuSub[data-tree="true"] .MenuButtonIcon {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+}
+
+.MenuSub[data-tree="true"] .MenuButtonIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* An open branch of a tree leaves a gap before the row after it */
 @media (min-width: 768px) {
   .MenuSub[data-state="open"] {
@@ -769,6 +787,32 @@
    is (a collapsed item nested under an expanded one keeps its chevron) */
 [data-expanded="true"] .MenuChevron:not([data-expanded="true"] li:not([data-expanded="true"]) .MenuChevron) {
   transform: rotate(90deg);
+}
+
+/* A row of a tree turns its chevron by its own aria-expanded, as it folds and unfolds on a press anywhere on it */
+.MenuButton[aria-expanded="true"] .MenuChevron,
+.MenuSubButton[aria-expanded="true"] .MenuChevron {
+  transform: rotate(90deg);
+}
+
+/* A tree's chevron: first in the row, before its icon, in a 24px cell of its own; the glyph 16px in the secondary
+   color, a picture of the row's state with no hover of its own. A blank one keeps the cell on a row with nothing under it */
+.MenuChevron[data-placement="start"] {
+  position: relative;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.MenuChevron[data-placement="start"] svg {
+  width: 16px;
+  height: 16px;
+}
+
+:dir(rtl) .MenuChevron[data-placement="start"] svg {
+  transform: scaleX(-1);
 }
 
 /* Hide chevron in collapsed sidebar */

@@ -1704,7 +1704,7 @@ describe("Sidebar drawer on a phone is an iOS 26 grouped list", () => {
     )
     expect(vue).toBe(react)
     expect(disclosures(react)).toBe(3)
-    expect(react).toMatch(/href="#skills">\s*"Skills"\s*<span aria-hidden="true" class="MenuDisclosure">/)
+    expect(react).toMatch(/href="#skills"[^>]*>\s*"Skills"\s*<span aria-hidden="true" class="MenuDisclosure">/)
     expect(react).toMatch(/href="#logs">\s*<span class="MenuButtonInner">\s*"Logs"\s*<span aria-hidden="true" class="MenuDisclosure">/)
   })
 
