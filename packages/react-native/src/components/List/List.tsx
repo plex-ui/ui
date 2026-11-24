@@ -341,7 +341,7 @@ export type ListItemProps = {
 }
 
 /**
- * A row of a List: the label (17/22, `--field-row-*`: 52 tall, 70 with a description, 12 above and below the text at
+ * A row of a List: the label (17/22, `--field-row-*`: 52 tall, 62 with a description, 12 above and below the text at
  * least) with a description, a leading symbol, a value (wrapping within 60% of the row, or under the label: `valuePlacement`) or a control, and the chevron
  * of a drill-in (`Disclosure`, in the tertiary label, turned over right to left). A row with `checked` is a switch
  * row. On Android a row of a settings screen: 50dp tall at least (64 with a description, its text 12 from the row's
@@ -669,9 +669,9 @@ function endControl(found: Exclude<FoundControl, { kind: "radio" }>, own: boolea
   return { kind: found.kind, node, toggle: rowDisabled || props.disabled ? undefined : () => change(state !== true) }
 }
 
-/** A row's least height: 52, 70 with a description (`--field-row-description-min-height`), as the web's NavigationRow. */
+/** A row's least height: 52, 62 with a description (as Settings, iOS 26 and 27) (`--field-row-description-min-height`), as the web's NavigationRow. */
 const iosMinHeight = (theme: Theme, described: boolean) =>
-  described ? theme.length("--field-row-description-min-height", 70) : theme.length("--field-row-min-height", 52)
+  described ? theme.length("--field-row-description-min-height", 62) : theme.length("--field-row-min-height", 52)
 
 function iosRow(theme: Theme, last: boolean, described: boolean): ViewStyle {
   const inset = theme.length("--list-row-inset", 20)
@@ -774,15 +774,17 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
   // The text's padding centres one line (or a label and its description) in the row's least height, 12 at least, as the
   // web's: a row of more lines (a wrapped label, a value below) keeps those 15 (14) above and below
   // A row with a control at its end is the web's form row (`Field row`): its text keeps the control's 44pt line, 4 above
-  // and below it, or 12 around a description, so a wrapped label or description grows the row by its own lines only
+  // and below it, or 10 around a description, so a wrapped label or description grows the row by its own lines only
   const target = theme.length("--control-size-lg", 44)
   const formRow = trailing != null
+  // A two-line row keeps 10 over its label and under its description, as Settings (62 in all)
+  const descriptionPadding = theme.length("--field-row-description-padding-block", 10)
   const textPadding = formRow
     ? description != null
-      ? theme.length("--field-row-text-padding-block", 12)
+      ? descriptionPadding
       : (iosMinHeight(theme, false) - target) / 2
     : Math.max(
-        theme.length("--field-row-text-padding-block", 12),
+        description != null ? descriptionPadding : theme.length("--field-row-text-padding-block", 12),
         (iosMinHeight(theme, description != null) - labelType.lineHeight - (description != null ? descriptionLine : 0)) / 2,
       )
   // A field at the end fills the room after the label (`RowEnd.fill`)

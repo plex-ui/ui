@@ -2232,7 +2232,8 @@ export const tokenLayers: readonly TokenLayer[] = [
       "--field-row-label-font-weight": "var(--font-weight-normal)",
       "--field-row-description-font-size": "15px",
       "--field-row-description-line-height": "20px",
-      "--field-row-description-min-height": "70px",
+      "--field-row-description-min-height": "62px",
+      "--field-row-description-padding-block": "10px",
       "--field-row-above-font-size": "15px",
       "--field-row-above-line-height": "20px",
       "--field-row-above-font-weight": "var(--font-weight-normal)",
@@ -2275,7 +2276,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2135,
+    "order": 2136,
     "when": {
       "minWidth": 414,
       "maxWidth": 767
@@ -2293,7 +2294,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2136,
+    "order": 2137,
     "when": {
       "maxWidth": 575
     },
@@ -3078,7 +3079,8 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--field-row-control-width": 160,
     "--field-row-description-font-size": 15,
     "--field-row-description-line-height": 20,
-    "--field-row-description-min-height": 70,
+    "--field-row-description-min-height": 62,
+    "--field-row-description-padding-block": 10,
     "--field-row-disclosure-gap": 8,
     "--field-row-gap": 16,
     "--field-row-hover-background": "rgba(13, 13, 13, 0.03)",
@@ -4860,7 +4862,8 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--field-row-control-width": 160,
     "--field-row-description-font-size": 15,
     "--field-row-description-line-height": 20,
-    "--field-row-description-min-height": 70,
+    "--field-row-description-min-height": 62,
+    "--field-row-description-padding-block": 10,
     "--field-row-disclosure-gap": 8,
     "--field-row-gap": 16,
     "--field-row-hover-background": "rgba(255, 255, 255, 0.05)",

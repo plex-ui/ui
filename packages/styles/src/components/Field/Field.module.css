@@ -228,7 +228,7 @@
 
 .Field:where([data-row]):has(.Description, .Content > :not(.Control)) {
   min-height: var(--field-row-description-min-height, var(--field-row-min-height));
-  padding-block: var(--field-row-text-padding-block);
+  padding-block: var(--field-row-description-padding-block, var(--field-row-text-padding-block));
 }
 
 /* Touch sizes set `contents`: the description then runs under the control too */

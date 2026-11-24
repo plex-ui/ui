@@ -703,9 +703,12 @@
     --field-row-label-font-weight: var(--font-weight-normal);
     --field-row-description-font-size: 15px;
     --field-row-description-line-height: 20px;
-    /* A row with a line under its label: 70pt from line to line, as iOS 27.2 spaces a subtitle row (SwiftUI Form
-       70.7, UIKit subtitleCell 70.3 on an iPhone 17), the two lines centred in it. */
-    --field-row-description-min-height: 70px;
+    /* A row with a line under its label: 62pt from line to line, as Settings sets its two-line rows on iOS 26 and 27
+       (VPN, Language & Region: 186px at 3x, the second line 15/20, about 10 above and below the two lines), centred
+       in it. UIKit's bare subtitleCell keeps 70.3; Apple's own lists do not. */
+    --field-row-description-min-height: 62px;
+    /* A two-line row keeps 10 over its label and under its description (Settings), not a one-line row's 12 */
+    --field-row-description-padding-block: 10px;
     --field-row-above-font-size: 15px;
     --field-row-above-line-height: 20px;
     --field-row-above-font-weight: var(--font-weight-normal);

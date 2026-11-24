@@ -33,7 +33,7 @@
 /* A label with a line under it centres the two lines in the subtitle cell's height */
 .NavigationRow[data-description] > .Pressable.Pressable {
   padding-block: max(
-    var(--field-row-text-padding-block, 10px),
+    var(--field-row-description-padding-block, var(--field-row-text-padding-block, 10px)),
     calc(
       (
           var(--field-row-description-min-height, var(--field-row-min-height, 52px)) -

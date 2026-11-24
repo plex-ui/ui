@@ -24,7 +24,7 @@
 
 /* Two lines, the subtitle row of a list (touch.css) under labels below the actions. */
 .Tall {
-  min-height: var(--field-row-description-min-height, 70px);
+  min-height: var(--field-row-description-min-height, 62px);
 }
 
 .From {

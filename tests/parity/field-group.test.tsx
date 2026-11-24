@@ -287,7 +287,7 @@ describe("FieldGroup separators on a phone", () => {
     const utilities = readFileSync(`${process.cwd()}/packages/styles/src/styles/tailwind-utilities.css`, "utf8")
     expect(utilities).toMatch(/@theme inline \{\s*--spacing-layout-margin: var\(--page-gutter\);\s*--spacing-list-inset: var\(--list-row-inset\);\s*\}/)
     // A row with a line under its label is 70pt, as a subtitle row of iOS 27.2 (SwiftUI 70.7, UIKit 70.3).
-    expect(touch).toContain("--field-row-description-min-height: 70px;")
+    expect(touch).toContain("--field-row-description-min-height: 62px;")
     // The composer's icon rows start the line under their titles through the token, not a rule of their own
     const composer = readFileSync(`${process.cwd()}/components/docs/SegmentedComposer.module.css`, "utf8")
     expect(composer).toContain("--field-group-separator-inset-start: var(--composer-row-text-start);")
