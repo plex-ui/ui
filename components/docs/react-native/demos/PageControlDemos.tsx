@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
-import { PageControl, Text, cardColors, textColor, useTheme, type CardColor } from '@plexui/react-native';
+import { PageControl, Text, cardColors, textColor, useTheme } from '@plexui/react-native';
 import { Folders, Heart, Images, LockKeyHole, MapPin, Pencil, RemoveTrash, Search, ShieldCheck, Sparkles, Users, Video } from '@plexui/react-native/icons';
 import { ScrollView, View } from 'react-native';
 import { DemoControlRow, Segments, controlsTableStyle } from '../../ButtonDemos';
@@ -139,7 +139,8 @@ function Carousel({ count, look }: { count: number; look: Look }) {
 }
 
 /** The cards' colors on color: a page may have a background of its own */
-const CARD_COLORS: CardColor[] = ['accent', 'discovery', 'success', 'warning', 'info', 'danger'];
+// Card's `color` values (the module is untyped in the docs, types/plexui-react-native.d.ts)
+const CARD_COLORS: Array<'accent' | 'discovery' | 'success' | 'warning' | 'info' | 'danger'> = ['accent', 'discovery', 'success', 'warning', 'info', 'danger'];
 
 /**
  * A mouse drags the pages on the web, as a finger does: react-native-web's scroller follows a finger and a trackpad but
