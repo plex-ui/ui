@@ -46,6 +46,7 @@ The components added since 0.1.1 reach npm: Alert, Field, FloatingLabelInput, th
 ### Changed
 
 - **ActionSheet without a source, iOS 26.** The panel stands in the middle of the screen with Cancel as its last capsule, as an iPhone draws an action sheet with no source; it was at the bottom with Cancel apart.
+- **ActionSheet on iOS takes the iOS 27 kit's action sheet.** The title Semibold and the message Regular, both 17/22 in the label color at the start; every action Semibold 17/22, a destructive one in the native red; 14 around the actions. It was a centered 13pt gray header with Medium actions.
 - **Button `variant="outline"` on iOS** is iOS's Gray button (the neutral soft fill, the label in the button's color): iOS has no outlined button. Android keeps the outline.
 - **Placeholder on iOS.** Every field's placeholder is the tertiary label (UIColor.placeholderText), as a form row's already was: Input, Textarea and TagInput.
 - **List error.** A section's error takes the footer's place and type (iOS 13/16, 8pt under the section; Android 14sp), only in the danger color; on iOS it was 15/20 and 4pt lower.

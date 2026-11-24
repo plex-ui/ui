@@ -186,9 +186,10 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
         },
       ]}
     >
+      {/* iOS 27's action sheet: every action Semibold 17/22, a destructive one in the native red (the danger solid) */}
       <Text
-        weight={preferred ? "semibold" : "medium"}
-        color={item.disabled ? theme.color("--mobile-label-tertiary") : item.destructive ? theme.color("--color-text-danger") : theme.colors.text}
+        weight="semibold"
+        color={item.disabled ? theme.color("--mobile-label-tertiary") : item.destructive ? theme.color("--color-background-danger-solid") : theme.colors.text}
         style={styles.iosLabel}
       >
         {item.label}
@@ -199,12 +200,12 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
     title != null || message != null ? (
       <View style={styles.iosHeader}>
         {title != null ? (
-          <Text nativeID={ids.title} weight="semibold" color={theme.color("--dialog-alert-message-color")} accessibilityRole="header" style={styles.iosHeaderText}>
+          <Text nativeID={ids.title} weight="semibold" accessibilityRole="header" style={styles.iosHeaderText}>
             {title}
           </Text>
         ) : null}
         {message != null ? (
-          <Text nativeID={ids.message} color={theme.color("--dialog-alert-message-color")} style={styles.iosHeaderText}>
+          <Text nativeID={ids.message} style={styles.iosHeaderText}>
             {message}
           </Text>
         ) : null}
@@ -305,12 +306,14 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   // An alert's width at most (the kit's 300), 8 from the screen's edges on a narrow phone
   iosStack: { width: "100%", maxWidth: 316, paddingHorizontal: 8 },
-  iosPanel: { padding: 16, gap: 8 },
+  // iOS 27's action sheet (the iOS kit): 14 around, the actions 8 apart
+  iosPanel: { padding: 14, gap: 8 },
   iosList: { gap: 8 },
   shrink: { flexShrink: 1 },
   scroll: { flexGrow: 0 },
-  iosHeader: { paddingHorizontal: 15, paddingTop: 4, paddingBottom: 6, gap: 2 },
-  iosHeaderText: { fontSize: 13, lineHeight: 18, textAlign: "center" },
+  // The title Semibold and the message Regular, both Body 17/22 in the label color at the start, 8 in, 24 over the actions
+  iosHeader: { paddingHorizontal: 8, paddingTop: 8, paddingBottom: 16, gap: 10 },
+  iosHeaderText: { fontSize: 17, lineHeight: 22 },
   iosAction: {
     alignItems: "center",
     justifyContent: "center",
