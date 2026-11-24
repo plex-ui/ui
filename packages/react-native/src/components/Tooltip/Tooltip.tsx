@@ -291,7 +291,7 @@ export type TriggerDecoratorProps = Pick<TextProps, "variant" | "size" | "weight
  * Makes text a tooltip's trigger, as @plexui/ui's Tooltip.TriggerDecorator: a tap or a long press shows the tooltip,
  * and the text gets the dotted underline of an open tooltip (the tertiary text color; Android draws it solid).
  */
-function TriggerDecorator({ children, focusable = true, testID, variant, size, weight, color, style, ...described }: TriggerDecoratorProps & DescribedProps) {
+export function TriggerDecorator({ children, focusable = true, testID, variant, size, weight, color, style, ...described }: TriggerDecoratorProps & DescribedProps) {
   const theme = useTheme()
   const tooltip = useContext(TooltipContext)
   const open = tooltip?.open ?? false
