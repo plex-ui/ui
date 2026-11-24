@@ -8,7 +8,7 @@ import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text, TextColorProvider, type TextProps } from "../Text/Text"
 
-export type BadgeColor = "secondary" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"
+export type BadgeColor = "secondary" | "accent" | "success" | "danger" | "warning" | "info" | "discovery" | "caution"
 export type BadgeVariant = "solid" | "soft" | "outline" | "counter"
 export type BadgeSize = "sm" | "md" | "lg" | "xl"
 
@@ -49,6 +49,14 @@ export function counterBadgeColors(theme: Theme, color: BadgeColor) {
 
 export function badgeColors(theme: Theme, variant: BadgeVariant, color: BadgeColor) {
   if (variant === "counter") return counterBadgeColors(theme, color)
+  // The accent has a solid and a soft step and one text color (styles' accent tokens): soft on the soft fill, the
+  // outline's text and line in that text color
+  if (color === "accent") {
+    const text = theme.color("--color-text-accent")
+    if (variant === "solid") return { background: theme.color("--color-background-accent-solid"), text: theme.color("--color-text-accent-solid", "#FFFFFF"), border: undefined }
+    if (variant === "outline") return { background: "transparent", text, border: text }
+    return { background: theme.color("--color-background-accent-soft"), text, border: undefined }
+  }
   if (variant === "outline") return { background: "transparent", text: theme.color(`--color-text-${color}-outline`), border: theme.color(`--color-border-${color}-outline`) }
   if (variant === "solid") return { background: theme.color(`--color-background-${color}-solid`), text: theme.color(`--color-text-${color}-solid`), border: undefined }
   return { background: theme.color(`--color-background-${color}-soft-alpha`), text: theme.color(`--color-text-${color}-soft`), border: undefined }

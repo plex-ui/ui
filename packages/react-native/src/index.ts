@@ -47,6 +47,7 @@ export {
   TabBar,
   useTabBarMinimize,
   type TabBarBackground,
+  type TabBarBadgeColor,
   type TabBarItemProps,
   type TabBarProminent,
   type TabBarProps,
@@ -81,6 +82,7 @@ export { OTPInput, type OTPInputProps } from "./components/OTPInput/OTPInput"
 export { Select, type SelectOption, type SelectProps } from "./components/Select/Select"
 export { Menu, type MenuContentProps, type MenuItemProps, type MenuProps } from "./components/Menu/Menu"
 export { ContextMenu, type ContextMenuContentProps, type ContextMenuProps } from "./components/ContextMenu/ContextMenu"
+export { ScrollEdge, type ScrollEdgeProps } from "./components/ScrollEdge/ScrollEdge"
 export { DatePicker, type DatePickerDisplay, type DatePickerMode, type DatePickerProps } from "./components/DatePicker/DatePicker"
 export { ActionSheet, type ActionSheetAction, type ActionSheetProps } from "./components/ActionSheet/ActionSheet"
 export { BottomSheet, type BottomSheetFooterProps, type BottomSheetProps } from "./components/BottomSheet/BottomSheet"

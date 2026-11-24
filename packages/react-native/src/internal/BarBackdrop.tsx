@@ -251,3 +251,76 @@ export function SoftTopEdge({ fill, blur }: { fill: string; blur: number }) {
     </View>
   )
 }
+
+/**
+ * iOS 27.2's soft scroll edge under a bottom bar (styles' --page-bar-soft-bottom-*, measured on a scrolled list,
+ * owner 13.11): from 34pt above the bar's items down to the screen's edge, a veil of the canvas color (8% 9 into the
+ * layer, 15% from 25 to 37, 23% at 45, 31% at 57, 46% from 77 down) over a 10pt blur that takes hold from 12 to 40
+ * into it. Over the canvas alone it draws nothing to see, so it stays drawn. Native draws the veil without the blur.
+ */
+const BOTTOM_REACH = 34
+const BOTTOM_VEIL: readonly [number, number][] = [
+  [0, 0],
+  [0.08, 9],
+  [0.15, 25],
+  [0.15, 37],
+  [0.23, 45],
+  [0.31, 57],
+  [0.46, 77],
+]
+
+export function SoftBottomVeil({ fill, top, bottom }: { fill: string; top?: number; bottom?: number }) {
+  // `top`: under a bottom bar whose items start there; `bottom`: turned over, under the status bar `bottom` tall
+  const up = bottom != null
+  const place: ViewStyle = up
+    ? { position: "absolute", top: 0, left: 0, right: 0, height: bottom + BOTTOM_REACH, overflow: "hidden", justifyContent: "flex-end" }
+    : { position: "absolute", top: (top ?? 0) - BOTTOM_REACH, left: 0, right: 0, bottom: 0 }
+  const way = up ? "to top" : "to bottom"
+  if (Platform.OS === "web") {
+    const veil = `linear-gradient(${way}, ${BOTTOM_VEIL.map(([alpha, at]) => `${black(alpha)} ${at}px`).join(", ")})`
+    const blurMask = `linear-gradient(${way}, transparent 12px, #000 40px)`
+    return (
+      <View pointerEvents="none" style={place}>
+        <View style={[StyleSheet.absoluteFill, { backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", maskImage: blurMask, WebkitMaskImage: blurMask } as ViewStyle]} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: fill, maskImage: veil, WebkitMaskImage: veil } as ViewStyle]} />
+      </View>
+    )
+  }
+  const last = BOTTOM_VEIL[BOTTOM_VEIL.length - 1]
+  const gradient = `linear-gradient(${way}, ${BOTTOM_VEIL.map(([alpha, at]) => `${withAlpha(fill, alpha)} ${at}px`).join(", ")})`
+  const ramp = <View style={{ height: last[1], backgroundImage: gradient } as ViewStyle} />
+  const rest = <View style={{ flex: 1, backgroundColor: withAlpha(fill, last[0]) }} />
+  return (
+    <View pointerEvents="none" style={place}>
+      {up ? rest : ramp}
+      {up ? ramp : rest}
+    </View>
+  )
+}
+
+/**
+ * The fade under a tab bar's capsule, as apps that mute the content under their tab bar draw it (measured on one at
+ * 3x): nothing above the capsule, so the rows over it stay clear; from the capsule's top the screen's color comes in
+ * over 60pt (6% 5 in, 25% 21 in, 37% 32 in, 56% 42 in, 69% 51 in, 85% from 60 in) and holds to the screen's edge,
+ * with no blur: the text under it stays sharp, only faint.
+ */
+const TAB_FADE: readonly [number, number][] = [
+  [0, 0],
+  [0.06, 5],
+  [0.25, 21],
+  [0.37, 32],
+  [0.56, 42],
+  [0.69, 51],
+  [0.85, 60],
+]
+
+export function TabBarFade({ fill, top }: { fill: string; top: number }) {
+  const last = TAB_FADE[TAB_FADE.length - 1]
+  const gradient = `linear-gradient(to bottom, ${TAB_FADE.map(([alpha, at]) => `${withAlpha(fill, alpha)} ${at}px`).join(", ")})`
+  return (
+    <View pointerEvents="none" style={{ position: "absolute", top, left: 0, right: 0, bottom: 0 }}>
+      <View style={{ height: last[1], backgroundImage: gradient } as ViewStyle} />
+      <View style={{ flex: 1, backgroundColor: withAlpha(fill, last[0]) }} />
+    </View>
+  )
+}

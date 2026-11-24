@@ -14,7 +14,7 @@ import {
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Search from "../../icons/plex/Search"
-import { BarBackdrop, SoftBottomEdge, ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, glassBarBlur, useAndroidGlass } from "../../internal/BarBackdrop"
+import { BarBackdrop, SoftBottomEdge, TabBarFade, ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, glassBarBlur, useAndroidGlass } from "../../internal/BarBackdrop"
 import { childrenOfType, textOf } from "../../internal/children"
 import { physicalPadding } from "../../internal/direction"
 import { Glass } from "../../internal/Glass"
@@ -26,7 +26,7 @@ import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text, textStyle } from "../Text/Text"
 
-export type TabBarBackground = "soft" | "glass" | "hard" | "none"
+export type TabBarBackground = "soft" | "fade" | "glass" | "hard" | "none"
 
 export type TabBarSearch = {
   /** The value of the search tab. */
@@ -66,8 +66,10 @@ export type TabBarProps = Omit<ViewProps, "children"> & {
   onMinimizedChange?: (minimized: boolean) => void
   /**
    * How the bar meets content under it: `soft` and `none` let content run under the capsule (on Android `soft` fades
-   * the screen's color in under it, as the Android bar does), `hard` an opaque bar, `glass` a translucent blurred one; the
-   * lines and the glass show once `scrolled` says content is under it.
+   * the screen's color in under it, as the Android bar does), as native iOS 26 tab bars do; `fade` mutes it, as many
+   * apps do on iOS: the rows over the capsule stay clear, and from its top the screen's color comes in over 60pt to
+   * 85%, held to the screen's edge, with no blur (on Android as `soft`); `hard` an opaque bar, `glass` a translucent
+   * blurred one. The lines and the glass show once `scrolled` says content is under it; the fade stays drawn.
    * @default "soft"
    */
   background?: TabBarBackground
@@ -80,6 +82,11 @@ export type TabBarProps = Omit<ViewProps, "children"> & {
   canvasColor?: string
   /** Content in a glass capsule above the tabs (iOS 26 bottom accessory); minimized, between the two circles. */
   accessory?: ReactNode
+  /**
+   * The badges' color: `danger`, the red of iOS's badges, or `accent`, the accent with its on color, as Android's
+   * badges are; a tab's own `badgeColor` wins. @default the platform's own: "danger" on iOS, "accent" on Android
+   */
+  badgeColor?: TabBarBadgeColor
   /** Pads the bar for the home indicator. @default true */
   safeArea?: boolean
   /** Accessible name of the navigation. @default "Tabs" */
@@ -101,6 +108,8 @@ export type TabBarItemProps = {
    * count of 0 shows none, as on iOS. `true` draws a small dot on Android and an empty capsule on iOS.
    */
   badge?: ReactNode
+  /** The badge's color, over the bar's `badgeColor`. */
+  badgeColor?: TabBarBadgeColor
   /** When `true`, the tab cannot be selected. */
   disabled?: boolean
   /** Called when the tab is pressed, before it is selected. */
@@ -108,8 +117,11 @@ export type TabBarItemProps = {
   testID?: string
 }
 
+export type TabBarBadgeColor = "danger" | "accent"
+
 type TabBarContextValue = {
   value: string | undefined
+  badgeColor?: TabBarBadgeColor
   minimized: boolean
   select: (value: string) => void
   expand: () => void
@@ -149,7 +161,7 @@ function press(context: TabBarContextValue, { value, disabled, onPress }: TabBar
   context.select(value)
 }
 
-function IOSTab({ value, label, icon, badge, disabled = false, onPress, testID, context, kind = "tab", hideLabel = false }: TabProps) {
+function IOSTab({ value, label, icon, badge, badgeColor, disabled = false, onPress, testID, context, kind = "tab", hideLabel = false }: TabProps) {
   const theme = useTheme()
   const selected = context.value === value
   const circle = kind === "circle"
@@ -209,9 +221,9 @@ function IOSTab({ value, label, icon, badge, disabled = false, onPress, testID, 
         </Text>
       ) : null}
       {hasBadge(badge) && !circle ? (
-        <View pointerEvents="none" style={[styles.iosBadge, iosBadgeStyle(theme), { top: badgeTop, marginLeft: badgeStart }]}>
+        <View pointerEvents="none" style={[styles.iosBadge, iosBadgeStyle(theme, badgeColor ?? context.badgeColor), { top: badgeTop, marginLeft: badgeStart }]}>
           {badge === true ? null : (
-            <Text color={theme.color("--tab-bar-badge-color")} style={iosBadgeText(theme)} numberOfLines={1} allowFontScaling={false}>
+            <Text color={(badgeColor ?? context.badgeColor) === "accent" ? theme.color("--color-text-accent-solid", "#FFFFFF") : theme.color("--tab-bar-badge-color")} style={iosBadgeText(theme)} numberOfLines={1} allowFontScaling={false}>
               {badge}
             </Text>
           )}
@@ -221,14 +233,15 @@ function IOSTab({ value, label, icon, badge, disabled = false, onPress, testID, 
   )
 }
 
-const iosBadgeStyle = (theme: Theme): ViewStyle => {
+const iosBadgeStyle = (theme: Theme, color: TabBarBadgeColor | undefined): ViewStyle => {
   const size = theme.length("--tab-bar-badge-size", 18)
   return {
     minWidth: size,
     height: size,
     paddingHorizontal: theme.length("--tab-bar-badge-padding-inline", 5),
     borderRadius: size / 2,
-    backgroundColor: theme.color("--tab-bar-badge-background"),
+    // iOS's own red, or the accent
+    backgroundColor: color === "accent" ? theme.color("--color-background-accent-solid") : theme.color("--tab-bar-badge-background"),
   }
 }
 
@@ -252,7 +265,7 @@ const COUNT_SLIDE = 3
  * behind it). `true` draws a dot of the accent there. It scales in and out about that point (the center of a dot or a
  * one-digit count), staying drawn as it shrinks away.
  */
-function AndroidBadge({ badge, ring }: { badge: ReactNode; ring: string | Animated.AnimatedInterpolation<string> }) {
+function AndroidBadge({ badge, ring, color }: { badge: ReactNode; ring: string | Animated.AnimatedInterpolation<string>; color?: TabBarBadgeColor }) {
   const theme = useTheme()
   const m = theme.material
   const reduced = theme.reducedMotion
@@ -285,8 +298,8 @@ function AndroidBadge({ badge, ring }: { badge: ReactNode; ring: string | Animat
   const dot = shown === true
   return (
     <Animated.View pointerEvents="none" style={[styles.androidBadgeFrame, { transform: [{ scale }] }]}>
-      <Animated.View style={[dot ? styles.androidDot : styles.androidBadge, { backgroundColor: m.primary, borderColor: ring }]}>
-        {dot ? null : <BadgeCount value={shown} color={m.onPrimary} reduced={reduced} />}
+      <Animated.View style={[dot ? styles.androidDot : styles.androidBadge, { backgroundColor: color === "danger" ? m.error : m.primary, borderColor: ring }]}>
+        {dot ? null : <BadgeCount value={shown} color={color === "danger" ? m.onError : m.onPrimary} reduced={reduced} />}
       </Animated.View>
     </Animated.View>
   )
@@ -410,6 +423,7 @@ function AndroidTab({
   label,
   icon,
   badge,
+  badgeColor,
   disabled = false,
   onPress,
   testID,
@@ -465,7 +479,7 @@ function AndroidTab({
         {label}
       </Animated.Text>
       {/* The ring takes the pill's color as the pill fades in under it */}
-      <AndroidBadge badge={badge} ring={shown.interpolate({ inputRange: [0, 1], outputRange: [card, mix(m.primary, card, 0.09)], easing: DECELERATE })} />
+      <AndroidBadge badge={badge} color={badgeColor ?? context.badgeColor} ring={shown.interpolate({ inputRange: [0, 1], outputRange: [card, mix(m.primary, card, 0.09)], easing: DECELERATE })} />
     </Pressable>
   )
 }
@@ -581,7 +595,7 @@ function AndroidBar({
   // screen's color fading in over 60dp in four even steps, then at 81% down to the edge; the other backgrounds show
   // once content is under the bar
   const backdrop =
-    background === "soft" ? (
+    background === "soft" || background === "fade" ? (
       <SoftBottomEdge fill={withAlpha(canvas, ANDROID_FADE_ALPHA)} top={60} tail={60} blur={0} stops={ANDROID_FADE_STOPS} />
     ) : background === "hard" ? (
       <BarBackdrop fill={canvas} line={scrolled ? m.outlineVariant : undefined} edge="top" />
@@ -652,6 +666,7 @@ function TabBarRoot({
   canvasColor,
   accessory,
   safeArea = true,
+  badgeColor,
   "aria-label": ariaLabel = "Tabs",
   children,
   style,
@@ -682,7 +697,7 @@ function TabBarRoot({
   const visible = shown.length ? shown : capsuleTabs.slice(0, 1)
   const reachable = [...visible, ...(circle ? [circle] : [])]
   const keys = useTabKeys(reachable, value, select)
-  const context: TabBarContextValue = { value, minimized, select, expand, keys }
+  const context: TabBarContextValue = { value, badgeColor, minimized, select, expand, keys }
 
   if (theme.isAndroid) {
     return (
@@ -722,6 +737,9 @@ function TabBarRoot({
       <BarBackdrop fill={canvas} line={scrolled ? theme.color("--page-bar-hard-line") : undefined} edge="top" />
     ) : background === "glass" && scrolled ? (
       <BarBackdrop fill={veil} blur={glassBarBlur(theme)} line={theme.color("--page-bar-line")} edge="top" />
+    ) : background === "fade" ? (
+      // The screen's color coming in from the capsule's top (or the accessory's) down
+      <TabBarFade fill={canvas} top={padTop} />
     ) : null
   // The accessory keeps one place in the tree, so its state lives through a minimize: above the capsule, or between
   // the two circles as tall as they are. The bar keeps its height either way, as TabBar.module.css

@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { DemoControlBoolean, DemoControlSelect, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { RNScreen, docsDemo } from '../RNScreen';
 
-const COLORS = ['secondary', 'success', 'warning', 'danger', 'info', 'discovery', 'caution'] as const;
+const COLORS = ['secondary', 'accent', 'success', 'warning', 'danger', 'info', 'discovery', 'caution'] as const;
 // The React page's soft, solid and outline, and React Native's counter (an unread count)
 const VARIANTS = ['soft', 'solid', 'outline', 'counter'] as const;
 const SIZES = ['sm', 'md', 'lg', 'xl'] as const;

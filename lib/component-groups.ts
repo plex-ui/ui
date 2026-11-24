@@ -87,6 +87,7 @@ export const NATIVE_ONLY_GROUPS: Readonly<Record<string, ComponentGroup['id']>> 
   'bottom-sheet': 'overlays',
   chip: 'selection',
   list: 'content',
+  'scroll-edge': 'navigation',
   text: 'content',
 };
 

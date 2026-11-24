@@ -12,7 +12,10 @@ import { PhonePage } from './ToolbarDemos';
 
 /** The bar backgrounds of the React page that the React Native bars draw (`blur` has none) */
 const BAR_BACKGROUNDS = ['soft', 'hard', 'glass'] as const;
+/** The tab bar's: `fade` mutes the content under it, as many iOS apps do */
+const TAB_BAR_BACKGROUNDS = ['soft', 'fade', 'hard', 'glass'] as const;
 type BarBackground = (typeof BAR_BACKGROUNDS)[number];
+type TabBarBackgroundPick = (typeof TAB_BAR_BACKGROUNDS)[number];
 
 type Tab = { value: string; label: string; icon: ReactNode };
 
@@ -68,16 +71,19 @@ function NowPlaying() {
 }
 
 type MinimizeBehavior = 'never' | 'onScrollDown';
+const BADGE_COLORS = ['default', 'danger', 'accent'] as const;
+type BadgeColorPick = (typeof BADGE_COLORS)[number];
 
-function Screen({ tabs, search, prominent, badges, accessory, minimizeBehavior, toolbarBackground, background }: {
+function Screen({ tabs, search, prominent, badges, badgeColor, accessory, minimizeBehavior, toolbarBackground, background }: {
   tabs: Tab[];
   search: boolean;
   prominent: boolean;
   badges: boolean;
+  badgeColor: BadgeColorPick;
   accessory: boolean;
   minimizeBehavior: MinimizeBehavior;
   toolbarBackground: BarBackground;
-  background: BarBackground;
+  background: TabBarBackgroundPick;
 }) {
   const [tab, setTab] = useState(tabs[0].value);
   // minimizeBehavior "onScrollDown": the bar minimizes while the list scrolls down and comes back when it scrolls up
@@ -103,6 +109,7 @@ function Screen({ tabs, search, prominent, badges, accessory, minimizeBehavior, 
           minimized={minimize && minimized}
           onMinimizedChange={onMinimizedChange}
           background={background}
+          badgeColor={badgeColor === 'default' ? undefined : badgeColor}
           scrolled={scrolled} canvasColor={canvas}
           accessory={accessory ? <NowPlaying /> : undefined}
         >
@@ -134,12 +141,13 @@ export const Overview = docsDemo(function Overview() {
   const [search, setSearch] = useState(false);
   const [prominent, setProminent] = useState(false);
   const [badges, setBadges] = useState(false);
+  const [badgeColor, setBadgeColor] = useState<BadgeColorPick>('default');
   const [accessory, setAccessory] = useState(false);
   const [minimizeBehavior, setMinimizeBehavior] = useState<MinimizeBehavior>('never');
   const [toolbarBackgroundPick, setToolbarBackground] = useState<BarBackground>();
   // iOS 26's glass top bar, Android's soft edge, until the reader picks
   const toolbarBackground = toolbarBackgroundPick ?? (android ? 'soft' : 'glass');
-  const [background, setBackground] = useState<BarBackground>('soft');
+  const [background, setBackground] = useState<TabBarBackgroundPick>('soft');
   const max = tabBarMaxTabs(search, prominent);
   const shownCount = String(Math.min(Number(count), max)) as (typeof COUNTS)[number];
   return (
@@ -153,6 +161,7 @@ export const Overview = docsDemo(function Overview() {
           search={search}
           prominent={prominent}
           badges={badges}
+          badgeColor={badgeColor}
           accessory={accessory}
           minimizeBehavior={android ? 'never' : minimizeBehavior}
           toolbarBackground={toolbarBackground}
@@ -181,9 +190,10 @@ export const Overview = docsDemo(function Overview() {
         <DemoControlBoolean name="search" value={search} onChange={setSearch} />
         <DemoControlBoolean name="prominent" value={prominent} onChange={setProminent} />
         <DemoControlBoolean name="badge" value={badges} onChange={setBadges} />
+        {badges && <Segments name="badgeColor" options={BADGE_COLORS} value={badgeColor} onChange={setBadgeColor} />}
         <DemoControlBoolean name="accessory" value={accessory} onChange={setAccessory} />
         {!android && <Segments name="minimizeBehavior" options={MINIMIZE} value={minimizeBehavior} onChange={setMinimizeBehavior} />}
-        <Segments name="background (bottom)" options={BAR_BACKGROUNDS} value={background} onChange={setBackground} />
+        <Segments name="background (bottom)" options={TAB_BAR_BACKGROUNDS} value={background} onChange={setBackground} />
       </DemoControlsBottom>
     </>
   );

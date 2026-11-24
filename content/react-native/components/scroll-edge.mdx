@@ -1,0 +1,52 @@
+---
+title: Scroll Edge
+description: "The soft scroll edge of a screen with no bar at that edge: content under the status bar, or at the screen's bottom, muted."
+metaDescription: "A React Native scroll edge: iOS 27's soft scroll edge under the status bar of a screen with no top bar, or at its bottom; the status bar's scrim on Android."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { List, ListItem, ScrollEdge } from "@plexui/react-native"
+import { ScrollView, View } from "react-native"
+
+const [offset, setOffset] = useState(0)
+
+<View style={{ flex: 1 }}>
+  <ScrollView onScroll={(event) => setOffset(event.nativeEvent.contentOffset.y)} scrollEventThrottle={16}>
+    <ProfileHeader />
+    <List>…</List>
+  </ScrollView>
+  <ScrollEdge edge="top" scrolled={offset > 0} canvasColor={canvas} />
+</View>`
+
+<UsageBlock>{`import { ScrollEdge } from "@plexui/react-native"`}</UsageBlock>
+
+A screen with a bar has its edge in the bar: [Toolbar](/react-native/components/toolbar)'s `background` at the top, [Tab Bar](/react-native/components/tab-bar)'s `fade` at the bottom.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A screen with no top bar, such as an account page with its own header, lets its content scroll up under the clock and the status icons. <code>ScrollEdge</code> mutes it there, as iOS 27 draws its soft scroll edge: from the safe area's edge 34pt further into the screen, a 10pt blur under a veil of the screen's color that grows to 46% at the screen's edge. The top edge shows once <code>scrolled</code> says content is under it; lay it over the screen after the scroll view, in the screen's <code>canvasColor</code> (a grouped screen's gray).</p>
+  <p><code>edge="bottom"</code> mutes the content that runs on to the bottom of a screen with no bottom bar, in the same way turned over, from 34pt above the home indicator's safe area; it stays drawn, as iOS draws it, since over the screen's color alone it shows nothing. On Android the top edge is the soft edge of its top bar over the status bar alone, and the bottom one draws nothing.</p>
+</>} code={overviewCode} previewMinHeight={168}>
+  <RNExample demo="scroll-edge/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 27 | Android |
+| --- | --- | --- |
+| Native component | Scroll edge effect, soft | None: the status bar's scrim |
+| Look | A blur under a veil of the screen's color, from 34pt in to the screen's edge | The screen's color over a light blur under the status bar |
+
+## API
+
+<PropsTable data={[
+  { prop: "edge", type: '"top" | "bottom"', default: '"top"', description: "Under the status bar, or at the bottom of the screen" },
+  { prop: "scrolled", type: "boolean", default: "false", description: "Content is under the edge; the top edge shows only then, the bottom one stays" },
+  { prop: "canvasColor", type: "string", default: "the theme's background", description: "The color of the screen it fades into (a grouped screen's canvas)" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the edge" },
+]} />

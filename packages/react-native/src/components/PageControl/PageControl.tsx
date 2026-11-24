@@ -36,6 +36,17 @@ export type PageControlProps = {
    * current white, the rest white at 40%), the capsule a white veil. @default "default"
    */
   tone?: "default" | "onColor"
+  /**
+   * The way the pages run: `horizontal`, a row (mirrored in a right-to-left layout), or `vertical`, a column from top
+   * to bottom, as UIPageControl's `direction = .topToBottom` (never mirrored). @default "horizontal"
+   */
+  direction?: "horizontal" | "vertical"
+  /**
+   * `md`, the platform's own dots (iOS 8pt 8 apart, Android 5dp 6 apart); `sm`, smaller dots for a control over a
+   * photo in a card: 5 apart 4 on iOS (the pill 14 long), 4dp 4 apart on Android, the capsule 16 thick. iOS has one size;
+   * `sm` is the kit's, as an app sets smaller indicator images. @default "md"
+   */
+  size?: "sm" | "md"
   /** @default (index, count) => `Page ${index + 1} of ${count}` */
   valueText?: (index: number, count: number) => string
   /** @default "Pages" */
@@ -98,6 +109,8 @@ export function PageControl({
   background = "automatic",
   indicator = "dots",
   tone = "default",
+  direction = "horizontal",
+  size = "md",
   valueText = defaultValueText,
   "aria-label": ariaLabel = "Pages",
   testID,
@@ -116,24 +129,31 @@ export function PageControl({
     onChange?.(next, { scrubbing })
   }
   const android = theme.isAndroid
-  const dot = android ? ANDROID_DOT : theme.length("--page-control-dot-size", 8)
-  const gap = android ? ANDROID_GAP : theme.length("--page-control-gap", 8)
-  const padding = theme.length("--page-control-padding-inline", 12)
+  const small = size === "sm"
+  const vertical = direction === "vertical"
+  const dot = small ? (android ? 4 : 5) : android ? ANDROID_DOT : theme.length("--page-control-dot-size", 8)
+  const gap = small ? 4 : android ? ANDROID_GAP : theme.length("--page-control-gap", 8)
+  const padding = small ? 6 : theme.length("--page-control-padding-inline", 12)
   const pitch = dot + gap
   // Android draws every page's dot at full size; the iOS kit shrinks the ends from seven pages
   const sizes = android ? Array.from({ length: Math.max(0, count) }, (): PageControlDotSize => "full") : pageControlDots(count, current)
-  const dotSize = (size: PageControlDotSize) =>
-    size === "full" ? dot : android ? (size === "small" ? 4 : 3) : size === "small" ? theme.length("--page-control-dot-size-small", 6) : theme.length("--page-control-dot-size-smaller", 4)
+  // The small and smaller ends keep their share of a full dot (6 and 4 of 8 on iOS)
+  const dotSize = (kind: PageControlDotSize) =>
+    kind === "full"
+      ? dot
+      : android
+        ? Math.max(2, dot - (kind === "small" ? 1 : 2))
+        : (dot / 8) * (kind === "small" ? theme.length("--page-control-dot-size-small", 6) : theme.length("--page-control-dot-size-smaller", 4))
   const pill = indicator === "pill"
-  // A pill: the current page two and a half dots wide
-  const dotWidth = (size: PageControlDotSize, index: number) => (pill && index === current ? dot * 2.5 : dotSize(size))
+  // A pill: the current page two and a half dots long (18 at `sm`), along the direction
+  const dotWidth = (kind: PageControlDotSize, index: number) => (pill && index === current ? (small ? 14 : dot * 2.5) : dotSize(kind))
   // The center of the current dot, for a tap on either side of it
   let x = padding
   let currentCenter = padding
-  sizes.forEach((size, index) => {
-    if (size === "hidden") return
-    if (index === current) currentCenter = x + dotWidth(size, index) / 2
-    x += dotWidth(size, index) + gap
+  sizes.forEach((kind, index) => {
+    if (kind === "hidden") return
+    if (index === current) currentCenter = x + dotWidth(kind, index) / 2
+    x += dotWidth(kind, index) + gap
   })
   const onColor = tone === "onColor"
   const on = onColor ? "#FFFFFF" : android ? theme.material.primary : theme.color("--page-control-dot-color-current", theme.colors.text)
@@ -142,7 +162,7 @@ export function PageControl({
   // Android's current dot is drawn over the gray ones (it stretches between pages); a pill is a dot of its own
   const worm = android && !pill
   // Android draws no capsule, not even for `prominent`
-  const capsuleHeight = theme.length("--page-control-height", 24)
+  const capsuleHeight = small ? 16 : theme.length("--page-control-height", 24)
   const target = android ? 48 : theme.length("--page-control-target-size", 44)
   const showBackground = !android && (background === "prominent" || (background === "automatic" && press != null))
   const text = valueText(current, count)
@@ -153,7 +173,7 @@ export function PageControl({
           onKeyDown: (raw: unknown) => {
             const event = raw as { key: string; preventDefault: () => void; currentTarget?: unknown }
             // The dots run from the right in a right-to-left row: the left arrow goes on to the next page
-            const ahead = isRTL(event.currentTarget) ? -1 : 1
+            const ahead = !vertical && isRTL(event.currentTarget) ? -1 : 1
             const to: Record<string, number> = { ArrowRight: current + ahead, ArrowDown: current + 1, ArrowLeft: current - ahead, ArrowUp: current - 1, Home: 0, End: count - 1 }
             if (!(event.key in to)) return
             event.preventDefault()
@@ -163,7 +183,7 @@ export function PageControl({
       : {}
   const onMove = (event: GestureResponderEvent) => {
     if (!press || background === "minimal") return
-    const dx = (event.nativeEvent.locationX - press.startX) * (press.rtl ? -1 : 1)
+    const dx = ((vertical ? event.nativeEvent.locationY : event.nativeEvent.locationX) - press.startX) * (press.rtl ? -1 : 1)
     if (!press.scrubbing && Math.abs(dx) < SCRUB_THRESHOLD) return
     if (!press.scrubbing) setPress({ ...press, scrubbing: true })
     go(press.startIndex + Math.round(dx / pitch), true)
@@ -183,12 +203,14 @@ export function PageControl({
       aria-valuetext={text}
       onStartShouldSetResponder={() => count > 1}
       onResponderTerminationRequest={() => !press?.scrubbing}
-      onResponderGrant={(event) => setPress({ startX: event.nativeEvent.locationX, startIndex: current, scrubbing: false, rtl: isRTL(event.currentTarget) })}
+      onResponderGrant={(event) =>
+        setPress({ startX: vertical ? event.nativeEvent.locationY : event.nativeEvent.locationX, startIndex: current, scrubbing: false, rtl: !vertical && isRTL(event.currentTarget) })
+      }
       onResponderMove={onMove}
       onResponderRelease={(event) => {
         // A tap on the leading side of the current dot goes back, on the trailing side forward; the dots are laid
         // from the capsule's start, its right edge in a right-to-left row
-        const x = event.nativeEvent.locationX
+        const x = vertical ? event.nativeEvent.locationY : event.nativeEvent.locationX
         const fromStart = press?.rtl ? capsule.x + capsule.width - x : x - capsule.x
         if (press && !press.scrubbing) go(current + (fromStart < currentCenter ? -1 : 1))
         setPress(null)
@@ -196,24 +218,44 @@ export function PageControl({
       onResponderTerminate={() => setPress(null)}
       testID={testID}
       // The target (44pt, 48dp on Android) reaches past the 24pt capsule without taking room, as the web's control
-      // lays out at the capsule's height
-      style={[styles.target, { minHeight: target, marginVertical: -(target - capsuleHeight) / 2 }, style]}
+      // lays out at the capsule's height,
+      style={[
+        styles.target,
+        // and is never shorter than that along the dots either (two small dots), the capsule centred in it
+        vertical
+          ? { minWidth: target, minHeight: target, justifyContent: "center", marginHorizontal: -(target - capsuleHeight) / 2 }
+          : { minHeight: target, minWidth: target, justifyContent: "center", marginVertical: -(target - capsuleHeight) / 2 },
+        style,
+      ]}
     >
       <View
         pointerEvents="none"
-        onLayout={(event) => setCapsule({ x: event.nativeEvent.layout.x, width: event.nativeEvent.layout.width })}
+        onLayout={(event) => {
+          const { x: left, y: top, width, height } = event.nativeEvent.layout
+          setCapsule(vertical ? { x: top, width: height } : { x: left, width })
+        }}
         style={[
           styles.capsule,
-          { height: capsuleHeight, paddingHorizontal: padding, gap, borderRadius: capsuleHeight / 2 },
+          vertical
+            ? { flexDirection: "column", width: capsuleHeight, paddingVertical: padding, gap, borderRadius: capsuleHeight / 2 }
+            : { height: capsuleHeight, paddingHorizontal: padding, gap, borderRadius: capsuleHeight / 2 },
           showBackground ? { backgroundColor: onColor ? "rgba(255, 255, 255, 0.2)" : theme.color("--page-control-background") } : null,
         ]}
       >
         {sizes.map((size, index) =>
           size === "hidden" ? null : (
-            <View key={index} style={{ width: dotWidth(size, index), height: dotSize(size), borderRadius: dot / 2, backgroundColor: index === current && !worm ? on : off }} />
+            <View
+              key={index}
+              style={{
+                width: vertical ? dotSize(size) : dotWidth(size, index),
+                height: vertical ? dotWidth(size, index) : dotSize(size),
+                borderRadius: dot / 2,
+                backgroundColor: index === current && !worm ? on : off,
+              }}
+            />
           ),
         )}
-        {worm ? <AndroidCurrent start={currentCenter - dot / 2} color={on} reduced={theme.reducedMotion} /> : null}
+        {worm ? <AndroidCurrent start={currentCenter - dot / 2} color={on} reduced={theme.reducedMotion} dot={dot} vertical={vertical} /> : null}
       </View>
     </View>
   )
@@ -233,7 +275,7 @@ const WORM_SETTLE = { duration: 200, easing: curves.easeOutQuint }
  * one. On a change the far edge is on the new page at once and the near edge follows it through the settle, as when
  * the pages' scroll draws the dot.
  */
-function AndroidCurrent({ start, color, reduced }: { start: number; color: string; reduced: boolean }) {
+function AndroidCurrent({ start, color, reduced, dot, vertical }: { start: number; color: string; reduced: boolean; dot: number; vertical: boolean }) {
   const [head] = useState(() => new Animated.Value(start))
   const [tail] = useState(() => new Animated.Value(start))
   const first = useRef(true)
@@ -253,9 +295,14 @@ function AndroidCurrent({ start, color, reduced }: { start: number; color: strin
   // `start` keeps it on the dots' side in a right-to-left row
   const span = Animated.subtract(head, tail).interpolate({ inputRange: [-1000, 0, 1000], outputRange: [1000, 0, 1000] })
   const left = Animated.multiply(Animated.subtract(Animated.add(head, tail), span), 0.5)
+  const length = Animated.add(span, dot)
   return (
     <Animated.View
-      style={{ position: "absolute", top: "50%", marginTop: -ANDROID_DOT / 2, start: left, height: ANDROID_DOT, borderRadius: ANDROID_DOT / 2, backgroundColor: color, width: Animated.add(span, ANDROID_DOT) }}
+      style={
+        vertical
+          ? { position: "absolute", left: "50%", marginLeft: -dot / 2, top: left, width: dot, borderRadius: dot / 2, backgroundColor: color, height: length }
+          : { position: "absolute", top: "50%", marginTop: -dot / 2, start: left, height: dot, borderRadius: dot / 2, backgroundColor: color, width: length }
+      }
     />
   )
 }
