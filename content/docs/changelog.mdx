@@ -23,6 +23,12 @@ Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.
 - **Sidebar open branch.** An open submenu leaves 4px (`--sidebar-menu-sub-open-gap`) before the row after it.
 - **Icons named as globals.** The icon modules `Object`, `Array`, `Boolean`, `Clipboard`, `Comment`, `Error`, `Function`, `Number`, `Report`, `Storage`, `String` and `Text` bound their component to that global's name, which broke the global in Metro ("Cannot access 'Object' before initialization"). The binding is now `ObjectIcon` and so on; the exports and display names are unchanged (React and Vue).
 
+## @plexui/react-native 0.2.2 (2026-11-24)
+
+### Fixed
+
+- **Chip** label is not selectable: a double click or a long press on a chip no longer selects its text on the web.
+
 ## @plexui/react-native 0.2.1 (2026-11-24)
 
 ### Added

@@ -182,12 +182,13 @@ export function Chip({
         // Text's own face and tracking, in a color that blends
         <Animated.Text
           numberOfLines={1}
+          selectable={false}
           style={[textStyle(theme, { weight: "regular" }), { fontSize: label.fontSize, lineHeight: label.lineHeight, letterSpacing: theme.tracking(label.fontSize), color: labelPaint }]}
         >
           {children}
         </Animated.Text>
       ) : (
-        <Text color={color} weight="regular" numberOfLines={1} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight }}>
+        <Text color={color} weight="regular" numberOfLines={1} selectable={false} style={{ fontSize: label.fontSize, lineHeight: label.lineHeight }}>
           {children}
         </Text>
       )}
