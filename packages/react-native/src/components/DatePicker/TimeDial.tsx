@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
-import { Platform, Pressable, StyleSheet, View, type GestureResponderEvent } from "react-native"
+import { Platform, StyleSheet, View, type GestureResponderEvent } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Svg, { Circle, Line } from "react-native-svg"
 import { useTheme } from "../../theme/ThemeProvider"
 import { Text } from "../Text/Text"

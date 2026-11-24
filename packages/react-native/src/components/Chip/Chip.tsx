@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react"
-import { Animated, Easing, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import ChevronDownSm from "../../icons/plex/ChevronDownSm"
 import CloseBold from "../../icons/plex/CloseBold"
 import XCircleFilled from "../../icons/plex/XCircleFilled"

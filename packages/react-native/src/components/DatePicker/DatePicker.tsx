@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react"
-import { Pressable, StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from "react-native"
+import { StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { RowEndContext, RowHoldContext, rowHold } from "../../internal/row"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"

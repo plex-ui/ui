@@ -1,5 +1,6 @@
 import { useContext, useRef, useState, type ComponentRef } from "react"
-import { Pressable, StyleSheet, TextInput, View, type StyleProp, type TextInputKeyPressEvent, type ViewStyle } from "react-native"
+import { StyleSheet, TextInput, View, type StyleProp, type TextInputKeyPressEvent, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import X from "../../icons/plex/X"
 import { RowEndContext } from "../../internal/row"
 import { dangerText, withAlpha } from "../../theme/material"

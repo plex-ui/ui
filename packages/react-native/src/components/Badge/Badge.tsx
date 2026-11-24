@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react"
-import { Animated, Pressable, StyleSheet, Text as NativeText, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, StyleSheet, Text as NativeText, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import CloseBold from "../../icons/plex/CloseBold"
 import { flattenChildren } from "../../internal/children"
 import { curves } from "../../internal/motion"

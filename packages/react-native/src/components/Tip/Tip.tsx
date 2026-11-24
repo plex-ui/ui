@@ -1,5 +1,6 @@
 import { cloneElement, isValidElement, useState, type ReactElement, type ReactNode } from "react"
-import { Pressable, StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Svg, { Path } from "react-native-svg"
 import X from "../../icons/plex/X"
 import { flattenChildren, isRenderable, textOf } from "../../internal/children"

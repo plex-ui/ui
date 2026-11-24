@@ -1,17 +1,6 @@
 import { createContext, Fragment, isValidElement, useContext, useEffect, useState, type ComponentRef, type ReactNode, type Ref } from "react"
-import {
-  ActivityIndicator,
-  Animated,
-  Easing,
-  Platform,
-  Pressable,
-  StyleSheet,
-  View,
-  type GestureResponderEvent,
-  type PressableProps,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native"
+import { ActivityIndicator, Animated, Easing, Platform, StyleSheet, View, type GestureResponderEvent, type PressableProps, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Svg, { Circle } from "react-native-svg"
 import { flattenChildren } from "../../internal/children"
 import { Glass } from "../../internal/Glass"

@@ -1,5 +1,6 @@
 import { createContext, isValidElement, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
-import { Animated, Easing, Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { childrenOfType, isRenderable, textOf } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
 import { curves } from "../../internal/motion"
@@ -507,16 +508,19 @@ function SegmentCount({ badge, selected, off }: { badge: SegmentedControlBadgePr
   const theme = useTheme()
   const text = badge != null ? badgeText(badge) : undefined
   if (!text) return null
+  // iOS: the label's color in a capsule, the bar's ink in it; Android: the segment's own ink, the selected one's
+  // container in it (onSecondaryContainer on secondaryContainer), the others' onSurfaceVariant on the surface, so the
+  // small digits keep their contrast
   const fill = off
     ? theme.color("--alpha-20")
     : theme.isAndroid
       ? selected
-        ? theme.material.primary
-        : theme.colors.labelSecondary
+        ? theme.material.onSecondaryContainer
+        : theme.material.onSurfaceVariant
       : selected
         ? theme.colors.text
         : theme.colors.labelSecondary
-  const ink = theme.isAndroid ? theme.material.surface : theme.colors.background
+  const ink = theme.isAndroid ? (selected ? theme.material.secondaryContainer : theme.material.surface) : theme.colors.background
   return (
     <View aria-hidden style={[styles.count, { backgroundColor: fill }]}>
       <Text numberOfLines={1} weight="semibold" color={ink} style={styles.countText}>
@@ -536,7 +540,8 @@ const styles = StyleSheet.create({
   stretch: { alignSelf: "stretch" },
   heldControl: { transform: [{ scale: 1.07 }] },
   heldLabel: { opacity: 0.2 },
-  count: { minWidth: 18, height: 18, paddingHorizontal: 5, borderRadius: 9, alignItems: "center", justifyContent: "center" },
+  // 18 tall, taller with a larger text size: the capsule grows round its digits
+  count: { minWidth: 18, minHeight: 18, paddingHorizontal: 5, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   countText: { fontSize: 12, lineHeight: 16, fontVariant: ["tabular-nums"] },
   thumb: { position: "absolute", borderCurve: "continuous" },
   option: { alignItems: "center", justifyContent: "center", minWidth: 0 },

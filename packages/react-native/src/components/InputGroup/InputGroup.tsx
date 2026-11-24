@@ -1,5 +1,6 @@
 import { createContext, isValidElement, useContext, type ReactElement, type ReactNode } from "react"
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { flattenChildren } from "../../internal/children"
 import { RowEndContext } from "../../internal/row"
 import { useTheme } from "../../theme/ThemeProvider"

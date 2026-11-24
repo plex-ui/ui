@@ -28,7 +28,7 @@
 }
 
 /* A phone's page takes the screen's width at every width: the column and the wide width are the desktop's. */
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .Head,
   .Column,
   .FooterContent {

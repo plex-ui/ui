@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
-import { Animated, Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import CheckMd from "../../icons/plex/CheckMd"
 import { useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"

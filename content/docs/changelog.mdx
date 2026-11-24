@@ -7,6 +7,25 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.8 (2026-11-24)
+
+`@plexui/react-native` 0.2.8 alone, on `@plexui/styles` ^0.17.3.
+
+### Added
+
+- **BottomActions `background`.** `"fade"` lays a fade from the screen's color under floating actions on iOS, the content dimming as it runs under them (60pt to 85%, no blur); `"soft"`, the default, keeps the soft edge. Android keeps its edge.
+- **SegmentedControl `showBadges`.** Draws each tab's `badge` after its label, a count in a capsule 18 tall that grows with a larger text size; the segments then take their own widths with 10 beside the label and count. Off, the count is only read with the segment's name.
+
+### Changed
+
+- **SegmentedControl motion.** The large control's thumb eases to the chosen segment over 300ms, as the small one (250ms); it no longer jumps and then crawls.
+- **iOS list row press.** A pressed row lights at once and, when the finger lifts, the light fades out over 300ms, as UIKit deselects a cell; at once with reduced motion.
+- **No text selection on controls.** Rows, buttons, segments, chips and every other pressable of the kit select no text on the web when dragged or held.
+
+### Fixed
+
+- **`withAlpha` short colors.** `#rgb`, `#rgba`, `white` and `black` take an alpha too; a screen color given as `#fff` left the BottomActions fade opaque.
+
 ## 0.62.1 (2026-11-24)
 
 Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.0 (below). React and Vue need `@plexui/styles` ^0.17.1 for the Sidebar changes.

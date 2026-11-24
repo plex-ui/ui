@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
-import { Animated, Platform, Pressable, StyleSheet, View, type AccessibilityActionEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Platform, StyleSheet, View, type AccessibilityActionEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Minus from "../../icons/plex/Minus"
 import Plus from "../../icons/plex/Plus"
 import RemoveTrash from "../../icons/plex/RemoveTrash"

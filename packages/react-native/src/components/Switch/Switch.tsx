@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, type ReactNode } from "react"
-import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { RowEndContext, RowHoldContext, rowHold } from "../../internal/row"

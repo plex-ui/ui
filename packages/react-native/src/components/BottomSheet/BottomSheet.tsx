@@ -1,5 +1,6 @@
 import { isValidElement, useId, useLayoutEffect, useMemo, useState, type ReactNode } from "react"
-import { Animated, Easing, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, PanResponder, Platform, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { childrenOfType, flattenChildren } from "../../internal/children"
 import { useKeyboardHeight } from "../../internal/keyboard"

@@ -1,5 +1,6 @@
 import { cloneElement, createContext, isValidElement, useContext, type ReactElement, type ReactNode } from "react"
-import { Image, Platform, Pressable, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from "react-native"
+import { Image, Platform, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { flattenChildren } from "../../internal/children"
 import { space } from "../../internal/spacing"
 import { controlHighlight, withAlpha } from "../../theme/material"

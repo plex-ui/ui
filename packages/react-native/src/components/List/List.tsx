@@ -1,5 +1,6 @@
-import { cloneElement, createContext, isValidElement, useCallback, useContext, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
-import { Platform, Pressable, StyleSheet, View, type GestureResponderEvent, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
+import { cloneElement, createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
+import { Animated, Easing, Platform, StyleSheet, View, type GestureResponderEvent, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Disclosure from "../../icons/plex/Disclosure"
 import ExclamationMarkCircle from "../../icons/plex/ExclamationMarkCircle"
 import { spaceToggles, useDescription } from "../../internal/a11y"
@@ -417,8 +418,8 @@ export function ListItem({
   const nativeRipple = theme.isAndroid && Platform.OS === "android"
   // iOS lights a held choice row, not a switch row, as the web's phone rows
   const lit = !switchRow && control?.kind !== "switch"
-  const row = (pressed: boolean) =>
-    theme.isAndroid ? styles.androidRow : iosRow(theme, pressed && lit, last, description != null || error != null)
+  const row =
+    theme.isAndroid ? styles.androidRow : iosRow(theme, last, description != null || error != null)
   // A finger on the control at the end holds the row, as one on the row's text does
   const [held, setHeld] = useState(false)
   // Android's press is the list selector's ripple from the touch point, clipped to the row (and the card's corners):
@@ -483,11 +484,12 @@ export function ListItem({
         onPressOut={drawn ? ripple.end : undefined}
         android_ripple={nativeRipple ? { color: highlight, foreground: true } : undefined}
         testID={testID}
-        style={({ pressed }) => row(pressed || held)}
+        style={row}
       >
         {({ pressed }) => (
           <RowHoldContext.Provider value={disabled ? null : theme.isAndroid ? hold : setHeld}>
             {ripple.layer}
+            {theme.isAndroid ? null : <RowHighlight on={(pressed || held) && lit} last={last} />}
             {content(pressed || held)}
           </RowHoldContext.Provider>
         )}
@@ -506,7 +508,7 @@ export function ListItem({
       accessibilityLabel={accessibilityLabel}
       accessibilityRole={named && Platform.OS !== "web" ? "text" : undefined}
       role={named && Platform.OS === "web" ? "group" : undefined}
-      style={row(false)}
+      style={row}
     >
       {content(false)}
     </View>
@@ -669,18 +671,46 @@ function endControl(found: Exclude<FoundControl, { kind: "radio" }>, own: boolea
 const iosMinHeight = (theme: Theme, described: boolean) =>
   described ? theme.length("--field-row-description-min-height", 70) : theme.length("--field-row-min-height", 52)
 
-function iosRow(theme: Theme, pressed: boolean, last: boolean, described: boolean): ViewStyle {
+function iosRow(theme: Theme, last: boolean, described: boolean): ViewStyle {
   const inset = theme.length("--list-row-inset", 20)
   return {
     flexDirection: "row",
     alignItems: "center",
     minHeight: iosMinHeight(theme, described),
     paddingStart: inset,
-    backgroundColor: pressed ? theme.color("--field-row-press-background") : undefined,
-    // The press fills the row to the group's rounded ends
+    // The press is RowHighlight's, under the content; the row's rounded end clips it to the group's
     borderBottomLeftRadius: last ? theme.length("--field-group-radius", 26) : 0,
     borderBottomRightRadius: last ? theme.length("--field-group-radius", 26) : 0,
   }
+}
+
+/**
+ * iOS's press on a row: the row lights at once under a finger and, when it lifts, the light fades out over 0.3s, as
+ * UIKit deselects a cell (the system gray 4 of `--field-row-press-background`); at once with reduced motion.
+ */
+function RowHighlight({ on, last }: { on: boolean; last: boolean }) {
+  const theme = useTheme()
+  const opacity = useRef(new Animated.Value(0)).current
+  useEffect(() => {
+    if (on || theme.reducedMotion) {
+      opacity.stopAnimation()
+      opacity.setValue(on ? 1 : 0)
+      return
+    }
+    const fade = Animated.timing(opacity, { toValue: 0, duration: 300, easing: Easing.out(Easing.quad), useNativeDriver: Platform.OS !== "web" })
+    fade.start()
+    return () => fade.stop()
+  }, [on, opacity, theme.reducedMotion])
+  const radius = last ? theme.length("--field-group-radius", 26) : 0
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        StyleSheet.absoluteFill,
+        { opacity, backgroundColor: theme.color("--field-row-press-background"), borderBottomLeftRadius: radius, borderBottomRightRadius: radius },
+      ]}
+    />
+  )
 }
 
 type ContentProps = Pick<ListItemProps, "label" | "description" | "leading" | "value" | "trailing" | "error"> & {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode, type RefObject } from "react"
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
+import { Animated, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { FloatingPanel } from "../../internal/FloatingPanel"
 import { Glass } from "../../internal/Glass"

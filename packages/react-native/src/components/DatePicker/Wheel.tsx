@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native"
+import { Animated, Platform, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 

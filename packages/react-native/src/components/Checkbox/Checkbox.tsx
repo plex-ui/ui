@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, type ReactNode } from "react"
-import { Animated, Easing, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Svg, { Path } from "react-native-svg"
 import CheckMd from "../../icons/plex/CheckMd"
 import Minus from "../../icons/plex/Minus"

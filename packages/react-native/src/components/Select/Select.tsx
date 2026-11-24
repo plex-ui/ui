@@ -1,5 +1,6 @@
 import { useContext, useEffect, useLayoutEffect, useState, type ReactNode } from "react"
-import { Platform, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Svg, { Path } from "react-native-svg"
 import ChevronUpDown from "../../icons/plex/ChevronUpDown"
 import { spaceToggles } from "../../internal/a11y"

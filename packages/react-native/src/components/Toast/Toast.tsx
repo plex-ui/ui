@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react"
-import { AccessibilityInfo, Animated, Easing, PanResponder, PixelRatio, Platform, Pressable, StyleSheet, View, useWindowDimensions } from "react-native"
+import { AccessibilityInfo, Animated, Easing, PanResponder, PixelRatio, Platform, StyleSheet, View, useWindowDimensions } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import CheckCircle from "../../icons/plex/CheckCircle"
 import InfoCircle from "../../icons/plex/InfoCircle"

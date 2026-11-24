@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react"
-import { Platform, Pressable, StyleSheet, View } from "react-native"
+import { Platform, StyleSheet, View } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import ChevronLeftLg from "../../icons/plex/ChevronLeftLg"
 import ChevronRightLg from "../../icons/plex/ChevronRightLg"
 import { isRTL } from "../../internal/direction"

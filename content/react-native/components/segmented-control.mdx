@@ -17,6 +17,10 @@ const [mobileSegmentWidth, setMobileSegmentWidth] = useState<"equal" | "content"
 const [icon, setIcon] = useState<"none" | "only">("none")
 const [disabled, setDisabled] = useState(false)
 const [monthDisabled, setMonthDisabled] = useState(false)
+const [showBadges, setShowBadges] = useState(false)
+
+// Each view's events, read with its name and drawn with showBadges
+const EVENTS: Record<string, number> = { day: 3, week: 12, month: 41 }
 
 const views = [
   { value: "day", label: "Day", icon: <Clock /> },
@@ -34,6 +38,7 @@ const control = (
     mobileMaterial={mobileMaterial}
     mobileSegmentWidth={mobileSegmentWidth}
     disabled={disabled}
+    showBadges={showBadges}
   >
     {views.map((view) => (
       <SegmentedControl.Tab
@@ -42,6 +47,7 @@ const control = (
         icon={icon === "only" ? view.icon : undefined}
         aria-label={icon === "only" ? view.label : undefined}
         disabled={view.value === "month" ? monthDisabled : undefined}
+        badge={EVENTS[view.value]}
       >
         {icon === "only" ? undefined : view.label}
       </SegmentedControl.Tab>
@@ -83,7 +89,7 @@ const control = (
   <p>The props follow <code>@plexui/ui</code>'s SegmentedControl, with <code>SegmentedControl.Tab</code> for each segment (<code>SegmentedControl.Option</code> is the same part).</p>
   <p>On iOS horizontal tabs are the iOS 26 segmented control, a capsule whose thumb slides to the selection, in its two sizes. The default <code>md</code> and larger are the large control of iOS 26 apps, as Calendar and Reminders draw it and SwiftUI draws a segmented Picker in a toolbar: a 48pt glass capsule, a 40pt gray selection 4pt inside it, 8pt between segments, every label 15pt Medium. <code>sm</code> and smaller are the small one, the plain control of SwiftUI's Picker in content: a 32pt capsule of the tertiary fill, a white selection 2pt inside it, labels 13pt, Semibold when selected. <code>mobileMaterial</code> switches the look, as for Button: <code>flat</code> makes the large one plain, 49pt as SwiftUI's <code>.controlSize(.large)</code>, and <code>glass</code> puts the small one under the Liquid Glass of iOS 26. On Android the control is a capsule of the bar's surface (white in light mode, a gray in dark mode) with a soft shadow, 36dp at <code>md</code> (32 at <code>sm</code>, 40 at <code>lg</code>), its segments 4dp in, 14sp Medium labels in the secondary gray, the selected one in the accent on a pill of the accent at 12%. The pill slides to a new selection in 320ms, and the labels' colors blend with it. In a bar's row of controls it takes the 46dp height of the circles beside it.</p>
   <p>The example puts the control in a top bar, where it holds the bar alone, in a bottom bar, or above the content; <code>placement</code> picks one, over a day of events under the bars. Inside a <code>Toolbar</code> every control is the large glass one on iOS and the height of the bar's circles on Android, so <code>size</code> is offered for a control in the content, and <code>mobileMaterial</code> on iOS only, as Android has no glass.</p>
-  <p><code>mobileSegmentWidth</code> sets the segments' widths, as UISegmentedControl does: <code>equal</code>, the default, gives every segment the widest one's width, and <code>content</code> gives each its label and the same air around it, a compact control. <code>icon</code> on a tab gives it a symbol; leave out the label for a symbol alone and give each an <code>aria-label</code>. A segment with a symbol and a label shows the symbol alone on iOS, as UISegmentedControl does, so the example offers the symbol alone. A <code>badge</code> is read with the segment's name; neither platform draws counts on segments, so it is drawn only with <code>showBadges</code>: a capsule 18 tall after the label, as a messenger's folder tabs show their unread counts, each segment then taking its own width with 10 beside its label and count, on iOS in the label's color on the selected segment so it reads on the thumb and in the secondary label on the others, on Android in the accent and the gray. The example counts each view's events.</p>
+  <p><code>mobileSegmentWidth</code> sets the segments' widths, as UISegmentedControl does: <code>equal</code>, the default, gives every segment the widest one's width, and <code>content</code> gives each its label and the same air around it, a compact control. <code>icon</code> on a tab gives it a symbol; leave out the label for a symbol alone and give each an <code>aria-label</code>. A segment with a symbol and a label shows the symbol alone on iOS, as UISegmentedControl does, so the example offers the symbol alone. A <code>badge</code> is read with the segment's name; neither platform draws counts on segments, so it is drawn only with <code>showBadges</code>: a capsule 18 tall after the label, as a messenger's folder tabs show their unread counts, each segment then taking its own width with 10 beside its label and count, on iOS in the label's color on the selected segment so it reads on the thumb and in the secondary label on the others, on Android in the segment's ink, the selected one's on its container. The capsule grows with a larger text size. The example counts each view's events.</p>
   <p><code>disabled</code> disables every segment, which then show at the disabled label; <code>monthDisabled</code> disables only Month. <code>block</code> fills a row, the segments sharing its width.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="segmented-control/Overview" />

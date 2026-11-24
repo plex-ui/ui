@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from "react"
-import { Animated, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
+import { Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Glass } from "../../internal/Glass"
 import { useRipple } from "../../internal/ripple"

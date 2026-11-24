@@ -1,5 +1,6 @@
 import { Children, cloneElement, createContext, Fragment, isValidElement, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from "react"
-import { Animated, Easing, I18nManager, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, I18nManager, PanResponder, Platform, ScrollView, StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Svg, { Path } from "react-native-svg"
 import ArrowLeftLg from "../../icons/plex/ArrowLeftLg"

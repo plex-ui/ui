@@ -1,5 +1,6 @@
 import { Children, isValidElement, useId, useState, type ComponentType, type ReactNode } from "react"
-import { Animated, Easing, Platform, Pressable, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from "react-native"
+import { Pressable } from "../../internal/Pressable"
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
