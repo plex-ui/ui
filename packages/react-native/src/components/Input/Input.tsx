@@ -578,6 +578,9 @@ export function InputField({
   const required = ownRequired ?? floatLabel?.required
   const shift = ownShift ?? floatLabel?.shift
   const [focused, setFocused] = useState(false)
+  // A Tab to the iOS clear button blurs the field on the web: the button stays while it has focus (a press keeps the
+  // field's focus, below)
+  const [clearing, setClearing] = useState(false)
   const [own, setOwn] = useState(defaultValue ?? "")
   const text = value ?? own
   const filled = text.length > 0
@@ -662,7 +665,14 @@ export function InputField({
   // Android's label is in the hint color at rest and in the accent while the field has focus, springing between them
   const labelColor = invalid ? dangerText(theme) : focused ? focusAccent(theme) : look.placeholder
   const labelTint = useSpringColor(labelColor, FIELD_SPRING.stiffness, !floating || theme.reducedMotion)
-  const showClear = !!onClear && filled && !disabled && !readOnly
+  // iOS shows a form field's clear button while it is edited (UITextField's whileEditing), a search field's while it
+  // has text; Android while the field has text
+  const searchField = rest.inputMode === "search" || barField != null
+  // A value at a row's end has no clear button on iOS, as Settings' and Contacts' rows: only a value that starts its
+  // column or stands on its own line under the label takes one
+  const valueRight = !startAligned && (inRow || (fillsRow && valueAtEnd))
+  const showClear =
+    !!onClear && filled && !disabled && !readOnly && (theme.isAndroid || ((focused || clearing || searchField) && !valueRight))
   // Android's search fields keep their clear button in place and show it with the text
   const androidClear = (search || barSearch) && !!onClear && !disabled && !readOnly
   // A 24dp icon stands 12 in, the text 12 past it (48 in); otherwise the text is 14 in (the outlined field), 21 in a
@@ -704,7 +714,11 @@ export function InputField({
   // round end (Input.module.css), or keeps its box beside an end adornment
   const clearMargin: ViewStyle = theme.isAndroid
     ? { marginHorizontal: -(look.clearTarget - look.clearSize) / 2 }
-    : { marginEnd: endAdornment ? theme.length("--input-clear-target-offset", 0) : look.height / 2 - look.clearTarget / 2 - look.gutter }
+    : bare
+      ? // In a List row the target reaches over and under the row's line, so the row keeps its height, and its circle
+        // ends at the row's end inset, as a form row's clear button
+        { marginVertical: -(look.clearTarget - look.text.lineHeight) / 2, marginEnd: -(look.clearTarget - look.clearSize) / 2 }
+      : { marginEnd: endAdornment ? theme.length("--input-clear-target-offset", 0) : look.height / 2 - look.clearTarget / 2 - look.gutter }
   // An adornment stands in a View of its own, centered on the field: a Button in it keeps its own `alignSelf`
   // ("flex-start", for a column) to that View, not to the field's row, where it would rise to the top of a field taller
   // than itself (an IconButton's 40dp in a 50dp field)
@@ -824,7 +838,7 @@ export function InputField({
             theme.font("regular"),
             // A label floated inside the field (8 to 24) sets the text under it
             { paddingTop: padding.top, paddingBottom: padding.bottom },
-            (inRow && !startAligned) || (fillsRow && valueAtEnd && !startAligned) ? { textAlign: Platform.OS === "web" && rtl ? "left" : "right" } : null,
+            valueRight ? { textAlign: Platform.OS === "web" && rtl ? "left" : "right" } : null,
             // A value in a row that the person cannot edit is the secondary label, as the web's phone rows (iOS's
             // values of a row that only informs)
             fillsRow && readOnly && !disabled ? { color: theme.colors.labelSecondary } : null,
@@ -852,7 +866,13 @@ export function InputField({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Clear"
+          onFocus={() => setClearing(true)}
+          onBlur={() => setClearing(false)}
+          // On the web a press would blur the field before it lands and take the button away: the field keeps focus
+          {...(Platform.OS === "web" ? ({ onMouseDown: (event: { preventDefault: () => void }) => event.preventDefault() } as object) : null)}
           onPress={() => {
+            // As UIKit's clear button, the field keeps editing; first, so a caller's onClear may still move the focus
+            if (!theme.isAndroid && !searchField) input.current?.focus()
             if (value === undefined) setOwn("")
             onChangeText?.("")
             onClear()

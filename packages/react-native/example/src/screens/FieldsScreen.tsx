@@ -28,6 +28,7 @@ export function FieldsScreen() {
             value={query}
             onChangeText={setQuery}
             onClear={() => setQuery("")}
+            inputMode="search"
             startAdornment={<Search />}
             placeholder="Search"
             testID="input-search"

@@ -251,21 +251,51 @@ type AndroidPanelProps = Omit<PanelProps, "title"> & {
   list?: ReactNode
 }
 
+/** An iOS alert action's label inset from its capsule's ends. */
+const IOS_ACTION_INSET = 16
+
 function IOSAlert({ theme, title, description, actions, run, ids, layout, children }: PanelProps & { layout?: "inline" | "stacked" }) {
   const { width: screen } = useWindowDimensions()
   const width = Math.min(theme.length("--dialog-alert-width", 320), screen - 32)
   const radius = theme.length("--dialog-alert-radius", 34)
-  const inline = layout === "inline" || (layout !== "stacked" && actions.length <= 2)
+  const padding = theme.length("--dialog-alert-padding", 16)
+  const gap = theme.length("--dialog-alert-action-gap", 8)
+  // Two actions stand side by side while each label fits its half on one line; iOS never wraps an alert button's
+  // label, so a longer one stacks them at the full width (UIAlertController). Each label is measured on one line
+  const [labels, setLabels] = useState<number[]>([])
+  const half = (width - padding * 2 - gap) / 2 - IOS_ACTION_INSET * 2
+  const fits = actions.every((_, index) => labels[index] == null || labels[index] <= half + 0.5)
+  const inline = layout === "inline" || (layout !== "stacked" && actions.length <= 2 && fits)
   // The cancel action stands first of two side by side, as UIAlertController; a stack keeps the order written, as the
   // web's alert footer does. Each keeps its place in `actions` as its key, since two actions may share a label
   const indexed = actions.map((action, index) => ({ action, index }))
   const cancel = indexed.filter(({ action }) => action.variant === "cancel")
   const others = indexed.filter(({ action }) => action.variant !== "cancel")
-  const ordered = inline ? [...cancel, ...others] : indexed
-  const gap = theme.length("--dialog-alert-action-gap", 8)
+  // Two stacked because their labels do not fit: Cancel last, at the bottom, as UIAlertController stacks them
+  const autoStacked = !inline && layout == null && actions.length === 2
+  const ordered = inline ? [...cancel, ...others] : autoStacked ? [...others, ...cancel] : indexed
   const type = { fontSize: theme.length("--dialog-mobile-type-size", 17), lineHeight: theme.length("--dialog-mobile-type-leading", 22) }
   return (
-    <Glass radius={radius} elevation="raised" fillToken="--dialog-alert-background" style={{ width, flexShrink: 1, padding: theme.length("--dialog-alert-padding", 16), gap: 10 }}>
+    <Glass radius={radius} elevation="raised" fillToken="--dialog-alert-background" style={{ width, flexShrink: 1, padding, gap: 10 }}>
+      {layout == null && actions.length === 2 ? (
+        // The labels on one line, unseen, to tell whether two fit side by side
+        <View pointerEvents="none" aria-hidden style={styles.measure}>
+          {actions.map((action, index) => (
+            <Text
+              key={index}
+              weight={action.preferred ? "semibold" : "medium"}
+              numberOfLines={1}
+              style={type}
+              onLayout={(event) => {
+                const next = event.nativeEvent.layout.width
+                setLabels((current) => (current[index] === next ? current : Object.assign([...current], { [index]: next })))
+              }}
+            >
+              {action.label}
+            </Text>
+          ))}
+        </View>
+      ) : null}
       <ScrollView style={styles.scroll} contentContainerStyle={{ gap: 10 }} bounces={false}>
         {/* The text 31 from the sides: 16 of padding and 15 of the header's own */}
         <View style={{ paddingTop: 5, paddingHorizontal: 15, paddingBottom: 5.5, gap: 5.67 }}>
@@ -298,12 +328,11 @@ function IOSAlert({ theme, title, description, actions, run, ids, layout, childr
 }
 
 function IOSAction({ theme, action, run, type, grow }: { theme: Theme; action: DialogAction; run: (action: DialogAction) => void; type: { fontSize: number; lineHeight: number }; grow: boolean }) {
-  // The preferred action is the accent with a white label, its sheen and edge, as a bar's prominent button
-  // (Dialog.module.css: an alert's solid footer action takes the --toolbar-prominent tokens); disabled, the phone's
-  // disabled fill (Button.module.css). A destructive one keeps the alert's fill and its red label
+  // The preferred action is the accent with a white label, one flat color with no sheen and no edge, as native draws
+  // a preferredAction (iOS 27.2: 0082f7 on every row); disabled, the phone's disabled fill (Button.module.css). A
+  // destructive one keeps the alert's fill and its red label
   const accent = action.preferred && action.variant !== "destructive"
   const height = theme.length("--dialog-alert-action-height", 48)
-  const [measured, setMeasured] = useState(height)
   const fill = accent
     ? action.disabled
       ? theme.color("--button-mobile-disabled-background", theme.color("--color-background-disabled"))
@@ -317,15 +346,12 @@ function IOSAction({ theme, action, run, type, grow }: { theme: Theme; action: D
         ? theme.color("--toolbar-prominent-color")
         : theme.colors.text
   const lit = accent && !action.disabled
-  const shadow = lit ? theme.token("--toolbar-prominent-shadow") : undefined
-  const sheen = lit ? sheenOf(theme, measured) : undefined
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: !!action.disabled }}
       disabled={action.disabled}
       onPress={() => run(action)}
-      onLayout={lit ? (event) => setMeasured(event.nativeEvent.layout.height) : undefined}
       testID={action.testID}
       style={({ pressed }) => [
         styles.iosAction,
@@ -334,27 +360,15 @@ function IOSAction({ theme, action, run, type, grow }: { theme: Theme; action: D
           borderRadius: height / 2,
           backgroundColor: lit && pressed ? theme.color("--toolbar-prominent-background-active") : fill,
           opacity: pressed && !lit ? 0.7 : 1,
-          boxShadow: typeof shadow === "string" ? shadow : undefined,
         },
         grow ? styles.grow : null,
       ]}
     >
-      {sheen ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: height / 2, backgroundImage: sheen }]} /> : null}
       <Text color={text} weight={action.preferred ? "semibold" : "medium"} style={[type, styles.centered]}>
         {action.label}
       </Text>
     </Pressable>
   )
-}
-
-/**
- * `--toolbar-prominent-sheen`, lighter along the top and the bottom edge, for a face of a known height: its
- * `calc(100% - 8px)` stop in pixels, since React Native's gradients take no calc().
- */
-function sheenOf(theme: Theme, height: number) {
-  const value = theme.token("--toolbar-prominent-sheen")
-  if (typeof value !== "string" || !value.includes("gradient")) return undefined
-  return value.replace(/calc\(\s*100%\s*-\s*([\d.]+)px\s*\)/g, (_, px: string) => `${Math.max(0, height - Number(px))}px`)
 }
 
 function AndroidDialog({ theme, title, description, actions, run, ids, children, list }: AndroidPanelProps) {
@@ -469,7 +483,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row" },
   grow: { flex: 1, flexBasis: 0 },
   centered: { textAlign: "center" },
-  iosAction: { alignItems: "center", justifyContent: "center", paddingVertical: 13, paddingHorizontal: 16, borderCurve: "continuous" },
+  iosAction: { alignItems: "center", justifyContent: "center", paddingVertical: 13, paddingHorizontal: IOS_ACTION_INSET, borderCurve: "continuous" },
+  measure: { position: "absolute", top: 0, left: 0, width: 2000, alignItems: "flex-start", opacity: 0 },
   // Android's alert: 21dp corners (the catalog's); the text 24 in. Measured on the reference's alerts: the title's
   // baseline 40 under the top, the message's first 33 under it in lines 18.75 apart (16sp Roboto's), its last 59
   // over the buttons' (Roboto's font padding sets these 2 to 3 lower than the layout's 19, 10 and 20 would)

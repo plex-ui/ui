@@ -11,9 +11,9 @@ import { RNScreen, docsDemo } from '../RNScreen';
  * its own field.
  */
 
-function FieldRow({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
+function FieldRow({ label, error, columns, children }: { label: string; error?: string; columns?: boolean; children: ReactNode }) {
   return (
-    <List>
+    <List columns={columns}>
       <ListItem label={label} error={error} trailing={children} />
     </List>
   );
@@ -47,7 +47,8 @@ export const Overview = docsDemo(function Overview() {
         <DemoControlBoolean name="invalid" value={invalid} onChange={setInvalid} />
       </div>
       <RNScreen grouped>
-        <FieldRow label="Username" error={invalid ? USERNAME_ERROR : undefined}>
+        {/* iOS clears a value that starts its column, never one at the row's end */}
+        <FieldRow label="Username" error={invalid ? USERNAME_ERROR : undefined} columns={clearable}>
           <Input
             variant="ghost"
            

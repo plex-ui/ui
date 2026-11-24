@@ -201,6 +201,54 @@ function ToolbarGroup({ children, style, ...rest }: ViewProps) {
 }
 ToolbarGroup.displayName = "Toolbar.Group"
 
+export type ToolbarLabelProps = ViewProps & {
+  /** The text: a step of a flow ("3 of 10"), a count, a status. Its digits keep one width as it changes. */
+  children: ReactNode
+}
+
+/**
+ * A text in the bar that is not a button: a step of a flow, a count, a status. On iOS it stands in a capsule of the
+ * bar's glass as a button would, as SwiftUI draws a Text in a toolbar (iOS 27.2 ref-app tb-status: 48pt in a bottom bar,
+ * 15pt Semibold, 8pt from its ends); on Android it is the bar's plain text, 14sp Medium. Read as text, not a control.
+ */
+function ToolbarLabel({ children, style, ...rest }: ToolbarLabelProps) {
+  const theme = useTheme()
+  const item = useContext(BarItemContext)
+  const text = (
+    <Text
+      weight={theme.isAndroid ? "medium" : "semibold"}
+      tabularNums
+      numberOfLines={1}
+      style={theme.isAndroid ? { fontSize: 14, lineHeight: 20 } : { fontSize: theme.length("--toolbar-status-font-size", 15), lineHeight: theme.length("--toolbar-status-line-height", 20) }}
+    >
+      {children}
+    </Text>
+  )
+  if (theme.isAndroid || !item || item.inGroup) {
+    return (
+      <View {...rest} style={[styles.slot, styles.label, item ? { minHeight: item.height, paddingHorizontal: theme.isAndroid ? 8 : 0 } : null, style]}>
+        {text}
+      </View>
+    )
+  }
+  return (
+    <Glass
+      {...rest}
+      elevation={item.raised ? "raised" : "regular"}
+      radius={item.height / 2}
+      style={[
+        styles.slot,
+        styles.label,
+        { height: item.height, minWidth: item.height, paddingHorizontal: theme.length("--toolbar-status-padding", 8) },
+        style,
+      ]}
+    >
+      {text}
+    </Glass>
+  )
+}
+ToolbarLabel.displayName = "Toolbar.Label"
+
 export type ToolbarTitleProps = {
   /** The title's text. With `image` it may be left out. */
   children?: ReactNode
@@ -682,12 +730,14 @@ export const Toolbar = Object.assign(ToolbarRoot, {
   Group: ToolbarGroup,
   Trailing: ToolbarTrailing,
   Row: ToolbarRow,
+  Label: ToolbarLabel,
 })
 
 const styles = StyleSheet.create({
   titleImage: { flexDirection: "row", alignItems: "center" },
   slot: { flexDirection: "row", alignItems: "center" },
   trailing: { justifyContent: "flex-end" },
+  label: { justifyContent: "center" },
   content: { justifyContent: "center" },
   // A filling content stretches its control across (a search field, a block button), as a column would
   fill: { flex: 1, flexDirection: "column", alignItems: "stretch" },

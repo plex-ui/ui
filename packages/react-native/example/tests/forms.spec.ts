@@ -30,7 +30,7 @@ for (const platform of ["ios", "android"] as const) {
 
   test(`a field clears, shows its error and a select chooses an option (${platform})`, async ({ page }) => {
     await openGallery(page, { platform, scheme: "light", screen: "fields" })
-    const search = page.getByRole("textbox", { name: "Search" })
+    const search = page.getByRole("searchbox", { name: "Search" })
     await expect(search).toHaveValue("Coffee")
     await page.getByRole("button", { name: "Clear" }).first().click()
     await expect(search).toHaveValue("")

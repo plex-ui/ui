@@ -1125,17 +1125,19 @@
      the --toolbar-prominent tokens): native setup sheets draw Continue 0/135/254, lighter along its top and
      bottom and darker at its sides (IMG_5432 Wallet, IMG_5509; owner 08.11). An alert's preferred action is the
      same: the kit's Default role is the accent fill with a white label (iOS 27, Alerts _Buttons 5446:6658), as
-     native draws a preferredAction (0082f7, dark 13a3ff); owner 12.11. */
+     native draws a preferredAction (0082f7, dark 13a3ff); owner 12.11. The alert's is one flat color, top to
+     bottom, with no sheen and no edge (iOS 27.2 ref-app alert-2: 0082f7 on every row of Allow, 24.11): only the
+     sheet's takes them. */
   .Content:is([data-mobile-variant="sheet"], [data-mobile-variant="alert"]) .Footer > :where(button, a)[data-variant="solid"]:where([data-color="primary"], [data-color="info"]):not([data-disabled]) {
     --button-background-color: var(--toolbar-prominent-background);
     --button-background-color-hover: var(--toolbar-prominent-background-hover);
     --button-background-color-active: var(--toolbar-prominent-background-active);
     --button-text-color: var(--toolbar-prominent-color);
+  }
 
-    &::before {
-      background-image: var(--toolbar-prominent-sheen);
-      box-shadow: var(--toolbar-prominent-shadow);
-    }
+  .Content[data-mobile-variant="sheet"] .Footer > :where(button, a)[data-variant="solid"]:where([data-color="primary"], [data-color="info"]):not([data-disabled])::before {
+    background-image: var(--toolbar-prominent-sheen);
+    box-shadow: var(--toolbar-prominent-shadow);
   }
 
   /* A sheet's footer lays out its actions as an iOS setup sheet does: the main one on top and another under it as

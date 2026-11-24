@@ -125,27 +125,42 @@ const closeSearch = <NavigationButton action="close" accessibilityLabel="Close s
 )}`
 
 export const searchCode = `const [query, setQuery] = useState("")
+const [active, setActive] = useState(false) // iOS: the search is open
 
-<Toolbar titleStyle="large"> {/* or "inline" (titleAlign "center" or "start") */}
-  <Toolbar.Title subtitle="24 orders">Orders</Toolbar.Title>
-  <Toolbar.Trailing>
-    <IconButton icon={<DotsHorizontal />} accessibilityLabel="More" />
-  </Toolbar.Trailing>
-  <Toolbar.Row>
-    <Input
-      variant="soft"
-      pill
-      inputMode="search"
-      returnKeyType="search"
-      placeholder="Search"
-      accessibilityLabel="Search orders"
-      startAdornment={<SearchSm />}
-      value={query}
-      onChangeText={setQuery}
-      onClear={() => setQuery("")}
-    />
-  </Toolbar.Row>
-</Toolbar>`
+const field = (row: boolean) => (
+  <Input
+    variant="soft"
+    pill
+    inputMode="search"
+    returnKeyType="search"
+    placeholder="Search"
+    accessibilityLabel="Search orders"
+    startAdornment={<SearchSm />}
+    value={query}
+    onChangeText={setQuery}
+    onClear={() => setQuery("")}
+    autoFocus={!row}
+    onFocus={row ? () => setActive(true) : undefined}
+  />
+)
+
+{active ? (
+  // The field in the bar beside a glass close, as iOS 27 opens a search
+  <Toolbar>
+    <Toolbar.Content fill>{field(false)}</Toolbar.Content>
+    <Toolbar.Trailing>
+      <NavigationButton action="close" accessibilityLabel="Close search" onPress={() => { setQuery(""); setActive(false) }} />
+    </Toolbar.Trailing>
+  </Toolbar>
+) : (
+  <Toolbar titleStyle="large"> {/* or "inline" (titleAlign "center" or "start") */}
+    <Toolbar.Title subtitle="24 orders">Orders</Toolbar.Title>
+    <Toolbar.Trailing>
+      <IconButton icon={<DotsHorizontal />} accessibilityLabel="More" />
+    </Toolbar.Trailing>
+    <Toolbar.Row>{field(true)}</Toolbar.Row>
+  </Toolbar>
+)}`
 
 export const disabledCode = `const [disabled, setDisabled] = useState(true)
 
@@ -187,6 +202,34 @@ export const opaqueCode = `<Toolbar background="hard" scrolled={scrolled}>
   </Toolbar.Trailing>
 </Toolbar>`
 
+export const labelCode = `import { useState } from "react"
+import { I18nManager } from "react-native"
+import { IconButton, NavigationButton, Toolbar } from "@plexui/react-native"
+import { ChevronLeftLg, ChevronRightLg } from "@plexui/react-native/icons"
+
+const [step, setStep] = useState(3)
+// Previous points to the start: right in a right-to-left layout
+const [back, forward] = I18nManager.isRTL ? [<ChevronRightLg />, <ChevronLeftLg />] : [<ChevronLeftLg />, <ChevronRightLg />]
+
+<Toolbar>
+  <Toolbar.Leading>
+    <NavigationButton action="close" accessibilityLabel="Close quiz" />
+  </Toolbar.Leading>
+  <Toolbar.Title>Quiz</Toolbar.Title>
+</Toolbar>
+{/* ... */}
+<Toolbar placement="bottom">
+  <Toolbar.Leading>
+    <IconButton icon={back} accessibilityLabel="Previous question" disabled={step === 1} onPress={() => setStep(step - 1)} />
+  </Toolbar.Leading>
+  <Toolbar.Content>
+    <Toolbar.Label>{\`\${step} of 10\`}</Toolbar.Label>
+  </Toolbar.Content>
+  <Toolbar.Trailing>
+    <IconButton icon={forward} accessibilityLabel="Next question" disabled={step === 10} onPress={() => setStep(step + 1)} />
+  </Toolbar.Trailing>
+</Toolbar>`
+
 <UsageBlock>{`import { NavigationButton, Toolbar } from "@plexui/react-native"`}</UsageBlock>
 
 Move between an app's top-level sections with a [Tab Bar](/react-native/components/tab-bar).
@@ -216,8 +259,14 @@ Move between an app's top-level sections with a [Tab Bar](/react-native/componen
 
 ### Search under the title
 
-<ComponentPreview details={<>On iOS a search field under the title is a row of the bar: <code>Toolbar.Row</code> holding an <code>Input</code> with <code>variant="soft" pill</code> and the magnifier as its <code>startAdornment</code>; <code>inputMode="search"</code> and <code>returnKeyType="search"</code> give it the keyboard of a search. Under a large title the row stands under the title and the list starts 10pt under the field, as iOS starts a list under the search field of a large title; the bar keeps the title and the field while the list scrolls under them. With an inline title, which the controls switch, the row stands under the controls and the list starts 16pt under the bar. With <code>onClear</code> the field shows the platform's clear button while it holds text. On Android the field is the capsule of the bar's own search, the glass of its buttons at their 46dp height, with 18sp text 18dp in and the hint in a field's gray, its × growing in as it turns. Android has no large title, so the title stays in the bar's row and the controls offer only its alignment. A Search button in the bar, the other way to wait (the Overview's <code>search</code> button), opens as Back and a bare field in place of the title.</>} code={searchCode} previewMinHeight={168}>
+<ComponentPreview details={<>On iOS a search field under the title is a row of the bar: <code>Toolbar.Row</code> holding an <code>Input</code> with <code>variant="soft" pill</code> and the magnifier as its <code>startAdornment</code>; <code>inputMode="search"</code> and <code>returnKeyType="search"</code> give it the keyboard of a search. Under a large title the row stands under the title and the list starts 10pt under the field, as iOS starts a list under the search field of a large title; the bar keeps the title and the field while the list scrolls under them. With an inline title, which the controls switch, the row stands under the controls and the list starts 16pt under the bar. With <code>onClear</code> the field shows the platform's clear button while it holds text. A tap on the field opens the search as iOS 27 does: the field rises into the bar beside a glass close, the title and the bar's buttons leave and the list runs under it; Close clears the query and brings the title and the row back. iOS has no Cancel text there any more. The example draws this with the bar's own parts: a <code>Toolbar</code> with the field in <code>Toolbar.Content fill</code> and <code>NavigationButton action="close"</code> in <code>Toolbar.Trailing</code>, shown while the search is open. On Android the field is the capsule of the bar's own search, the glass of its buttons at their 46dp height, with 18sp text 18dp in and the hint in a field's gray, its × growing in as it turns. Android has no large title, so the title stays in the bar's row and the controls offer only its alignment. A Search button in the bar, the other way to wait (the Overview's <code>search</code> button), opens as Back and a bare field in place of the title.</>} code={searchCode} previewMinHeight={168}>
   <RNExample demo="toolbar/SearchUnderTitle" />
+</ComponentPreview>
+
+### Label
+
+<ComponentPreview details={<><code>Toolbar.Label</code> is a text in the bar that is not a button: a step of a flow, a count, a status. On iOS it stands in a capsule of the bar's glass, as a button does, as SwiftUI draws a <code>Text</code> in a toolbar: 48pt in a bottom bar (44 in a top one), 15pt Semibold, 8pt from its ends. On Android it is the bar's plain text, 14sp Medium. Its digits keep one width, so "3 of 10" does not shift as the step changes, and it reads as text, not a control. Here Previous and Next move a quiz on, the label between them.</>} code={labelCode} previewMinHeight={168}>
+  <RNExample demo="toolbar/Label" />
 </ComponentPreview>
 
 ### Opaque bar
@@ -279,8 +328,9 @@ iOS calls only the bottom bar a toolbar; here `Toolbar` is both bars, and `place
 | `Toolbar.Group` | Related buttons in one capsule: of glass on iOS and on Android |
 | `Toolbar.Trailing` | Actions at the trailing edge |
 | `Toolbar.Row` | A row under the controls, part of the bar: a segmented control or a search field across its width; several stand in their order |
+| `Toolbar.Label` | A text that is not a button: a step of a flow, a count, a status. On iOS in a capsule of the bar's glass, on Android plain |
 
-`Toolbar.Leading`, `Toolbar.Trailing`, `Toolbar.Group`, `Toolbar.Content` and `Toolbar.Row` take a View's props.
+`Toolbar.Leading`, `Toolbar.Trailing`, `Toolbar.Group`, `Toolbar.Content`, `Toolbar.Row` and `Toolbar.Label` take a View's props.
 
 ### NavigationButton
 

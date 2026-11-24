@@ -7,7 +7,7 @@ import { RNScreen, docsDemo } from '../RNScreen';
 
 /**
  * The first screen of an onboarding with every setting: a symbol, a title and a line in the middle of the screen,
- * Continue at its bottom and, with `second`, a ghost Not now under it. `floating` lays the actions over the content,
+ * Continue at its bottom and, with `second`, Not now under it (iOS's glass capsule, Android's ghost button). `floating` lays the actions over the content,
  * which then scrolls under them and keeps their room at its end.
  */
 export const Overview = docsDemo(function Overview() {
@@ -51,7 +51,7 @@ function Welcome({ second, floating }: { second: boolean; floating: boolean }) {
           Continue
         </Button>
         {second ? (
-          <Button color="secondary" variant="ghost">
+          <Button color="secondary">
             Not now
           </Button>
         ) : null}

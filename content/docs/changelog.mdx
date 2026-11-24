@@ -23,6 +23,33 @@ Released together with Vue 0.42.1, styles 0.17.1 and `@plexui/react-native` 0.2.
 - **Sidebar open branch.** An open submenu leaves 4px (`--sidebar-menu-sub-open-gap`) before the row after it.
 - **Icons named as globals.** The icon modules `Object`, `Array`, `Boolean`, `Clipboard`, `Comment`, `Error`, `Function`, `Number`, `Report`, `Storage`, `String` and `Text` bound their component to that global's name, which broke the global in Metro ("Cannot access 'Object' before initialization"). The binding is now `ObjectIcon` and so on; the exports and display names are unchanged (React and Vue).
 
+## styles 0.17.2 (2026-11-24)
+
+`@plexui/styles` 0.17.2 alone; React and Vue keep 0.62.1 and 0.42.1 and take it through ^0.17.1.
+
+### Fixed
+
+- **Dialog's iOS alert on a phone:** its preferred action is the accent alone, one flat color from top to bottom, with no sheen, rim or shadow, as native draws a `preferredAction` (iOS 27.2: 0082f7 on every row). A sheet's main action keeps the glass edge of a bar's prominent button.
+
+## @plexui/react-native 0.2.3 (2026-11-24)
+
+### Added
+
+- **Toolbar.Label.** A text in the bar that is not a button: a step of a flow ("3 of 10"), a count, a status. On iOS a capsule of the bar's glass as SwiftUI draws a toolbar Text (48pt in a bottom bar, 15pt Semibold, 8pt from its ends), on Android the bar's plain text; its digits keep one width.
+- **BottomActions `canvasColor`, and a soft edge under floating actions.** Over the content the actions stand on the soft edge a bottom Toolbar draws: on iOS the screen's color fading in over 27pt above them (with a light blur on the web), on Android the screen's color fading in; `canvasColor` sets that color (a grouped screen's gray).
+
+### Changed
+
+- **BottomActions' second action** with no `variant` of its own is a glass capsule of the main one's size on iOS (as Apple's step-by-step sheets set Skip), a ghost button on Android.
+- **Dialog on iOS:** two actions stand side by side only while each label fits its half on one line; a longer label stacks them at the full width, Cancel last, as UIAlertController never wraps a button's label.
+- **Input on iOS** shows its clear button while the field is edited (UITextField's whileEditing); a search field (`inputMode="search"`, a bar's field) keeps it while it has text. A value at a row's end takes no clear button on iOS, as in Settings and Contacts: only a value that starts its column (a List with `columns`) or has a line of its own under the label does.
+
+### Fixed
+
+- **Input's clear button in a List row** no longer makes the row taller (its 44pt target reaches over and under the row), and its circle ends at the row's end inset instead of 12pt further in.
+- **Dialog on iOS:** the preferred action is the accent alone, flat, with no sheen, rim or shadow, as native draws it.
+- **Input's clear button on the web** clears the field on a click (the field kept its focus only on a device: on the web the click blurred it first and took the button away), and a Tab to the button keeps it.
+
 ## @plexui/react-native 0.2.2 (2026-11-24)
 
 ### Added

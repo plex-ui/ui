@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Button, IconButton, Input, List, ListItem, NavigationButton, SegmentedControl, Toolbar, useTheme } from '@plexui/react-native';
-import { DotsHorizontal, DotsVertical, Filter, Plus, PlusLg, Search, SearchSm, Share, ShareAndroid, Tag } from '@plexui/react-native/icons';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ChevronLeftLg, ChevronRightLg, DotsHorizontal, DotsVertical, Filter, Plus, PlusLg, Search, SearchSm, Share, ShareAndroid, Tag } from '@plexui/react-native/icons';
+import { I18nManager, ScrollView, StyleSheet, View } from 'react-native';
 import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { DemoControlsBottom } from '../../PreviewEmbed';
 import { ORDER_FORM, orderDetail, ordersIn, type OrderView } from '../../toolbarOrders';
@@ -377,6 +377,24 @@ export const SearchUnderTitle = docsDemo(function SearchUnderTitle() {
   const titleStyle = android ? 'inline' : titleStylePick;
   const [titleAlign, setTitleAlign] = useTitleAlign();
   const [subtitle, setSubtitle] = useState(false);
+  // iOS: a tap on the row's field brings it up into the bar, beside a glass close, as UISearchController does
+  const [active, setActive] = useState(false);
+  const field = (row: boolean) => (
+    <Input
+      variant="soft"
+      pill
+      inputMode="search"
+      returnKeyType="search"
+      placeholder="Search"
+      accessibilityLabel="Search orders"
+      startAdornment={<SearchSm />}
+      value={query}
+      onChangeText={setQuery}
+      onClear={() => setQuery('')}
+      autoFocus={!row}
+      onFocus={row && !android ? () => setActive(true) : undefined}
+    />
+  );
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -386,29 +404,32 @@ export const SearchUnderTitle = docsDemo(function SearchUnderTitle() {
       </div>
       <RNScreen screen grouped minHeight={640}>
         <PhonePage
-          largeTitleRows={titleStyle === 'large' ? 'search' : undefined}
-          top={(scrolled, canvas) => (
-            <Toolbar titleStyle={titleStyle} titleAlign={titleStyle === 'inline' ? titleAlign : undefined} scrolled={scrolled} canvasColor={canvas}>
-              <Toolbar.Title subtitle={subtitle ? '24 orders' : undefined}>Orders</Toolbar.Title>
-              <Toolbar.Trailing>
-                <IconButton icon={android ? <DotsVertical /> : <DotsHorizontal />} accessibilityLabel="More" />
-              </Toolbar.Trailing>
-              <Toolbar.Row>
-                <Input
-                  variant="soft"
-                  pill
-                  inputMode="search"
-                  returnKeyType="search"
-                  placeholder="Search"
-                  accessibilityLabel="Search orders"
-                  startAdornment={<SearchSm />}
-                  value={query}
-                  onChangeText={setQuery}
-                  onClear={() => setQuery('')}
-                />
-              </Toolbar.Row>
-            </Toolbar>
-          )}
+          largeTitleRows={titleStyle === 'large' && !active ? 'search' : undefined}
+          top={(scrolled, canvas) =>
+            active ? (
+              <Toolbar scrolled={scrolled} canvasColor={canvas}>
+                <Toolbar.Content fill>{field(false)}</Toolbar.Content>
+                <Toolbar.Trailing>
+                  <NavigationButton
+                    action="close"
+                    accessibilityLabel="Close search"
+                    onPress={() => {
+                      setQuery('');
+                      setActive(false);
+                    }}
+                  />
+                </Toolbar.Trailing>
+              </Toolbar>
+            ) : (
+              <Toolbar titleStyle={titleStyle} titleAlign={titleStyle === 'inline' ? titleAlign : undefined} scrolled={scrolled} canvasColor={canvas}>
+                <Toolbar.Title subtitle={subtitle ? '24 orders' : undefined}>Orders</Toolbar.Title>
+                <Toolbar.Trailing>
+                  <IconButton icon={android ? <DotsVertical /> : <DotsHorizontal />} accessibilityLabel="More" />
+                </Toolbar.Trailing>
+                <Toolbar.Row>{field(true)}</Toolbar.Row>
+              </Toolbar>
+            )
+          }
         >
           <Rows />
         </PhonePage>
@@ -476,6 +497,49 @@ export const Disabled = docsDemo(function Disabled() {
         </PhonePage>
       </RNScreen>
     </>
+  );
+});
+
+/**
+ * A step of a flow in the bottom bar: `Toolbar.Label` between Previous and Next reads "3 of 10", a text in the bar's
+ * glass on iOS as SwiftUI draws a toolbar Text (ref-app tb-status), plain on Android. Its digits keep one width.
+ */
+export const Label = docsDemo(function Label() {
+  const [step, setStep] = useState(3);
+  // Previous points to the start: right in a right-to-left layout
+  const [back, forward] = I18nManager.isRTL ? [<ChevronRightLg />, <ChevronLeftLg />] : [<ChevronLeftLg />, <ChevronRightLg />];
+  return (
+    <RNScreen screen grouped minHeight={640}>
+      <PhonePage
+        top={(scrolled, canvas) => (
+          <Toolbar scrolled={scrolled} canvasColor={canvas}>
+            <Toolbar.Leading>
+              <NavigationButton action="close" accessibilityLabel="Close quiz" />
+            </Toolbar.Leading>
+            <Toolbar.Title>Quiz</Toolbar.Title>
+          </Toolbar>
+        )}
+        bottom={(scrolled, canvas) => (
+          <Toolbar placement="bottom" scrolled={scrolled} canvasColor={canvas}>
+            <Toolbar.Leading>
+              <IconButton icon={back} accessibilityLabel="Previous question" disabled={step === 1} onPress={() => setStep(step - 1)} />
+            </Toolbar.Leading>
+            <Toolbar.Content>
+              <Toolbar.Label>{`${step} of 10`}</Toolbar.Label>
+            </Toolbar.Content>
+            <Toolbar.Trailing>
+              <IconButton icon={forward} accessibilityLabel="Next question" disabled={step === 10} onPress={() => setStep(step + 1)} />
+            </Toolbar.Trailing>
+          </Toolbar>
+        )}
+      >
+        <List header={`Question ${step}`}>
+          {['Mercury', 'Venus', 'Earth', 'Mars'].map((answer) => (
+            <ListItem key={answer} label={answer} />
+          ))}
+        </List>
+      </PhonePage>
+    </RNScreen>
   );
 });
 
