@@ -1,10 +1,13 @@
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react"
 import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, SoftBottomEdge } from "../../internal/BarBackdrop"
+import { ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, SoftBottomEdge, TabBarFade } from "../../internal/BarBackdrop"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { Button, type ButtonProps } from "../Button/Button"
+
+/** What stands between floating actions and the content under them */
+export type BottomActionsBackground = "soft" | "fade"
 
 export type BottomActionsProps = {
   /**
@@ -19,6 +22,13 @@ export type BottomActionsProps = {
    * in. Off, they take their room at the end of the screen. @default false
    */
   floating?: boolean
+  /**
+   * The edge under floating actions. `soft`: the screen's color in over 27pt above the actions, over a light blur.
+   * `fade`: TabBar's fade, the content running on under the actions, crisp: from the top action's top the screen's
+   * color comes in over 60pt to 85% and holds to the screen's edge; no blur. Android draws its soft edge for both, as
+   * TabBar does. @default "soft"
+   */
+  background?: BottomActionsBackground
   /** The color the floating edge fades into: the screen's (a grouped screen's gray). @default the theme's background */
   canvasColor?: string
   testID?: string
@@ -32,7 +42,7 @@ export type BottomActionsProps = {
  * action stands under it, 8 apart. Android: the Plex Android look's 48dp full-width button, 16dp from the sides and
  * 16 above the gesture bar. Each Button inside is a block of the size `3xl` unless it sets its own.
  */
-export function BottomActions({ children, floating = false, canvasColor, testID, style }: BottomActionsProps) {
+export function BottomActions({ children, floating = false, background = "soft", canvasColor, testID, style }: BottomActionsProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const android = theme.isAndroid
@@ -68,6 +78,8 @@ export function BottomActions({ children, floating = false, canvasColor, testID,
       {floating ? (
         android ? (
           <SoftBottomEdge fill={withAlpha(canvas, ANDROID_FADE_ALPHA)} top={paddingTop - 13 + 60} tail={60} blur={0} stops={ANDROID_FADE_STOPS} />
+        ) : background === "fade" ? (
+          <TabBarFade fill={canvas} top={paddingTop} />
         ) : (
           <SoftBottomEdge fill={canvas} top={paddingTop} tail={27} blur={theme.length("--toolbar-edge-blur-small", 3)} />
         )
