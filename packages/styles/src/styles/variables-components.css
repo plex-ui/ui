@@ -652,7 +652,7 @@
     ============================================= */
     --page-background: var(--color-surface);
     --page-width-wide: 1280px;
-    --page-width-column: 768px;
+    --page-width-column: 672px;
     --page-gutter: 16px;
     --page-gutter-wide: 24px;
     --page-header-padding-top: 12px;

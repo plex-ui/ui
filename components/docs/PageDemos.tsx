@@ -12,7 +12,7 @@ import { BarBackgroundRow, Rows } from './ToolbarDemos';
 import s from './PageDemos.module.css';
 
 // The frame of a preview is narrower than both widths, so at their real size all three look alike.
-const HALF_WIDTHS = { '--page-width-wide': '640px', '--page-width-column': '384px' } as CSSProperties;
+const HALF_WIDTHS = { '--page-width-wide': '640px', '--page-width-column': '336px' } as CSSProperties;
 
 function Frame({ children }: { children: ReactNode }) {
   return <div data-demo-stage className={s.Stage}><div className={s.Frame}>{children}</div></div>;

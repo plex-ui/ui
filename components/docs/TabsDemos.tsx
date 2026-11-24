@@ -203,7 +203,7 @@ export function TabsOverviewDemo() {
       {phone && horizontal ? (
         <div data-demo-stage className={pageStyles.Stage}>
           <div className={pageStyles.Frame}>
-            <Page surface="grouped">
+            <Page surface="grouped" width="column">
               {/* The views hold the top bar alone */}
               {placement === 'top' && (
                 <Toolbar>

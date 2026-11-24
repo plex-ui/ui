@@ -11,7 +11,7 @@ import { VueDemo } from './VueDemo';
 const icons = { Archive: markRaw(Archive), Flag: markRaw(Flag), Pin: markRaw(Pin), RemoveTrash: markRaw(RemoveTrash) };
 
 const listsTemplate = `<div class="${pageStyles.Frame}">
-  <Page surface="grouped">
+  <Page surface="grouped" width="column">
     <Toolbar>
       <ToolbarTitle>Lists</ToolbarTitle>
     </Toolbar>
@@ -54,7 +54,7 @@ const listsTemplate = `<div class="${pageStyles.Frame}">
 </div>`;
 
 const messagesTemplate = `<div class="${pageStyles.Frame}">
-  <Page surface="grouped">
+  <Page surface="grouped" width="column">
     <Toolbar>
       <ToolbarTitle>Inbox</ToolbarTitle>
     </Toolbar>

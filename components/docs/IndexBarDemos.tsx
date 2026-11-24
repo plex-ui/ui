@@ -14,7 +14,7 @@ export function IndexBarOverviewDemo() {
   return (
     <div data-demo-stage className={s.Stage}>
       <div className={s.Frame}>
-        <Page surface="grouped">
+        <Page surface="grouped" width="column">
           <Toolbar>
             <Toolbar.Title>Countries</Toolbar.Title>
           </Toolbar>

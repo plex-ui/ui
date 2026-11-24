@@ -6,7 +6,7 @@ import toolbarStyles from '../ToolbarDemos.module.css';
 import { VueDemo } from './VueDemo';
 
 const template = `<div class="${pageStyles.Frame}">
-  <Page surface="grouped">
+  <Page surface="grouped" width="column">
     <Toolbar>
       <ToolbarTitle>Countries</ToolbarTitle>
     </Toolbar>

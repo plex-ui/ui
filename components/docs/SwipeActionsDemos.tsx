@@ -45,7 +45,7 @@ function ListsDemo({ labelPlacement, state: { lists, pinned }, onState }: { labe
   return (
     <div data-demo-stage className={s.Stage}>
       <div className={s.Frame}>
-        <Page surface="grouped">
+        <Page surface="grouped" width="column">
           <Toolbar>
             <Toolbar.Title>Lists</Toolbar.Title>
           </Toolbar>
@@ -93,7 +93,7 @@ function MessagesDemo({ state: { messages, flagged }, onState }: { state: Messag
   return (
     <div data-demo-stage className={s.Stage}>
       <div className={s.Frame}>
-        <Page surface="grouped">
+        <Page surface="grouped" width="column">
           <Toolbar>
             <Toolbar.Title>Inbox</Toolbar.Title>
           </Toolbar>

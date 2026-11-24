@@ -61,7 +61,7 @@ function Screen({ tabs, search, prominent, badges, accessory, minimizeBehavior, 
   const current = shown.find((item) => item.value === tab) ?? tabs[0];
   return (
     <Frame>
-      <Page surface="grouped">
+      <Page surface="grouped" width="column">
         <Toolbar background={toolbarBackground}>
           <Toolbar.Title>{current.label}</Toolbar.Title>
         </Toolbar>

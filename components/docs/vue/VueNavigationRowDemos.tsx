@@ -12,7 +12,7 @@ const icons = { Check: markRaw(Check) };
 
 const template = (columns: boolean) => `<div class="${pageStyles.Frame}">
   <!-- The page a row opens: its choices, the current one checked, and Back to the list -->
-  <Page v-if="open" surface="grouped">
+  <Page v-if="open" surface="grouped" width="column">
     <Toolbar>
       <ToolbarLeading>
         <NavigationButton action="back" @click="open = null" />
@@ -31,7 +31,7 @@ const template = (columns: boolean) => `<div class="${pageStyles.Frame}">
       </FieldGroup>
     </PageContent>
   </Page>
-  <Page v-else surface="grouped">
+  <Page v-else surface="grouped" width="column">
     <Toolbar>
       <ToolbarTitle>Calendar</ToolbarTitle>
     </Toolbar>
@@ -65,7 +65,7 @@ export function VueNavigationRowColumnsDemo() {
 }
 
 const leadingTemplate = `<div class="${pageStyles.Frame}">
-  <Page surface="grouped">
+  <Page surface="grouped" width="column">
     <Toolbar>
       <ToolbarLeading v-if="open">
         <NavigationButton action="back" @click="open = null" />

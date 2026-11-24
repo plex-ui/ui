@@ -95,7 +95,7 @@ const PageComponent = defineComponent({
     /**
      * Width of the column that header and content share: `"full"` (edge to
      * edge, for tables), `"wide"` (1280px, centred, for overviews) or `"column"`
-     * (768px, centred, for settings and forms). Set `--page-width` on the page
+     * (672px, the readable width of iOS, centred, for settings and forms). Set `--page-width` on the page
      * for any other width.
      * @default "full"
      */

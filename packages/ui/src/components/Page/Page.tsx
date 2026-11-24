@@ -91,7 +91,7 @@ export type PageProps = HTMLAttributes<HTMLDivElement> & {
    * Width of the column that header and content share.
    * - `"full"` — edge to edge, for tables (default)
    * - `"wide"` — 1280px, centred, for overviews
-   * - `"column"` — 768px, centred, for settings and forms
+   * - `"column"` — 672px (the readable width of iOS), centred, for settings and forms
    *
    * Set `--page-width` on the page for any other width.
    * @default "full"

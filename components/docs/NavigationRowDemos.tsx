@@ -23,7 +23,7 @@ function SettingsDemo({ columns }: { columns?: boolean }) {
       <div className={s.Frame}>
         {row ? (
           // The page a row opens: its choices, the current one checked, and Back to the list
-          <Page surface="grouped">
+          <Page surface="grouped" width="column">
             <Toolbar>
               <Toolbar.Leading>
                 <NavigationButton action="back" onClick={() => setOpen(null)} />
@@ -45,7 +45,7 @@ function SettingsDemo({ columns }: { columns?: boolean }) {
             </Page.Content>
           </Page>
         ) : (
-          <Page surface="grouped">
+          <Page surface="grouped" width="column">
             <Toolbar>
               <Toolbar.Title>Calendar</Toolbar.Title>
             </Toolbar>
@@ -96,7 +96,7 @@ export function NavigationRowLeadingDemo() {
     </div>
     <div data-demo-stage className={s.Stage}>
       <div className={s.Frame}>
-        <Page surface="grouped">
+        <Page surface="grouped" width="column">
           <Toolbar>
             {person && (
               <Toolbar.Leading>

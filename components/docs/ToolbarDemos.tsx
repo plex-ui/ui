@@ -141,7 +141,7 @@ export function ToolbarOverviewDemo() {
         <BarBackgroundRow name="background (top)" value={topBackground} onChange={setTopBackground} />
       </div>
       <Frame>
-        <Page surface="grouped">
+        <Page surface="grouped" width="column">
           <Toolbar titleStyle={named ? titleStyle : undefined} titleAlign={named && titleStyle === 'inline' ? titleAlign : undefined} background={topBackground}>
             {open ? (
               !below && (
@@ -271,7 +271,7 @@ export function ToolbarSearchLargeTitleDemo() {
       {!compact && <DemoControlBoolean name="subtitle" value={subtitle} onChange={setSubtitle} />}
     </div>
     <Frame>
-      <Page surface="grouped">
+      <Page surface="grouped" width="column">
         <Toolbar titleStyle={titleStyle} titleAlign={titleStyle === 'inline' ? titleAlign : undefined}>
           <Toolbar.Title subtitle={subtitle && !compact ? '24 orders' : undefined}>Orders</Toolbar.Title>
           <Toolbar.Trailing>
@@ -338,7 +338,7 @@ export function ToolbarSearchPlacementDemo() {
       <DemoControlSelect name="search" options={SEARCH_PLACEMENTS} value={placement} onChange={setPlacement} />
     </div>
     <Frame>
-      <Page surface="grouped">
+      <Page surface="grouped" width="column">
         <Toolbar>
           <Toolbar.Leading>
             <NavigationButton action="back" />
@@ -411,7 +411,7 @@ export function ToolbarDisabledDemo() {
         <DemoControlBoolean name="disabled" value={disabled} onChange={setDisabled} />
       </div>
       <Frame>
-        <Page surface="grouped">
+        <Page surface="grouped" width="column">
           <Toolbar>
             <Toolbar.Leading>
               <Button color="secondary" variant="soft" pill>Cancel</Button>
