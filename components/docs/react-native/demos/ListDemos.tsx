@@ -16,8 +16,9 @@ const GENERAL_ROWS: Row[] = [
   { id: 'dayStart', label: 'Day starts at', choices: ['7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM'] },
 ];
 const EVENT_ROWS: Row[] = [
-  { id: 'sync', label: 'Sync', description: 'How far back events are kept', choices: ['1 month back', '3 months back', '6 months back', 'All events'] },
-  { id: 'calendar', label: 'Default calendar', description: 'Managed by your organization', choices: ['Work', 'Home', 'Family'], disabled: true },
+  // A row with a value takes no description, as in iOS Settings: what the row means goes in the section's footer
+  { id: 'sync', label: 'Sync', choices: ['1 month back', '3 months back', '6 months back', 'All events'] },
+  { id: 'calendar', label: 'Default calendar', choices: ['Work', 'Home', 'Family'], disabled: true },
   { id: 'alerts', label: 'Default alerts', choices: ['At time of event, 15 minutes before, 1 day before', '15 minutes before', 'None'], placement: 'auto' },
 ];
 const ROWS = [...GENERAL_ROWS, ...EVENT_ROWS];
@@ -40,9 +41,9 @@ function sectionGap(android: boolean, { afterFooter = false, header = false, pla
 
 /**
  * The Overview, every setting of a List and its rows on one screen of a Calendar app's settings, after the React
- * NavigationRow Overview (Time zone, Start week on and Day starts at; Sync with its description, Default calendar
- * disabled with its reason and Default alerts with a long value): each row opens the page of its choices. A switch ends
- * a row of the second section, and Sign out stands red in a section of its own.
+ * NavigationRow Overview (Time zone, Start week on and Day starts at; Sync, Default calendar disabled and Default
+ * alerts with a long value): each row opens the page of its choices. A switch with its description ends the second
+ * section (iOS pairs a description with a control, never with a value), and Sign out stands red in a section of its own.
  */
 export const Overview = docsDemo(function Overview() {
   const theme = useTheme();
@@ -143,6 +144,7 @@ export const Overview = docsDemo(function Overview() {
               {EVENT_ROWS.map(item)}
               <ListItem
                 label="Week numbers"
+                description={description ? 'Shown in Month view' : undefined}
                 trailing={<Switch checked={weekNumbers} onCheckedChange={setWeekNumbers} accessibilityLabel="Week numbers" />}
               />
             </List>

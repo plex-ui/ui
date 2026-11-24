@@ -54,14 +54,12 @@ const open = (id: string) => navigation.navigate("Choices", { id })
   >
     <ListItem
       label="Sync"
-      description={description ? "How far back events are kept" : undefined}
       value={values.sync}
       disclosure={disclosure}
       onPress={() => open("sync")}
     />
     <ListItem
       label="Default calendar"
-      description={description ? "Managed by your organization" : undefined}
       value="Work"
       disabled={disabled}
       disclosure={disclosure}
@@ -70,6 +68,7 @@ const open = (id: string) => navigation.navigate("Choices", { id })
     <ListItem label="Default alerts" value={values.alerts} valuePlacement="auto" disclosure={disclosure} onPress={() => open("alerts")} />
     <ListItem
       label="Week numbers"
+      description={description ? "Shown in Month view" : undefined}
       trailing={<Switch checked={weekNumbers} onCheckedChange={setWeekNumbers} accessibilityLabel="Week numbers" />}
     />
   </List>
@@ -109,7 +108,7 @@ End a row with a [Switch](/react-native/components/switch) for a setting that tu
 
 <ComponentPreview details={<>
   <p><code>List</code> is a section of rows and <code>ListItem</code> one row, as <code>@plexui/ui</code>&apos;s FieldGroup and NavigationRow on a phone: use it for settings and for rows that open a page, and keep a section to related rows under one header.</p>
-  <p>One Settings screen with every setting of a list, as the React <a href="/components/navigation-row">Navigation Row</a> Overview sets its rows in a FieldGroup: Time zone, Start week on, Day starts at and Default alerts show their current <code>value</code> at the end, and a long one (<code>valuePlacement="auto"</code>, Default alerts) moves under the label when it does not fit beside it, and a press opens the page of their choices, where the current one carries the checkmark and a press picks another and goes back. A row with <code>onPress</code> is one button, and shows the chevron on iOS; <code>disclosure</code> drops it, for rows that open a record rather than a page of choices. <code>description</code> adds a line under the label, and the row grows to hold it; a pressable row reads it after its name. A <code>disabled</code> row greys all of it and can&apos;t be pressed. <code>trailing</code> ends a row with a control, here a Switch: in a row without <code>onPress</code> a Switch or a Checkbox there toggles on a press anywhere on the row, as the web&apos;s phone rows, an option of a RadioGroup around the list is chosen by it, and on Android a Select there opens its choice from it; the control stays the one element for screen readers, named by the label. A <code>destructive</code> row, Sign out in a section of its own, is red and shows no chevron.</p>
+  <p>One Settings screen with every setting of a list, as the React <a href="/components/navigation-row">Navigation Row</a> Overview sets its rows in a FieldGroup: Time zone, Start week on, Day starts at and Default alerts show their current <code>value</code> at the end, and a long one (<code>valuePlacement="auto"</code>, Default alerts) moves under the label when it does not fit beside it, and a press opens the page of their choices, where the current one carries the checkmark and a press picks another and goes back. A row with <code>onPress</code> is one button, and shows the chevron on iOS; <code>disclosure</code> drops it, for rows that open a record rather than a page of choices. <code>description</code> adds a line under the label, and the row grows to hold it; a pressable row reads it after its name. As in iOS Settings, a description goes with a control at the end (Week numbers and its switch), never with a value: what a row with a value means goes in the section&apos;s <code>footer</code>. A <code>disabled</code> row greys all of it and can&apos;t be pressed. <code>trailing</code> ends a row with a control, here a Switch: in a row without <code>onPress</code> a Switch or a Checkbox there toggles on a press anywhere on the row, as the web&apos;s phone rows, an option of a RadioGroup around the list is chosen by it, and on Android a Select there opens its choice from it; the control stays the one element for screen readers, named by the label. A <code>destructive</code> row, Sign out in a section of its own, is red and shows no chevron.</p>
   <p><code>header</code> titles a section and names it for screen readers, <code>description</code> adds a line under the title, <code>footer</code> a note under the rows and <code>error</code> a message in the danger color in its place (a row has its own <code>error</code>, under the row, as a form row's); on Android the header is the first row of the card, 14sp Medium in the accent (a lighter blue in dark mode), and the footer a 14sp gray note under the card, 10dp above it and 17dp below. <code>leading</code> puts a symbol at the start: with <code>leadingColor</code> iOS draws it white on a rounded tile of that color, the look of the Settings app, and Android a white 24dp symbol on a 28dp tile of that color with 10dp corners, with no divider under the row; without it Android draws the symbol plain in the text color (a gray in dark mode). <code>surface</code> is the canvas the section stands on: <code>grouped</code>, the gray grouped background of a settings screen with white sections, or <code>plain</code>, a plain screen with sections in the plain secondary gray, the same on both platforms. A List sets no space around itself: the screen spaces its sections, 35pt apart on iOS less what a header or a footer between them takes, as the React FieldGroup does, and 12dp from the screen's edges and 12dp apart on Android.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="list/Overview" />
