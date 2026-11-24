@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { PhoneInput, Text, type CountryCode, type PhoneDetails } from '@plexui/react-native';
+import { PhoneInput, Text } from '@plexui/react-native';
 import { View } from 'react-native';
 import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { useNativePlatform } from '../platform';
 import { RNScreen, docsDemo } from '../RNScreen';
 
 const FORMATTING = ['platform', 'on', 'off'] as const;
+
+// The docs see @plexui/react-native untyped (types/plexui-react-native.d.ts): the details the demo reads
+type PhoneDetails = { possible: boolean; valid: boolean };
 
 /**
  * Every setting on one field, after iOS's Add Phone Number (Settings): the region's row over the number's row; on
@@ -19,7 +22,7 @@ export const Overview = docsDemo(function Overview() {
   const [disabled, setDisabled] = useState(false);
   const [error, setError] = useState(false);
   const [value, setValue] = useState('');
-  const [country, setCountry] = useState<CountryCode>('GB');
+  const [country, setCountry] = useState('GB');
   const [details, setDetails] = useState<PhoneDetails | null>(null);
   return (
     <>
@@ -32,7 +35,7 @@ export const Overview = docsDemo(function Overview() {
       <RNScreen grouped={!android} minHeight={360}>
         <PhoneInput
           value={value}
-          onChange={(next, info) => {
+          onChange={(next: string, info: PhoneDetails) => {
             setValue(next);
             setDetails(info);
           }}
