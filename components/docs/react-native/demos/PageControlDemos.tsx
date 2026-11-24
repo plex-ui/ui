@@ -1,5 +1,5 @@
-import { useRef, useState, type ComponentType } from 'react';
-import { PageControl, Text, textColor, useTheme } from '@plexui/react-native';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
+import { PageControl, Text, cardColors, textColor, useTheme, type CardColor } from '@plexui/react-native';
 import { Folders, Heart, Images, LockKeyHole, MapPin, Pencil, RemoveTrash, Search, ShieldCheck, Sparkles, Users, Video } from '@plexui/react-native/icons';
 import { ScrollView, View } from 'react-native';
 import { DemoControlRow, Segments, controlsTableStyle } from '../../ButtonDemos';
@@ -17,7 +17,7 @@ const PLACEMENTS = ['below', 'inside'] as const;
 type Placement = (typeof PLACEMENTS)[number];
 type Look = { background: Background; indicator: Indicator; tone: Tone; placement: Placement };
 // `react-native` is untyped in the docs (types/plexui-react-native.d.ts): what the demo uses of the scroller and its events
-type Scroller = { scrollTo: (to: { x: number; animated: boolean }) => void };
+type Scroller = { scrollTo: (to: { x: number; animated: boolean }) => void; getScrollableNode?: () => HTMLElement | null };
 type LayoutEvent = { nativeEvent: { layout: { width: number } } };
 type ScrollEvent = { nativeEvent: { contentOffset: { x: number } } };
 
@@ -63,17 +63,20 @@ function Carousel({ count, look }: { count: number; look: Look }) {
   const page = Math.min(current, count - 1);
   // The onboarding's first pages, as many as the control asks for
   const pages = ONBOARDING_CARDS.slice(0, count);
-  // `onColor`: the card in the accent, its text and symbols in white; the control takes white dots only on the card
-  // (`inside`, over the card's bottom), under it on the page it keeps the label colors
+  // `onColor`: each card in a color of its own, its text and symbols in that color's ink; the control takes white dots
+  // only on the cards (`inside`, over their bottom), under them on the page it keeps the label colors
   const onColor = look.tone === 'onColor';
   const inside = look.placement === 'inside';
-  const ink = onColor ? '#FFFFFF' : undefined;
+  const gutter = 8;
+  useMouseSwipe(scroller, width, (index) => setPage(index));
   return (
     <View
       style={[
         { alignSelf: 'stretch', alignItems: 'center', gap: 12 },
       ]}
     >
+      {/* A page is a card of its own that slides in whole from the side, 8 from the next; the scroller reaches 4 past
+          the column so that the cards line up with its edges */}
       <ScrollView
         ref={scroller}
         horizontal
@@ -84,26 +87,36 @@ function Carousel({ count, look }: { count: number; look: Look }) {
         onScroll={(event: ScrollEvent) => {
           if (width > 0) setPage(Math.round(event.nativeEvent.contentOffset.x / width));
         }}
-        // The pages stand on a card: the secondary surface, or Material's filled card on Android
-        style={{
-          alignSelf: 'stretch',
-          borderRadius: theme.length('--radius-2xl', 16),
-          backgroundColor: onColor ? theme.colors.accent : theme.isAndroid ? theme.material.surfaceContainerHighest : theme.colors.surfaceSecondary,
-        }}
+        style={{ alignSelf: 'stretch', marginHorizontal: -gutter / 2 }}
       >
-        {pages.map(({ icon, title, text }) => {
+        {pages.map(({ icon, title, text }, index) => {
           const Icon = ICONS[icon];
+          // A card: the secondary surface, or Material's filled card on Android; on color, a color per card
+          const colors = onColor ? cardColors(theme, CARD_COLORS[index % CARD_COLORS.length]) : null;
           return (
-            <View key={title} style={{ width, height: inside ? 184 : 160, paddingBottom: inside ? 24 : 0, alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 24 }}>
-              <View style={{ marginBottom: 4 }}>
-                <Icon size={32} color={ink ?? textColor(theme, 'secondary')} />
+            <View key={title} style={{ width, paddingHorizontal: gutter / 2 }}>
+              <View
+                style={{
+                  height: inside ? 184 : 160,
+                  paddingBottom: inside ? 24 : 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                  paddingHorizontal: 24,
+                  borderRadius: theme.length('--radius-2xl', 16),
+                  backgroundColor: colors?.fill ?? (theme.isAndroid ? theme.material.surfaceContainerHighest : theme.colors.surfaceSecondary),
+                }}
+              >
+                <View style={{ marginBottom: 4 }}>
+                  <Icon size={32} color={colors?.ink ?? textColor(theme, 'secondary')} />
+                </View>
+                <Text variant="headline" color={colors?.ink} align="center">
+                  {title}
+                </Text>
+                <Text variant="subheadline" color={colors ? colors.ink : 'secondary'} style={colors ? { opacity: 0.8 } : undefined} align="center">
+                  {text}
+                </Text>
               </View>
-              <Text variant="headline" color={ink} align="center">
-                {title}
-              </Text>
-              <Text variant="subheadline" color={onColor ? 'rgba(255, 255, 255, 0.8)' : 'secondary'} align="center">
-                {text}
-              </Text>
             </View>
           );
         })}
@@ -123,4 +136,54 @@ function Carousel({ count, look }: { count: number; look: Look }) {
       />
     </View>
   );
+}
+
+/** The cards' colors on color: a page may have a background of its own */
+const CARD_COLORS: CardColor[] = ['accent', 'discovery', 'success', 'warning', 'info', 'danger'];
+
+/**
+ * A mouse drags the pages on the web, as a finger does: react-native-web's scroller follows a finger and a trackpad but
+ * not a mouse. The pages follow the drag and settle on the next page in its direction, or back on a short one.
+ */
+function useMouseSwipe(scroller: { current: Scroller | null }, width: number, onPage: (index: number) => void) {
+  const pageChange = useRef(onPage);
+  pageChange.current = onPage;
+  useEffect(() => {
+    const node = scroller.current?.getScrollableNode?.();
+    if (!node || width <= 0) return;
+    let start: { x: number; left: number } | null = null;
+    const down = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      start = { x: event.clientX, left: node.scrollLeft };
+      node.style.scrollSnapType = 'none';
+      node.style.cursor = 'grabbing';
+    };
+    const move = (event: PointerEvent) => {
+      if (!start) return;
+      event.preventDefault();
+      node.scrollLeft = start.left - (event.clientX - start.x);
+    };
+    const up = (event: PointerEvent) => {
+      if (!start) return;
+      const dx = event.clientX - start.x;
+      const from = Math.round(start.left / width);
+      const last = Math.max(0, Math.round((node.scrollWidth - width) / width));
+      const index = Math.min(last, Math.max(0, Math.abs(dx) > width * 0.15 ? from - Math.sign(dx) : from));
+      start = null;
+      node.style.cursor = '';
+      // `scroll`, not `scrollTo`: react-native-web puts its own scrollTo({ x }) on the scroller's node
+      node.scroll({ left: index * width, behavior: 'smooth' });
+      pageChange.current(index);
+      // The snap again once the pages have settled
+      window.setTimeout(() => (node.style.scrollSnapType = ''), 400);
+    };
+    node.addEventListener('pointerdown', down);
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    return () => {
+      node.removeEventListener('pointerdown', down);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+  }, [scroller, width]);
 }
