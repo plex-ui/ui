@@ -5343,6 +5343,7 @@ Docs: https://plexui.com/vue/components/sidebar
 Props:
   - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
   - side ("left" | "right") default: "left" — Which side the sidebar is on
+  - pill (boolean) default: false — Rows as capsules: their ends move 16px in (from 12) so text and icons keep clear of the round ends. A tree moves every level by the same 4px, so a nested row stays under its parent's text; other rows keep the axis of the rows over them and of the folded rail's icons, and only their end moves in. Set pill on the controls in the sidebar as well (SegmentedControl, Input, Button)
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - variant ("sidebar" | "app") default: "sidebar" — Look of the whole shell. "app" is the sidebar of a product: 260px, pill rows on a grey ground, a page with no inset, and on a phone a menu under the page
@@ -5371,10 +5372,14 @@ Props:
   SidebarMenuSub:
     - open (boolean) default: true — Whether submenu is expanded. A closed submenu is inert, so its links and buttons leave the tab order and the accessibility tree
     - has-icons (boolean) default: false — Align child items with parent text that has icons
+    - tree (boolean) default: false — A tree: rows start 12px in and each level (indent) adds a whole 24px cell; icons stand in 24px cells with a 16px glyph. A group row starts with SidebarMenuChevron placement="start" and folds on a press anywhere on it (aria-expanded on the row)
   SidebarMenuSubButton:
     - is-active (boolean) default: false — Highlight the current page (aria-current="page")
-    - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left padding. Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px
+    - indent (number) default: 0 — Nesting level; each level adds 12px of left padding (up to 3). Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px. In a tree each level adds a whole 24px cell, at any depth
     - as-child (boolean) default: false — Render the single child element (e.g. a RouterLink) as the button
+  SidebarMenuChevron:
+    - placement ("end" | "start") default: "end" — end: at the row's end. start: first in a tree row, in a 24px cell, the glyph 16px in the secondary color, right when closed and down when open; a picture of the row's state, hidden from assistive technology
+    - blank (boolean) default: false — A start cell with no glyph, keeping a leaf's icon and text in line with its groups
   SidebarMobile:
     - contained (boolean) default: false — Positions the drawer and backdrop absolute inside a frame instead of fixed to the window
     - disclosure (boolean) default: true — Rows that lead to another page end with a disclosure chevron, as in an iOS list. false leaves it out
@@ -5494,6 +5499,86 @@ The examples use local ResponsiveSidebarProvider, ResponsiveSidebar and SidebarD
     </component>
   </SidebarLayout>
 </component>
+```
+
+### Tree
+A tree of screens of any depth in SidebarMenuSub tree. A group row starts with SidebarMenuChevron placement="start" in place of an icon and folds on a press anywhere on it, its chevron turned down while open (aria-expanded on the row); a leaf shows its icon in the same 24px cell. Each level (indent) is one cell further in, so the text starts at 36, 60 and 84px and a nested row's chevron or icon stands right under its parent's text. Where groups have an icon of their own (a folder), put the chevron before it and give leaves SidebarMenuChevron placement="start" blank. The search narrows the rows to the ones that match and opens the groups that hold a match; the button beside it expands or collapses every level. screens, screenGroups and filterScreens come from the setup scope.
+```vue
+<SidebarProvider collapsible="none" class="h-full" :style="{ '--sidebar-width': '320px', '--sidebar-background': 'var(--color-surface)' }">
+  <SidebarLayout class="h-full">
+    <Sidebar :pill="pill" class="border-r border-[var(--sidebar-border)]">
+      <SidebarHeader>
+        <span class="truncate text-sm font-semibold text-[var(--color-text)]">Dev mode</span>
+      </SidebarHeader>
+      <div class="flex shrink-0 flex-col gap-2 pt-6">
+        <SegmentedControl v-model:value="tab" aria-label="View" block :pill="pill">
+          <SegmentedControlOption value="scenarios">Scenarios</SegmentedControlOption>
+          <SegmentedControlOption value="screen">Screen</SegmentedControlOption>
+          <SegmentedControlOption value="flow">Flow</SegmentedControlOption>
+        </SegmentedControl>
+        <div class="flex items-center gap-2">
+          <Input v-model:value="query" class="flex-1" :pill="pill" placeholder="Search screens…" aria-label="Search screens" @clear="query = ''">
+            <template #startAdornment><Search /></template>
+          </Input>
+          <Tooltip compact>
+            <Button uniform :pill="pill" variant="soft" color="secondary" :aria-label="screenGroups.every((path) => open[path]) ? 'Collapse all' : 'Expand all'" @click="screenGroups.every((path) => open[path]) ? (open = {}) : (open = Object.fromEntries(screenGroups.map((path) => [path, true])))">
+              <ListChevronsDownUp v-if="screenGroups.every((path) => open[path])" />
+              <ListChevronsUpDown v-else />
+            </Button>
+            <template #content>{{ screenGroups.every((path) => open[path]) ? 'Collapse all' : 'Expand all' }}</template>
+          </Tooltip>
+        </div>
+      </div>
+      <SidebarContent>
+        <SidebarMenuSub tree :open="true">
+          <SidebarMenuSubItem v-for="a in filterScreens(screens, query)" :key="a.path">
+            <template v-if="a.children">
+              <SidebarMenuSubButton :indent="0" :aria-expanded="!!query || !!open[a.path]" @click="open[a.path] = !open[a.path]">
+                <SidebarMenuChevron placement="start" />
+                {{ a.name }}
+              </SidebarMenuSubButton>
+              <SidebarMenuSub tree :open="!!query || !!open[a.path]">
+                <SidebarMenuSubItem v-for="b in a.children" :key="b.path">
+                  <template v-if="b.children">
+                    <SidebarMenuSubButton :indent="1" :aria-expanded="!!query || !!open[b.path]" @click="open[b.path] = !open[b.path]">
+                      <SidebarMenuChevron placement="start" />
+                      {{ b.name }}
+                    </SidebarMenuSubButton>
+                    <SidebarMenuSub tree :open="!!query || !!open[b.path]">
+                      <SidebarMenuSubItem v-for="c in b.children" :key="c.path">
+                        <template v-if="c.children">
+                          <SidebarMenuSubButton :indent="2" :aria-expanded="!!query || !!open[c.path]" @click="open[c.path] = !open[c.path]">
+                            <SidebarMenuChevron placement="start" />
+                            {{ c.name }}
+                          </SidebarMenuSubButton>
+                        </template>
+                        <SidebarMenuSubButton v-else :indent="2" :is-active="active === c.path" @click="active = c.path">
+                          <SidebarMenuButtonIcon><Mobile /></SidebarMenuButtonIcon>
+                          {{ c.name }}
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  </template>
+                  <SidebarMenuSubButton v-else :indent="1" :is-active="active === b.path" @click="active = b.path">
+                    <SidebarMenuButtonIcon><Mobile /></SidebarMenuButtonIcon>
+                    {{ b.name }}
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              </SidebarMenuSub>
+            </template>
+            <SidebarMenuSubButton v-else :indent="0" :is-active="active === a.path" @click="active = a.path">
+              <SidebarMenuButtonIcon><Mobile /></SidebarMenuButtonIcon>
+              {{ a.name }}
+            </SidebarMenuSubButton>
+          </SidebarMenuSubItem>
+        </SidebarMenuSub>
+      </SidebarContent>
+    </Sidebar>
+    <main class="flex-1 p-6 bg-[var(--sidebar-background-secondary)]">
+      <h2 class="text-lg font-semibold">{{ active.split('/').slice(1).join(' · ') }}</h2>
+    </main>
+  </SidebarLayout>
+</SidebarProvider>
 ```
 
 ### Mobile Menu

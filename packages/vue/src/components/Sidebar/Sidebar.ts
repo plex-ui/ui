@@ -109,6 +109,8 @@ const SidebarComponent = defineComponent({
     side: { type: String as PropType<SidebarSide>, default: "left" },
     /** The visual variant of the sidebar. @default "sidebar" */
     variant: { type: String as PropType<SidebarVariant>, default: "sidebar" },
+    /** Rows as capsules: their ends move 16px in (a tree's every level by the same 4px). @default false */
+    pill: { type: Boolean, default: false },
   },
   setup(props, { attrs, slots }) {
     const sidebar = useSidebar()
@@ -122,7 +124,7 @@ const SidebarComponent = defineComponent({
       const { className, rest } = cleanAttrs(attrs)
       return h(
         "aside",
-        { "data-side": props.side, "data-variant": props.variant, "class": [s.Sidebar, className], ...rest },
+        { "data-side": props.side, "data-variant": props.variant, "data-pill": props.pill ? "true" : undefined, "class": [s.Sidebar, className], ...rest },
         slots.default?.(),
       )
     }

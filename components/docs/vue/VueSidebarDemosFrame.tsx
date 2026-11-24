@@ -3,7 +3,7 @@
 import { defineComponent, h, type PropType } from 'vue';
 import { NavigationButton } from '@plexui/vue/components/Button';
 import { Page, PageBar, PageContent, PageHeader, PageLeading, PageTitle } from '@plexui/vue/components/Page';
-import { Sidebar, SidebarInset, SidebarMobile, SidebarMobileMenuButton, SidebarProvider, useSidebar as sidebarContext, type SidebarCollapsible, type SidebarProviderVariant } from '@plexui/vue/components/Sidebar';
+import { Sidebar, SidebarInset, SidebarMobile, SidebarMobileMenuButton, SidebarProvider, SidebarTrigger, useSidebar as sidebarContext, type SidebarCollapsible, type SidebarProviderVariant } from '@plexui/vue/components/Sidebar';
 import { Toolbar, ToolbarTitle, ToolbarTrailing } from '@plexui/vue/components/Toolbar';
 import { useBreakpoint as breakpoint } from '@plexui/vue/composables/useBreakpoints';
 import { isSidebarNavigationSelection } from '../SidebarDemos.utils';
@@ -62,6 +62,11 @@ export const SidebarDemoPage = defineComponent({
         ])),
         h(PageContent, null, slots),
       ])
-      : h('div', { class: 'p-6' }, [h('h1', { class: 'text-2xl font-semibold mb-4' }, props.title), slots.default?.()]));
+      : h('div', { class: 'p-6' }, [
+        // An offcanvas sidebar leaves no rail when closed: the page holds the button that brings it back
+        sidebar.state === 'collapsed' && sidebar.collapsible === 'offcanvas' ? h('div', { class: 'mb-3 -ml-2' }, h(SidebarTrigger)) : null,
+        h('h1', { class: 'text-2xl font-semibold mb-4' }, props.title),
+        slots.default?.(),
+      ]));
   },
 });

@@ -142,10 +142,16 @@ export type SidebarProps = ComponentProps<"aside"> & {
    * @default "sidebar"
    */
   variant?: SidebarVariant
+  /**
+   * Rows as capsules: their ends move 16px in (a tree's every level by the same 4px), so text and icons keep
+   * clear of the round ends.
+   * @default false
+   */
+  pill?: boolean
 }
 
 export const Sidebar = forwardRef<HTMLElement, SidebarProps>(
-  ({ side = "left", variant = "sidebar", className, children, ...props }, ref) => {
+  ({ side = "left", variant = "sidebar", pill = false, className, children, ...props }, ref) => {
     const { collapsible, isMobile } = useSidebar()
 
     // Skip rendering sidebar on mobile for offcanvas mode
@@ -158,6 +164,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>(
         ref={ref}
         data-side={side}
         data-variant={variant}
+        data-pill={pill ? "true" : undefined}
         className={clsx(s.Sidebar, className)}
         {...cleanProps(props)}
       >

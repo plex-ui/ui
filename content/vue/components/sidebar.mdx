@@ -262,6 +262,63 @@ ${indent(docsNav("active", "; sidebar.setOpenMobile(false)"), 8)}
   SidebarTrigger,
 } from "@plexui/vue/components/Sidebar";`}</UsageBlock>
 
+export const treeRow = (node, depth, inner) => `<SidebarMenuSubItem v-for="${node} in ${inner.list}" :key="${node}.path">
+  <template v-if="${node}.children">
+    <SidebarMenuSubButton :indent="${depth}" :aria-expanded="!!query || !!open[${node}.path]" @click="open[${node}.path] = !open[${node}.path]">
+      <SidebarMenuChevron placement="start" />
+      {{ ${node}.name }}
+    </SidebarMenuSubButton>
+${inner.sub ? indent(inner.sub, 4) + "\n" : ""}  </template>
+  <SidebarMenuSubButton v-else :indent="${depth}" :is-active="active === ${node}.path" @click="active = ${node}.path">
+    <SidebarMenuButtonIcon><Mobile /></SidebarMenuButtonIcon>
+    {{ ${node}.name }}
+  </SidebarMenuSubButton>
+</SidebarMenuSubItem>`
+
+export const treeLevel = (list, depth, openWhen) => {
+  const node = DOCS_LEVEL_VARS[depth]
+  // Three levels, as the data: the last holds leaves only
+  const sub = depth < 2 ? treeLevel(`${node}.children`, depth + 1, `!!query || !!open[${node}.path]`) : ""
+  return `<SidebarMenuSub tree :open="${openWhen}">
+${indent(treeRow(node, depth, { list, sub }), 2)}
+</SidebarMenuSub>`
+}
+
+export const tree = `<SidebarProvider collapsible="none" class="h-full" :style="{ '--sidebar-width': '320px', '--sidebar-background': 'var(--color-surface)' }">
+  <SidebarLayout class="h-full">
+    <Sidebar :pill="pill" class="border-r border-[var(--sidebar-border)]">
+      <SidebarHeader>
+        <span class="truncate text-sm font-semibold text-[var(--color-text)]">Dev mode</span>
+      </SidebarHeader>
+      <div class="flex shrink-0 flex-col gap-2 pt-6">
+        <SegmentedControl v-model:value="tab" aria-label="View" block :pill="pill">
+          <SegmentedControlOption value="scenarios">Scenarios</SegmentedControlOption>
+          <SegmentedControlOption value="screen">Screen</SegmentedControlOption>
+          <SegmentedControlOption value="flow">Flow</SegmentedControlOption>
+        </SegmentedControl>
+        <div class="flex items-center gap-2">
+          <Input v-model:value="query" class="flex-1" :pill="pill" placeholder="Search screens…" aria-label="Search screens" @clear="query = ''">
+            <template #startAdornment><Search /></template>
+          </Input>
+          <Tooltip compact>
+            <Button uniform :pill="pill" variant="soft" color="secondary" :aria-label="screenGroups.every((path) => open[path]) ? 'Collapse all' : 'Expand all'" @click="screenGroups.every((path) => open[path]) ? (open = {}) : (open = Object.fromEntries(screenGroups.map((path) => [path, true])))">
+              <ListChevronsDownUp v-if="screenGroups.every((path) => open[path])" />
+              <ListChevronsUpDown v-else />
+            </Button>
+            <template #content>{{ screenGroups.every((path) => open[path]) ? 'Collapse all' : 'Expand all' }}</template>
+          </Tooltip>
+        </div>
+      </div>
+      <SidebarContent>
+${indent(treeLevel("filterScreens(screens, query)", 0, "true"), 8)}
+      </SidebarContent>
+    </Sidebar>
+    <main class="flex-1 p-6 bg-[var(--sidebar-background-secondary)]">
+      <h2 class="text-lg font-semibold">{{ active.split('/').slice(1).join(' · ') }}</h2>
+    </main>
+  </SidebarLayout>
+</SidebarProvider>`
+
 ## Examples
 
 {/* The examples App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions and Search Input
@@ -284,6 +341,15 @@ ${indent(docsNav("active", "; sidebar.setOpenMobile(false)"), 8)}
   <p>On a phone the toolbar opens the same navigation tree in a full-screen drawer, so the Phone view leaves out <code>collapsible</code>, <code>open</code> and <code>labelSize</code>.</p>
 </>} code={overview} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <VueSidebarDemo template={overview} stageClassName={STAGE} state={{ activeItem: "Overview", settingsOpen: true, query: "" }} controls={overviewControls} />
+</ComponentPreview>
+
+### Tree
+
+<ComponentPreview language="vue" details={<>
+  <p>A tree of screens of any depth in <code>SidebarMenuSub tree</code>. A group row starts with <code>SidebarMenuChevron placement="start"</code> in place of an icon and folds on a press anywhere on it, its chevron turned down while open (<code>aria-expanded</code> on the row); a leaf shows its icon in the same 24px cell. Each level (<code>indent</code>) is one cell further in, so the text starts at 36, 60 and 84px and a nested row's chevron or icon stands right under its parent's text. Where groups have an icon of their own (a folder), put the chevron before it and give leaves <code>SidebarMenuChevron placement="start" blank</code>.</p>
+  <p>The search narrows the rows to the ones that match and opens the groups that hold a match; the button beside it expands or collapses every level. <code>screens</code>, <code>screenGroups</code> and <code>filterScreens</code> come from the setup scope.</p>
+</>} code={tree} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+  <VueSidebarDemo template={tree} stageClassName={STAGE + " sidebar-plain"} controls={[{ name: "pill", type: "boolean", default: false }]} state={{ tab: "screen", query: "", open: { "Account": true, "Account/Sign in": true }, active: "Account/Sign in/Filled" }} />
 </ComponentPreview>
 
 ### Mobile Menu
@@ -451,6 +517,7 @@ The main sidebar container. Renders as an `<aside>` element.
 <PropsTable data={[
   { prop: "variant", type: '"sidebar" | "docs"', default: '"sidebar"', description: "Visual variant" },
   { prop: "side", type: '"left" | "right"', default: '"left"', description: "Which side the sidebar is on" },
+  { prop: "pill", type: "boolean", default: "false", description: "Rows as capsules: their ends move 16px in (from 12) so text and icons keep clear of the round ends. A tree moves every level by the same 4px, so a nested row stays under its parent's text; other rows keep the axis of the rows over them and of the folded rail's icons, and only their end moves in. Set pill on the controls in the sidebar as well (SegmentedControl, Input, Button)" },
 ]} />
 
 ### SidebarGroup

@@ -1042,6 +1042,7 @@ Docs: https://plexui.com/components/sidebar
 Props:
   - variant ("sidebar" | "docs") default: "sidebar" — Visual variant
   - side ("left" | "right") default: "left" — Which side the sidebar is on
+  - pill (boolean) default: false — Rows as capsules: their ends move 16px in (from 12) so text and icons keep clear of the round ends. A tree moves every level by the same 4px, so a nested row stays under its parent's text; other rows keep the axis of the rows over them and of the folded rail's icons, and only their end moves in. Set pill on the controls in the sidebar as well (SegmentedControl, Input, Button)
   SidebarProvider:
     - collapsible ("offcanvas" | "icon" | "none") default: "offcanvas" — Collapse behavior: offcanvas (drawer on mobile, full collapse on desktop), icon (icon rail), or none
     - variant ("sidebar" | "app") default: "sidebar" — Look of the whole shell. "app" is the sidebar of a product: 260px, pill rows on a grey ground, a page with no inset, and on a phone a menu under the page
@@ -1069,10 +1070,14 @@ Props:
   SidebarMenuSub:
     - open (boolean) default: true — Whether submenu is expanded. A closed submenu is inert, so its links and buttons leave the tab order and the accessibility tree
     - hasIcons (boolean) default: false — Align child items with parent text that has icons
+    - tree (boolean) default: false — A tree: rows start 12px in and each level (indent) adds a whole 24px cell; icons stand in 24px cells with a 16px glyph. A group row starts with SidebarMenuChevron placement="start" and folds on a press anywhere on it (aria-expanded on the row)
   SidebarMenuSubButton:
     - isActive (boolean) default: false — Highlight the current page (aria-current="page")
-    - indent (0 | 1 | 2 | 3) default: 0 — Nesting level; each level adds 12px of left padding. Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px
+    - indent (number) default: 0 — Nesting level; each level adds 12px of left padding (up to 3). Under a parent with icons (hasIcons) level 1 starts at the parent's text, 38px, and levels 2 and 3 at 50px and 62px. In a tree each level adds a whole 24px cell, at any depth
     - asChild (boolean) default: false — Render the single child element (e.g. a router link) as the button
+  SidebarMenuChevron:
+    - placement ("end" | "start") default: "end" — end: at the row's end. start: first in a tree row, in a 24px cell, the glyph 16px in the secondary color, right when closed and down when open; a picture of the row's state, hidden from assistive technology
+    - blank (boolean) default: false — A start cell with no glyph, keeping a leaf's icon and text in line with its groups
   SidebarMobile:
     - contained (boolean) default: false — Positions the drawer and backdrop absolute inside a frame instead of fixed to the window
     - disclosure (boolean) default: true — Rows that lead to another page end with a disclosure chevron, as in an iOS list. false leaves it out
@@ -1080,7 +1085,7 @@ Props:
     - variant ("default" | "elevated") default: "default" — Visual variant
     - dismissible (boolean) default: false — Shows dismiss button
     - onDismiss (() => void) — Callback when dismissed
-Examples: Overview, Mobile Menu
+Examples: Overview, Tree, Mobile Menu
 
 ## Skeleton
 "Loading placeholders in the shape of the content they stand in for, from avatars and text to cards and lists."

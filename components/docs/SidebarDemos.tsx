@@ -4,6 +4,8 @@ import React, { createContext, useContext, useId, useState } from 'react';
 import { Avatar } from '@plexui/ui/components/Avatar';
 import { Badge } from '@plexui/ui/components/Badge';
 import { Button } from '@plexui/ui/components/Button';
+import { Input } from '@plexui/ui/components/Input';
+import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
 import { Tooltip } from '@plexui/ui/components/Tooltip';
 import {
   Analytics,
@@ -11,6 +13,10 @@ import {
   CreditCard,
   FileDocument,
   Folder,
+  ListChevronsDownUp,
+  ListChevronsUpDown,
+  Mobile,
+  Search,
   Home,
   Logout,
   Members,
@@ -103,24 +109,26 @@ function DemoSidebarHeader({ title = 'App' }: { title?: string } = {}) {
 // Base
 // =============================================
 
+// The Overview's docs framing (260px, 12px top, no fade); a <style> reaches every stage on the page, so a plain
+// example (data-sidebar-plain) keeps the Sidebar as it ships
 const SIDEBAR_OVERVIEW_STYLE = `
-         [data-demo-stage] [class*="SidebarLayout"] { --sidebar-width: 260px; }
-         [data-demo-stage] aside[class*="Sidebar-module"] { --sidebar-icon-size: 16px; padding-top: 12px; }
-         [data-demo-stage] aside[class*="Sidebar-module"] > [class*="Header"] { min-height: 0; }
-         [data-demo-stage] aside[class*="Sidebar-module"] > [class*="Content"] { padding-top: 12px; -webkit-mask-image: none; mask-image: none; }
-         [data-demo-stage] aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 18px; padding-bottom: 0; }
-         [data-demo-stage] aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:first-child:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 0; }
-         [data-demo-stage] aside[class*="Sidebar-module"] [class*="GroupLabel"] { margin-top: 0; padding-bottom: 6px; }
-         [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"]:has(.demo-sidebar-wordmark) { padding-left: 12px; padding-right: 0; gap: 4px; transition: padding var(--sidebar-collapse-duration) var(--cubic-move); }
-         [data-demo-stage][data-bordered="false"] [class*="SidebarLayout"] { background: var(--color-surface); }
-         [data-demo-stage][data-bordered="false"] aside[class*="Sidebar-module"] { background: var(--color-surface-secondary); }
-         [data-demo-stage][data-bordered="false"] [class*="Inset"] { margin: 0; box-shadow: none; border-radius: 0; }
-         [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] { width: auto; margin-left: auto; flex: 0 0 auto; }
-         [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] span { opacity: 1 !important; pointer-events: auto !important; }
-         [data-demo-stage] aside[class*="Sidebar-module"] button[class*="Trigger"] [class*="TriggerIcon"] { margin: 0 3px; }
-         [data-demo-stage] [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] { padding-left: 0; padding-right: 0; justify-content: center; gap: 0; }
-         [data-demo-stage] [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] button[class*="Trigger"] { margin-left: 0; margin-right: 0; }
-         [data-demo-stage] .demo-sidebar-wordmark {
+         [data-demo-stage]:not([data-sidebar-plain]) [class*="SidebarLayout"] { --sidebar-width: 260px; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] { --sidebar-icon-size: 16px; padding-top: 12px; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] > [class*="Header"] { min-height: 0; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] > [class*="Content"] { padding-top: 12px; -webkit-mask-image: none; mask-image: none; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 18px; padding-bottom: 0; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:first-child:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 0; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] [class*="GroupLabel"] { margin-top: 0; padding-bottom: 6px; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] [class*="Header"]:has(.demo-sidebar-wordmark) { padding-left: 12px; padding-right: 0; gap: 4px; transition: padding var(--sidebar-collapse-duration) var(--cubic-move); }
+         [data-demo-stage]:not([data-sidebar-plain])[data-bordered="false"] [class*="SidebarLayout"] { background: var(--color-surface); }
+         [data-demo-stage]:not([data-sidebar-plain])[data-bordered="false"] aside[class*="Sidebar-module"] { background: var(--color-surface-secondary); }
+         [data-demo-stage]:not([data-sidebar-plain])[data-bordered="false"] [class*="Inset"] { margin: 0; box-shadow: none; border-radius: 0; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] { width: auto; margin-left: auto; flex: 0 0 auto; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] span { opacity: 1 !important; pointer-events: auto !important; }
+         [data-demo-stage]:not([data-sidebar-plain]) aside[class*="Sidebar-module"] button[class*="Trigger"] [class*="TriggerIcon"] { margin: 0 3px; }
+         [data-demo-stage]:not([data-sidebar-plain]) [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] { padding-left: 0; padding-right: 0; justify-content: center; gap: 0; }
+         [data-demo-stage]:not([data-sidebar-plain]) [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] button[class*="Trigger"] { margin-left: 0; margin-right: 0; }
+         [data-demo-stage]:not([data-sidebar-plain]) .demo-sidebar-wordmark {
            flex: 1;
            min-width: 0;
            max-width: 1000px;
@@ -132,9 +140,9 @@ const SIDEBAR_OVERVIEW_STYLE = `
            opacity: 1;
            transition: opacity var(--sidebar-collapse-duration) var(--cubic-move), max-width var(--sidebar-collapse-duration) var(--cubic-move);
          }
-         [data-demo-stage] [data-sidebar="collapsed"] .demo-sidebar-wordmark { opacity: 0; max-width: 0; pointer-events: none; }
-         [data-demo-stage] .demo-sidebar-search { padding: 0 0 8px; }
-  [data-demo-stage] [data-sidebar="collapsed"] .demo-sidebar-search { display: none; }
+         [data-demo-stage]:not([data-sidebar-plain]) [data-sidebar="collapsed"] .demo-sidebar-wordmark { opacity: 0; max-width: 0; pointer-events: none; }
+         [data-demo-stage]:not([data-sidebar-plain]) .demo-sidebar-search { padding: 0 0 8px; }
+  [data-demo-stage]:not([data-sidebar-plain]) [data-sidebar="collapsed"] .demo-sidebar-search { display: none; }
 `;
 
 const SETTINGS_ITEMS = ['General', 'Billing', 'Members'];
@@ -783,5 +791,156 @@ export function SidebarMobileDemo() {
       <SidebarMobileDemoControls />
       <SidebarMobileDemoPreview />
     </SidebarMobileDemoRoot>
+  );
+}
+
+type ScreenNode = { name: string; children?: ScreenNode[] };
+
+const SCREENS: ScreenNode[] = [
+  {
+    name: 'Account',
+    children: [
+      { name: 'Sign in', children: [{ name: 'Empty' }, { name: 'Filled' }, { name: 'Error' }] },
+      { name: 'Sign up' },
+      { name: 'Reset password' },
+    ],
+  },
+  {
+    name: 'Settings',
+    children: [
+      { name: 'Profile', children: [{ name: 'Empty' }, { name: 'Filled' }] },
+      { name: 'Notifications' },
+      { name: 'Privacy' },
+    ],
+  },
+  { name: 'Billing', children: [{ name: 'Plans', children: [{ name: 'Monthly' }, { name: 'Yearly' }] }, { name: 'Invoices' }] },
+];
+
+/** The path of every group in a tree ("Account", "Account/Sign in"…). */
+function groupPaths(nodes: ScreenNode[], parent = ''): string[] {
+  return nodes.flatMap((node) => {
+    const path = parent ? `${parent}/${node.name}` : node.name;
+    return node.children ? [path, ...groupPaths(node.children, path)] : [];
+  });
+}
+
+const SCREEN_GROUPS = groupPaths(SCREENS);
+
+/**
+ * A tree of screens: the chevron in place of the icon on a group (the whole row folds), a phone on a leaf, each level
+ * one 24px cell further in; a search that narrows the rows and opens the groups that hold a match, and one button
+ * that expands or collapses every level.
+ */
+export function SidebarTreeDemo() {
+  const [pill, setPill] = useState(false);
+  const [tab, setTab] = useState('screen');
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState<Set<string>>(() => new Set(['Account', 'Account/Sign in']));
+  const [active, setActive] = useState('Account/Sign in/Filled');
+  const q = query.trim().toLowerCase();
+  const allOpen = SCREEN_GROUPS.every((path) => open.has(path));
+
+  const toggle = (path: string) =>
+    setOpen((current) => {
+      const next = new Set(current);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+
+  // While searching: a row shows when its name or a row under it matches (a matching group shows all of its rows),
+  // and a group with a match under it opens
+  const filter = (nodes: ScreenNode[]): ScreenNode[] =>
+    nodes.flatMap((node) => {
+      if (!q || node.name.toLowerCase().includes(q)) return [node];
+      const children = node.children ? filter(node.children) : [];
+      return children.length ? [{ ...node, children }] : [];
+    });
+
+  const renderLevel = (nodes: ScreenNode[], depth: number, parent: string, levelOpen: boolean): React.ReactNode => (
+    <SidebarMenuSub tree open={levelOpen}>
+      {nodes.map((node) => {
+        const path = parent ? `${parent}/${node.name}` : node.name;
+        if (!node.children) {
+          return (
+            <SidebarMenuSubItem key={path}>
+              <SidebarMenuSubButton indent={depth} isActive={active === path} onClick={() => setActive(path)}>
+                <SidebarMenuButtonIcon>
+                  <Mobile />
+                </SidebarMenuButtonIcon>
+                {node.name}
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          );
+        }
+        const expanded = q ? true : open.has(path);
+        return (
+          <SidebarMenuSubItem key={path}>
+            <SidebarMenuSubButton indent={depth} aria-expanded={expanded} onClick={() => toggle(path)}>
+              <SidebarMenuChevron placement="start" />
+              {node.name}
+            </SidebarMenuSubButton>
+            {renderLevel(node.children, depth + 1, path, expanded)}
+          </SidebarMenuSubItem>
+        );
+      })}
+    </SidebarMenuSub>
+  );
+
+  const rows = filter(SCREENS);
+  return (
+    <>
+    <div data-demo-stage data-sidebar-plain className="flex-1 w-full !p-0 !items-stretch !justify-stretch [&>*]:!m-0">
+      <SidebarProvider className="h-full" collapsible="none" style={{ '--sidebar-width': '320px', '--sidebar-background': 'var(--color-surface)' } as React.CSSProperties}>
+        <SidebarLayout className="h-full">
+          <Sidebar pill={pill} className="border-r border-[var(--sidebar-border)]">
+            <SidebarHeader>
+              <span className="truncate text-sm font-semibold text-[var(--color-text)]">Dev mode</span>
+            </SidebarHeader>
+            <div className="flex shrink-0 flex-col gap-2 pt-6">
+                <SegmentedControl value={tab} onChange={setTab} aria-label="View" block pill={pill}>
+                  <SegmentedControl.Option value="scenarios">Scenarios</SegmentedControl.Option>
+                  <SegmentedControl.Option value="screen">Screen</SegmentedControl.Option>
+                  <SegmentedControl.Option value="flow">Flow</SegmentedControl.Option>
+                </SegmentedControl>
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="flex-1"
+                    pill={pill}
+                    startAdornment={<Search />}
+                    placeholder="Search screens…"
+                    aria-label="Search screens"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    onClear={() => setQuery('')}
+                  />
+                  <Tooltip compact content={allOpen ? 'Collapse all' : 'Expand all'}>
+                    <Button
+                      uniform
+                      pill={pill}
+                      variant="soft"
+                      color="secondary"
+                      aria-label={allOpen ? 'Collapse all' : 'Expand all'}
+                      onClick={() => setOpen(allOpen ? new Set() : new Set(SCREEN_GROUPS))}
+                    >
+                      {allOpen ? <ListChevronsDownUp /> : <ListChevronsUpDown />}
+                    </Button>
+                  </Tooltip>
+                </div>
+            </div>
+            <SidebarContent>
+              {rows.length ? renderLevel(rows, 0, '', true) : <p className="px-3 py-2 text-sm text-secondary">No screens</p>}
+            </SidebarContent>
+          </Sidebar>
+          <main className="flex-1 p-6 bg-[var(--sidebar-background-secondary)]">
+            <h2 className="text-lg font-semibold">{active.split('/').slice(1).join(' · ')}</h2>
+          </main>
+        </SidebarLayout>
+      </SidebarProvider>
+    </div>
+    <div data-demo-controls style={controlsTableStyle}>
+      <DemoControlBoolean name="pill" value={pill} onChange={setPill} />
+    </div>
+    </>
   );
 }

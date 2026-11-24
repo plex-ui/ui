@@ -16,9 +16,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 - **PhoneInput (React Native).** A phone number field: the region and the number, with the value in E.164 and the ISO region. On iOS it is Settings' Add Phone Number (the region's row over the number), with a sheet of regions: search by name, ISO or calling code, the picked and device regions first, A to Z with the section index. On Android it is Material's region dropdown over an outlined field, with a full-screen list. A pasted or autofilled international number picks its region (shared codes such as +1, +7 and +44 keep the picked one when the number fits it), the national trunk prefix is dropped from the value, and the field takes no more digits than the region's longest number. Built on `libphonenumber-js` (its compact metadata).
 - **Sidebar tree.** `SidebarMenuSub tree` lays out a tree of any depth: rows start 12px in, each `indent` level adds a whole 24px cell, and icons stand in 24px cells with a 16px glyph. `SidebarMenuChevron placement="start"` puts the chevron first in the row, in a 24px cell, turned by the row's own `aria-expanded`; `blank` keeps an empty cell on a leaf. The chevron goes before a group's icon, or instead of it, where groups show the chevron and leaves their icon in the same cell. In React and Vue.
 
+- **Sidebar `pill`.** Rows as capsules, their ends 16px in (from 12) so text and icons keep clear of the round ends; a tree moves every level by the same 4px, so a nested row stays under its parent's text. In React and Vue.
+
 ### Changed
 
 - **SidebarMenuSubButton `indent` takes any number.** Outside a tree it still adds 12px per level up to 3.
+
+### Fixed
+
+- **Sidebar `collapsible="offcanvas"` hides the sidebar on a desktop.** A collapsed offcanvas sidebar folded into the same 64px rail as `icon`; it now slides to nothing and leaves the tab order, as the docs said.
 
 ## 0.62.2 (2026-11-24)
 

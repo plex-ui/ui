@@ -9,6 +9,7 @@ import {
   SidebarMobile,
   SidebarMobileMenuButton,
   SidebarProvider,
+  SidebarTrigger,
   useSidebar,
   type SidebarProps,
   type SidebarProviderProps,
@@ -47,7 +48,9 @@ export function ResponsiveSidebar({ children, ...props }: SidebarProps) {
 }
 
 export function SidebarDemoPage({ title, children }: { title: ReactNode; children: ReactNode }) {
-  const { isMobile } = useSidebar();
+  const { isMobile, state, collapsible } = useSidebar();
+  // An offcanvas sidebar leaves no rail when closed: the page holds the button that brings it back
+  const hidden = state === 'collapsed' && collapsible === 'offcanvas';
   return (
     <SidebarInset className={s.Inset}>
       {isMobile ? (
@@ -62,6 +65,7 @@ export function SidebarDemoPage({ title, children }: { title: ReactNode; childre
         </Page>
       ) : (
         <div className="p-6">
+          {hidden && <div className="mb-3 -ml-2"><SidebarTrigger /></div>}
           <h1 className="text-2xl font-semibold mb-4">{title}</h1>
           {children}
         </div>

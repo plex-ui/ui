@@ -33,6 +33,18 @@
   width: var(--sidebar-width-icon);
 }
 
+/* Offcanvas: a collapsed sidebar leaves the screen whole, no rail. It slides to nothing, then leaves the tab order
+   and the accessibility tree (visibility waits for the slide; it comes back at once on opening) */
+:global([data-sidebar="collapsed"][data-collapsible="offcanvas"]) .Sidebar {
+  width: 0;
+  padding-inline: 0;
+  visibility: hidden;
+  transition:
+    width var(--sidebar-collapse-duration) var(--cubic-move),
+    padding var(--sidebar-collapse-duration) var(--cubic-move),
+    visibility 0s linear var(--sidebar-collapse-duration);
+}
+
 /* Right side */
 .Sidebar[data-side="right"] {
   order: 1;
@@ -731,14 +743,23 @@
 
 /* A tree: each level moves a row one whole 24px cell (the cell of a leading chevron or of an icon), 12px in at the
    first; its icons stand in 24px cells too, the glyph 16px, so the text of a row with a chevron and an icon starts
-   at 60, 84, 108… */
+   at 60, 84, 108… The cells are as tall as the text's line, so the rows keep a submenu row's height */
 .MenuSub[data-tree="true"] .MenuSubButton {
-  padding-left: calc(12px + var(--sidebar-menu-indent, 0) * 24px);
+  padding-left: calc(var(--sidebar-menu-tree-inset, 12px) + var(--sidebar-menu-indent, 0) * 24px);
+}
+
+/* Pill rows: capsules, the ends 16px in so the text and icons keep clear of the round ends. A tree moves every
+   level by the same 4px (a nested row stays under its parent's text); other rows keep the axis of the rows over
+   them and of the folded rail's icons, and only their end moves in */
+.Sidebar[data-pill="true"] {
+  --sidebar-menu-item-radius: var(--radius-full);
+  --sidebar-menu-item-trailing-padding: 16px;
+  --sidebar-menu-tree-inset: 16px;
 }
 
 .MenuSub[data-tree="true"] .MenuButtonIcon {
   width: 24px;
-  height: 24px;
+  height: var(--sidebar-menu-sub-item-line-height, 20px);
   margin: 0;
 }
 
@@ -801,7 +822,8 @@
   position: relative;
   z-index: 1;
   width: 24px;
-  height: 24px;
+  /* As tall as the text's line, so a tree row is as tall as any submenu row (32 on a desktop) */
+  height: var(--sidebar-menu-sub-item-line-height, 20px);
   margin: 0;
   color: var(--color-text-secondary);
 }

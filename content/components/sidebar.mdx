@@ -4,7 +4,7 @@ description: "A navigation sidebar for an app shell that folds to an icon rail a
 metaDescription: Composable React navigation sidebar for app shells, folding to an icon rail, with submenus, badges, search, a footer card or person menu, and a mobile menu
 ---
 
-import { SidebarOverviewDemo, SidebarMobileDemo } from "@/components/docs/SidebarDemos"
+import { SidebarOverviewDemo, SidebarMobileDemo, SidebarTreeDemo } from "@/components/docs/SidebarDemos"
 import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 
 <UsageBlock>{`import {
@@ -26,7 +26,7 @@ import { PREVIEW_MIN_HEIGHT } from "@/components/docs/previewMinHeights"
 ## Examples
 
 {/* The examples App Shell, App, Basic, Collapsible Sections, Search and Filter, Tree with Hover Actions and Search Input
-    are the settings of the Overview (owner 16.11: «Sidebar: Overview плюс Mobile Menu»); their anchors stay */}
+    are the settings of the Overview (owner 16.11: «Sidebar: Overview плюс Mobile Menu»; 24.11 the owner asked for a plain Tree example besides); their anchors stay */}
 <span id="app-shell" />
 <span id="app" />
 <span id="basic" />
@@ -159,6 +159,81 @@ return (
   </ResponsiveSidebarProvider>
 )`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
   <SidebarOverviewDemo />
+</ComponentPreview>
+
+### Tree
+
+<ComponentPreview details={<>
+  <p>A tree of screens of any depth in <code>SidebarMenuSub tree</code>. A group row starts with <code>SidebarMenuChevron placement="start"</code> in place of an icon and folds on a press anywhere on it, its chevron turned down while open (<code>aria-expanded</code> on the row); a leaf shows its icon in the same 24px cell. Each level (<code>indent</code>) is one cell further in, so the text starts at 36, 60 and 84px and a nested row's chevron or icon stands right under its parent's text. Where groups have an icon of their own (a folder), put the chevron before it and give leaves <code>SidebarMenuChevron placement="start" blank</code>.</p>
+  <p>The search narrows the rows to the ones that match and opens the groups that hold a match; the button beside it expands or collapses every level.</p>
+</>} code={`const SCREENS = [
+  { name: "Account", children: [
+    { name: "Sign in", children: [{ name: "Empty" }, { name: "Filled" }, { name: "Error" }] },
+    { name: "Sign up" },
+    { name: "Reset password" },
+  ] },
+  // …
+]
+
+const [open, setOpen] = useState(new Set(["Account", "Account/Sign in"]))
+const [active, setActive] = useState("Account/Sign in/Filled")
+const [query, setQuery] = useState("")
+
+const renderLevel = (nodes, depth, parent, levelOpen) => (
+  <SidebarMenuSub tree open={levelOpen}>
+    {nodes.map((node) => {
+      const path = parent ? \`\${parent}/\${node.name}\` : node.name
+      if (!node.children) {
+        return (
+          <SidebarMenuSubItem key={path}>
+            <SidebarMenuSubButton indent={depth} isActive={active === path} onClick={() => setActive(path)}>
+              <SidebarMenuButtonIcon><Mobile /></SidebarMenuButtonIcon>
+              {node.name}
+            </SidebarMenuSubButton>
+          </SidebarMenuSubItem>
+        )
+      }
+      const expanded = query ? true : open.has(path)
+      return (
+        <SidebarMenuSubItem key={path}>
+          <SidebarMenuSubButton indent={depth} aria-expanded={expanded} onClick={() => toggle(path)}>
+            <SidebarMenuChevron placement="start" />
+            {node.name}
+          </SidebarMenuSubButton>
+          {renderLevel(node.children, depth + 1, path, expanded)}
+        </SidebarMenuSubItem>
+      )
+    })}
+  </SidebarMenuSub>
+)
+
+<SidebarProvider collapsible="none" style={{ "--sidebar-width": "320px", "--sidebar-background": "var(--color-surface)" }}>
+  <SidebarLayout>
+    <Sidebar pill={pill} className="border-r border-[var(--sidebar-border)]">
+      <SidebarHeader>
+        <span className="truncate text-sm font-semibold text-[var(--color-text)]">Dev mode</span>
+      </SidebarHeader>
+      <div className="flex shrink-0 flex-col gap-2 pt-6">
+        <SegmentedControl value={tab} onChange={setTab} aria-label="View" block pill={pill}>
+          <SegmentedControl.Option value="scenarios">Scenarios</SegmentedControl.Option>
+          <SegmentedControl.Option value="screen">Screen</SegmentedControl.Option>
+          <SegmentedControl.Option value="flow">Flow</SegmentedControl.Option>
+        </SegmentedControl>
+        <div className="flex items-center gap-2">
+          <Input className="flex-1" pill={pill} startAdornment={<Search />} placeholder="Search screens…"
+            value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery("")} />
+          <Button uniform pill={pill} variant="soft" color="secondary" aria-label={allOpen ? "Collapse all" : "Expand all"}
+            onClick={() => setOpen(allOpen ? new Set() : new Set(allGroups))}>
+            {allOpen ? <ListChevronsDownUp /> : <ListChevronsUpDown />}
+          </Button>
+        </div>
+      </div>
+      <SidebarContent>{renderLevel(filter(SCREENS, query), 0, "", true)}</SidebarContent>
+    </Sidebar>
+    <main className="flex-1 bg-[var(--sidebar-background-secondary)]">…</main>
+  </SidebarLayout>
+</SidebarProvider>`} previewMinHeight={PREVIEW_MIN_HEIGHT.sidebarExtraTall}>
+  <SidebarTreeDemo />
 </ComponentPreview>
 
 ### Mobile Menu
@@ -336,6 +411,7 @@ The main sidebar container. Renders as an `<aside>` element.
 <PropsTable data={[
   { prop: "variant", type: '"sidebar" | "docs"', default: '"sidebar"', description: "Visual variant" },
   { prop: "side", type: '"left" | "right"', default: '"left"', description: "Which side the sidebar is on" },
+  { prop: "pill", type: "boolean", default: "false", description: "Rows as capsules: their ends move 16px in (from 12) so text and icons keep clear of the round ends. A tree moves every level by the same 4px, so a nested row stays under its parent's text; other rows keep the axis of the rows over them and of the folded rail's icons, and only their end moves in. Set pill on the controls in the sidebar as well (SegmentedControl, Input, Button)" },
 ]} />
 
 ### SidebarGroup

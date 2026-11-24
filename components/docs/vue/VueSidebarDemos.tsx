@@ -209,6 +209,36 @@ const iconSections: NavItem[] = [
   },
 ];
 
+type ScreenNode = { name: string; path: string; children?: ScreenNode[] };
+
+/** The tree's rows, each with its path ("Account/Sign in/Filled"), as the React demo's. */
+function withPaths(nodes: { name: string; children?: unknown[] }[], parent = ''): ScreenNode[] {
+  return nodes.map((node) => {
+    const path = parent ? `${parent}/${node.name}` : node.name;
+    const children = node.children as { name: string; children?: unknown[] }[] | undefined;
+    return children ? { name: node.name, path, children: withPaths(children, path) } : { name: node.name, path };
+  });
+}
+
+const screens = withPaths([
+  { name: 'Account', children: [{ name: 'Sign in', children: [{ name: 'Empty' }, { name: 'Filled' }, { name: 'Error' }] }, { name: 'Sign up' }, { name: 'Reset password' }] },
+  { name: 'Settings', children: [{ name: 'Profile', children: [{ name: 'Empty' }, { name: 'Filled' }] }, { name: 'Notifications' }, { name: 'Privacy' }] },
+  { name: 'Billing', children: [{ name: 'Plans', children: [{ name: 'Monthly' }, { name: 'Yearly' }] }, { name: 'Invoices' }] },
+]);
+
+function groupPaths(nodes: ScreenNode[]): string[] {
+  return nodes.flatMap((node) => (node.children ? [node.path, ...groupPaths(node.children)] : []));
+}
+
+function filterScreens(nodes: ScreenNode[], query: string): ScreenNode[] {
+  const q = query.trim().toLowerCase();
+  return nodes.flatMap((node) => {
+    if (!q || node.name.toLowerCase().includes(q)) return [node];
+    const children = node.children ? filterScreens(node.children, query) : [];
+    return children.length ? [{ ...node, children }] : [];
+  });
+}
+
 // Static data stays out of Vue's reactivity
 const scope = {
   ResponsiveSidebarProvider: markRaw(ResponsiveSidebarProvider),
@@ -218,28 +248,34 @@ const scope = {
   docsSections: markRaw(docsSections),
   iconSections: markRaw(iconSections),
   settingsItems: markRaw(['General', 'Billing', 'Members']),
+  screens: markRaw(screens),
+  screenGroups: markRaw(groupPaths(screens)),
+  /** The rows that match a search: a row whose name matches, with all its rows, or a group with a match under it */
+  filterScreens,
   /** Whether a row's label holds the search query (an empty query holds everywhere) */
   hit: (label: string, query: string) => label.toLowerCase().includes(query.trim().toLowerCase()),
 };
 
+// The Overview's docs framing reaches every stage on the page; a plain example (stage class sidebar-plain) keeps
+// the Sidebar as it ships
 const SIDEBAR_DEMO_STYLES = `
-  [data-demo-stage] [class*="SidebarLayout"] { --sidebar-width: 260px; }
-  [data-demo-stage] aside[class*="Sidebar-module"] { --sidebar-icon-size: 16px; padding-top: 12px; }
-  [data-demo-stage] aside[class*="Sidebar-module"] > [class*="Header"] { min-height: 0; }
-  [data-demo-stage] aside[class*="Sidebar-module"] > [class*="Content"] { padding-top: 12px; -webkit-mask-image: none; mask-image: none; }
-  [data-demo-stage] aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 18px; padding-bottom: 0; }
-  [data-demo-stage] aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:first-child:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 0; }
-  [data-demo-stage] aside[class*="Sidebar-module"] [class*="GroupLabel"] { margin-top: 0; padding-bottom: 6px; }
-  [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"]:has(.demo-sidebar-wordmark) { padding-left: 12px; padding-right: 0; gap: 4px; transition: padding var(--sidebar-collapse-duration) var(--cubic-move); }
-  [data-demo-stage] .demo-sidebar-flat [class*="SidebarLayout"] { background: var(--color-surface); }
-  [data-demo-stage] .demo-sidebar-flat aside[class*="Sidebar-module"] { background: var(--color-surface-secondary); }
-  [data-demo-stage] .demo-sidebar-flat [class*="Inset"] { margin: 0; box-shadow: none; border-radius: 0; }
-  [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] { width: auto; margin-left: auto; flex: 0 0 auto; }
-  [data-demo-stage] aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] span { opacity: 1 !important; pointer-events: auto !important; }
-  [data-demo-stage] aside[class*="Sidebar-module"] button[class*="Trigger"] [class*="TriggerIcon"] { margin: 0 3px; }
-  [data-demo-stage] [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] { padding-left: 0; padding-right: 0; justify-content: center; gap: 0; }
-  [data-demo-stage] [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] button[class*="Trigger"] { margin-left: 0; margin-right: 0; }
-  [data-demo-stage] .demo-sidebar-wordmark {
+  [data-demo-stage]:not(.sidebar-plain) [class*="SidebarLayout"] { --sidebar-width: 260px; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] { --sidebar-icon-size: 16px; padding-top: 12px; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] > [class*="Header"] { min-height: 0; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] > [class*="Content"] { padding-top: 12px; -webkit-mask-image: none; mask-image: none; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 18px; padding-bottom: 0; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] [class*="Sidebar-module__"][class*="Group"]:first-child:not([class*="GroupLabel"]):not([class*="GroupContent"]) { padding-top: 0; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] [class*="GroupLabel"] { margin-top: 0; padding-bottom: 6px; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] [class*="Header"]:has(.demo-sidebar-wordmark) { padding-left: 12px; padding-right: 0; gap: 4px; transition: padding var(--sidebar-collapse-duration) var(--cubic-move); }
+  [data-demo-stage]:not(.sidebar-plain) .demo-sidebar-flat [class*="SidebarLayout"] { background: var(--color-surface); }
+  [data-demo-stage]:not(.sidebar-plain) .demo-sidebar-flat aside[class*="Sidebar-module"] { background: var(--color-surface-secondary); }
+  [data-demo-stage]:not(.sidebar-plain) .demo-sidebar-flat [class*="Inset"] { margin: 0; box-shadow: none; border-radius: 0; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] { width: auto; margin-left: auto; flex: 0 0 auto; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] [class*="Header"] button[class*="Trigger"] span { opacity: 1 !important; pointer-events: auto !important; }
+  [data-demo-stage]:not(.sidebar-plain) aside[class*="Sidebar-module"] button[class*="Trigger"] [class*="TriggerIcon"] { margin: 0 3px; }
+  [data-demo-stage]:not(.sidebar-plain) [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] { padding-left: 0; padding-right: 0; justify-content: center; gap: 0; }
+  [data-demo-stage]:not(.sidebar-plain) [data-sidebar="collapsed"] aside [class*="Sidebar-module__"][class*="Header"] button[class*="Trigger"] { margin-left: 0; margin-right: 0; }
+  [data-demo-stage]:not(.sidebar-plain) .demo-sidebar-wordmark {
     flex: 1;
     min-width: 0;
     max-width: 1000px;
@@ -251,9 +287,9 @@ const SIDEBAR_DEMO_STYLES = `
     opacity: 1;
     transition: opacity var(--sidebar-collapse-duration) var(--cubic-move), max-width var(--sidebar-collapse-duration) var(--cubic-move);
   }
-  [data-demo-stage] [data-sidebar="collapsed"] .demo-sidebar-wordmark { opacity: 0; max-width: 0; pointer-events: none; }
-  [data-demo-stage] .demo-sidebar-search { padding: 0 0 8px; }
-  [data-demo-stage] [data-sidebar="collapsed"] .demo-sidebar-search { display: none; }
+  [data-demo-stage]:not(.sidebar-plain) [data-sidebar="collapsed"] .demo-sidebar-wordmark { opacity: 0; max-width: 0; pointer-events: none; }
+  [data-demo-stage]:not(.sidebar-plain) .demo-sidebar-search { padding: 0 0 8px; }
+  [data-demo-stage]:not(.sidebar-plain) [data-sidebar="collapsed"] .demo-sidebar-search { display: none; }
 
 `;
 
