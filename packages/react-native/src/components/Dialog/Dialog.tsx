@@ -34,7 +34,10 @@ export type DialogProps = {
   actions?: DialogAction[]
   /** Content between the text and the actions, as a text field. */
   children?: ReactNode
-  /** `stacked` stacks two actions too; `inline` keeps more in a row. @default by count, as the web */
+  /**
+   * `stacked` stacks the actions, `inline` keeps them in a row, on iOS and Android. @default iOS: two side by side
+   * while their labels fit on one line, three or more stacked; Android: in a row while they fit, else stacked
+   */
   mobileLayout?: "inline" | "stacked"
   /** A tap outside, Android's back and Escape close it: Android's dialogs do, an iOS alert does not. @default Android true, iOS false */
   dismissible?: boolean
@@ -73,7 +76,7 @@ export function Dialog({ open, onOpenChange, title, description, actions = [], c
   if (theme.isAndroid) {
     return (
       <AndroidFrame open={open} onClose={close} dismissible={dismissible ?? true} a11y={a11y} testID={testID}>
-        <AndroidDialog theme={theme} title={title} description={description} actions={actions} run={run} ids={ids}>
+        <AndroidDialog theme={theme} title={title} description={description} actions={actions} run={run} ids={ids} layout={mobileLayout}>
           {children}
         </AndroidDialog>
       </AndroidFrame>
@@ -296,6 +299,8 @@ type AndroidPanelProps = Omit<PanelProps, "title"> & {
   title?: ReactNode
   /** Rows across the panel's width under the title, in place of the text (an Android dialog with a list of rows). */
   list?: ReactNode
+  /** The buttons in a row or stacked; by default in a row while they fit. */
+  layout?: "inline" | "stacked"
 }
 
 /** An iOS alert action's label inset from its capsule's ends. */
@@ -321,9 +326,11 @@ function IOSAlert({ theme, title, description, actions, run, ids, layout, childr
   // Two stacked because their labels do not fit: Cancel last, at the bottom, as UIAlertController stacks them
   const autoStacked = !inline && layout == null && actions.length === 2
   const ordered = inline ? [...cancel, ...others] : autoStacked ? [...others, ...cancel] : indexed
+  // Until both labels are measured the alert is unseen: its first frame shows the actions as they stay
+  const ready = !(layout == null && actions.length === 2) || actions.every((_, index) => labels[index] != null)
   const type = { fontSize: theme.length("--dialog-mobile-type-size", 17), lineHeight: theme.length("--dialog-mobile-type-leading", 22) }
   return (
-    <Glass radius={radius} elevation="raised" fillToken="--dialog-alert-background" style={{ width, flexShrink: 1, padding, gap: 10 }}>
+    <Glass radius={radius} elevation="raised" fillToken="--dialog-alert-background" style={{ width, flexShrink: 1, padding, gap: 10, opacity: ready ? 1 : 0 }}>
       {layout == null && actions.length === 2 ? (
         // The labels on one line, unseen, to tell whether two fit side by side
         <View pointerEvents="none" aria-hidden style={styles.measure}>
@@ -418,7 +425,7 @@ function IOSAction({ theme, action, run, type, grow }: { theme: Theme; action: D
   )
 }
 
-function AndroidDialog({ theme, title, description, actions, run, ids, children, list }: AndroidPanelProps) {
+function AndroidDialog({ theme, title, description, actions, run, ids, children, list, layout }: AndroidPanelProps) {
   const m = theme.material
   const { width: screen } = useWindowDimensions()
   // Android's alert: 48 from the screen's sides, at most 356 wide
@@ -432,25 +439,31 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
   // Each button's own width, measured in either layout (their content's, never stretched), and the row's: they stack
   // when they do not fit side by side
   const [room, setRoom] = useState(0)
-  const [widths, setWidths] = useState<number[]>([])
-  const measured = bar.every((_, index) => widths[index] != null)
-  const needed = bar.reduce((sum, _, index) => sum + (widths[index] ?? 0), 0) + GAP * Math.max(0, bar.length - 1)
-  const stacked = room > 0 && measured && needed > room + 0.5
+  // Kept by each button's key (its place in `actions`), which stays with it when the row reorders: a button that moves
+  // in the row keeps its element and is not measured again
+  const [widths, setWidths] = useState<Record<number, number>>({})
+  const keys = bar.map((action) => actions.indexOf(action))
+  const measured = keys.every((key) => widths[key] != null)
+  const needed = keys.reduce((sum, key) => sum + (widths[key] ?? 0), 0) + GAP * Math.max(0, bar.length - 1)
+  // Until the buttons and the row are measured the panel is unseen: its first frame shows them as they stay
+  const ready = layout != null || bar.length === 0 || (room > 0 && measured)
+  const stacked = layout === "stacked" || (layout !== "inline" && room > 0 && measured && needed > room + 0.5)
   const order = stacked ? [...bar.keys()].reverse() : [...bar.keys()]
   const button = (index: number) => {
     const action = bar[index]
+    const key = keys[index]
     return (
       <AndroidDialogButton
-        key={actions.indexOf(action)}
+        key={key}
         theme={theme}
         action={action}
         run={run}
-        onWidth={(next) => setWidths((current) => (current[index] === next ? current : Object.assign([...current], { [index]: next })))}
+        onWidth={(next) => setWidths((current) => (current[key] === next ? current : { ...current, [key]: next }))}
       />
     )
   }
   return (
-    <View style={[styles.android, { width, backgroundColor: androidDialogBackground(theme) }]}>
+    <View style={[styles.android, { width, backgroundColor: androidDialogBackground(theme), opacity: ready ? 1 : 0 }]}>
       {list != null ? (
         // A list: the title stays, 14 over the rows, and the rows scroll under it (AlertDialog with a custom view)
         <>

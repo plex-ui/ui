@@ -7,6 +7,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.13 (2026-11-25)
+
+`@plexui/react-native` 0.2.13.
+
+### Changed
+
+- **Dialog `mobileLayout` on Android.** `stacked` stacks the buttons and `inline` keeps them in a row, as on iOS; by default they stand in a row while they fit, else they stack.
+
+### Fixed
+
+- **Dialog's first frame shows its actions as they stay.** The dialog stays unseen until its actions are measured: an Android dialog whose buttons do not fit no longer shows them in a row for a frame before it stacks them, nor an iOS alert two long labels side by side before it stacks them.
+
 ## 0.62.3 (2026-11-24)
 
 `@plexui/ui` 0.62.3, `@plexui/vue` 0.42.3 and `@plexui/styles` 0.17.5 (React and Vue now need ^0.17.5), and `@plexui/react-native` 0.2.12 (0.2.11 stuck in npm processing and never reached the registry).
