@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.19 (2026-11-25)
+
+`@plexui/react-native` 0.2.19.
+
+### Changed
+
+- **The web's glass reads as iOS 26's Liquid Glass.** Bars, bar buttons, the tab bar and the large segmented control were frosted panels: gray at 80% (near-black at 70% at night) over a 20px blur. Measured against iOS 26's tab bars and bar buttons, they now take rgb(250, 250, 252) at 62% (rgb(52, 52, 56) at 74% at night) over an 8px blur that saturates what is under them, a sheen down the glass, a bright rim on every side, and a lens at the edge: what is under the glass is blurred and lit more there, as Liquid Glass bends it (a browser cannot bend it). At night the tab bar's selected pill is deeper at its top and lighter toward its bottom. New tokens: `--mobile-glass-web-sheen`, `--mobile-glass-web-shadow`, `--mobile-glass-web-shadow-raised` and `--mobile-glass-web-lens-filter` (`none` draws no lens). Menus, toasts and alerts keep their frosted panels; native iOS and Android do not change.
+
 ## @plexui/react-native 0.2.18 (2026-11-25)
 
 `@plexui/react-native` 0.2.18.

@@ -11,7 +11,7 @@ import { Glass } from "../../internal/Glass"
 import { curves } from "../../internal/motion"
 import { useTabKeys } from "../../internal/tabKeys"
 import { barSurface, mix, stateLayer, withAlpha } from "../../theme/material"
-import { useTheme } from "../../theme/ThemeProvider"
+import { useTheme, useThemeOverrides } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text, textStyle } from "../Text/Text"
@@ -732,6 +732,13 @@ function TabBarRoot({
     slidingPill: pillFrame ? value : undefined,
   }
   const pillOutset = theme.length("--tab-bar-pill-outset", 6)
+  // The web's selected pill in the dark is a shade of the glass, deeper at its top and lifting toward its bottom, as
+  // iOS 26 draws it; a brand that sets the pill's token keeps its color
+  const overrides = useThemeOverrides()
+  const webPill: ViewStyle =
+    theme.scheme === "dark" && overrides?.["--tab-bar-item-background-selected"] == null
+      ? ({ backgroundColor: "transparent", backgroundImage: "linear-gradient(to bottom, rgb(0 0 0 / 22%), rgb(255 255 255 / 8%))" } as ViewStyle)
+      : { backgroundColor: theme.color("--tab-bar-item-background-selected") }
   const [pillX] = useState(() => new Animated.Value(0))
   const [pillWidth] = useState(() => new Animated.Value(0))
   const pillShown = useRef(false)
@@ -845,7 +852,7 @@ function TabBarRoot({
                 duration={300}
                 easing="cubic-bezier(0.25, 0.1, 0.25, 1)"
                 still={theme.reducedMotion}
-                style={[styles.pill, { top: pillFrame.y, height: pillFrame.height, backgroundColor: theme.color("--tab-bar-item-background-selected") }]}
+                style={[styles.pill, { top: pillFrame.y, height: pillFrame.height }, webPill]}
               />
             ) : pillFrame ? (
               <Animated.View

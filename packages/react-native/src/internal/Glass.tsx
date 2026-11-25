@@ -38,18 +38,18 @@ export type GlassProps = ViewProps & {
 const WEB_DENSE: Record<string, { fill: string; light: string; dark: string; filter: string; blur: string }> = {
   "--mobile-glass-background": {
     fill: "--mobile-glass-web-background",
-    light: "rgba(243, 243, 243, 0.8)",
-    dark: "rgba(28, 28, 30, 0.7)",
+    light: "rgba(250, 250, 252, 0.62)",
+    dark: "rgba(52, 52, 56, 0.74)",
     filter: "--mobile-glass-web-backdrop-filter",
-    blur: "blur(20px)",
+    blur: "blur(8px) saturate(180%)",
   },
   // Pressed, a step deeper, as the shared tokens step from 55% to 75%
   "--mobile-glass-background-active": {
     fill: "--mobile-glass-web-background-active",
-    light: "rgba(232, 232, 232, 0.9)",
-    dark: "rgba(58, 58, 60, 0.8)",
+    light: "rgba(238, 238, 242, 0.8)",
+    dark: "rgba(72, 72, 76, 0.84)",
     filter: "--mobile-glass-web-backdrop-filter",
-    blur: "blur(20px)",
+    blur: "blur(8px) saturate(180%)",
   },
   "--menu-mobile-background": {
     fill: "--menu-mobile-web-background",
@@ -59,6 +59,34 @@ const WEB_DENSE: Record<string, { fill: string; light: string; dark: string; fil
     blur: "blur(30px)",
   },
 }
+
+/**
+ * The web's plain glass drawn as iOS 26's Liquid Glass reads (measured on its tab bars and bar buttons): a lighter fill
+ * than a tint of white in the dark, a sheen down the glass (a shade under its top edge in the light, a lift toward its
+ * bottom in the dark), a bright rim on every side, and a lens at the edge, where what is under the glass is blurred and
+ * lit more, as Liquid Glass bends it there (a browser cannot bend it). Each part a token a theme may set.
+ */
+const WEB_LIQUID = {
+  sheen: { token: "--mobile-glass-web-sheen", light: "linear-gradient(to bottom, rgb(0 0 0 / 3.5%), rgb(0 0 0 / 0) 35%)", dark: "linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 5%))" },
+  shadow: {
+    token: "--mobile-glass-web-shadow",
+    light:
+      "0 8px 24px rgb(0 0 0 / 6%), 0 0 0 0.5px rgb(0 0 0 / 12%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 90%), inset 1px 0 0 rgb(255 255 255 / 70%), inset -1px 0 0 rgb(255 255 255 / 70%)",
+    dark: "0 8px 24px rgb(0 0 0 / 25%), inset 0 1px 0 rgb(255 255 255 / 36%), inset 0 -1px 0 rgb(255 255 255 / 20%), inset 1px 0 0 rgb(255 255 255 / 12%), inset -1px 0 0 rgb(255 255 255 / 12%)",
+  },
+  shadowRaised: {
+    token: "--mobile-glass-web-shadow-raised",
+    light:
+      "0 8px 40px rgb(0 0 0 / 12%), 0 0 0 0.5px rgb(0 0 0 / 12%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 90%), inset 1px 0 0 rgb(255 255 255 / 70%), inset -1px 0 0 rgb(255 255 255 / 70%)",
+    dark: "0 8px 40px rgb(0 0 0 / 30%), inset 0 1px 0 rgb(255 255 255 / 36%), inset 0 -1px 0 rgb(255 255 255 / 20%), inset 1px 0 0 rgb(255 255 255 / 12%), inset -1px 0 0 rgb(255 255 255 / 12%)",
+  },
+  lens: { token: "--mobile-glass-web-lens-filter", value: "blur(3px) brightness(1.12) saturate(200%)" },
+}
+
+// The lens: the glass's edge only, 14 in from its sides and 9 from its top and bottom (a small glass keeps a third)
+const lensMask = (inline: number, block: number) =>
+  `linear-gradient(to right, #000 0, transparent ${inline}px, transparent calc(100% - ${inline}px), #000 100%), ` +
+  `linear-gradient(to bottom, #000 0, transparent ${block}px, transparent calc(100% - ${block}px), #000 100%)`
 
 /** The filter and the shadow of the glass surfaces of the phone layer, by their fill (mobile-materials.css, touch.css). */
 const SURFACES: Record<string, { filter: string; shadow: string }> = {
@@ -133,12 +161,42 @@ export function Glass({
   const module = web || Platform.OS !== "ios" ? null : blurModule()
   const opaque = reduceTransparency || (!web && module == null)
   if (web && !opaque) {
+    // The plain glass (bars, bar buttons, the tab bar, the large segmented control) reads as Liquid Glass; menus,
+    // toasts and alerts keep their frosted panels
+    const liquid = !theme.isAndroid && (fillName === "--mobile-glass-background" || fillName === "--mobile-glass-background-active" || plainFilter)
+    const scheme = theme.scheme === "dark" ? "dark" : "light"
+    const own = (part: { token: string; light: string; dark: string }) => {
+      const value = theme.token(part.token)
+      return typeof value === "string" ? value : part[scheme]
+    }
+    const ownShadow = shadowToken == null && surface == null && overrides?.["--mobile-glass-shadow"] == null && overrides?.["--mobile-glass-shadow-raised"] == null
+    const liquidShadow = liquid && ownShadow ? own(elevation === "raised" ? WEB_LIQUID.shadowRaised : WEB_LIQUID.shadow) : boxShadow
+    const sheen = liquid && tint == null ? own(WEB_LIQUID.sheen) : undefined
+    const lensToken = theme.token(WEB_LIQUID.lens.token)
+    const lensFilter = typeof lensToken === "string" ? lensToken : WEB_LIQUID.lens.value
+    const mask = lensMask(Math.min(14, radius > 0 ? radius / 2 : 14), Math.min(9, radius > 0 ? radius / 3 : 9))
     // An Animated.View, so a panel can move its own glass (a transform above the blur would stop it)
     return (
       <Animated.View
         {...rest}
-        style={[shape, { backgroundColor: fill, boxShadow }, { backdropFilter: filter, WebkitBackdropFilter: filter } as ViewStyle, style]}
+        style={[
+          shape,
+          { backgroundColor: fill, boxShadow: liquidShadow },
+          { backdropFilter: filter, WebkitBackdropFilter: filter, backgroundImage: sheen } as ViewStyle,
+          style,
+        ]}
       >
+        {liquid && lensFilter !== "none" ? (
+          <View
+            pointerEvents="none"
+            aria-hidden
+            style={[
+              StyleSheet.absoluteFill,
+              shape,
+              { backdropFilter: lensFilter, WebkitBackdropFilter: lensFilter, maskImage: mask, WebkitMaskImage: mask } as ViewStyle,
+            ]}
+          />
+        ) : null}
         {children}
       </Animated.View>
     )
