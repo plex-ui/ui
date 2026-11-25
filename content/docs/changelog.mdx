@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.21 (2026-11-25)
+
+`@plexui/react-native` 0.2.21.
+
+### Fixed
+
+- **On the web, a mouse or trackpad click outside a menu no longer reaches what is under it.** React carries a click from the overlay's portal up to the tree of the control that opened it, so on a List row whose Select opens from the whole row, inside a BottomSheet for one, a click on the dim reached the row and opened the menu again. Only the click stops at the overlay, so presses inside it work as before. The same applies to dialogs and sheets, on iOS and on Android.
+
 ## 0.62.4 (2026-11-25)
 
 `@plexui/ui` 0.62.4 and `@plexui/vue` 0.42.4.

@@ -258,6 +258,10 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
           style={StyleSheet.absoluteFill}
           pointerEvents={show ? "box-none" : "none"}
           onAccessibilityEscape={dismissible && show ? onDismiss : undefined}
+          // A web click in the overlay goes no further: React carries it from the Modal's portal up to the trigger's
+          // own tree, where a List row whose Select opens from the whole row took a click on the scrim and opened its
+          // menu again. Only the click: the responders listen on the document, and a press there is the click
+          {...(Platform.OS === "web" ? { onClick: stopClick } : null)}
           testID={testID}
         >
           <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: scrim, opacity: scrimOpacity ? scrimOpacity(progress, show) : progress }]} />
@@ -283,6 +287,7 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
 }
 
 const ignore = () => {}
+const stopClick = (event: { stopPropagation?: () => void }) => event.stopPropagation?.()
 const endTouch = (event: { cancelable?: boolean; preventDefault?: () => void; nativeEvent?: { cancelable?: boolean } }) => {
   if (event.cancelable !== false && event.nativeEvent?.cancelable !== false) event.preventDefault?.()
 }
