@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
-import { Animated, Easing, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewProps, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewProps, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
+import { CssSlide } from "../../internal/CssSlide"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Search from "../../icons/plex/Search"
 import { BarBackdrop, SoftBottomEdge, TabBarFade, ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, glassBarBlur, useAndroidGlass } from "../../internal/BarBackdrop"
@@ -742,6 +743,8 @@ function TabBarRoot({
       pillShown.current = false
       return
     }
+    // The web's pill slides in CSS
+    if (Platform.OS === "web") return
     // It appears in place (the first frame, back from a minimized bar or the circle's tab), then slides: CSS `ease`
     // over 300ms, as SegmentedControl's thumb
     if (!pillShown.current || theme.reducedMotion) {
@@ -832,7 +835,19 @@ function TabBarRoot({
             elevation="raised"
             style={[styles.capsule, minimized ? { padding: capsulePadding } : { paddingVertical: capsulePadding, paddingHorizontal: theme.length("--tab-bar-capsule-padding-inline", 10) }]}
           >
-            {pillFrame ? (
+            {pillFrame && Platform.OS === "web" ? (
+              // The web slides the pill in CSS, off the JavaScript thread, so a screen mounting under the new tab
+              // does not stop it
+              <CssSlide
+                x={pillLeft!}
+                width={pillSpan!}
+                side="start"
+                duration={300}
+                easing="cubic-bezier(0.25, 0.1, 0.25, 1)"
+                still={theme.reducedMotion}
+                style={[styles.pill, { top: pillFrame.y, height: pillFrame.height, backgroundColor: theme.color("--tab-bar-item-background-selected") }]}
+              />
+            ) : pillFrame ? (
               <Animated.View
                 pointerEvents="none"
                 style={[

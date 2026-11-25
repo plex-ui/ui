@@ -1,6 +1,7 @@
 import { createContext, isValidElement, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
-import { Animated, Easing, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
+import { CssSlide } from "../../internal/CssSlide"
 import { childrenOfType, isRenderable, textOf } from "../../internal/children"
 import { Glass } from "../../internal/Glass"
 import { curves } from "../../internal/motion"
@@ -250,7 +251,8 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
   const [width] = useState(() => new Animated.Value(0))
   const placed = useRef(false)
   useEffect(() => {
-    if (selectedX == null || selectedWidth == null) return
+    // The web's thumb slides in CSS
+    if (selectedX == null || selectedWidth == null || Platform.OS === "web") return
     if (!placed.current || theme.reducedMotion) {
       x.setValue(selectedX)
       width.setValue(selectedWidth)
@@ -279,7 +281,18 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
   const maxScale = look.height / look.lineHeight
   const content = (
     <>
-      {selected ? (
+      {selected && Platform.OS === "web" ? (
+        // The web slides the thumb in CSS, off the JavaScript thread
+        <CssSlide
+          x={selected.x}
+          width={selected.width}
+          side="left"
+          duration={look.duration}
+          easing="cubic-bezier(0.25, 0.1, 0.25, 1)"
+          still={theme.reducedMotion}
+          style={[styles.thumb, { top: look.gutter, bottom: look.gutter, borderRadius: optionRadius, backgroundColor: look.thumb }]}
+        />
+      ) : selected ? (
         <Animated.View
           pointerEvents="none"
           style={[styles.thumb, { top: look.gutter, bottom: look.gutter, left: x, width, borderRadius: optionRadius, backgroundColor: look.thumb }]}
@@ -395,7 +408,7 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal, 
   const frameWidth = measured ? widths[options[index].value] : undefined
   const frame = frameX != null
   useEffect(() => {
-    if (frameX == null || frameWidth == null) return
+    if (frameX == null || frameWidth == null || Platform.OS === "web") return
     if (!placed.current || theme.reducedMotion) {
       x.setValue(frameX)
       width.setValue(frameWidth)
@@ -413,7 +426,17 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal, 
         block ? styles.stretch : null,
       ]}
     >
-      {frame ? (
+      {frame && Platform.OS === "web" ? (
+        <CssSlide
+          x={frameX}
+          width={frameWidth!}
+          side="left"
+          duration={ANDROID_MOVE.duration}
+          easing="cubic-bezier(0.23, 1, 0.32, 1)"
+          still={theme.reducedMotion}
+          style={[styles.androidPill, { height: inner, borderRadius: inner / 2, backgroundColor: withAlpha(m.primary, 0.12) }]}
+        />
+      ) : frame ? (
         <Animated.View
           pointerEvents="none"
           style={[styles.androidPill, { height: inner, borderRadius: inner / 2, backgroundColor: withAlpha(m.primary, 0.12), left: x, width }]}

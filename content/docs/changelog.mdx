@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.18 (2026-11-25)
+
+`@plexui/react-native` 0.2.18.
+
+### Changed
+
+- **On the web, the TabBar pill and the SegmentedControl thumb slide in CSS.** Their place is a `translateX` and their width a CSS transition with the same timing as before: 300ms ease for the pill and the iOS thumb, 320ms for the Android pill. The browser runs the slide itself, so a long frame of the page's own work (a screen mounting under the new tab) no longer stops the slide halfway and makes it jump. In a right-to-left row the pill moves the other way. iOS and Android keep their animation.
+
 ## @plexui/react-native 0.2.17 (2026-11-25)
 
 `@plexui/react-native` 0.2.17.
