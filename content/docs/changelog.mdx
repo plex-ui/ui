@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.22 (2026-11-25)
+
+`@plexui/react-native` 0.2.22.
+
+### Fixed
+
+- **The web glass's lens follows the glass's shape.** It was masked by two bands across the box, so on a round glass (a bar button, a progress ring) the middle that both bands left out read as a square inside the circle. The lens is now a ring along the glass's own outline: a circle on a round glass, the corner radius on a capsule or a bar. A round glass keeps a thin rim of it, since a ring as deep as a bar's reads on a small circle as a halo around a darker middle. `--mobile-glass-web-lens-filter` still sets or turns off the lens.
+
 ## @plexui/react-native 0.2.21 (2026-11-25)
 
 `@plexui/react-native` 0.2.21.

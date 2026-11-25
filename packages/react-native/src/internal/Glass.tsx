@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Animated, Platform, StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from "react-native"
 import { useTheme, useThemeOverrides } from "../theme/ThemeProvider"
 import { blurModule, liquidGlassModule } from "./optional"
@@ -83,10 +84,37 @@ const WEB_LIQUID = {
   lens: { token: "--mobile-glass-web-lens-filter", value: "blur(3px) brightness(1.12) saturate(200%)" },
 }
 
-// The lens: the glass's edge only, 14 in from its sides and 9 from its top and bottom (a small glass keeps a third)
-const lensMask = (inline: number, block: number) =>
-  `linear-gradient(to right, #000 0, transparent ${inline}px, transparent calc(100% - ${inline}px), #000 100%), ` +
-  `linear-gradient(to bottom, #000 0, transparent ${block}px, transparent calc(100% - ${block}px), #000 100%)`
+/**
+ * The lens: the glass's edge only, fading in over 14 from its sides and 9 from its top and bottom (a small glass keeps
+ * a half and a third of its radius), along the glass's own shape. A ring whose hole is the glass's outline drawn
+ * smaller, blurred so its inner edge fades; bands across the box would leave a square in a round glass. The outline is
+ * the corner radius as the browser draws it, so no larger than half the glass's shorter side (a capsule's 999 is its
+ * height's half). A round glass (a bar button, a progress ring) keeps a thin rim of it: a ring as deep as a bar's
+ * reads on a small circle as a halo around a darker middle.
+ */
+const lensMask = (width: number, height: number, radius: number) => {
+  const r = Math.max(0, Math.min(radius, width / 2, height / 2))
+  const round = r > 0 && Math.abs(width - height) <= 1 && r >= Math.min(width, height) / 2 - 0.5
+  const inline = round ? r / 6 : Math.min(14, r > 0 ? r / 2 : 14)
+  const block = round ? r / 8 : Math.min(9, r > 0 ? r / 3 : 9)
+  const x = inline / 2
+  const y = block / 2
+  const w = Math.max(0, width - 2 * x)
+  const h = Math.max(0, height - 2 * y)
+  const rx = Math.max(0, Math.min(r - x, w / 2))
+  const ry = Math.max(0, Math.min(r - y, h / 2))
+  const f = (n: number) => +n.toFixed(2)
+  const hole =
+    `M${f(x + rx)} ${f(y)}H${f(x + w - rx)}A${f(rx)} ${f(ry)} 0 0 1 ${f(x + w)} ${f(y + ry)}V${f(y + h - ry)}` +
+    `A${f(rx)} ${f(ry)} 0 0 1 ${f(x + w - rx)} ${f(y + h)}H${f(x + rx)}A${f(rx)} ${f(ry)} 0 0 1 ${f(x)} ${f(y + h - ry)}` +
+    `V${f(y + ry)}A${f(rx)} ${f(ry)} 0 0 1 ${f(x + rx)} ${f(y)}Z`
+  // The outer edge stands 20 past the box, so the blur fades only the hole's edge; the glass's radius clips the rest
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${f(width)}" height="${f(height)}">` +
+    `<filter id="e" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="${f(inline / 4)} ${f(block / 4)}"/></filter>` +
+    `<path filter="url(#e)" fill-rule="evenodd" d="M-20 -20H${f(width + 20)}V${f(height + 20)}H-20Z${hole}"/></svg>`
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+}
 
 /** The filter and the shadow of the glass surfaces of the phone layer, by their fill (mobile-materials.css, touch.css). */
 const SURFACES: Record<string, { filter: string; shadow: string }> = {
@@ -122,6 +150,8 @@ export function Glass({
   ...rest
 }: GlassProps) {
   const theme = useTheme()
+  // The web lens's mask follows the glass's shape, so it needs the glass's size
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null)
   const reduceTransparency = useReduceTransparency()
   const overrides = useThemeOverrides()
   const shape: ViewStyle = { borderRadius: radius, borderCurve: "continuous" }
@@ -174,7 +204,7 @@ export function Glass({
     const sheen = liquid && tint == null ? own(WEB_LIQUID.sheen) : undefined
     const lensToken = theme.token(WEB_LIQUID.lens.token)
     const lensFilter = typeof lensToken === "string" ? lensToken : WEB_LIQUID.lens.value
-    const mask = lensMask(Math.min(14, radius > 0 ? radius / 2 : 14), Math.min(9, radius > 0 ? radius / 3 : 9))
+    const mask = size != null && size.width > 0 && size.height > 0 ? lensMask(size.width, size.height, radius) : undefined
     // An Animated.View, so a panel can move its own glass (a transform above the blur would stop it)
     return (
       <Animated.View
@@ -190,10 +220,17 @@ export function Glass({
           <View
             pointerEvents="none"
             aria-hidden
+            onLayout={(event) => {
+              const { width, height } = event.nativeEvent.layout
+              if (size?.width !== width || size?.height !== height) setSize({ width, height })
+            }}
             style={[
               StyleSheet.absoluteFill,
               shape,
-              { backdropFilter: lensFilter, WebkitBackdropFilter: lensFilter, maskImage: mask, WebkitMaskImage: mask } as ViewStyle,
+              // Until the glass has a size, no lens: a lens unmasked would blur the whole glass
+              mask == null
+                ? null
+                : ({ backdropFilter: lensFilter, WebkitBackdropFilter: lensFilter, maskImage: mask, WebkitMaskImage: mask, maskSize: "100% 100%", WebkitMaskSize: "100% 100%" } as ViewStyle),
             ]}
           />
         ) : null}

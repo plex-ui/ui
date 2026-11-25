@@ -1,6 +1,6 @@
 {
   "name": "@plexui/react-native",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "description": "Plex UI components for React Native and Expo: iOS 26 and Material 3, on the shared @plexui/styles tokens",
   "license": "MIT",
   "homepage": "https://plexui.com",
