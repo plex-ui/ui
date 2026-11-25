@@ -269,6 +269,10 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
             style={StyleSheet.absoluteFill}
             onStartShouldSetResponder={dismissible && show ? yes : undefined}
             onResponderRelease={dismissible && show ? onDismiss : undefined}
+            // A tap on the web is followed by the browser's own mouse events and click at its point, which land on what
+            // is under the overlay once it closes (a sheet's row that opens the same menu again): the scrim's touch
+            // ends without them
+            {...(Platform.OS === "web" ? { onTouchEnd: endTouch as never } : null)}
             testID={testID ? `${testID}-scrim` : undefined}
           />
           {children(progress, show, focus)}
@@ -279,6 +283,9 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
 }
 
 const ignore = () => {}
+const endTouch = (event: { cancelable?: boolean; preventDefault?: () => void; nativeEvent?: { cancelable?: boolean } }) => {
+  if (event.cancelable !== false && event.nativeEvent?.cancelable !== false) event.preventDefault?.()
+}
 const yes = () => true
 const NO_FOCUS: OverlayFocus = {}
 

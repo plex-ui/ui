@@ -7,6 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.20 (2026-11-25)
+
+`@plexui/react-native` 0.2.20.
+
+### Fixed
+
+- **A menu opened again while it was still closing stayed off the screen.** It kept its panel, whose size did not change, so the panel reported no new layout and stayed where it is measured, off the screen, under a transparent scrim that took every press. Each opening now lays the panel out again, on iOS and on Android.
+- **On the web, a tap outside a menu no longer goes through to what is under it.** After a tap, the browser sends its own mouse events and click at the same point. Once the menu had closed they landed under it: on a List row whose Select opens from the whole row, inside a BottomSheet for one, they opened the menu again. The scrim's touch now ends without them, and the same applies to dialogs and sheets.
+
 ## @plexui/react-native 0.2.19 (2026-11-25)
 
 `@plexui/react-native` 0.2.19.

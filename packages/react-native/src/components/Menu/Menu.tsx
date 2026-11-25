@@ -245,10 +245,14 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
   const [subHeight, setSubHeight] = useState<number | null>(null)
   const [step] = useState(() => new Animated.Value(0))
   const [wasOpen, setWasOpen] = useState(open)
+  // Each opening lays the panel out anew: a menu opened again while it still leaves keeps its view, whose size does
+  // not change, so it would report no layout and stay where it is measured, off the screen
+  const [openings, setOpenings] = useState(0)
   if (wasOpen !== open) {
     setWasOpen(open)
     // Each opening measures again: its items may have changed, and it opens at the menu, not at a submenu
     if (open) {
+      setOpenings((count) => count + 1)
       setSize(null)
       setSub(null)
       // A menu closed over its submenu comes back whole
@@ -408,6 +412,7 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
             </>
           ) : null}
           <Animated.View
+            key={openings}
             ref={panel as never}
             // The panel takes the focus of a menu opened by a pointer (the web), with no ring of its own
             {...(web ? { tabIndex: -1 as const } : null)}
@@ -645,11 +650,14 @@ function AndroidMenuSurface({ open, anchor, row, header = false, onClose, align 
   const [clock] = useState(() => new Animated.Value(0))
   const [revealed, setRevealed] = useState(false)
   const pending = useRef(false)
+  const [openings, setOpenings] = useState(0)
   const [wasOpen, setWasOpen] = useState(open)
   if (wasOpen !== open) {
     setWasOpen(open)
-    // Each opening measures again and opens at the menu
+    // Each opening measures again and opens at the menu, its page laid out anew (a page kept from a menu that still
+    // leaves would report no layout)
     if (open) {
+      setOpenings((count) => count + 1)
       setSize(null)
       setSub(null)
       setSubSize(null)
@@ -914,7 +922,7 @@ function AndroidMenuSurface({ open, anchor, row, header = false, onClose, align 
                   ]}
                 >
                   <CascadeContext.Provider value={cascade}>
-                    <AndroidPage width={morphing ? size.width : width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={(measured) => setSize(sameSize(measured))} style={header ? styles.androidHeaderPage : undefined}>
+                    <AndroidPage key={openings} width={morphing ? size.width : width} minWidth={minWidth} maxWidth={maxWidth} maxHeight={maxHeight} onSize={(measured) => setSize(sameSize(measured))} style={header ? styles.androidHeaderPage : undefined}>
                       <SurfaceContext.Provider value={surface}>{children}</SurfaceContext.Provider>
                     </AndroidPage>
                   </CascadeContext.Provider>
