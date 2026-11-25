@@ -40,6 +40,14 @@
     "analyze",
     "data"
   ],
+  "Android": [
+    "android",
+    "google",
+    "brand",
+    "platform",
+    "logo",
+    "robot"
+  ],
   "ApiKey": [
     "api",
     "key",
@@ -68,6 +76,14 @@
   "ApiKeys": [
     "api",
     "keys"
+  ],
+  "Apple": [
+    "apple",
+    "ios",
+    "iphone",
+    "brand",
+    "platform",
+    "logo"
   ],
   "AppPermission": [
     "app",
@@ -634,6 +650,14 @@
   ],
   "Desktop": [
     "computer"
+  ],
+  "DeviceDesktop": [
+    "desktop",
+    "device",
+    "computer",
+    "monitor",
+    "platform",
+    "web"
   ],
   "DiceRandomize": [
     "dice",
