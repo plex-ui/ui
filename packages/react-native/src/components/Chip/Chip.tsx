@@ -1,3 +1,4 @@
+import { holdProps } from "../../internal/row"
 import { useEffect, useState, type ReactNode } from "react"
 import { Animated, Easing, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
@@ -54,6 +55,10 @@ export type ChipProps = {
    */
   removeStyle?: "token" | "button"
   disabled?: boolean
+  /** A touch and hold on the chip (half a second): what a word means, say. */
+  onLongPress?: () => void
+  /** The name a screen reader gives the hold's action ("Show meaning"). */
+  longPressLabel?: string
   testID?: string
   style?: StyleProp<ViewStyle>
 }
@@ -83,6 +88,8 @@ export function Chip({
   onRemove,
   removeLabel = "Remove",
   removeStyle = "token",
+  onLongPress,
+  longPressLabel,
   disabled = false,
   testID,
   style,
@@ -249,7 +256,7 @@ export function Chip({
       ) : null}
     </>
   )
-  const interactive = filter || !!onPress || token
+  const interactive = filter || !!onPress || !!onLongPress || token
   // Android dims a disabled chip, its fill with it, to half (as its other disabled controls)
   const dim = android && disabled ? styles.dim : null
   const handlers = {
@@ -274,10 +281,6 @@ export function Chip({
     // A token: VoiceOver's action and a keyboard's Delete remove it; leaving it lets the selection go
     ...(token
       ? {
-          accessibilityActions: [{ name: "delete", label: removeLabel }],
-          onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) => {
-            if (event.nativeEvent.actionName === "delete" && !disabled) onRemove?.()
-          },
           onBlur: () => armed && setArmed(false),
           onKeyDown: (event: { nativeEvent: { key?: string } }) => {
             if ((event.nativeEvent.key === "Backspace" || event.nativeEvent.key === "Delete") && !disabled) onRemove?.()
@@ -285,6 +288,15 @@ export function Chip({
           "aria-keyshortcuts": "Delete Backspace",
         }
       : {}),
+    // A token's delete action for VoiceOver, and a hold of its own (what a word means), named for a screen reader
+    ...holdProps(
+      { run: disabled ? undefined : onLongPress, label: longPressLabel },
+      null,
+      token ? [{ name: "delete", label: removeLabel }] : [],
+      (event) => {
+        if (event.nativeEvent.actionName === "delete" && !disabled) onRemove?.()
+      },
+    ),
     onPressIn: () => setPressed(true),
     onPressOut: () => setPressed(false),
   }

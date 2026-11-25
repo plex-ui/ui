@@ -7,6 +7,28 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.25 (2026-11-26)
+
+`@plexui/react-native` 0.2.25.
+
+### Added
+
+- **A touch and hold on a Chip and a RadioGroup.Item.** `onLongPress` runs after half a second, and `longPressLabel` names it for screen readers, who reach it as an action of the control (on a removable iOS token beside its Delete action).
+- **ListItem `longPressLabel`**, and a row's touch and hold reaches its end control. A Checkbox, a Switch or a RadioGroup choice that takes the row's focus now carries the row's `onLongPress` and holds for the row, so the whole row answers a touch and hold and screen readers find it on the control they land on.
+- **`VerifiedFilled` in `@plexui/react-native/icons`**: a filled verified mark.
+
+### Changed
+
+- **A disabled Android button is Material 3's.** Its container is the on-surface color at 12% (none for a ghost button, an outline button's outline at 12%) and its label the on-surface color at 38%, whatever the button's color. Before, the button kept its fill and its label faded to half, so a disabled solid button in the dark still read as enabled.
+
+## 0.62.5 (2026-11-26)
+
+`@plexui/ui` 0.62.5 and `@plexui/vue` 0.42.5.
+
+### Added
+
+- **VerifiedFilled icon.** A filled verified mark, a rosette with a check cut out of it: Tabler's filled Rosette Discount Check (MIT), drawn at 1em in the text color like the rest of the set. On React and Vue, and in `@plexui/react-native/icons` 0.2.25.
+
 ## @plexui/react-native 0.2.24 (2026-11-25)
 
 `@plexui/react-native` 0.2.24.

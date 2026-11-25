@@ -67,3 +67,39 @@ export function rowHold(hold: ((held: boolean, event?: GestureResponderEvent) =>
   // The touch goes with the hold: Android's row ripples from it
   return hold ? { onPressIn: (event: GestureResponderEvent) => hold(true, event), onPressOut: () => hold(false) } : null
 }
+
+/** A List row's touch and hold, for the control at its end, which takes the row's touches and its screen reader focus. */
+export type RowAction = { run: () => void; label?: string }
+
+/**
+ * Set by a row with `onLongPress`: a control at its end that takes its own touches (a checkbox, a switch, a choice)
+ * holds for the row, and a screen reader, which reaches the control and never the row, finds the action there.
+ */
+export const RowActionContext = createContext<RowAction | null>(null)
+
+type AccessibilityActionEvent = { nativeEvent: { actionName: string } }
+
+/**
+ * A control's touch and hold: its own `onLongPress`, or its row's. Half a second, as UIKit's and a ContextMenu's;
+ * a screen reader's `longpress` action named by `label` (VoiceOver reads it, "Show meaning", not the bare name).
+ * Merges the control's own actions (`actions`, handled by `onAction`).
+ */
+export function holdProps(
+  own: { run?: () => void; label?: string },
+  row: RowAction | null,
+  actions: { name: string; label?: string }[] = [],
+  onAction?: (event: AccessibilityActionEvent) => void,
+) {
+  const run = own.run ?? row?.run
+  if (run == null) return actions.length > 0 ? { accessibilityActions: actions, onAccessibilityAction: onAction } : {}
+  const label = own.run != null ? own.label : row?.label
+  return {
+    onLongPress: run,
+    delayLongPress: 500,
+    accessibilityActions: [...actions, { name: "longpress", ...(label != null ? { label } : null) }],
+    onAccessibilityAction: (event: AccessibilityActionEvent) => {
+      if (event.nativeEvent.actionName === "longpress") run()
+      else onAction?.(event)
+    },
+  }
+}

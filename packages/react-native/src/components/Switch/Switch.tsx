@@ -3,7 +3,7 @@ import { Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } fr
 import { Pressable } from "../../internal/Pressable"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
-import { RowEndContext, RowHoldContext, rowHold } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowHoldContext, holdProps, rowHold } from "../../internal/row"
 import { androidGray } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { SelectionColor, Theme } from "../../theme/types"
@@ -97,6 +97,8 @@ export function Switch({
   // At the end of an Android List row with no text of its own: Android's switch stands 22dp from the row's end
   const rowEnd = useContext(RowEndContext) != null
   const hold = useContext(RowHoldContext)
+  // A row's touch and hold, held here, where the row's touches and its screen reader focus are
+  const rowAction = useContext(RowActionContext)
   const toggle = () => {
     if (disabled) return
     if (checkedProp === undefined) setOwn(!checked)
@@ -125,6 +127,7 @@ export function Switch({
       aria-checked={checked}
       disabled={disabled}
       {...rowHold(hold)}
+      {...holdProps({}, rowEnd ? rowAction : null)}
       onPress={toggle}
       testID={testID}
       // Android's switch row: 50dp, the text ending 11dp before the switch's 37dp view

@@ -8,7 +8,7 @@ import { useRipple } from "../../internal/ripple"
 import { flattenChildren, textOf } from "../../internal/children"
 import { cssBox } from "../../internal/cssBox"
 import { mirrored, useRTL } from "../../internal/direction"
-import { RowEndContext, RowFrameContext, RowHoldContext, RowStartContext, type RowEnd, type RowFrame } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowFrameContext, RowHoldContext, RowStartContext, holdProps, type RowEnd, type RowFrame } from "../../internal/row"
 import { accentText, controlHighlight, dangerText, divider, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -340,6 +340,11 @@ export type ListItemProps = {
   onPress?: () => void
   /** A touch and hold on the row (half a second): a ContextMenu around the row sets it. */
   onLongPress?: () => void
+  /**
+   * The name a screen reader gives the hold's action ("Show meaning"), or it reads the bare action. A control at the
+   * row's end that takes the row's focus (a checkbox, a switch, a choice) carries the action and holds for the row.
+   */
+  longPressLabel?: string
   disabled?: boolean
   /** A row in red, as a destructive action row. */
   destructive?: boolean
@@ -375,6 +380,7 @@ export function ListItem({
   disclosure,
   onPress,
   onLongPress,
+  longPressLabel,
   disabled = false,
   destructive = false,
   accessibilityLabel,
@@ -490,10 +496,7 @@ export function ListItem({
         aria-checked={switchRow ? checked : undefined}
         disabled={disabled || (press == null && onLongPress == null)}
         onPress={press}
-        onLongPress={onLongPress}
-        delayLongPress={onLongPress ? 500 : undefined}
-        accessibilityActions={onLongPress ? [{ name: "longpress" }] : undefined}
-        onAccessibilityAction={onLongPress ? (event) => event.nativeEvent.actionName === "longpress" && onLongPress() : undefined}
+        {...holdProps({ run: onLongPress, label: longPressLabel }, null)}
         onPressIn={drawn ? ripple.start : undefined}
         onPressOut={drawn ? ripple.end : undefined}
         android_ripple={nativeRipple ? { color: highlight, foreground: true } : undefined}
@@ -502,9 +505,11 @@ export function ListItem({
       >
         {({ pressed }) => (
           <RowHoldContext.Provider value={disabled ? null : theme.isAndroid ? hold : setHeld}>
-            {ripple.layer}
-            {theme.isAndroid ? null : <RowHighlight on={(pressed || held) && lit} last={last} />}
-            {content(pressed || held)}
+            <RowActionContext.Provider value={disabled || onLongPress == null ? null : { run: onLongPress, label: longPressLabel }}>
+              {ripple.layer}
+              {theme.isAndroid ? null : <RowHighlight on={(pressed || held) && lit} last={last} />}
+              {content(pressed || held)}
+            </RowActionContext.Provider>
           </RowHoldContext.Provider>
         )}
       </Pressable>

@@ -161,6 +161,8 @@ On Android a footer stands 13dp into the card's width, as in the Settings app; a
   { prop: "error", type: "ReactNode", description: "An error under the row in the danger color: on iOS a line of its own with an exclamation mark, on Android under the label; announced when it appears" },
   { prop: "disclosure", type: "boolean", default: "onPress && !trailing && !destructive", description: "The chevron of a row that opens a page, on iOS. Android draws none" },
   { prop: "onPress", type: "() => void", description: "Makes the row a button" },
+  { prop: "onLongPress", type: "() => void", description: "A touch and hold on the row (half a second), also a named action for screen readers. A control at the row's end that takes the row's focus (a Checkbox, a Switch, a RadioGroup choice) carries it too" },
+  { prop: "longPressLabel", type: "string", description: "The name of the touch and hold for screen readers" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the row and takes no presses" },
   { prop: "destructive", type: "boolean", default: "false", description: "A row in red, as a destructive action" },
   { prop: "accessibilityLabel", type: "string", description: "Name of the row for screen readers; defaults to the label and the value" },

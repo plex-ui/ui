@@ -192,6 +192,8 @@ const [language, setLanguage] = useState("en")
   { prop: "children", type: "ReactNode", description: "The label; leave it out for the mark alone, at the end of a list row" },
   { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
   { prop: "disabled", type: "boolean", default: "false", description: "Dims the option and takes no presses" },
+  { prop: "onLongPress", type: "() => void", description: "A touch and hold on the option (half a second), also a named action for screen readers" },
+  { prop: "longPressLabel", type: "string", description: "The name of the touch and hold for screen readers" },
   { prop: "orientation", type: '"left" | "right"', default: '"left"', description: "Where the mark stands against the label" },
   { prop: "aria-label", type: "string", description: "Name of an option without a text label" },
   { prop: "testID", type: "string", description: "Test id" },

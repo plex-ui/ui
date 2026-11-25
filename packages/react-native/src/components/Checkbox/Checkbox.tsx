@@ -6,7 +6,7 @@ import CheckMd from "../../icons/plex/CheckMd"
 import Minus from "../../icons/plex/Minus"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel, controlLabelLine } from "../../internal/ControlLabel"
-import { RowEndContext, RowHoldContext, RowStartContext, rowHold } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowHoldContext, RowStartContext, holdProps, rowHold } from "../../internal/row"
 import { androidGray, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { ANDROID_ROW_END, iosCheckmarkColor, selectionColor } from "../Switch/Switch"
@@ -68,6 +68,8 @@ export function Checkbox({
   const atRowStart = useContext(RowStartContext) && label == null && description == null
   const inRow = useContext(RowEndContext) != null && label == null && description == null && !atRowStart
   const hold = useContext(RowHoldContext)
+  // A row's touch and hold, held here, where the row's touches and its screen reader focus are
+  const rowAction = useContext(RowActionContext)
   const [own, setOwn] = useState(defaultChecked)
   const state = checkedProp ?? own
   const on = state !== false
@@ -183,6 +185,7 @@ export function Checkbox({
       aria-invalid={invalid || undefined}
       disabled={disabled}
       {...rowHold(hold)}
+      {...holdProps({}, inRow || atRowStart ? rowAction : null)}
       onPress={toggle}
       testID={testID}
       style={[

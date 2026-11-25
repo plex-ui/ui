@@ -206,13 +206,17 @@ function iosPress(theme: Theme, variant: ButtonVariant, colors: Colors): Colors 
   return { ...colors, pressed, pressedText: lighten(theme, colors.text) }
 }
 
-export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVariant, disabled: boolean, selected: boolean, uniform = false): Colors {
+export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVariant, disabled: boolean, selected: boolean): Colors {
   const c = (name: string) => theme.color(`--color-${name}`)
   if (disabled) {
     if (theme.isAndroid) {
-      // Android dims a disabled button's label to half and keeps its fill
-      const enabled = buttonColors(theme, color, variant, false, selected, uniform)
-      return { ...enabled, pressed: enabled.background, text: withAlpha(enabled.text, 0.5) }
+      // Material 3's disabled button: the container the on-surface color at 12% (a filled or a tonal one; none for a
+      // text button, an outlined one's outline at 12%), the label at 38%, whatever the button's color, so it reads as
+      // disabled on a dark surface too
+      const onSurface = theme.material.onSurface
+      const veil = withAlpha(onSurface, 0.12)
+      const flat = variant === "ghost" || variant === "outline"
+      return { background: flat ? "transparent" : veil, pressed: flat ? "transparent" : veil, text: withAlpha(onSurface, 0.38), border: variant === "outline" ? veil : undefined }
     }
     // The phone CSS: the tertiary label in every style (iOS 27's disabled content-area button), the fill of a gray
     // button behind a solid or soft one
@@ -569,7 +573,7 @@ function ButtonBody({
           // its buttons on glass and its plain ones; the token alone gives the Regular of the plain button
           weight: theme.isIOS && variant !== "ghost" ? "medium" : base.weight,
         }
-  const colors = barColors(theme, buttonColors(theme, color, variant, disabled, selected, uniform), { bar, prominent: accentAction, neutral, disabled, selected, flat: mobileMaterial === "flat" })
+  const colors = barColors(theme, buttonColors(theme, color, variant, disabled, selected), { bar, prominent: accentAction, neutral, disabled, selected, flat: mobileMaterial === "flat" })
   // In a bar every neutral soft or ghost button is glass, as on iOS 26, unless it asks to stay flat or is selected.
   // A disabled glass button keeps its glass, as the phone CSS's
   const wantsGlass = bar ? mobileMaterial !== "flat" && neutral && !selected && !bar.inGroup : mobileMaterial === "glass" && neutral
@@ -652,22 +656,8 @@ function ButtonBody({
   const background = pressed && theme.isIOS ? colors.pressed : colors.background
   // A glass button keeps its own press: only its glass changes
   const text = pressed && !inert && theme.isIOS && !glass && colors.pressedText ? colors.pressedText : colors.text
-  // Android fades a button on its own between enabled and disabled in 300ms on its default curve: its fill stays and
-  // its label goes to half, so the label keeps its enabled color under an opacity. A bar's buttons change at once
-  const fades = android && !bar
-  const ink = fades && disabled ? buttonColors(theme, color, variant, false, selected, uniform).text : text
-  const [dim] = useState(() => new Animated.Value(fades && disabled ? 0.5 : 1))
-  useEffect(() => {
-    const to = fades && disabled ? 0.5 : 1
-    if (still || !fades) {
-      dim.stopAnimation()
-      dim.setValue(to)
-      return
-    }
-    const animation = Animated.timing(dim, { toValue: to, duration: 300, easing: curves.accelerateDecelerate, useNativeDriver: false })
-    animation.start()
-    return () => animation.stop()
-  }, [dim, disabled, fades, still])
+  // Material 3's disabled label is the on-surface color at 38% (buttonColors), drawn as it is
+  const ink = text
   // Android's loading, both ways in 320ms on an ease-out quint: the label rises 24dp, flattens to 60% toward the
   // button's top and fades out, as the spinner rises 24dp into its place and fades in
   const [swap] = useState(() => new Animated.Value(loading ? 1 : 0))
@@ -726,7 +716,7 @@ function ButtonBody({
   // The label scales from the button's top edge: on Android its row spans the button's height
   const labelMotion = android
     ? {
-        opacity: Animated.multiply(dim, swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })),
+        opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
         transform: [{ translateY: swap.interpolate({ inputRange: [0, 1], outputRange: [0, -24] }) }, { scaleY: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0.6] }) }],
       }
     : { opacity: loading ? 0 : 1 }

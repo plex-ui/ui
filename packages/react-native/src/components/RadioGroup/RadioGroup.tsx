@@ -5,7 +5,7 @@ import CheckMd from "../../icons/plex/CheckMd"
 import { useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { isRTL, nextKey } from "../../internal/direction"
-import { RowEndContext, RowHoldContext, RowStartContext, rowHold } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowHoldContext, RowStartContext, holdProps, rowHold } from "../../internal/row"
 import { mix } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { ANDROID_ROW_END, androidEaseInOut, iosCheckmarkColor, selectionColor } from "../Switch/Switch"
@@ -30,6 +30,10 @@ export type RadioGroupItemProps = {
   disabled?: boolean
   /** Where the mark stands against the label. @default "left" */
   orientation?: "left" | "right"
+  /** A touch and hold on the option (half a second): what a term means, say. */
+  onLongPress?: () => void
+  /** The name a screen reader gives the hold's action ("Show meaning"). */
+  longPressLabel?: string
   "aria-label"?: string
   testID?: string
 }
@@ -72,7 +76,7 @@ function RadioGroupRoot<T extends string>({ value: valueProp, defaultValue, onCh
 }
 RadioGroupRoot.displayName = "RadioGroup"
 
-function RadioGroupItem({ value, children, description, disabled: itemDisabled = false, orientation = "left", "aria-label": ariaLabel, testID }: RadioGroupItemProps) {
+function RadioGroupItem({ value, children, description, disabled: itemDisabled = false, orientation = "left", onLongPress, longPressLabel, "aria-label": ariaLabel, testID }: RadioGroupItemProps) {
   const theme = useTheme()
   const context = useContext(RadioContext)
   if (!context) throw new Error("RadioGroup.Item must be inside a RadioGroup")
@@ -85,6 +89,8 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
   // Or at its start (a list with the marks first): the mark alone, as wide as its ring or its checkmark's column
   const atStart = useContext(RowStartContext) && !hasText
   const hold = useContext(RowHoldContext)
+  // A row's touch and hold, held here, where the row's touches and its screen reader focus are
+  const rowAction = useContext(RowActionContext)
   // The radio button runs 0 to 1 in 200ms on Android's default ease-in-out: the first half fills the ring inward
   // in its gray, the second shrinks the fill to the dot while it turns the on color; unchoosing runs it back. A
   // disabled option snaps. Android only: iOS shows a list row's checkmark, which does not animate
@@ -143,6 +149,7 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
       aria-checked={selected}
       disabled={disabled}
       {...rowHold(hold)}
+      {...holdProps({ run: disabled ? undefined : onLongPress, label: longPressLabel }, inRow || atStart ? rowAction : null)}
       onPress={() => !selected && context.select(value)}
       testID={testID}
       style={[

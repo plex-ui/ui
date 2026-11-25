@@ -77,6 +77,14 @@
     "api",
     "keys"
   ],
+  "VerifiedFilled": [
+    "verified",
+    "badge",
+    "check",
+    "seal",
+    "trust",
+    "filled"
+  ],
   "Apple": [
     "apple",
     "ios",

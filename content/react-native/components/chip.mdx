@@ -168,6 +168,8 @@ The web has no chip; a filter chip does what [Toggle Group](/components/toggle-g
   { prop: "defaultSelected", type: "boolean", description: "A filter chip's initial state (uncontrolled)" },
   { prop: "onSelectedChange", type: "(selected: boolean) => void", description: "Called when a filter chip is toggled" },
   { prop: "onPress", type: "() => void", description: "Called on a press: an action chip's action" },
+  { prop: "onLongPress", type: "() => void", description: "A touch and hold on the chip (half a second): what a word means, say. Screen readers reach it as a named action" },
+  { prop: "longPressLabel", type: "string", description: "The name of the touch and hold for screen readers" },
   { prop: "icon", type: "ReactNode", description: "A symbol before the label" },
   { prop: "trailingIcon", type: "ReactNode", description: "A symbol after the label; it takes the chevron's place on a menu chip" },
   { prop: "menu", type: 'boolean | "menu" | "listbox" | "dialog"', description: "The chip opens a menu: a chevron after the label and aria-haspopup for screen readers; true is a menu, \"listbox\" and \"dialog\" name what it opens. A menu chip is read as a button" },
