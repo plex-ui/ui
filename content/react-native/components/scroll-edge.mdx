@@ -48,5 +48,5 @@ A screen with a bar has its edge in the bar: [Toolbar](/react-native/components/
   { prop: "scrolled", type: "boolean", default: "false", description: "Content is under the edge; the top edge shows only then, the bottom one stays" },
   { prop: "canvasColor", type: "string", default: "the theme's background", description: "The color of the screen it fades into (a grouped screen's canvas)" },
   { prop: "testID", type: "string", description: "Test id" },
-  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the edge" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the edge. A numeric height on the top edge on iOS (a row of buttons under the status bar) blurs the content in full down to it, and the veil and the blur ease out over the 34pt below it" },
 ]} />

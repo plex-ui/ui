@@ -90,10 +90,14 @@ const WEIGHTS: Record<FontWeightName, TextStyle["fontWeight"]> =
   Platform.OS === "web"
     ? { regular: "400", medium: "510" as TextStyle["fontWeight"], semibold: "590" as TextStyle["fontWeight"], bold: "700" }
     : { regular: "400", medium: "500", semibold: "600", bold: "700" }
-// The web's system font (react-native-web's own stack, no family set): Chromium draws 501–549 of it as a synthesized bold,
-// heavier than 590, so Medium is 500 there; 590 is SF's own Semibold, as an iPhone draws it
+// The web's system font (react-native-web's own stack, or a family that names the system's: -apple-system, system-ui):
+// a browser has only its 500 and 600 there and draws 510 and 590 as a synthesized bold (Chromium, Safari on an iPhone:
+// 590 heavier than 700), so Medium is 500 and Semibold 600
 const SYSTEM_WEIGHTS: Record<FontWeightName, TextStyle["fontWeight"]> =
-  Platform.OS === "web" ? { ...WEIGHTS, medium: "500" } : WEIGHTS
+  Platform.OS === "web" ? { ...WEIGHTS, medium: "500", semibold: "600" } : WEIGHTS
+
+/** Whether a font family starts with the system's face (`-apple-system, system-ui, sans-serif`), not an app's own. */
+const isSystemFamily = (family: string) => /^\s*["']?(-apple-system|system-ui|BlinkMacSystemFont|ui-sans-serif|SF Pro|sans-serif)\b/i.test(family)
 
 /** The platform a ThemeProvider draws by default. */
 export function defaultPlatform(): PlatformStyle {
@@ -148,11 +152,11 @@ function warnUnresolvedColors(brand: BrandTheme | undefined, resolver: TokenReso
 
 function fontFor(fonts: FontFamilies | undefined, weight: FontWeightName) {
   const sans = fonts?.sans
-  if (typeof sans === "string") return { fontFamily: sans, fontWeight: WEIGHTS[weight] }
+  if (typeof sans === "string") return { fontFamily: sans, fontWeight: (isSystemFamily(sans) ? SYSTEM_WEIGHTS : WEIGHTS)[weight] }
   const family = sans?.[weight] ?? (weight === "semibold" ? sans?.bold : undefined) ?? sans?.regular
   // A family per weight carries its weight: a weight on top would be synthesized on Android
   if (family && sans?.[weight]) return { fontFamily: family }
-  return family ? { fontFamily: family, fontWeight: WEIGHTS[weight] } : { fontWeight: SYSTEM_WEIGHTS[weight] }
+  return family ? { fontFamily: family, fontWeight: (isSystemFamily(family) ? SYSTEM_WEIGHTS : WEIGHTS)[weight] } : { fontWeight: SYSTEM_WEIGHTS[weight] }
 }
 
 /** Builds a theme for a scheme and a platform (ThemeProvider does it for its children). */
@@ -319,6 +323,11 @@ function defaultTheme(): Theme {
 }
 
 /** The theme of the nearest ThemeProvider (the light default of the device's platform without one). */
+/** The tokens the brands of the providers around set (internal: a default that must yield to a brand's own). */
+export function useThemeOverrides(): Readonly<Record<string, string>> | undefined {
+  return useContext(ThemeSettingsContext)?.overrides
+}
+
 export function useTheme(): Theme {
   return useContext(ThemeContext) ?? defaultTheme()
 }

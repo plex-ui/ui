@@ -7,6 +7,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.14 (2026-11-25)
+
+`@plexui/react-native` 0.2.14.
+
+### Changed
+
+- **Denser glass in a browser (iOS look).** On react-native-web a CSS blur shows far more of what is under it than iOS draws, so the menu is nearly opaque there (white at 90%, rgb(28, 28, 30) at 90% at night, over a 30px blur) and the glass of buttons and chips is gray at 80% (rgb(28, 28, 30) at 70%) over a 20px blur, pressed a step deeper, so a label reads over a photo. Tokens `--menu-mobile-web-background`, `--menu-mobile-web-backdrop-filter`, `--mobile-glass-web-background`, `--mobile-glass-web-background-active` and `--mobile-glass-web-backdrop-filter` set them; a brand that sets the shared `--menu-mobile-background` or `--mobile-glass-background` keeps its own. Native iOS, Android and the web kit's own tokens are unchanged.
+
+### Fixed
+
+- **No synthesized bold for the system font in a browser.** On react-native-web a browser has only the system face's 500 and 600 and drew Medium 510 and Semibold 590 as a synthesized bold (Chromium; Safari on an iPhone drew 590 heavier than 700). With the system font (no family, or one that starts with -apple-system, system-ui and the like) Medium is now 500 and Semibold 600 there, in Text, List, Button, Toolbar, Toast and everything else that takes the theme's weights; a mono face's Semibold is 600. A variable face the app sets (Inter) keeps 510 and 590, and native iOS keeps its own.
+- **ScrollEdge blurs down to the height it is given.** A numeric `height` on the top edge on iOS (a row of buttons under the status bar) was ignored: the blur stopped short of the safe area's edge. The content is now blurred in full down to that height, and the veil and the blur ease out over the 34pt below it.
+
 ## @plexui/react-native 0.2.13 (2026-11-25)
 
 `@plexui/react-native` 0.2.13.

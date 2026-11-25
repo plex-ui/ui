@@ -1,4 +1,4 @@
-import { Platform, View, type StyleProp, type ViewStyle } from "react-native"
+import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SoftBottomVeil, SoftTopEdge } from "../../internal/BarBackdrop"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -35,14 +35,20 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, testID
       </View>
     )
   }
-  // The safe area at that edge; the veil reaches 34 past it, into the screen
+  // The safe area at that edge, or the height the style gives the top edge (a bar's row of buttons under the status
+  // bar): the content is blurred in full down to it, and the veil and the blur ease out over the 34 past it
+  const height = StyleSheet.flatten(style)?.height
+  const reach = top && typeof height === "number" ? height + FULL_BLUR_SHORTFALL : insets.top
   return (
     <View
       pointerEvents="none"
       testID={testID}
       style={[{ position: "absolute", left: 0, right: 0 }, top ? { top: 0, height: insets.top } : { bottom: 0, height: insets.bottom }, style]}
     >
-      {top ? <SoftBottomVeil fill={canvas} bottom={insets.top} /> : <SoftBottomVeil fill={canvas} top={0} />}
+      {top ? <SoftBottomVeil fill={canvas} bottom={reach} /> : <SoftBottomVeil fill={canvas} top={0} />}
     </View>
   )
 }
+
+/** The veil's blur is full 6 short of the edge it is turned over at (12 to 40 into its 34): a given height adds them. */
+const FULL_BLUR_SHORTFALL = 6

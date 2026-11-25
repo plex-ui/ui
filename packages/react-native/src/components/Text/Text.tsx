@@ -113,11 +113,9 @@ function trackingFor(theme: Theme, style: StyleProp<TextStyle>, mono: boolean | 
 // same words; grayscale smoothing draws them within 1–2% of it
 const WEB_SMOOTHING = (Platform.OS === "web" ? { WebkitFontSmoothing: "antialiased", MozOsxFontSmoothing: "grayscale" } : {}) as TextStyle
 
-// A mono face's weights: the web's 501–549 of a system face draw as a synthesized bold in Chromium, so Medium is 500
+// A mono face's weights: a browser draws a weight its face lacks (510, 590) as a synthesized bold, so the named ones
 const weightNumber = (weight: FontWeightName) =>
-  (Platform.OS === "web"
-    ? { regular: "400", medium: "500", semibold: "590", bold: "700" } as Record<FontWeightName, string>
-    : { regular: "400", medium: "500", semibold: "600", bold: "700" })[weight] as TextStyle["fontWeight"]
+  ({ regular: "400", medium: "500", semibold: "600", bold: "700" } as Record<FontWeightName, string>)[weight] as TextStyle["fontWeight"]
 
 /**
  * Text in the faces, sizes and colors of Plex UI. `variant` takes the platform's text styles (Body 17 on iOS, Body
