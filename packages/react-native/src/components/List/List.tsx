@@ -301,6 +301,11 @@ export type ListItemProps = {
   /** A value at the end, in the secondary label on iOS (`Wi-Fi … Home`) and the accent on Android. */
   value?: ReactNode
   /**
+   * The value's color, and a select's at the row's end: `secondary`, the secondary label, as iOS draws it; `accent`, as
+   * an Android value row draws it. @default "secondary" on iOS, "accent" on Android
+   */
+  valueColor?: "secondary" | "accent"
+  /**
    * Where the value stands: at the `end` of the row, `below` the label at the full width of the text, or `auto`: at
    * the end while the label and the value fit beside each other on one line, otherwise below (as Calendar sets a long
    * value; the web's NavigationRow). Below the label it is in the secondary label, before the description; on Android
@@ -359,6 +364,7 @@ export function ListItem({
   leadingColor,
   value,
   valuePlacement = "end",
+  valueColor,
   trailing,
   error,
   checked: checkedProp,
@@ -406,10 +412,16 @@ export function ListItem({
   // A control at the end that opens from the row (`RowEnd.press`) gets the row's press, as it gets a toggle's; it stays
   // the one element for a screen reader and the keyboard
   const [endPress, setEndPress] = useState<(() => void) | null>(null)
-  const handPress = useCallback((open: (() => void) | null) => setEndPress(() => open), [])
+  // Once a control has handed the row its press the row stays a pressable frame, so taking the press back (a select
+  // disabled) does not swap the frame and remount the row's contents with their state
+  const [endHands, setEndHands] = useState(false)
+  const handPress = useCallback((open: (() => void) | null) => {
+    setEndPress(() => open)
+    if (open != null) setEndHands(true)
+  }, [])
   const handed = !switchRow && !onPress && !control && !disabled ? endPress : null
   const press = switchRow ? toggle : (onPress ?? control?.toggle ?? handed ?? undefined)
-  const endOwnsFocus = control != null || handed != null
+  const endOwnsFocus = control != null || handed != null || (endHands && press == null)
   // A destructive row is an action, not a page (Settings' Sign Out has no chevron)
   const chevron = disclosure ?? (!!onPress && !switchRow && trailing == null && !destructive)
   const name = accessibilityLabel ?? ([textOf(label), textOf(value)].filter(Boolean).join(", ") || undefined)
@@ -449,14 +461,14 @@ export function ListItem({
     return (
       <RowFrameContext.Provider value={frame}>
         {theme.isAndroid ? (
-          <AndroidContent handPress={handPress} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null || checkLeads} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} disabled={disabled} destructive={destructive} last={last} />
+          <AndroidContent handPress={handPress} valueColor={valueColor ?? "accent"} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null || checkLeads} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} disabled={disabled} destructive={destructive} last={last} />
         ) : (
-          <IOSContent theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
+          <IOSContent handPress={handPress} valueColor={valueColor ?? "secondary"} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
         )}
       </RowFrameContext.Provider>
     )
   }
-  if (press || onLongPress) {
+  if (press || onLongPress || endHands) {
     // Android's rows press in the list selector: the native ripple on a device, the drawn one on the web
     const highlight = controlHighlight(theme.scheme)
     const drawn = theme.isAndroid && !nativeRipple
@@ -474,7 +486,7 @@ export function ListItem({
         accessibilityLabel={endOwnsFocus ? undefined : name}
         accessibilityState={endOwnsFocus ? undefined : switchRow ? { checked, disabled } : { disabled }}
         aria-checked={switchRow ? checked : undefined}
-        disabled={disabled}
+        disabled={disabled || (press == null && onLongPress == null)}
         onPress={press}
         onLongPress={onLongPress}
         delayLongPress={onLongPress ? 500 : undefined}
@@ -759,7 +771,7 @@ function useValueBelow(
   return { below, probe, onRowLayout: auto ? measure("row") : undefined, onTrailingLayout: auto ? measure("trailing") : undefined }
 }
 
-function IOSContent({ theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, edgeControl = false, error, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean }) {
+function IOSContent({ handPress, valueColor, theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, edgeControl = false, error, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean; handPress: RowEnd["press"]; valueColor: "secondary" | "accent" }) {
   const inset = theme.length("--list-row-inset", 20)
   const tile = theme.length("--field-row-icon-size", 28)
   const gap = theme.length("--field-row-gap", 16)
@@ -793,7 +805,7 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
   // A switch, a checkbox and a radio stay at the row's edge
   const columns = useContext(ListOptionsContext)?.columns === true && trailing != null
   const startsColumn = columns && !edgeControl
-  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, align: startsColumn ? "start" : "end" }), [startsColumn])
+  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, press: handPress, align: startsColumn ? "start" : "end", valueColor }), [handPress, startsColumn, valueColor])
   const errorOffset = theme.length("--mobile-field-error-offset", 4)
   const errorLine = theme.length("--mobile-field-error-line-height", 20)
   // With an error the label and the control stand on a line of their own over it
@@ -864,7 +876,7 @@ function IOSContent({ theme, label, description, descriptionId, leading, leading
             {value != null && !below ? (
               // A long value wraps within the 60% the end takes, as the web's, rather than losing its end; set at the
               // row's end (a phone turns "right" over in a right-to-left layout itself, the web does not)
-              <Text color={secondary} style={[labelType, styles.shrink, { textAlign: Platform.OS === "web" && rtl ? "left" : "right" }]}>
+              <Text color={valueColor === "accent" && !disabled ? theme.colors.accent : secondary} style={[labelType, styles.shrink, { textAlign: Platform.OS === "web" && rtl ? "left" : "right" }]}>
                 {value}
               </Text>
             ) : null}
@@ -900,6 +912,7 @@ const errorColor = (theme: Theme) => theme.color("--field-error-color", theme.co
 
 function AndroidContent({
   handPress,
+  valueColor,
   theme,
   label,
   description,
@@ -915,7 +928,7 @@ function AndroidContent({
   disabled,
   destructive,
   last,
-}: ContentProps & { leadingColor?: string; leadingMark?: boolean; last: boolean; handPress: RowEnd["press"] }) {
+}: ContentProps & { leadingColor?: string; leadingMark?: boolean; last: boolean; handPress: RowEnd["press"]; valueColor: "secondary" | "accent" }) {
   // A disabled row fades to half, as Android's rows do
   const dim = (color: string) => (disabled ? withAlpha(color, 0.5) : color)
   const danger = dangerText(theme)
@@ -936,7 +949,7 @@ function AndroidContent({
   const [fill, setFill] = useState(false)
   const columns = useContext(ListOptionsContext)?.columns === true && trailing != null
   const startsColumn = columns && !edgeControl
-  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, press: handPress, align: startsColumn ? "start" : "end" }), [handPress, startsColumn])
+  const rowEnd = useMemo<RowEnd>(() => ({ fill: setFill, press: handPress, align: startsColumn ? "start" : "end", valueColor }), [handPress, startsColumn, valueColor])
   const parts = (
     <>
       {leading == null ? null : leadingMark ? (
@@ -972,7 +985,7 @@ function AndroidContent({
         ) : null}
       </View>
       {value != null && !below ? (
-        <Text color={dim(accentText(theme))} numberOfLines={1} style={[styles.androidLabel, styles.androidValue, { marginEnd: valueEnd - ANDROID_INSET }]}>
+        <Text color={dim(valueColor === "accent" ? accentText(theme) : theme.material.onSurfaceVariant)} numberOfLines={1} style={[styles.androidLabel, styles.androidValue, { marginEnd: valueEnd - ANDROID_INSET }]}>
           {value}
         </Text>
       ) : null}

@@ -122,9 +122,13 @@ export function Glass({
   const filterName = filterToken ?? surface?.filter ?? "--mobile-glass-backdrop-filter"
   const dense = web && !theme.isAndroid ? WEB_DENSE[fillName] : undefined
   const denseFill = dense != null && tint == null && overrides?.[fillName] == null
-  const denseFilter = dense != null && filterToken == null && overrides?.[filterName] == null
+  // Glass with a fill of its own and the plain glass's filter (the large segmented control) blurs as the plain glass
+  // does on the web, so a brand's --mobile-glass-web-backdrop-filter reaches it too
+  const plainFilter = web && !theme.isAndroid && dense == null && filterToken == null && filterName === "--mobile-glass-backdrop-filter" && overrides?.[filterName] == null
+  const denseFilter = (dense != null && filterToken == null && overrides?.[filterName] == null) || plainFilter
+  const webFilter = dense ?? WEB_DENSE["--mobile-glass-background"]
   const fill = tint ?? (denseFill ? theme.color(dense.fill, theme.scheme === "dark" ? dense.dark : dense.light) : theme.color(fillName))
-  const filterValue = denseFilter ? (theme.token(dense.filter) ?? dense.blur) : theme.token(filterName)
+  const filterValue = denseFilter ? (theme.token(webFilter.filter) ?? webFilter.blur) : theme.token(filterName)
   const filter = blur != null ? `blur(${blur}px)` : typeof filterValue === "string" ? filterValue : "blur(12px)"
   const module = web || Platform.OS !== "ios" ? null : blurModule()
   const opaque = reduceTransparency || (!web && module == null)

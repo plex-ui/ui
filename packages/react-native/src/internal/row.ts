@@ -24,6 +24,8 @@ export type RowEnd = {
    * tall as its lines.
    */
   stacked?: boolean
+  /** The row's value color, which a select at its end takes for its value. @default the platform's */
+  valueColor?: "secondary" | "accent"
 }
 
 /**

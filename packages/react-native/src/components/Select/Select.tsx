@@ -149,13 +149,14 @@ export function Select<T extends SelectOption>(props: SelectProps<T>) {
   const hold = useContext(RowHoldContext)
   const rowEnd = row != null
   const inRow = rowEnd && !android
-  // At the end of an Android row the select is the row's value, as in an Android value row, and a press anywhere
-  // on the row opens its choice
+  // At the end of an Android row the select is the row's value, as in an Android value row. On both platforms a press
+  // anywhere on the row opens its choice, as Settings' menu-picker row opens from the whole row on iOS; the row hands
+  // its press to the select, which stays the one element for a screen reader
   const androidRow = rowEnd && android
   // Alone in a row whose label is hidden (a label-hidden `Field row`): the value from the row's text start and the
   // chevrons at its end, on the row's line
   const stacked = row?.stacked === true && block
-  const handRow = androidRow && !disabled ? row?.press : undefined
+  const handRow = rowEnd && !disabled ? row?.press : undefined
   useEffect(() => {
     if (!handRow) return
     handRow(dialog ? () => setOpen(true) : () => place(() => setOpen(true)))
@@ -193,7 +194,7 @@ export function Select<T extends SelectOption>(props: SelectProps<T>) {
           // A value row's value: 16sp in the accent, the placeholder in the hint's gray, faded to half when disabled
           <Text
             numberOfLines={1}
-            color={withAlpha(shownLabel != null ? m.primary : withAlpha(m.onSurface, 0.35), disabled ? 0.5 : 1)}
+            color={withAlpha(shownLabel != null ? (row?.valueColor === "secondary" ? m.onSurfaceVariant : m.primary) : withAlpha(m.onSurface, 0.35), disabled ? 0.5 : 1)}
             style={[stacked ? styles.grow : styles.shrink, styles.androidValue, stacked ? styles.startText : null]}
           >
             {shownLabel ?? placeholder}
@@ -201,7 +202,7 @@ export function Select<T extends SelectOption>(props: SelectProps<T>) {
         ) : inRow ? (
           <Text
             numberOfLines={1}
-            color={shownLabel != null && !disabled ? theme.colors.labelSecondary : tertiary}
+            color={shownLabel != null && !disabled ? (row?.valueColor === "accent" ? theme.colors.accent : theme.colors.labelSecondary) : tertiary}
             style={[stacked ? styles.grow : styles.shrink, { fontSize: theme.length("--field-row-label-font-size", 17), lineHeight: theme.length("--field-row-label-line-height", 22) }]}
           >
             {shownLabel ?? placeholder}

@@ -30,6 +30,12 @@ export type BottomSheetProps = {
    * @default "Close"
    */
   closeLabel?: string
+  /**
+   * The sheet's height, as an iOS sheet's detent: `content`, as tall as its content; `medium`, half the screen;
+   * `large`, as tall as a sheet goes; or a height in points. A sheet of a fixed height keeps it while its content
+   * changes (pages that open inside it), its content scrolling within. @default "content"
+   */
+  detent?: "content" | "medium" | "large" | number
 }
 
 export type BottomSheetFooterProps = {
@@ -213,6 +219,7 @@ export function BottomSheetBase({
   testID,
   contentStyle,
   closeLabel = "Close",
+  detent = "content",
   exit,
   onExited,
 }: BottomSheetProps & SheetExit) {
@@ -257,6 +264,9 @@ export function BottomSheetBase({
     : { accessibilityViewIsModal: true, "aria-label": ariaLabel }
   // Android's sheet stands under the status bar at most; the phone layer's 16 under the top inset
   const maxHeight = screen - insets.top - (android ? 0 : 16)
+  // A detent holds the sheet's height whatever its content: half the screen, the most it takes, or a height
+  const fixedHeight =
+    detent === "large" ? maxHeight : detent === "medium" ? Math.min(Math.round(screen / 2), maxHeight) : typeof detent === "number" ? Math.min(detent, maxHeight) : undefined
   // Android's sheet is as wide as the screen in portrait; in landscape 80% of it and 480dp at least
   const maxWidth = android && width > screen ? Math.max(width * 0.8, Math.min(480, width)) : undefined
   const closeSize = theme.length("--dialog-sheet-close-size", 44)
@@ -350,6 +360,8 @@ export function BottomSheetBase({
               styles.sheet,
               {
                 maxHeight,
+                // A fixed sheet grows by the keyboard it stands over, within the screen, so its content keeps its room
+                height: fixedHeight == null ? undefined : Math.min(fixedHeight + keyboard, maxHeight),
                 maxWidth,
                 borderTopLeftRadius: radius,
                 borderTopRightRadius: radius,
@@ -366,7 +378,8 @@ export function BottomSheetBase({
             {/* Content taller than the screen scrolls; on iOS the drag stays on the bar, on Android it starts at the
                 content's top */}
             <ScrollView
-              style={styles.scroll}
+              // A sheet of a fixed height gives its content the room left, so a footer stays at its bottom
+              style={[styles.scroll, fixedHeight != null ? styles.grow : null]}
               {...(android
                 ? {
                     ...gesture.content,
@@ -479,6 +492,7 @@ const styles = StyleSheet.create({
   bottom: { flex: 1, justifyContent: "flex-end", alignItems: "center" },
   sheet: { alignSelf: "stretch", overflow: "hidden", borderCurve: "continuous", marginHorizontal: "auto", width: "100%" },
   scroll: { flexGrow: 0, flexShrink: 1 },
+  grow: { flexGrow: 1 },
   iosBar: { flexDirection: "row", alignItems: "center", gap: 8 },
   iosHeading: { flex: 1, alignItems: "center", justifyContent: "center" },
   scrimTarget: { position: "absolute", top: 0, left: 0, right: 0 },

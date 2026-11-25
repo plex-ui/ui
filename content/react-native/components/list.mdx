@@ -153,6 +153,7 @@ End a row with a [Switch](/react-native/components/switch) for a setting that tu
   { prop: "leading", type: "ReactNode", description: "A symbol at the start" },
   { prop: "leadingColor", type: "string", description: "The fill of the leading tile, where the symbol turns white" },
   { prop: "value", type: "ReactNode", description: "The current value at the end: in the secondary gray on iOS, in the accent on Android" },
+  { prop: "valueColor", type: '"secondary" | "accent"', default: '"secondary" on iOS, "accent" on Android', description: "The color of the value at the end, and of a Select's value in the row: the secondary gray or the accent" },
   { prop: "valuePlacement", type: '"end" | "below" | "auto"', default: '"end"', description: "Where the value stands: at the end, below the label, or below only when the label and the value do not fit beside each other on one line; below the label it is in the secondary gray (13sp on Android)" },
   { prop: "trailing", type: "ReactNode", description: "A control at the end: a Switch, a Badge, an Input (on iOS a field fills the room after the label). A Switch or a Checkbox toggles on a press anywhere on a row without onPress" },
   { prop: "error", type: "ReactNode", description: "An error under the row in the danger color: on iOS a line of its own with an exclamation mark, on Android under the label; announced when it appears" },

@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.17 (2026-11-25)
+
+`@plexui/react-native` 0.2.17.
+
+### Added
+
+- **BottomSheet `detent`.** `"content"`, the default, keeps the sheet as tall as its content. `"medium"` holds it at half the screen, `"large"` as tall as it can be (a page sheet), and a number at that height in points; the content scrolls inside it, and a fixed sheet grows by the keyboard while a field has focus.
+- **ListItem `valueColor`.** `"secondary"` or `"accent"` for the value at a row's end and for a Select's value in the row, on both platforms: by default the secondary gray on iOS and the accent on Android, as before.
+
+### Changed
+
+- **Select in a List row opens from the whole row on iOS too**, as Settings' menu-picker rows do; it was Android only. The select stays the one element for a screen reader, and a row whose select is disabled keeps its contents.
+- **The large SegmentedControl's glass blurs as the plain glass on the web**, so a brand's `--mobile-glass-web-backdrop-filter` reaches it.
+
 ## @plexui/react-native 0.2.16 (2026-11-25)
 
 `@plexui/react-native` 0.2.16.
