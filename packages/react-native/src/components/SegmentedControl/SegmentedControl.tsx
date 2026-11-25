@@ -51,6 +51,13 @@ export type SegmentedControlProps<T extends string> = {
    * count. Off, the count is only read with the segment's name, as the native controls draw none. @default false
    */
   showBadges?: boolean
+  /**
+   * The drawn counts' color. `label`: the label's on the selected segment, the secondary one on the others (Android:
+   * the selected segment's ink, the gray on the others), so a count changes with the selection. `accent`: one accent
+   * capsule with white digits on every segment, as TabBar's `badgeColor="accent"`, the same whichever is selected.
+   * @default "label"
+   */
+  badgeColor?: "label" | "accent"
   style?: StyleProp<ViewStyle>
   testID?: string
   /** `SegmentedControl.Tab` elements. */
@@ -172,6 +179,7 @@ function SegmentedControlRoot<T extends string>({
   mobileMaterial,
   mobileSegmentWidth = "equal",
   showBadges = false,
+  badgeColor = "label",
   style,
   testID,
   children,
@@ -192,7 +200,7 @@ function SegmentedControlRoot<T extends string>({
   )
   // Drawn counts differ from tab to tab, so each segment takes its own width with them, as a messenger's folder tabs
   const counted = showBadges && options.some((option) => option.badge != null)
-  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" && !counted, showBadges }
+  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" && !counted, showBadges, badgeColor }
   return (
     <View accessibilityRole="tablist" aria-label={ariaLabel} accessibilityState={{ disabled }} testID={testID} style={[block ? styles.block : styles.hug, style]}>
       {theme.isAndroid ? <AndroidControl {...common} size={size} /> : <IOSControl {...common} size={size} material={mobileMaterial} />}
@@ -210,9 +218,10 @@ type ControlProps = {
   block: boolean
   equal: boolean
   showBadges: boolean
+  badgeColor: "label" | "accent"
 }
 
-function IOSControl({ options, value, select, keys, disabled, block, equal, showBadges, size, material }: ControlProps & { size: ControlSize; material?: "glass" | "flat" }) {
+function IOSControl({ options, value, select, keys, disabled, block, equal, showBadges, badgeColor, size, material }: ControlProps & { size: ControlSize; material?: "glass" | "flat" }) {
   const theme = useTheme()
   const inBar = !!useContext(BarItemContext)
   const { inRow } = useContext(SegmentedControlRowContext)
@@ -326,7 +335,7 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
                   {option.children}
                 </Text>
               )}
-              {showBadges ? <SegmentCount badge={option.badge} selected={isSelected} off={off} /> : null}
+              {showBadges ? <SegmentCount badge={option.badge} selected={isSelected} off={off} color={badgeColor} /> : null}
             </View>
           </Pressable>
         )
@@ -365,7 +374,7 @@ const ANDROID_MOVE = { duration: 320, easing: curves.easeOutQuint }
  * its label in the accent, the others in the secondary gray. The pill slides to a new selection and takes its width.
  * In a bar's row of controls the capsule takes the height of the circles beside it (46dp).
  */
-function AndroidControl({ options, value, select, keys, disabled, block, equal, showBadges, size }: ControlProps & { size: ControlSize }) {
+function AndroidControl({ options, value, select, keys, disabled, block, equal, showBadges, badgeColor, size }: ControlProps & { size: ControlSize }) {
   const theme = useTheme()
   const m = theme.material
   const bar = useContext(BarItemContext)
@@ -418,6 +427,7 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal, 
           off={disabled || !!option.disabled}
           framed={frame}
           showBadges={showBadges}
+          badgeColor={badgeColor}
           height={inner}
           // In a filled row equal segments share the width and the others take their label and share what is left; a
           // control that hugs its segments gives equal ones the widest one's width
@@ -438,6 +448,7 @@ type AndroidSegmentProps = {
   /** The pill is placed: the selected segment draws none of its own. */
   framed: boolean
   showBadges: boolean
+  badgeColor: "label" | "accent"
   height: number
   size: ViewStyle | null
   keys: ReturnType<typeof useTabKeys>
@@ -446,7 +457,7 @@ type AndroidSegmentProps = {
 }
 
 /** One segment of the capsule: its label turns from the gray to the accent as the pill comes, and back as it goes. */
-function AndroidSegment({ option, selected, off, framed, showBadges, height, size, keys, select, onWidth }: AndroidSegmentProps) {
+function AndroidSegment({ option, selected, off, framed, showBadges, badgeColor, height, size, keys, select, onWidth }: AndroidSegmentProps) {
   const theme = useTheme()
   const m = theme.material
   const [tint] = useState(() => new Animated.Value(selected ? 1 : 0))
@@ -494,7 +505,7 @@ function AndroidSegment({ option, selected, off, framed, showBadges, height, siz
           {option.children}
         </Animated.Text>
       ) : null}
-      {showBadges ? <SegmentCount badge={option.badge} selected={selected} off={off} /> : null}
+      {showBadges ? <SegmentCount badge={option.badge} selected={selected} off={off} color={badgeColor} /> : null}
     </Pressable>
   )
 }
@@ -502,25 +513,29 @@ function AndroidSegment({ option, selected, off, framed, showBadges, height, siz
 /**
  * A tab's count drawn after its label (`showBadges`): a capsule 18 tall, the digits 12 semibold in the screen's color.
  * iOS: the label's color on the selected segment, so it reads on the thumb, the secondary label on the others.
- * Android: the accent on the selected segment, as its label, the gray on the others.
+ * Android: the accent on the selected segment, as its label, the gray on the others. `accent`: the accent's capsule and
+ * white digits on every segment, on both platforms.
  */
-function SegmentCount({ badge, selected, off }: { badge: SegmentedControlBadgeProp | undefined; selected: boolean; off: boolean }) {
+function SegmentCount({ badge, selected, off, color }: { badge: SegmentedControlBadgeProp | undefined; selected: boolean; off: boolean; color: "label" | "accent" }) {
   const theme = useTheme()
   const text = badge != null ? badgeText(badge) : undefined
   if (!text) return null
   // iOS: the label's color in a capsule, the bar's ink in it; Android: the segment's own ink, the selected one's
   // container in it (onSecondaryContainer on secondaryContainer), the others' onSurfaceVariant on the surface, so the
   // small digits keep their contrast
+  const accent = color === "accent"
   const fill = off
     ? theme.color("--alpha-20")
-    : theme.isAndroid
+    : accent
+      ? theme.color("--color-background-accent-solid")
+      : theme.isAndroid
       ? selected
         ? theme.material.onSecondaryContainer
         : theme.material.onSurfaceVariant
       : selected
         ? theme.colors.text
         : theme.colors.labelSecondary
-  const ink = theme.isAndroid ? (selected ? theme.material.secondaryContainer : theme.material.surface) : theme.colors.background
+  const ink = accent && !off ? theme.color("--color-text-accent-solid", "#FFFFFF") : theme.isAndroid ? (selected ? theme.material.secondaryContainer : theme.material.surface) : theme.colors.background
   return (
     <View aria-hidden style={[styles.count, { backgroundColor: fill }]}>
       <Text numberOfLines={1} weight="semibold" color={ink} style={styles.countText}>

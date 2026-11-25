@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
 import { Animated, Easing, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewProps, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -115,7 +115,14 @@ type TabBarContextValue = {
   select: (value: string) => void
   expand: () => void
   keys: ReturnType<typeof useTabKeys>
+  /** iOS: the capsule draws one selection pill that slides between the tabs; each tab reports its frame for it. */
+  onTabLayout?: (value: string, frame: TabFrame) => void
+  /** The tab whose pill the capsule draws (its frame is known); until then the selected tab draws its own. */
+  slidingPill?: string
 }
+
+/** A tab's size and its top in the capsule (its place along the row comes from the tabs' order and widths). */
+type TabFrame = { y: number; width: number; height: number }
 
 const TabBarContext = createContext<TabBarContextValue | null>(null)
 
@@ -190,9 +197,18 @@ function IOSTab({ value, label, icon, badge, badgeColor, disabled = false, onPre
       // A tab bar's labels keep their size, as UIKit's: a large text size shows the tab in the large content viewer
       accessibilityShowsLargeContentViewer
       accessibilityLargeContentTitle={textOf(label) || undefined}
+      onLayout={
+        // An expanded tab only: a minimized one's 40pt face is not where the pill goes when the bar expands
+        !circle && !collapsed && context.onTabLayout
+          ? (event: LayoutChangeEvent) => {
+              const { y, width, height } = event.nativeEvent.layout
+              context.onTabLayout?.(value, { y, width, height })
+            }
+          : undefined
+      }
       style={[styles.iosItem, size, circle ? null : { flexShrink: 1, minWidth: 0 }]}
     >
-      {selected && !collapsed ? <View pointerEvents="none" style={[styles.pill, pill, { backgroundColor: theme.color("--tab-bar-item-background-selected") }]} /> : null}
+      {selected && !collapsed && (circle || context.slidingPill !== value) ? <View pointerEvents="none" style={[styles.pill, pill, { backgroundColor: theme.color("--tab-bar-item-background-selected") }]} /> : null}
       <View style={[styles.iosIcon, { height: theme.length("--tab-bar-icon-box", 28) }]}>
         <IconDefaultsProvider size={theme.length("--tab-bar-icon-size", 28)} color={color}>
           {icon}
@@ -686,7 +702,62 @@ function TabBarRoot({
   const visible = shown.length ? shown : capsuleTabs.slice(0, 1)
   const reachable = [...visible, ...(circle ? [circle] : [])]
   const keys = useTabKeys(reachable, value, select)
-  const context: TabBarContextValue = { value, badgeColor, minimized, select, expand, keys }
+  // iOS 26 slides the selection to the new tab: one pill in the capsule, under the tabs, moving from tab to tab
+  const [frames, setFrames] = useState<Record<string, TabFrame>>({})
+  const onTabLayout = useCallback((tab: string, next: TabFrame) => {
+    setFrames((current) => {
+      const prev = current[tab]
+      return prev && prev.y === next.y && prev.width === next.width && prev.height === next.height ? current : { ...current, [tab]: next }
+    })
+  }, [])
+  // The pill's place from the start of the capsule: its padding and the widths of the tabs before it, in their order
+  // (a reorder moves it with no resize to report; the start edge, so a right-to-left bar mirrors it as its tabs)
+  const capsuleInline = theme.length("--tab-bar-capsule-padding-inline", 10)
+  const selectedIndex = value != null && !minimized ? visible.findIndex((tab) => tab.value === value) : -1
+  const before = selectedIndex >= 0 ? visible.slice(0, selectedIndex) : []
+  const frame = selectedIndex >= 0 && theme.isIOS ? frames[visible[selectedIndex].value] : undefined
+  const pillFrame =
+    frame && before.every((tab) => frames[tab.value] != null)
+      ? { ...frame, x: capsuleInline + before.reduce((sum, tab) => sum + frames[tab.value].width, 0) }
+      : undefined
+  const context: TabBarContextValue = {
+    value,
+    badgeColor,
+    minimized,
+    select,
+    expand,
+    keys,
+    onTabLayout: theme.isIOS ? onTabLayout : undefined,
+    slidingPill: pillFrame ? value : undefined,
+  }
+  const pillOutset = theme.length("--tab-bar-pill-outset", 6)
+  const [pillX] = useState(() => new Animated.Value(0))
+  const [pillWidth] = useState(() => new Animated.Value(0))
+  const pillShown = useRef(false)
+  const pillLeft = pillFrame ? pillFrame.x - pillOutset : undefined
+  const pillSpan = pillFrame ? pillFrame.width + 2 * pillOutset : undefined
+  // Before the paint, so the pill never shows a frame at its old place or at 0
+  useLayoutEffect(() => {
+    if (pillLeft == null || pillSpan == null) {
+      pillShown.current = false
+      return
+    }
+    // It appears in place (the first frame, back from a minimized bar or the circle's tab), then slides: CSS `ease`
+    // over 300ms, as SegmentedControl's thumb
+    if (!pillShown.current || theme.reducedMotion) {
+      pillX.setValue(pillLeft)
+      pillWidth.setValue(pillSpan)
+      pillShown.current = true
+      return
+    }
+    const easing = Easing.bezier(0.25, 0.1, 0.25, 1)
+    const animation = Animated.parallel([
+      Animated.timing(pillX, { toValue: pillLeft, duration: 300, easing, useNativeDriver: false }),
+      Animated.timing(pillWidth, { toValue: pillSpan, duration: 300, easing, useNativeDriver: false }),
+    ])
+    animation.start()
+    return () => animation.stop()
+  }, [pillLeft, pillSpan, theme.reducedMotion, pillX, pillWidth])
 
   if (theme.isAndroid) {
     return (
@@ -761,6 +832,15 @@ function TabBarRoot({
             elevation="raised"
             style={[styles.capsule, minimized ? { padding: capsulePadding } : { paddingVertical: capsulePadding, paddingHorizontal: theme.length("--tab-bar-capsule-padding-inline", 10) }]}
           >
+            {pillFrame ? (
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  styles.pill,
+                  { top: pillFrame.y, height: pillFrame.height, start: pillX, width: pillWidth, backgroundColor: theme.color("--tab-bar-item-background-selected") },
+                ]}
+              />
+            ) : null}
             {visible.map((tab) => (
               <Tab key={tab.value} {...tab} context={context} />
             ))}

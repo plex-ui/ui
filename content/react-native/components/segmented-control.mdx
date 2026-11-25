@@ -116,6 +116,7 @@ Not Material's Tabs, which sit under a top app bar with an underline.
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "iOS: sm and smaller the small 32pt control, md and larger the large 48pt one. Android: 32dp at sm and smaller, 36 at md, 40 at lg, 44 above" },
   { prop: "mobileMaterial", type: '"glass" | "flat"', default: '"glass" at md and larger, "flat" at sm and smaller', description: "iOS: flat gives the large control the plain look (49pt), glass gives the small one glass. In a Toolbar the control is the large glass one" },
   { prop: "showBadges", type: "boolean", default: "false", description: "Draws each tab's badge, a count in a capsule after its label; the segments then take their own widths. Off, the count is only read with the segment's name" },
+  { prop: "badgeColor", type: '"label" | "accent"', default: '"label"', description: "The drawn counts' color: label takes the label's on the selected segment and the secondary one on the others, so a count changes with the selection; accent draws one accent capsule with white digits on every segment, as TabBar's badgeColor=\"accent\"" },
   { prop: "mobileSegmentWidth", type: '"equal" | "content"', default: '"equal"', description: "Every segment the widest one's width, or each its own label's" },
   { prop: "block", type: "boolean", default: "false", description: "Fills the row, the segments sharing its width" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disables every segment" },

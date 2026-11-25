@@ -7,6 +7,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.16 (2026-11-25)
+
+`@plexui/react-native` 0.2.16.
+
+### Added
+
+- **SegmentedControl `badgeColor`.** `"label"`, the default, keeps the counts as they were: the label's color on the selected segment and the secondary one on the others, so a count changes with the selection. `"accent"` draws one accent capsule with white digits on every segment, as TabBar's `badgeColor="accent"`, the same whichever is selected. On iOS and Android.
+
+### Changed
+
+- **TabBar's selection slides on iOS.** As iOS 26 moves it, the selected tab's pill now slides to the new tab in 300ms (CSS `ease`) instead of being drawn in place: one pill in the capsule, placed from the tabs' order and widths, so a reorder and a right-to-left bar move it too. It appears in place when the bar first draws, expands from minimized or comes back from the search circle. Android keeps its pill growing on the new tab.
+
 ## @plexui/react-native 0.2.15 (2026-11-25)
 
 `@plexui/react-native` 0.2.15.
