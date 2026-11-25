@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.15 (2026-11-25)
+
+`@plexui/react-native` 0.2.15.
+
+### Fixed
+
+- **SegmentedControl's large glass control no longer swells on a press (iOS look).** Held down, the whole capsule grew 7% and whitened, then snapped back in one frame on release before the thumb moved. Now the capsule stays as it is: the held label fades to 20%, as UISegmentedControl dims a segment under the finger, and the thumb eases to the new segment in 300ms on release. Android's pill is unchanged: it starts on the tap and eases out in 320ms.
+
 ## @plexui/react-native 0.2.14 (2026-11-25)
 
 `@plexui/react-native` 0.2.14.

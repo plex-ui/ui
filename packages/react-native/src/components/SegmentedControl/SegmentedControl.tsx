@@ -225,8 +225,9 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
   // A drawn count ends a label in a capsule of its own: the thumb keeps 10 beside the label and the capsule, so the
   // capsule does not touch the thumb's end
   const gutter = showBadges && options.some((option) => option.badge != null) ? Math.max(look.optionGutter, 10) : look.optionGutter
-  // The large glass control held down, as the phone CSS ports it: the capsule grows 7% and whitens, the held label
-  // fades to 20%, with no capsule of its own under the finger
+  // The large glass control held down: the held label fades to 20%, as UISegmentedControl dims a segment under the
+  // finger; the capsule stays as it is, no growth and no whitening (owner 25.11: the control must not swell and snap
+  // back on a tap)
   const largeGlass = look.glass && look.height >= 40
   const [held, setHeld] = useState<string | null>(null)
   // The thumb's place from the segments in their order, so a reorder moves it even when no box changes size
@@ -338,8 +339,7 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
       <Glass
         radius={look.height / 2}
         fillToken={look.height >= 40 ? "--segmented-control-mobile-glass-background" : undefined}
-        tint={largeGlass && held != null ? theme.color("--segmented-control-mobile-glass-background-pressed", theme.scheme === "dark" ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.85)") : undefined}
-        style={[track, block ? styles.stretch : null, largeGlass && held != null ? styles.heldControl : null]}
+        style={[track, block ? styles.stretch : null]}
       >
         {look.height < 40 && look.fill ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: look.height / 2, backgroundColor: look.fill }]} /> : null}
         {content}
@@ -538,7 +538,6 @@ const styles = StyleSheet.create({
   grow: { flex: 1 },
   // The control is in a column: it fills the width and keeps its own height
   stretch: { alignSelf: "stretch" },
-  heldControl: { transform: [{ scale: 1.07 }] },
   heldLabel: { opacity: 0.2 },
   // 18 tall, taller with a larger text size: the capsule grows round its digits
   count: { minWidth: 18, minHeight: 18, paddingHorizontal: 5, borderRadius: 999, alignItems: "center", justifyContent: "center" },
