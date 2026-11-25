@@ -230,6 +230,8 @@ export function BottomSheetBase({
   const [drag] = useState(() => new Animated.Value(0))
   const close = () => onOpenChange(false)
   const android = theme.isAndroid
+  // Android's content and actions 12 from the sheet's sides, as a page's groups; a token for a screen at another gutter
+  const androidInline = theme.length("--bottom-sheet-android-padding-inline", 12)
   const reduced = theme.reducedMotion
   // One responder for the sheet's life, told the latest props after each render: a responder made again mid-drag
   // would lose the drag
@@ -395,6 +397,8 @@ export function BottomSheetBase({
                 android
                   ? [
                       styles.androidContent,
+                      // A screen whose gutter is Material's compact 16 sets it with --bottom-sheet-android-padding-inline
+                      { paddingHorizontal: androidInline },
                       title != null ? styles.androidContentUnderBar : null,
                       // Over a footer: 8 above its height, which reaches over the sheet's bottom padding
                       footer ? { paddingBottom: 8 + Math.max(0, footerHeight - insets.bottom - keyboard) } : null,
@@ -417,6 +421,7 @@ export function BottomSheetBase({
                   android
                     ? [
                         styles.androidFooter,
+                        { paddingHorizontal: androidInline },
                         // Over the sheet's color at 80%, faded in over its top 24dp, down over the gesture bar
                         { paddingBottom: 12 + insets.bottom + keyboard, backgroundImage: `linear-gradient(to bottom, ${withAlpha(background, 0)}, ${withAlpha(background, 0.8)} 24px)` } as ViewStyle,
                       ]

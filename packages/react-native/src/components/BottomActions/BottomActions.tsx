@@ -62,12 +62,20 @@ export function BottomActions({ children, floating = false, background = "soft",
           ? { variant: "ghost" as const, color: props.color ?? ("secondary" as const) }
           : { variant: "soft" as const, color: props.color ?? ("secondary" as const), mobileMaterial: props.mobileMaterial ?? ("glass" as const) }
         : null
-    return cloneElement(child as ReactElement<ButtonProps>, {
+    const button = cloneElement(child as ReactElement<ButtonProps>, {
       ...second,
       block: props.block ?? true,
       size: props.size ?? "3xl",
       style: [{ minHeight: height, borderRadius: height / 2 }, props.style],
     })
+    // A disabled button's fill is see-through (the gray of iOS's disabled button): floating over the content it stands
+    // on the screen's color, so the rows under it do not show through
+    if (!floating || !props.disabled || android) return button
+    return (
+      <View key={child.key ?? index} style={{ borderRadius: height / 2, backgroundColor: canvas, alignSelf: (props.block ?? true) ? "stretch" : "flex-start" }}>
+        {button}
+      </View>
+    )
   })
   return (
     <View

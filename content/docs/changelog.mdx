@@ -7,6 +7,21 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.24 (2026-11-25)
+
+`@plexui/react-native` 0.2.24.
+
+### Fixed
+
+- **An iOS toast keeps its symbol and message on one line.** The symbol and the message were separate items of a wrapping row, so a long message dropped under the symbol. They are now one piece of the row: the message wraps its own lines beside the symbol, as on the web (the message 42 from the toast's edge), and only an action wraps, under them.
+- **On iOS a ListItem's picture wider than the tile keeps its own size.** A 40pt avatar or a photo was centred on the 28pt tile, so it started short of the row's inset and came within 8 of the text. It now starts at the row's 20pt inset, where the header and the footer stand, and the text follows 14pt past it.
+- **A disabled main action in a floating BottomActions stands on the screen's color.** On iOS a disabled button's fill is a see-through gray, so the rows under the actions showed through it.
+
+### Added
+
+- **`--bottom-sheet-android-padding-inline`** (default 12): the inline padding of an Android BottomSheet's content and actions, for a screen that keeps its content at Material's compact 16dp.
+- **`--list-android-footer-inset`** (default 13): how far a footer stands into an Android List card's width, 0 for a screen that keeps text outside a card at the card's edge.
+
 ## @plexui/react-native 0.2.23 (2026-11-25)
 
 `@plexui/react-native` 0.2.23.

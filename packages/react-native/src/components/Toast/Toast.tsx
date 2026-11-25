@@ -460,9 +460,12 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
       <Glass radius={described ? 24 : 21.5} elevation="raised" fillToken="--toast-mobile-background" style={styles.iosToast}>
         {/* sonner's 16pt icon box, 3 into the padding and 4 before the gap, holds the 20pt symbol over its edges: the
             message starts 42 from the toast's edge, and a line of text alone keeps the toast 43 high */}
-        {icon != null && icon !== false ? <View style={styles.iosIcon}>{icon}</View> : null}
-        {/* Beside a button the message keeps 8em, and a button that would leave it less wraps under it */}
-        <View style={[styles.iosText, item.action ? { minWidth: 8 * 15 } : null]}>
+        {/* The symbol and the message are one piece of the row, so a long message wraps its own lines beside the
+            symbol, as the web's; only a button wraps, under them */}
+        <View style={styles.iosMessage}>
+          {icon != null && icon !== false ? <View style={styles.iosIcon}>{icon}</View> : null}
+          {/* Beside a button the message keeps 8em, and a button that would leave it less wraps under it */}
+          <View style={[styles.iosText, item.action ? { minWidth: 8 * 15 } : null]}>
           <Text weight={described ? "semibold" : "medium"} style={{ fontSize: 15, lineHeight: 17, fontWeight: titleWeight }}>
             {item.title}
           </Text>
@@ -472,6 +475,7 @@ function ToastView({ item, theme, hidden, replaced = false }: { item: ToastT; th
               {item.description}
             </Text>
           ) : null}
+          </View>
         </View>
         {item.action ? (
           <Pressable
@@ -504,6 +508,7 @@ const styles = StyleSheet.create({
   // 12/14 of padding inside sonner's 1px border, transparent on a phone
   iosToast: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 10, paddingVertical: 13, paddingHorizontal: 15 },
   iosIcon: { width: 16, height: 16, marginStart: -3, marginEnd: 4, justifyContent: "center", alignItems: "flex-start" },
+  iosMessage: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 1, minWidth: 0 },
   iosText: { flexShrink: 1, minWidth: 0 },
   iosAction: { minHeight: 34, paddingVertical: 7, paddingHorizontal: 14, borderRadius: 9999, alignItems: "center", justifyContent: "center" },
   // Android's toast card: a 16dp-cornered card at least 48 tall, the text 16 in (56 past a 24dp icon at 16)

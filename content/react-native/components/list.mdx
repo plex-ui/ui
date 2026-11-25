@@ -128,6 +128,8 @@ End a row with a [Switch](/react-native/components/switch) for a setting that tu
 | Look | A section with 26pt corners, 52pt rows 20pt in from its edges, hairlines from the text's start, the value at the end and a chevron on a row that opens a page | One card of the section's rows with 16dp corners: rows 50dp tall at least, the label 16sp, the value 16sp in the accent 17dp from the end, a divider from the text's start (none under a row with a tile); no chevron |
 | `surface="plain"` | The section in the secondary gray on a white screen | A plain list: no card, the rows across the screen, the header a 32dp gray band |
 
+On Android a footer stands 13dp into the card's width, as in the Settings app; a screen that keeps text outside a card at the card's edge sets `--list-android-footer-inset` to 0. On iOS a picture wider than the 28pt tile, such as a 40pt avatar or a photo, keeps its own size: it starts at the row's 20pt inset, where the header and the footer stand, and the text follows 14pt past it.
+
 ## API
 
 ### List

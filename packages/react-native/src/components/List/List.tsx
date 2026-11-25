@@ -130,6 +130,8 @@ export function List({
     .map((row) => (row.type === Button ? <ActionRow key={row.key ?? undefined}>{row}</ActionRow> : row))
   const options = useMemo(() => ({ columns }), [columns])
   const increased = headerProminence === "increased"
+  // Android's footer 13 into the card's width, as the Settings app; a token for a screen that keeps text at its gutter
+  const footerInset = theme.length("--list-android-footer-inset", 13)
   const fill = surface === "plain" ? theme.color("--field-group-background", theme.colors.surfaceSecondary) : theme.colors.groupedSurface
   // The card's corners: Android's 16dp card (a header or description inside it stands over the first row), iOS's group
   const corner = surface === "plain" && theme.isAndroid ? 0 : theme.isAndroid ? ANDROID_CARD_RADIUS : theme.length("--field-group-radius", 26)
@@ -196,11 +198,11 @@ export function List({
           </View>
         </View>
         {error != null ? (
-          <Text color={dangerText(theme)} accessibilityLiveRegion="polite" style={[styles.androidFooter, plain ? [styles.androidFooterPlain, { backgroundColor: band }] : null]}>
+          <Text color={dangerText(theme)} accessibilityLiveRegion="polite" style={[styles.androidFooter, { paddingHorizontal: footerInset }, plain ? [styles.androidFooterPlain, { backgroundColor: band }] : null]}>
             {error}
           </Text>
         ) : footer != null ? (
-          <Text color={theme.colors.labelSecondary} style={[styles.androidFooter, plain ? [styles.androidFooterPlain, { backgroundColor: band }] : null]}>
+          <Text color={theme.colors.labelSecondary} style={[styles.androidFooter, { paddingHorizontal: footerInset }, plain ? [styles.androidFooterPlain, { backgroundColor: band }] : null]}>
             {footer}
           </Text>
         ) : null}
@@ -801,6 +803,9 @@ function IOSContent({ handPress, valueColor, theme, label, description, descript
       )
   // A field at the end fills the room after the label (`RowEnd.fill`)
   const [fill, setFill] = useState(false)
+  // A picture wider than the tile (a photo, an avatar) keeps its own size: it starts at the row's inset, where the
+  // header and the footer stand, and the text follows 14 past it, as UIKit's image to text padding
+  const [wide, setWide] = useState(false)
   // In a List with `columns` a field's value starts at one column, 40% into the row (`--field-row-column-width`)
   // A switch, a checkbox and a radio stay at the row's edge
   const columns = useContext(ListOptionsContext)?.columns === true && trailing != null
@@ -822,9 +827,13 @@ function IOSContent({ handPress, valueColor, theme, label, description, descript
         <View
           style={[
             styles.tile,
-            { width: tile, height: tile, marginStart: theme.length("--field-row-icon-offset", -2), marginEnd: theme.length("--field-row-icon-gap", 14) },
+            { minWidth: tile, minHeight: tile, marginStart: wide ? 0 : theme.length("--field-row-icon-offset", -2), marginEnd: theme.length("--field-row-icon-gap", 14) },
             leadingColor ? { backgroundColor: leadingColor, borderRadius: theme.length("--field-row-icon-radius", 7) } : null,
           ]}
+          onLayout={(event) => {
+            const next = event.nativeEvent.layout.width > tile + 0.5
+            if (next !== wide) setWide(next)
+          }}
         >
           <IconDefaultsProvider size={leadingColor ? 20 : theme.length("--field-row-icon-symbol-size", 24)} color={leadingColor ? "#ffffff" : disabled ? theme.colors.labelTertiary : theme.colors.accent}>
             {leading}
