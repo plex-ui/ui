@@ -96,8 +96,10 @@ for (const platform of ["ios", "android"] as const) {
       await expect
         .poll(async () => {
           const thumb = await control.evaluate((element) => {
+            // The web's thumb is a CSS slide; the glass's lens is an absolute view too, so the slide is found by name
+            const slide = element.querySelector("[data-plex-slide]")
             const views = [...element.querySelectorAll("div")].filter((div) => getComputedStyle(div).position === "absolute" && div.getAttribute("role") !== "tab")
-            const box = views[0]?.getBoundingClientRect()
+            const box = (slide ?? views[0])?.getBoundingClientRect()
             return box ? Math.round(box.left) : -1
           })
           return thumb - Math.round((await month.boundingBox())!.x)

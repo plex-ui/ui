@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { PageControl, Text, cardColors, textColor, useTheme } from '@plexui/react-native';
 import { Folders, Heart, Images, LockKeyHole, MapPin, Pencil, RemoveTrash, Search, ShieldCheck, Sparkles, Users, Video } from '@plexui/react-native/icons';
-import { ScrollView, View } from 'react-native';
+import { Animated, ScrollView, View } from 'react-native';
 import { DemoControlRow, Segments, controlsTableStyle } from '../../ButtonDemos';
 import { ONBOARDING_CARDS } from '../../pageControlData';
 import { SliderValueControl } from '../../SliderValueControl';
@@ -19,7 +19,9 @@ const SIZES = ['md', 'sm'] as const;
 type Size = (typeof SIZES)[number];
 const DIRECTIONS = ['horizontal', 'vertical'] as const;
 type Direction = (typeof DIRECTIONS)[number];
-type Look = { background: Background; indicator: Indicator; tone: Tone; placement: Placement; size: Size; direction: Direction };
+const FOLLOWS = ['scroll', 'value'] as const;
+type Follow = (typeof FOLLOWS)[number];
+type Look = { background: Background; indicator: Indicator; tone: Tone; placement: Placement; size: Size; direction: Direction; follow: Follow };
 // `react-native` is untyped in the docs (types/plexui-react-native.d.ts): what the demo uses of the scroller and its events
 type Scroller = { scrollTo: (to: { x?: number; y?: number; animated: boolean }) => void; getScrollableNode?: () => HTMLElement | null };
 type LayoutEvent = { nativeEvent: { layout: { width: number } } };
@@ -41,6 +43,7 @@ export const Overview = docsDemo(function Overview() {
   const [placement, setPlacement] = useState<Placement>('below');
   const [size, setSize] = useState<Size>('md');
   const [direction, setDirection] = useState<Direction>('horizontal');
+  const [follow, setFollow] = useState<Follow>('scroll');
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -53,9 +56,10 @@ export const Overview = docsDemo(function Overview() {
         <Segments name="placement" options={PLACEMENTS} value={placement} onChange={setPlacement} />
         <Segments name="size" options={SIZES} value={size} onChange={setSize} />
         <Segments name="direction" options={DIRECTIONS} value={direction} onChange={setDirection} />
+        <Segments name="position" options={FOLLOWS} value={follow} onChange={setFollow} />
       </div>
       <RNScreen minHeight={260}>
-        <Carousel count={count} look={{ background, indicator, tone, placement, size, direction }} />
+        <Carousel count={count} look={{ background, indicator, tone, placement, size, direction, follow }} />
       </RNScreen>
     </>
   );
@@ -68,6 +72,13 @@ function Carousel({ count, look }: { count: number; look: Look }) {
   const [current, setPage] = useState(0);
   const [width, setWidth] = useState(0);
   const [column, setColumn] = useState(0);
+  // The pages' scroll as a fractional page, which the control follows on every frame (`position`)
+  const [scrolled] = useState(() => new Animated.Value(0));
+  // The page the control asked for while the pages scroll to it: the scroll passes the pages between and should not
+  // set them as the current one
+  const heading = useRef<{ page: number; until: number } | null>(null);
+  // The pages' scroll as a fractional page, which a resize keeps right
+  const pageNow = useRef(0);
   // Fewer pages than the page shown: the last one is, as the scroller clamps to it
   const page = Math.min(current, count - 1);
   // The onboarding's first pages, as many as the control asks for
@@ -85,7 +96,10 @@ function Carousel({ count, look }: { count: number; look: Look }) {
   const cardWidth = vertical ? Math.max(0, column - (inside ? 0 : Math.max(capsule, target) / 2 + capsule / 2 + 12)) : width;
   const cardHeight = vertical ? cardWidth : inside ? 184 : 160;
   const pageSize = vertical ? cardHeight + gutter : width;
-  useMouseSwipe(scroller, pageSize, vertical, (index) => setPage(index));
+  useMouseSwipe(scroller, pageSize, vertical, (index) => {
+    heading.current = null;
+    setPage(index);
+  });
   // Inside, the control's 44 target over the card's edge, and the card's content clear of it: under a horizontal
   // control (its bottom), beside a vertical one (both sides, so that the content stays centred)
   const padding = vertical
@@ -95,6 +109,7 @@ function Carousel({ count, look }: { count: number; look: Look }) {
     <PageControl
       count={count}
       value={page}
+      position={look.follow === 'scroll' ? scrolled : undefined}
       background={look.background}
       indicator={look.indicator}
       tone={inside ? look.tone : 'default'}
@@ -104,6 +119,13 @@ function Carousel({ count, look }: { count: number; look: Look }) {
       style={inside ? (vertical ? { position: 'absolute', top: 0, bottom: 0, end: target / 2 - 8, justifyContent: 'center' } : { position: 'absolute', bottom: 0, alignSelf: 'center' }) : undefined}
       onChange={(index: number, { scrubbing }: { scrubbing: boolean }) => {
         setPage(index);
+        // A finger or a wheel taking over lets it go: the wait ends with the scroll's own time
+        heading.current = { page: index, until: Date.now() + 600 };
+        // Then the page is where the pages stand, should a finger have stopped them elsewhere
+        window.setTimeout(() => {
+          heading.current = null;
+          setPage(Math.round(pageNow.current));
+        }, 650);
         const offset = index * pageSize;
         scroller.current?.scrollTo({ ...(vertical ? { y: offset } : { x: offset }), animated: !scrubbing && !theme.reducedMotion });
       }}
@@ -127,7 +149,13 @@ function Carousel({ count, look }: { count: number; look: Look }) {
           onLayout={(event: LayoutEvent) => setWidth(event.nativeEvent.layout.width)}
           onScroll={(event: ScrollEvent) => {
             const offset = vertical ? event.nativeEvent.contentOffset.y : event.nativeEvent.contentOffset.x;
-            if (pageSize > 0) setPage(Math.round(offset / pageSize));
+            if (pageSize <= 0) return;
+            pageNow.current = offset / pageSize;
+            scrolled.setValue(offset / pageSize);
+            const at = Math.round(offset / pageSize);
+            if (heading.current != null && Date.now() < heading.current.until && Math.abs(offset / pageSize - heading.current.page) > 0.01) return;
+            heading.current = null;
+            setPage(at);
           }}
           // A drag turns the pages, so it selects no text on the web
           style={[vertical ? { height: pageSize, marginVertical: -gutter / 2 } : { alignSelf: 'stretch', marginHorizontal: -gutter / 2 }, { userSelect: 'none' }]}

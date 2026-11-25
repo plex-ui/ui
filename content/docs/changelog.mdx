@@ -7,6 +7,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.23 (2026-11-25)
+
+`@plexui/react-native` 0.2.23.
+
+### Added
+
+- **PageControl `position`.** It takes the pages' scroll as a fractional page (the offset over the page's length), either a number or an `Animated` value on the JavaScript driver, and the control follows it on every frame without a render. With `indicator="pill"` the pill flows from one page's mark to the next: a mark is the pill's length on its page and a dot's length a page away, with a straight line between. The dots' color crosses over in the same way, Android's dots included. Only the two marks beside the position change, and their length together stays the same, so the row keeps still. An overscroll past either end stays on that end's page, and from seven pages the iOS window of dots follows the position.
+
+### Changed
+
+- **PageControl without `position` moves to a new `value` over a short transition** instead of in one frame: 250ms on iOS's default curve, 300ms on Material's standard easing on Android, whose dots keep their stretch. The change is still immediate while scrubbing and with reduced motion.
+
 ## @plexui/react-native 0.2.22 (2026-11-25)
 
 `@plexui/react-native` 0.2.22.

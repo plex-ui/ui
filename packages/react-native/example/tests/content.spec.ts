@@ -72,6 +72,23 @@ for (const platform of ["ios", "android"] as const) {
     await page.keyboard.press("End")
     await expect(page.getByTestId("pages-value")).toHaveText("Page 4 of 4")
     await expect(pages).toHaveAttribute("aria-valuetext", "Page 4 of 4")
+
+    // A fractional position: at 1.5 the second and third marks are each halfway between a dot and the pill, their
+    // length together that of a dot and the pill at 1, and the rest stay dots
+    const length = async (id: string, index: number) => (await page.getByTestId(`${id}-mark-${index}`).boundingBox())!.width
+    const dot = await length("pages-whole", 0)
+    const pill = await length("pages-whole", 1)
+    expect(pill).toBeGreaterThan(dot * 2)
+    const second = await length("pages-half", 1)
+    const third = await length("pages-half", 2)
+    expect(second).toBeCloseTo((dot + pill) / 2, 1)
+    expect(third).toBeCloseTo((dot + pill) / 2, 1)
+    expect(second + third).toBeCloseTo(dot + pill, 1)
+    expect(await length("pages-half", 0)).toBeCloseTo(dot, 1)
+    expect(await length("pages-half", 3)).toBeCloseTo(dot, 1)
+    const half = (await page.getByTestId("pages-half").boundingBox())!.width
+    const whole = (await page.getByTestId("pages-whole").boundingBox())!.width
+    expect(half).toBeCloseTo(whole, 1)
   })
 
   test(`a range, marks, a reset and a vertical slider (${platform})`, async ({ page }) => {

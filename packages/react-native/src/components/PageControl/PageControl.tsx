@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Animated, Platform, StyleSheet, View, type AccessibilityActionEvent, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, Platform, StyleSheet, View, type AccessibilityActionEvent, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
 import { isRTL } from "../../internal/direction"
 import { curves } from "../../internal/motion"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -18,6 +18,16 @@ export type PageControlProps = {
   value?: number
   /** @default 0 */
   defaultValue?: number
+  /**
+   * Where the pages stand as they scroll: the page index with its fraction (the scroll offset over the page's length),
+   * a number or an `Animated` value, so a pager's scroll drives the control on every frame without a render. The
+   * pill flows from one page's mark to the next and the dots' color crosses over with it, under the finger and then
+   * with the pager's own settle. Without it the control moves to a new `value` over a short standard transition (at
+   * once while scrubbing and with reduced motion). The current page for a screen reader, a tap and the keys stays
+   * `value`. An `Animated` value drives the marks' length, so it moves on the JavaScript driver
+   * (`Animated.event(…, { useNativeDriver: false })`), as the package's own animations do.
+   */
+  position?: number | Animated.Value | Animated.AnimatedInterpolation<number>
   /** Called with the index of the next page. */
   onChange?: (index: number, details: PageControlChangeDetails) => void
   /**
@@ -105,6 +115,7 @@ export function PageControl({
   count,
   value: valueProp,
   defaultValue = 0,
+  position: positionProp,
   onChange,
   background = "automatic",
   indicator = "dots",
@@ -122,9 +133,62 @@ export function PageControl({
   const [press, setPress] = useState<Press | null>(null)
   // Where the dots stand inside the target, which can be wider than them (x is physical, from the left)
   const [capsule, setCapsule] = useState({ x: 0, width: 0 })
+  // The fractional page the marks follow: the app's own `position`, or one that moves to `value` by itself
+  const [ownPosition] = useState(() => new Animated.Value(typeof positionProp === "number" ? positionProp : current))
+  const driven = positionProp != null && typeof positionProp === "object"
+  const scrubbed = useRef(false)
+  const shown = useRef<number | null>(null)
+  // The page nearest the position: the dots' window from seven pages follows it, so the marks it passes stay drawn
+  const [near, setNear] = useState(current)
+  useEffect(() => {
+    if (typeof positionProp === "number") {
+      ownPosition.setValue(positionProp)
+      return
+    }
+    const source = driven ? (positionProp as Animated.Value) : ownPosition
+    const follow = (value: number) => {
+      // The own position keeps up with an app's, so it moves on from there when the app's goes
+      if (driven) ownPosition.setValue(value)
+      const page = clampIndex(Math.round(value), count)
+      setNear((last) => (last === page ? last : page))
+    }
+    const id = source.addListener(({ value }) => follow(value))
+    // A listener hears only what comes next: a new source's value now sets the window at once
+    const read = () => (source as unknown as { __getValue?: () => number }).__getValue?.()
+    let live = true
+    void Promise.resolve().then(() => {
+      // Read as it runs, so a change in between is not undone
+      const now = read()
+      if (live && typeof now === "number") follow(now)
+    })
+    return () => {
+      live = false
+      source.removeListener(id)
+    }
+  }, [positionProp, driven, ownPosition, count])
+  useEffect(() => {
+    if (positionProp != null) return
+    const still = shown.current == null || theme.reducedMotion || scrubbed.current
+    shown.current = current
+    scrubbed.current = false
+    if (still) {
+      ownPosition.setValue(current)
+      return
+    }
+    const animation = Animated.timing(ownPosition, { toValue: current, ...(theme.isAndroid ? ANDROID_SLIDE : IOS_SLIDE), useNativeDriver: false })
+    animation.start()
+    return () => animation.stop()
+  }, [current, positionProp, ownPosition, theme.reducedMotion, theme.isAndroid])
+  // An overscroll past the first or the last page stands on it, so its mark keeps the whole pill
+  const position = (driven ? (positionProp as Animated.Value) : ownPosition).interpolate({
+    inputRange: [0, Math.max(1, count - 1)],
+    outputRange: [0, Math.max(0, count - 1)],
+    extrapolate: "clamp",
+  })
   const go = (index: number, scrubbing = false) => {
     const next = clampIndex(index, count)
     if (next === current) return
+    scrubbed.current = scrubbing
     if (valueProp === undefined) setOwn(next)
     onChange?.(next, { scrubbing })
   }
@@ -136,7 +200,7 @@ export function PageControl({
   const padding = small ? 6 : theme.length("--page-control-padding-inline", 12)
   const pitch = dot + gap
   // Android draws every page's dot at full size; the iOS kit shrinks the ends from seven pages
-  const sizes = android ? Array.from({ length: Math.max(0, count) }, (): PageControlDotSize => "full") : pageControlDots(count, current)
+  const sizes = android ? Array.from({ length: Math.max(0, count) }, (): PageControlDotSize => "full") : pageControlDots(count, clampIndex(typeof positionProp === "number" ? Math.round(positionProp) : near, count))
   // The small and smaller ends keep their share of a full dot (6 and 4 of 8 on iOS)
   const dotSize = (kind: PageControlDotSize) =>
     kind === "full"
@@ -145,8 +209,9 @@ export function PageControl({
         ? Math.max(2, dot - (kind === "small" ? 1 : 2))
         : (dot / 8) * (kind === "small" ? theme.length("--page-control-dot-size-small", 6) : theme.length("--page-control-dot-size-smaller", 4))
   const pill = indicator === "pill"
-  // A pill: the current page two and a half dots long (18 at `sm`), along the direction
-  const dotWidth = (kind: PageControlDotSize, index: number) => (pill && index === current ? (small ? 14 : dot * 2.5) : dotSize(kind))
+  // A pill: the current page two and a half dots long (14 at `sm`), along the direction
+  const pillLength = small ? 14 : dot * 2.5
+  const dotWidth = (kind: PageControlDotSize, index: number) => (pill && index === current ? pillLength : dotSize(kind))
   // The center of the current dot, for a tap on either side of it
   let x = padding
   let currentCenter = padding
@@ -159,8 +224,9 @@ export function PageControl({
   const on = onColor ? "#FFFFFF" : android ? theme.material.primary : theme.color("--page-control-dot-color-current", theme.colors.text)
   // Android's page dots: #BBBBBB, #555555 in a dark theme
   const off = onColor ? "rgba(255, 255, 255, 0.4)" : android ? (theme.scheme === "dark" ? "#555555" : "#BBBBBB") : theme.color("--page-control-dot-color", theme.colors.labelTertiary)
-  // Android's current dot is drawn over the gray ones (it stretches between pages); a pill is a dot of its own
-  const worm = android && !pill
+  // Android's current dot is drawn over the gray ones (it stretches between pages) unless the pages' scroll drives the
+  // dots, when their color crosses over as on iOS; a pill is a dot of its own
+  const worm = android && !pill && positionProp == null
   // Android draws no capsule, not even for `prominent`
   const capsuleHeight = small ? 16 : theme.length("--page-control-height", 24)
   const target = android ? 48 : theme.length("--page-control-target-size", 44)
@@ -242,24 +308,39 @@ export function PageControl({
           showBackground ? { backgroundColor: onColor ? "rgba(255, 255, 255, 0.2)" : theme.color("--page-control-background") } : null,
         ]}
       >
-        {sizes.map((size, index) =>
-          size === "hidden" ? null : (
-            <View
+        {sizes.map((size, index) => {
+          if (size === "hidden") return null
+          const across = dotSize(size)
+          if (worm) return <View key={index} style={{ width: vertical ? across : dotWidth(size, index), height: vertical ? dotWidth(size, index) : across, borderRadius: dot / 2, backgroundColor: off }} />
+          // How much of the current page this mark is: 1 on its page, 0 a page away, a line between
+          const weight = position.interpolate(pageControlWeight(index))
+          const along = pill ? weight.interpolate({ inputRange: [0, 1], outputRange: [across, pillLength] }) : across
+          return (
+            <Animated.View
               key={index}
-              style={{
-                width: vertical ? dotSize(size) : dotWidth(size, index),
-                height: vertical ? dotWidth(size, index) : dotSize(size),
-                borderRadius: dot / 2,
-                backgroundColor: index === current && !worm ? on : off,
-              }}
-            />
-          ),
-        )}
+              testID={testID ? `${testID}-mark-${index}` : undefined}
+              style={{ width: vertical ? across : along, height: vertical ? along : across, borderRadius: dot / 2, backgroundColor: off }}
+            >
+              <Animated.View style={[StyleSheet.absoluteFill, { borderRadius: dot / 2, backgroundColor: on, opacity: weight }]} />
+            </Animated.View>
+          )
+        })}
         {worm ? <AndroidCurrent start={currentCenter - dot / 2} color={on} reduced={theme.reducedMotion} dot={dot} vertical={vertical} /> : null}
       </View>
     </View>
   )
 }
+
+/**
+ * The interpolation of a mark's share of the current page from the pages' position: 1 on its own page, 0 from a page
+ * away, a line between. Two neighbours share one page between them, so a pill's length moves from one to the other and
+ * the row keeps its length.
+ */
+export const pageControlWeight = (index: number) => ({ inputRange: [index - 1, index, index + 1], outputRange: [0, 1, 0], extrapolate: "clamp" as const })
+
+/** A new `value` with no `position`: iOS's default UIView curve, Material's standard easing and its medium duration. */
+const IOS_SLIDE = { duration: 250, easing: curves.easeInOut }
+const ANDROID_SLIDE = { duration: 300, easing: Easing.bezier(0.2, 0, 0, 1) }
 
 /** Android's page dots: 5dp, 11dp from one to the next. */
 const ANDROID_DOT = 5

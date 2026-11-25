@@ -19,6 +19,8 @@ const cards = [
 
 const scroller = useRef<ScrollView>(null)
 const [page, setPage] = useState(0)
+// The pages' scroll as a fractional page: the control follows it on every frame
+const [position] = useState(() => new Animated.Value(0))
 const [width, setWidth] = useState(0)
 const pages = cards.slice(0, 5)
 
@@ -29,7 +31,10 @@ const pages = cards.slice(0, 5)
   showsHorizontalScrollIndicator={false}
   scrollEventThrottle={16}
   onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
-  onScroll={(event) => setPage(Math.round(event.nativeEvent.contentOffset.x / width))}
+  onScroll={(event) => {
+    position.setValue(event.nativeEvent.contentOffset.x / width)
+    setPage(Math.round(event.nativeEvent.contentOffset.x / width))
+  }}
 >
   {pages.map(({ icon, title, text }) => (
     <View key={title} style={{ width, height: 160, alignItems: "center", justifyContent: "center", gap: 4, paddingHorizontal: 24 }}>
@@ -42,6 +47,7 @@ const pages = cards.slice(0, 5)
 <PageControl
   count={pages.length}
   value={page}
+  position={position} // or none: a short transition to each new value
   background="automatic" // or "prominent", "minimal"
   indicator="dots" // or "pill"
   tone="default" // or "onColor", on a page of color
@@ -65,7 +71,7 @@ const pages = cards.slice(0, 5)
   <p>A page control shows the position of the current page in an ordered list of peer pages, such as a carousel or onboarding, and moves between them. Center it below the pages. More than about ten dots are hard to count at a glance; for longer lists, prefer a grid. On iOS it is the iOS 26 page control: 8pt dots 8pt apart, the current one in the label color and the rest in the tertiary label, in a 24pt capsule with a 44pt target. On Android it is a row of page dots: 5dp dots 6dp apart in a light gray, the current one in the accent, in a 48dp target with no capsule. On a new page the current dot stretches to it and then lets go of the last one; the stretch takes 180ms.</p>
   <p>Tap the leading or trailing side of the current dot for the previous or next page. Drag across the dots to scrub, or past either end to reach the first or last page. Scroll the pages without animation while scrubbing, as <code>details.scrubbing</code> tells. For VoiceOver and TalkBack the control is adjustable: swipe up or down for the next or previous page, read as "Page 2 of 5" (<code>valueText</code>).</p>
   <p>On iOS, from seven <code>pages</code> the dots past a window around the current page shrink to 6pt and 4pt, suggesting more pages, and the rest hide. Android keeps every dot at full size and shows them all. The capsule behind the dots shows while a finger presses or scrubs with the <code>automatic</code> <code>background</code>, always with <code>prominent</code>, for a page control that is the main navigation of the screen, and never with <code>minimal</code>, which also turns off scrubbing since it gives no feedback. Android draws no capsule with any <code>background</code>; <code>minimal</code> still turns off scrubbing there.</p>
-  <p><code>indicator="pill"</code> draws the current page as a short capsule, two and a half dots wide, among the dots, as many onboarding pagers do; <code>dots</code>, the default, is the platforms' own. <code>tone="onColor"</code> draws the dots in white for a page of color or a photo behind them: the current one white, the rest white at 40%, and the capsule behind them a white veil. <code>size="sm"</code> draws smaller dots, 5pt 4 apart (the pill 14 long) in a 16pt capsule, for a control over a photo in a card; <code>direction="vertical"</code> stacks the dots for pages that scroll up and down, as UIPageControl's <code>direction</code>, and scrubs along them; the example's pages then turn into square cards the column's width that scroll up and down, the control beside them or over their trailing edge, the content kept clear of it. With <code>tone="onColor"</code> the example fills each page's card with a color of its own; the cards slide in whole, so each page can have a background of its own. The example's <code>placement</code> puts the control under the card, in the label colors on the page, or <code>inside</code> it over the card's bottom, as a photo carousel's dots, where <code>onColor</code> draws them in white.</p>
+  <p><code>indicator="pill"</code> draws the current page as a short capsule, two and a half dots wide, among the dots, as many onboarding pagers do; <code>dots</code>, the default, is the platforms' own. <code>position</code> takes the pages' scroll as a fractional page (the offset over the page's length), a number or an <code>Animated</code> value, so that the control follows the pages on every frame without a render: the pill flows from one page's mark to the next under the finger and then with the pager's settle, and the dots' color crosses over with it, Android's too. Only the two marks beside the position change, and their length together stays the same, so the row keeps still. Without <code>position</code> the control moves to a new <code>value</code> over 250ms on iOS's default curve, 300ms on Material's standard easing on Android (where the dots keep their stretch), and at once while scrubbing or with reduced motion. The example's <code>position</code> setting follows the <code>scroll</code> or only the <code>value</code>. <code>tone="onColor"</code> draws the dots in white for a page of color or a photo behind them: the current one white, the rest white at 40%, and the capsule behind them a white veil. <code>size="sm"</code> draws smaller dots, 5pt 4 apart (the pill 14 long) in a 16pt capsule, for a control over a photo in a card; <code>direction="vertical"</code> stacks the dots for pages that scroll up and down, as UIPageControl's <code>direction</code>, and scrubs along them; the example's pages then turn into square cards the column's width that scroll up and down, the control beside them or over their trailing edge, the content kept clear of it. With <code>tone="onColor"</code> the example fills each page's card with a color of its own; the cards slide in whole, so each page can have a background of its own. The example's <code>placement</code> puts the control under the card, in the label colors on the page, or <code>inside</code> it over the card's bottom, as a photo carousel's dots, where <code>onColor</code> draws them in white.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="page-control/Overview" />
 </ComponentPreview>
@@ -83,6 +89,7 @@ const pages = cards.slice(0, 5)
   { prop: "count", type: "number", description: "The number of pages" },
   { prop: "value", type: "number", description: "The current page's index, from 0 (controlled)" },
   { prop: "defaultValue", type: "number", default: "0", description: "The first page's index (uncontrolled)" },
+  { prop: "position", type: "number | Animated.Value", description: "The pages' scroll as a fractional page (offset over the page's length) that the pill and the dots' color follow on every frame; without it a new value moves over a short transition" },
   { prop: "onChange", type: "(index: number, details: { scrubbing: boolean }) => void", description: "Called with the next page's index; scrubbing is true when a drag changed it, so the page can show without the scroll animation" },
   { prop: "background", type: '"automatic" | "prominent" | "minimal"', default: '"automatic"', description: "The capsule behind the dots: while pressed, always, or never (and no scrubbing). iOS only: Android draws none" },
   { prop: "indicator", type: '"dots" | "pill"', default: '"dots"', description: "How the current page shows: a solid dot, the platforms' own, or a short capsule two and a half dots wide among the dots" },

@@ -99,6 +99,9 @@ export function ListsScreen() {
           <PageControl count={4} value={page} onChange={setPage} testID="pages-four" />
           <PageControl count={12} defaultValue={5} background="prominent" />
           <PageControl count={7} defaultValue={6} background="minimal" />
+          {/* Pages scrolled halfway from the second to the third: the pill shared between their marks */}
+          <PageControl count={4} value={1} position={1.5} indicator="pill" testID="pages-half" />
+          <PageControl count={4} value={1} position={1} indicator="pill" testID="pages-whole" />
         </View>
         <Text variant="footnote" color="secondary" testID="pages-value">
           Page {page + 1} of 4
