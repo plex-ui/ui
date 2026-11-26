@@ -24,8 +24,7 @@ const EXITING = "[data-exiting], [data-exiting-active]"
 // A sheet at its full height says so: a sheet under it then steps back, as one presented from a sheet does on iOS.
 // A shorter sheet leaves the one under it in place, as a medium detent does.
 const FULL = "data-sheet-full"
-// A sheet that grew out of its button would shrink back into it; one let go of leaves down instead (Dialog sets it).
-const PRESENTED_FROM = "data-presented-from"
+// A sheet let go of leaves down at the finger's speed, within the time the dialog gives its exit
 const EXIT_DURATION = "--dialog-exit-duration"
 const EXIT_EASING = "--dialog-exit-easing"
 
@@ -193,8 +192,6 @@ export const attachSheetDrag = (panel: HTMLElement, close: (event: TouchEvent) =
       panel.style.setProperty(DRAG_TRANSFORM, `translateY(${travelled}px)`)
       clearInline()
       // The rest of the way down goes on at the finger's speed, within the time the dialog gives its exit
-      const presentedFrom = panel.hasAttribute(PRESENTED_FROM)
-      panel.removeAttribute(PRESENTED_FROM)
       if (!reducedMotion(view)) {
         const left = Math.max(1, height - travelled)
         const spring = springEasing(SHEET_RELEASE_SPRING, (Math.max(0, velocity) * 1000) / left, true)
@@ -205,12 +202,9 @@ export const attachSheetDrag = (panel: HTMLElement, close: (event: TouchEvent) =
       settleTimer = view.setTimeout(() => {
         settleTimer = undefined
         if (!panel.isConnected || panel.closest(EXITING)) return
-        // An owner that kept the dialog open without saying so: it still goes back into its button later
-        if (presentedFrom) panel.setAttribute(PRESENTED_FROM, "")
         returnToRest(travelled, velocity)
       }, SETTLE)
       if (close(event) === false) {
-        if (presentedFrom) panel.setAttribute(PRESENTED_FROM, "")
         returnToRest(travelled, velocity)
       }
       return

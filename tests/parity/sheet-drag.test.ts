@@ -76,15 +76,13 @@ for (const [framework, attach] of [["React", attachReact], ["Vue", attachVue]] a
       detach()
     })
 
-    test("a flick leaves down at the finger's speed, not back into the button it grew from", () => {
+    test("a flick leaves down at the finger's speed", () => {
       const { panel, close, detach } = setup(375)
-      panel.setAttribute("data-presented-from", "")
       touch(panel, "touchstart", 0, 10)
       touch(panel, "touchmove", 40, 60)
       touch(panel, "touchmove", 60, 110)
       touch(panel, "touchend", 70)
       expect(close).toHaveBeenCalledOnce()
-      expect(panel.hasAttribute("data-presented-from")).toBe(false)
       expect(panel.style.getPropertyValue("--dialog-panel-drag-transform")).toBe("translateY(100px)")
       // 2.5 px/ms with 500 px left: the spring starts at 5 moves a second, its first step steep
       const easing = panel.style.getPropertyValue("--dialog-exit-easing")
@@ -96,15 +94,13 @@ for (const [framework, attach] of [["React", attachReact], ["Vue", attachVue]] a
       detach()
     })
 
-    test("a vetoed flick keeps the sheet's way back into its button", () => {
+    test("a vetoed flick goes back to rest and leaves no exit curve of its own", () => {
       const { panel, close, detach } = setup(375)
       close.mockReturnValue(false)
-      panel.setAttribute("data-presented-from", "")
       touch(panel, "touchstart", 0, 10)
       touch(panel, "touchmove", 40, 60)
       touch(panel, "touchmove", 60, 110)
       touch(panel, "touchend", 70)
-      expect(panel.hasAttribute("data-presented-from")).toBe(true)
       expect(panel.style.getPropertyValue("--dialog-exit-easing")).toBe("")
       detach()
     })

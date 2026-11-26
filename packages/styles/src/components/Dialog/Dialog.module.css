@@ -112,8 +112,8 @@
     opacity: 1;
     transform: var(--dialog-panel-drag-transform, scale(1) translateY(0));
     transition:
-      opacity var(--dialog-enter-duration) var(--cubic-enter),
-      transform var(--dialog-enter-duration) var(--cubic-enter);
+      opacity var(--dialog-enter-duration) var(--dialog-enter-easing, var(--cubic-enter)),
+      transform var(--dialog-enter-duration) var(--dialog-enter-easing, var(--cubic-enter));
   }
 
   .Transition[data-exiting] & {
@@ -290,31 +290,25 @@
     translate: 0 -10px;
   }
 
-  /* A sheet opened by a button grows out of it and shrinks back into it as it closes, as an iOS 27.2 sheet presented
-     with a zoom transition from its source does: from the button's frame (the dialog sets the transform that lays the
-     panel over it) on SwiftUI's spring(duration: 0.33, bounce: 0.2), --spring-sheet. It shows as it leaves the
-     button and fades at the end of its way back, so the move reads, not a fade. With reduced motion it fades in
-     place, as every dialog does. */
+  /* A phone sheet slides up from the bottom of the screen and back down, opaque, as an iOS 27.2 sheet does, never out
+     of the button that opened it: on iOS's spring with no bounce (--spring-sheet, spring(duration: 0.34, bounce: 0),
+     500ms both ways), the scrim on the same curve and time, so it dims as the sheet rises. The dialog sets
+     data-sheet-motion where it times the sheet so: a phone bottom sheet, not in the Plex Android look nor with reduced
+     motion. A sheet pulled down sets its own exit time and curve (sheetDrag.ts), which win over these. */
   @media (prefers-reduced-motion: no-preference) {
-    .Content[data-mobile-placement="bottom"] .Panel[data-presented-from] {
-      --dialog-panel-hidden-transform: var(--dialog-panel-source-transform);
-      --dialog-panel-hidden-opacity: 0;
+    .Content[data-mobile-placement="bottom"] .Panel[data-sheet-motion] {
+      --dialog-enter-duration: var(--spring-sheet-duration);
+      --dialog-enter-easing: var(--spring-sheet);
+      --dialog-exit-duration: var(--spring-sheet-duration);
+      --dialog-exit-easing: var(--spring-sheet);
     }
 
-    .Transition:is([data-entering-active], [data-entering][data-interrupted])
-      .Content[data-mobile-placement="bottom"]
-      .Panel[data-presented-from] {
-      transition:
-        opacity var(--motion-exit) var(--cubic-enter),
-        transform var(--spring-sheet-duration) var(--spring-sheet);
+    .Transition:is([data-entering-active], [data-entering][data-interrupted]):has(.Panel[data-sheet-motion]) .Overlay {
+      transition: opacity var(--spring-sheet-duration) var(--spring-sheet);
     }
 
-    .Transition:is([data-exiting-active], [data-exiting][data-interrupted])
-      .Content[data-mobile-placement="bottom"]
-      .Panel[data-presented-from] {
-      transition:
-        opacity var(--motion-exit) var(--cubic-exit) calc(var(--spring-sheet-duration) * 0.3),
-        transform var(--spring-sheet-duration) var(--spring-sheet);
+    .Transition:is([data-exiting-active], [data-exiting][data-interrupted]):has(.Panel[data-sheet-motion]) .Overlay {
+      transition: opacity var(--spring-sheet-duration) var(--spring-sheet);
     }
   }
 }

@@ -747,8 +747,8 @@ describe("Dialog parity, radix-ui 1.8", () => {
       ['.Content:where([data-mobile-placement="bottom"])', "1"],
       ['.Content:where([data-mobile-placement="fullscreen"])', "1"],
     ])
-    // A phone sheet that grows out of its button shows as it leaves it (lib/presentMotion)
-    expect(grown).toEqual([['.Content[data-mobile-placement="bottom"] .Panel[data-presented-from]', "0"]])
+    // A phone sheet never grows out of its button: it slides up opaque (lib/presentMotion)
+    expect(grown).toEqual([])
     // Desktop keeps what it had: only fullscreen slides in opaque.
     expect(desktop).toEqual([['.Content:where([data-placement="fullscreen"])', "1"]])
     // The scrim still fades in and out.

@@ -5,12 +5,10 @@ import {
   growsFromButton,
   MENU_SPRING,
   MENU_SPRING_MS,
-  presentationSource,
+  SHEET_EXIT_MS,
   SHEET_SPRING,
   SHEET_SPRING_MS,
-  sourceTransform,
   springEasing,
-  watchPresentationSources,
 } from "../../packages/ui/src/lib/presentMotion"
 
 const read = (file: string) => readFileSync(path.resolve(process.cwd(), file), "utf8")
@@ -26,7 +24,9 @@ describe("Sheet and menu presentation (lib/presentMotion)", () => {
 
   test("the runtime springs settle when the CSS springs do", () => {
     const css = read("packages/styles/src/styles/variables-semantic.css")
-    expect(Math.abs(springEasing(SHEET_SPRING).ms - SHEET_SPRING_MS)).toBeLessThanOrEqual(2)
+    // The sheet's spring is cut at 500ms, 0.1% from its rest: its speed settles within 40ms more
+    expect(springEasing(SHEET_SPRING).ms - SHEET_SPRING_MS).toBeGreaterThanOrEqual(0)
+    expect(springEasing(SHEET_SPRING).ms - SHEET_SPRING_MS).toBeLessThanOrEqual(40)
     expect(Math.abs(springEasing(MENU_SPRING).ms - MENU_SPRING_MS)).toBeLessThanOrEqual(2)
     expect(css).toContain(`--spring-sheet-duration: ${SHEET_SPRING_MS}ms;`)
     expect(css).toContain(`--spring-menu-duration: ${MENU_SPRING_MS}ms;`)
@@ -57,34 +57,38 @@ describe("Sheet and menu presentation (lib/presentMotion)", () => {
     document.documentElement.removeAttribute("data-platform")
   })
 
-  test("the source is the button pressed just now, not a menu item", () => {
-    watchPresentationSources(document)
-    document.body.innerHTML = `<button id="b"><span id="label">Open</span></button><div role="menu"><button id="m"></button></div>`
-    document.getElementById("label")!.dispatchEvent(new Event("pointerdown", { bubbles: true }))
-    expect(presentationSource(document)?.id).toBe("b")
-    document.getElementById("m")!.dispatchEvent(new Event("pointerdown", { bubbles: true }))
-    expect(presentationSource(document)).toBeNull()
+  test("a sheet comes and goes on iOS's measured spring, with no bounce, the same time both ways", () => {
+    expect(SHEET_SPRING).toEqual({ duration: 0.34, bounce: 0 })
+    expect(SHEET_SPRING_MS).toBe(500)
+    expect(SHEET_EXIT_MS).toBe(SHEET_SPRING_MS)
+    const css = read("packages/styles/src/styles/variables-semantic.css")
+    const sampled = css.match(/--spring-sheet: (linear\([^;]*\));/)?.[1] ?? ""
+    // Half its way at 91ms (18.2%), 90% at 210ms (42%) of 500, as measured; never past its end
+    const points = [...sampled.matchAll(/([\d.]+) ([\d.]+)%/g)].map(([, value, at]) => [Number(value), Number(at)])
+    const at = (share: number) => points.find(([value]) => value >= share)![1]
+    expect(at(0.5)).toBeGreaterThanOrEqual(17)
+    expect(at(0.5)).toBeLessThanOrEqual(19.5)
+    expect(at(0.9)).toBeGreaterThanOrEqual(41)
+    expect(at(0.9)).toBeLessThanOrEqual(44)
+    expect(Math.max(...points.map(([value]) => value))).toBeLessThanOrEqual(1)
   })
 
-  test("the transform lays the panel at its rest over the button, about its transform origin", () => {
-    const panel = document.createElement("div")
-    const button = document.createElement("button")
-    document.body.append(panel, button)
-    panel.style.transformOrigin = "50% 0px"
-    panel.getBoundingClientRect = () => new DOMRect(0, 400, 400, 400)
-    button.getBoundingClientRect = () => new DOMRect(300, 40, 80, 40)
-    const transform = sourceTransform(panel, button)
-    expect(transform).toBe("translate(140px, -360px) scale(0.2, 0.1)")
-    // Mapping the panel's corners with it lands on the button's
-    const [tx, ty, sx, sy] = transform!.match(/-?[\d.]+/g)!.map(Number)
-    const ox = 200
-    const oy = 400
-    expect(ox + sx * (0 - ox) + tx).toBeCloseTo(300)
-    expect(oy + sy * (400 - oy) + ty).toBeCloseTo(40)
-    expect(ox + sx * (400 - ox) + tx).toBeCloseTo(380)
-    expect(oy + sy * (800 - oy) + ty).toBeCloseTo(80)
-    // A source inside the panel, or one with no size, is none
-    panel.append(button)
-    expect(sourceTransform(panel, button)).toBeNull()
+  test("the panel and the scrim move on the sheet's spring both ways, where the dialog times the sheet so", () => {
+    const css = read("packages/styles/src/components/Dialog/Dialog.module.css").replace(/\s+/g, " ")
+    expect(css).toContain('.Content[data-mobile-placement="bottom"] .Panel[data-sheet-motion] { --dialog-enter-duration: var(--spring-sheet-duration); --dialog-enter-easing: var(--spring-sheet); --dialog-exit-duration: var(--spring-sheet-duration); --dialog-exit-easing: var(--spring-sheet); }')
+    expect(css).toContain(".Transition:is([data-entering-active], [data-entering][data-interrupted]):has(.Panel[data-sheet-motion]) .Overlay { transition: opacity var(--spring-sheet-duration) var(--spring-sheet); }")
+    expect(css).toContain(".Transition:is([data-exiting-active], [data-exiting][data-interrupted]):has(.Panel[data-sheet-motion]) .Overlay { transition: opacity var(--spring-sheet-duration) var(--spring-sheet); }")
+    for (const file of ["packages/ui/src/components/Dialog/Dialog.tsx", "packages/vue/src/components/Dialog/Dialog.ts"]) {
+      const source = read(file)
+      expect(source).toContain('setAttribute("data-sheet-motion", "")')
+      expect(source).toMatch(/enterDuration: SHEET_SPRING_MS,\s+exitDuration: draggedClose\.(current|value) \? SHEET_EXIT_MS : SHEET_SPRING_MS,/)
+    }
+  })
+
+  test("nothing grows out of a button any more: the sheet helpers are gone from React and Vue", () => {
+    for (const file of ["packages/ui/src/components/Dialog/Dialog.tsx", "packages/vue/src/components/Dialog/Dialog.ts", "packages/ui/src/lib/presentMotion.ts"]) {
+      const source = read(file)
+      expect(source).not.toMatch(/sourceTransform|presentationSource|data-presented-from/)
+    }
   })
 })

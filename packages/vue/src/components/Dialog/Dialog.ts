@@ -45,10 +45,9 @@ import { dismissableSurfaces, useDeferredPointerDownOutside } from "../Popover/d
 import { firstElementChild } from "../Tooltip/slot.js"
 import { TransitionGroup } from "../Transition/index.js"
 import { attachSheetDrag } from "./sheetDrag.js"
-import { growsFromButton, presentationSource, SHEET_EXIT_MS, SHEET_SPRING_MS, sourceTransform, watchPresentationSources } from "../../lib/presentMotion.js"
+import { growsFromButton, SHEET_EXIT_MS, SHEET_SPRING_MS } from "../../lib/presentMotion.js"
 
 // Notes the button each press lands on from the start, so the first dialog, mounted by the press that opens it, knows it
-if (typeof document !== "undefined") watchPresentationSources(document)
 import { watchDialogViewport } from "./dialogViewport.js"
 import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING } from "./dialogSteps.js"
 import { PHONE_LAYOUT as PHONE_LAYOUT_SCOPE, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout.js"
@@ -573,7 +572,7 @@ export const DialogContent = defineComponent({
       const request: DialogInteractOutsideEvent = new CustomEvent("dialog.sheetDrag", { cancelable: true, detail: { originalEvent } })
       if (ownerKeepsOpen(request)) return false
       draggedClose.value = true
-      // An owner that keeps it open without saying so: its next close goes back into the button again
+      // An owner that keeps it open without saying so: its next close slides down on the sheet's spring again
       setTimeout(() => { if (open.value) draggedClose.value = false }, SHEET_EXIT_MS)
       if (props.confirmClose) {
         const closed = requestClose()
@@ -584,31 +583,21 @@ export const DialogContent = defineComponent({
       return true
     }
 
-    // A phone sheet opened by a button grows out of it and shrinks back into it; one pulled down leaves at the
-    // finger's speed (lib/presentMotion). The button is the one pressed as the dialog opens.
-    let source: Element | null = null
+    // A phone sheet slides up from the bottom and back down on iOS's spring, the scrim with it, both ways on one timer;
+    // one pulled down leaves at the finger's speed (lib/presentMotion)
     // Reactive: a sheet let go of changes its exit timer, in the render that closes it
     const draggedClose = shallowRef(false)
     watch(open, (isOpen) => {
-      if (!isOpen) return
-      source = typeof document === "undefined" ? null : presentationSource(document)
-      draggedClose.value = false
+      if (isOpen) draggedClose.value = false
     }, { immediate: true, flush: "sync" })
     const sheetMotion = () =>
       (phoneWindow.value || phoneLayout.value) && mobilePlacement.value === "bottom" && growsFromButton(undefined)
-    const growsFromSource = () => sheetMotion() && source !== null
-    // The panel lies over its button before it enters and before it leaves, wherever the button is by then
-    watch([panelNode, open, draggedClose], ([panel]) => {
+    // The sheet's spring, in the panel's CSS (Dialog.module.css): only where the dialog times it so
+    watch([panelNode, sheetMotion], ([panel, moves]) => {
       if (!panel) return
-      const from = growsFromSource() && !draggedClose.value ? sourceTransform(panel, source) : null
-      if (from) {
-        panel.style.setProperty("--dialog-panel-source-transform", from)
-        panel.setAttribute("data-presented-from", "")
-      } else {
-        panel.style.removeProperty("--dialog-panel-source-transform")
-        panel.removeAttribute("data-presented-from")
-      }
-    }, { flush: "post" })
+      if (moves) panel.setAttribute("data-sheet-motion", "")
+      else panel.removeAttribute("data-sheet-motion")
+    }, { flush: "post", immediate: true })
     const handleInteractOutside = (event: Event) => {
       if (!open.value) event.preventDefault()
     }
@@ -771,8 +760,8 @@ export const DialogContent = defineComponent({
         placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || sheetCrosses
       const timing = crossesScreen ? overlayTimingLarge : overlayTiming
       const transitionTiming = sheetMotion() ? {
-        enterDuration: growsFromSource() ? SHEET_SPRING_MS : timing.enterDuration,
-        exitDuration: growsFromSource() || draggedClose.value ? SHEET_EXIT_MS : timing.exitDuration,
+        enterDuration: SHEET_SPRING_MS,
+        exitDuration: draggedClose.value ? SHEET_EXIT_MS : SHEET_SPRING_MS,
       } : timing
       // Portaled out of any phone layout, a phone dialog carries its own scope, above its transition: the phone rules
       // of the style sheet start there.

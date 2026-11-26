@@ -35,7 +35,7 @@ import { NO_SCROLL_EDGES, observeScrollEdges, sameScrollEdges, type ScrollEdges 
 import { TransitionGroup } from "../Transition"
 import { createExitGuard, overlayTiming, overlayTimingLarge, reducedMotionEnter } from "../Transition/shared"
 import { attachSheetDrag } from "./sheetDrag"
-import { growsFromButton, presentationSource, SHEET_EXIT_MS, SHEET_SPRING_MS, sourceTransform, watchPresentationSources } from "../../lib/presentMotion"
+import { growsFromButton, SHEET_EXIT_MS, SHEET_SPRING_MS } from "../../lib/presentMotion"
 import { watchDialogViewport } from "./dialogViewport"
 import { enterStep, leaveStep, releaseStepHeight, settleStepHeight, STEP_TIMING } from "./dialogSteps"
 import { PhoneLayoutContext, usePhoneLayout, type PhoneLayoutValue } from "../PhoneLayout/PhoneLayout"
@@ -47,7 +47,6 @@ import t from "@plexui/styles/components/Toolbar/Toolbar.module.css"
 // Presses that start while a dialog or menu comes in are held, as on iOS (lib/holdEnteringPresses)
 holdEnteringPresses()
 // Notes the button each press lands on from the start, so the first dialog, mounted by the press that opens it, knows it
-if (typeof document !== "undefined") watchPresentationSources(document)
 
 type DialogContextValue = {
   open: boolean
@@ -389,25 +388,19 @@ const Content = ({
   const crossesScreen =
     placement === "bottom" || placement === "start" || placement === "end" || placement === "fullscreen" || sheetCrosses
 
-  // A phone sheet opened by a button grows out of it and shrinks back into it; one pulled down leaves at the
-  // finger's speed (lib/presentMotion). The button is the one pressed as the dialog opens: noted with the render that
-  // opens it, kept once that render is committed, for the way back.
-  const openedFrom = useMemo(() => (open && typeof document !== "undefined" ? presentationSource(document) : null), [open])
-  const source = useRef<Element | null>(null)
+  // A phone sheet slides up from the bottom and back down on iOS's spring, the scrim with it, both ways on one timer;
+  // one pulled down leaves at the finger's speed (lib/presentMotion)
   const draggedClose = useRef(false)
   const openRef = useRef(open)
   useLayoutEffect(() => {
     openRef.current = open
-    if (!open) return
-    source.current = openedFrom
-    draggedClose.current = false
-  }, [open, openedFrom])
+    if (open) draggedClose.current = false
+  }, [open])
   const sheetMotion = phone && mobilePlacement === "bottom" && growsFromButton(undefined)
-  const growsFromSource = sheetMotion && (open ? openedFrom : source.current) !== null
   const timing = crossesScreen ? overlayTimingLarge : overlayTiming
   const transitionTiming = sheetMotion ? {
-    enterDuration: growsFromSource ? SHEET_SPRING_MS : timing.enterDuration,
-    exitDuration: growsFromSource || draggedClose.current ? SHEET_EXIT_MS : timing.exitDuration,
+    enterDuration: SHEET_SPRING_MS,
+    exitDuration: draggedClose.current ? SHEET_EXIT_MS : SHEET_SPRING_MS,
   } : timing
 
   // The content of a closing dialog is frozen for its exit, so this reads the owner's latest
@@ -439,8 +432,8 @@ const Content = ({
       if (request.defaultPrevented) return false
     }
     draggedClose.current = true
-    // An owner that keeps it open without saying so (a controlled `open` it does not change): its next close goes
-    // back into the button again
+    // An owner that keeps it open without saying so (a controlled `open` it does not change): its next close slides
+    // down on the sheet's spring again
     setTimeout(() => { if (openRef.current) draggedClose.current = false }, SHEET_EXIT_MS)
     if (confirmClose) {
       const closed = requestClose()
@@ -451,18 +444,12 @@ const Content = ({
     return true
   })
 
-  // The panel lies over its button before it enters and before it leaves, wherever the button is by then
+  // The sheet's spring, in the panel's CSS (Dialog.module.css): only where the dialog times it so
   useLayoutEffect(() => {
     if (!panel) return
-    const from = growsFromSource && !draggedClose.current ? sourceTransform(panel, open ? openedFrom : source.current) : null
-    if (from) {
-      panel.style.setProperty("--dialog-panel-source-transform", from)
-      panel.setAttribute("data-presented-from", "")
-    } else {
-      panel.style.removeProperty("--dialog-panel-source-transform")
-      panel.removeAttribute("data-presented-from")
-    }
-  }, [panel, open, openedFrom, growsFromSource])
+    if (sheetMotion) panel.setAttribute("data-sheet-motion", "")
+    else panel.removeAttribute("data-sheet-motion")
+  }, [panel, sheetMotion])
 
   useEffect(() => {
     if (!panel || mobilePlacement !== "bottom") return undefined

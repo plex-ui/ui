@@ -1,21 +1,28 @@
 /**
- * How a phone overlay comes and goes as on iOS 27.2: a sheet grows out of the button that opened it and shrinks back
- * into it as it closes, on SwiftUI's spring(duration: 0.33, bounce: 0.2); a sheet the finger lets go of carries on at
- * the finger's speed, to its rest or off the screen. The CSS springs (--spring-sheet, --spring-menu) are these springs
- * sampled; a released sheet needs one that starts at the finger's speed, which only a runtime sample has.
+ * How a phone overlay comes and goes as on iOS 27.2. A sheet always slides up from the bottom of the screen and back
+ * down, never out of the button that opened it (the owner's decision, 2026-11-26): on a spring with no bounce,
+ * spring(duration: 0.34, bounce: 0), measured on a Reminders sheet in the simulator (half its way at 91 ms, 90% at
+ * 210, 99.9% at 500), the scrim on the same curve, both ways. A sheet the finger lets go of carries on at the finger's
+ * speed, to its rest or off the screen. A menu grows out of its control, as an iOS pull-down menu does. The CSS springs
+ * (--spring-sheet, --spring-menu) are these springs sampled; a released sheet needs one that starts at the finger's
+ * speed, which only a runtime sample has.
  */
 
 /** SwiftUI's spring(duration:bounce:) with mass 1 */
 export type Spring = { duration: number; bounce: number }
 
-export const SHEET_SPRING: Spring = { duration: 0.33, bounce: 0.2 }
+export const SHEET_SPRING: Spring = { duration: 0.34, bounce: 0 }
 /** A released sheet does not overshoot: past its rest it would lift off the bottom of the screen. */
 export const SHEET_RELEASE_SPRING: Spring = { duration: 0.33, bounce: 0 }
 export const MENU_SPRING: Spring = { duration: 0.21, bounce: 0.2 }
-/** The time these springs take to settle within 0.001, as --spring-sheet-duration and --spring-menu-duration. */
-export const SHEET_SPRING_MS = 495
+/**
+ * The time a sheet takes to come or go, as --spring-sheet-duration: the spring is within 0.001 of its end by then.
+ * A sheet pulled down leaves within it too.
+ */
+export const SHEET_SPRING_MS = 500
+/** The time the menu's spring takes to settle within 0.001, as --spring-menu-duration. */
 export const MENU_SPRING_MS = 325
-/** The longest a sheet takes to leave: back into its button, or off the screen from a finger's release. */
+/** The longest a sheet takes to leave, off the screen from a finger's release. */
 export const SHEET_EXIT_MS = 500
 
 const STEP = 1 / 2000
@@ -64,77 +71,6 @@ export function springEasing(
   return { easing: `linear(${[...points, "1"].join(", ")})`, ms: Math.round(total * 1000) }
 }
 
-// The control last pressed, by a finger, a pointer or a key: the button a sheet opened from. A menu item is no source:
-// its menu closes as the sheet comes, so the sheet slides up as one from a menu does on iOS.
-const PRESSABLE = "button, a[href], [role='button'], [role='tab'], summary"
-let lastPress: { element: Element; time: number } | null = null
-const watched = new WeakSet<Document>()
-
-const remember = (event: Event) => {
-  if (event instanceof KeyboardEvent && event.key !== "Enter" && event.key !== " ") return
-  const target = event.target
-  const element = target instanceof Element ? target.closest(PRESSABLE) : null
-  lastPress = element && !element.closest("[role='menu'], [role='listbox']") ? { element, time: event.timeStamp } : null
-}
-
-/** Starts noting what each press lands on, once per document. */
-export function watchPresentationSources(doc: Document | undefined) {
-  if (!doc || watched.has(doc)) return
-  watched.add(doc)
-  doc.addEventListener("pointerdown", remember, { capture: true, passive: true })
-  doc.addEventListener("keydown", remember, { capture: true, passive: true })
-}
-
-/** The control pressed just now, which an overlay opening now opens from, if any. */
-export function presentationSource(doc: Document | undefined): Element | null {
-  if (!doc || !lastPress) return null
-  const view = doc.defaultView
-  const recent = view && view.performance.now() - lastPress.time < 1000
-  return recent && lastPress.element.isConnected && lastPress.element.ownerDocument === doc ? lastPress.element : null
-}
-
-const toPixels = (value: string | undefined, size: number) => {
-  if (!value) return size / 2
-  const number = Number.parseFloat(value)
-  if (!Number.isFinite(number)) return size / 2
-  return value.endsWith("%") ? (number / 100) * size : number
-}
-
-/**
- * The transform that lays the panel, at its rest, over the source: the panel grows out of it from there. Null when
- * the source is gone, has no size, lies off the screen or inside the panel: the panel then comes as it would alone.
- */
-export function sourceTransform(panel: HTMLElement, source: Element | null): string | null {
-  if (!source?.isConnected || panel.contains(source)) return null
-  const view = panel.ownerDocument.defaultView
-  if (!view) return null
-  const from = source.getBoundingClientRect()
-  if (!from.width || !from.height) return null
-  if (from.bottom <= 0 || from.right <= 0 || from.top >= view.innerHeight || from.left >= view.innerWidth) return null
-  // The rest is the panel without the transform of its entrance, its exit or a drag, nor of one under way: its layout
-  // box, which transforms leave alone, inside its offset parent (the dialog's layer, which nothing transforms).
-  const parent = panel.offsetParent instanceof view.HTMLElement ? panel.offsetParent : null
-  const base = parent?.getBoundingClientRect()
-  const to = base
-    ? new view.DOMRect(
-        base.left + parent!.clientLeft + panel.offsetLeft,
-        base.top + parent!.clientTop + panel.offsetTop,
-        panel.offsetWidth,
-        panel.offsetHeight,
-      )
-    : panel.getBoundingClientRect()
-  const [originX, originY] = view.getComputedStyle(panel).transformOrigin.split(" ")
-  if (!to.width || !to.height) return null
-  const ox = to.left + toPixels(originX, to.width)
-  const oy = to.top + toPixels(originY, to.height)
-  const sx = from.width / to.width
-  const sy = from.height / to.height
-  const tx = from.left - ox - sx * (to.left - ox)
-  const ty = from.top - oy - sy * (to.top - oy)
-  const round = (value: number) => Math.round(value * 1000) / 1000
-  return `translate(${round(tx)}px, ${round(ty)}px) scale(${round(sx)}, ${round(sy)})`
-}
-
 /**
  * A phone menu covers its button, its corner on the button's (menuTriggerCover.ts), and grows from its transform
  * origin, which Radix puts at that corner: the scale that makes it the button's size there is all it takes. Sizes are
@@ -147,7 +83,10 @@ export function sourceScale(panel: HTMLElement, source: HTMLElement | null): str
   return `scale(${round(source.offsetWidth / panel.offsetWidth)}, ${round(source.offsetHeight / panel.offsetHeight)})`
 }
 
-/** Whether a phone overlay may grow out of its button: not with reduced motion, nor in the Plex Android look. */
+/**
+ * Whether a phone overlay moves on the iOS springs (a menu out of its button, a sheet up from the bottom): not with
+ * reduced motion, nor in the Plex Android look.
+ */
 export function growsFromButton(element: Element | null | undefined): boolean {
   const doc = element?.ownerDocument ?? (typeof document === "undefined" ? undefined : document)
   const view = doc?.defaultView
