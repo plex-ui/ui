@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test"
+import { readFileSync } from "node:fs"
+import { join } from "node:path"
 import { openGallery } from "./gallery"
 
 for (const platform of ["ios", "android"] as const) {
@@ -160,5 +162,40 @@ for (const scheme of ["light", "dark"] as const) {
     await field.pressSequentially("Bo")
     await page.getByRole("textbox", { name: "Name", exact: true }).click()
     await expect(clears).toHaveCount(others)
+  })
+}
+
+// The web kit's Plex Android look draws the same field (android.css): its `--android-outline` and
+// `--android-on-surface-variant` are the colors this package draws for the idle line and the label
+const androidCss = readFileSync(join(__dirname, "../../../styles/src/styles/android.css"), "utf8")
+const webPair = (token: string) => {
+  const match = androidCss.match(new RegExp(`${token}: light-dark\\((#[0-9a-f]+), (#[0-9a-f]+)\\)`, "i"))
+  if (!match) throw new Error(`${token} not found`)
+  const rgb = (hex: string) => {
+    const full = hex.length === 4 ? "#" + [...hex.slice(1)].map((c) => c + c).join("") : hex
+    return `rgb(${[1, 3, 5].map((i) => parseInt(full.slice(i, i + 2), 16)).join(", ")})`
+  }
+  return { light: rgb(match[1]), dark: rgb(match[2]) }
+}
+for (const scheme of ["light", "dark"] as const) {
+  test(`the web kit's Android field takes the same outline and label colors (${scheme})`, async ({ page }) => {
+    await openGallery(page, { platform: "android", scheme, screen: "fields-more" })
+    const drawn = await page.getByLabel("Email address", { exact: true }).evaluate((input) => {
+      let box: Element | null = input
+      let line = ""
+      let label = ""
+      while (box && !(line && label)) {
+        box = box.parentElement
+        if (!box) break
+        for (const e of Array.from(box.querySelectorAll("*"))) {
+          const s = getComputedStyle(e)
+          if (!line && s.borderTopStyle === "solid" && parseFloat(s.borderTopWidth) > 0) line = s.borderTopColor
+          if (!label && e.childElementCount === 0 && e.textContent === "Email address" && e.checkVisibility({ opacityProperty: true })) label = s.color
+        }
+      }
+      return { line, label }
+    })
+    expect(webPair("--android-outline")[scheme]).toBe(drawn.line)
+    expect(webPair("--android-on-surface-variant")[scheme]).toBe(drawn.label)
   })
 }

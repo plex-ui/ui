@@ -7,6 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- **`@plexui/styles`: the web kit's Plex Android look draws fields as `@plexui/react-native` 0.2.30 does.**
+  - The outlined field's line at rest is Material 3's `outline`. Its label is `onSurfaceVariant`. These are the new `--android-outline` and `--android-on-surface-variant` tokens, light and dark.
+  - The clear button shows only while the field has focus and text. A search field keeps it with the text. Its icon is the filled circle in `onSurfaceVariant`, 24px.
+  - The accent line under a card's last text row stands as far in from the card's end as from its start. Before, it ran into the card's rounded corner.
+
 ## @plexui/react-native 0.2.30 (2026-11-26)
 
 ### Fixed

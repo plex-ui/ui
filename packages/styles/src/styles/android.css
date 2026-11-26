@@ -154,6 +154,11 @@
        night. */
     --android-hint: light-dark(#a8a8a8, #7d7d7d);
     --android-field-line: light-dark(#dbdbdb, color-mix(in srgb, var(--color-text) 24%, transparent));
+    /* Material 3's roles for a field, as @plexui/react-native's Material theme computes them for Plex's grays:
+       `outline` (tone 50, 60 at night) for an outlined field's line at rest, at least 3:1 on the surface, and
+       `onSurfaceVariant` (tone 30, 80) for its label and the clear-text icon, at least 4.5:1 */
+    --android-outline: light-dark(#777, #919191);
+    --android-on-surface-variant: light-dark(#474747, #c6c6c6);
     --android-search-fill: light-dark(color-mix(in srgb, var(--color-text) 5%, transparent), color-mix(in srgb, var(--color-text) 7%, transparent));
     --list-row-inset: 21px;
     --field-row-min-height: 50px;
@@ -189,14 +194,17 @@
     --floating-input-box-radius: 8px;
     --floating-input-box-gutter: 14px;
     --floating-input-font-size: 16px;
-    --floating-input-border-color: var(--android-field-line);
-    --floating-input-border-color-hover: var(--android-field-line);
+    --floating-input-border-color: var(--android-outline);
+    --floating-input-border-color-hover: var(--android-outline);
     --floating-input-border-color-focus: var(--android-accent-text);
     --floating-input-border-color-invalid: var(--android-danger-text);
-    --floating-input-label-color: var(--android-hint);
+    --floating-input-label-color: var(--android-on-surface-variant);
     --floating-input-label-color-focus: var(--android-accent-text);
     --floating-input-label-color-invalid: var(--android-danger-text);
-    --floating-input-inside-label-color: var(--android-hint);
+    --floating-input-inside-label-color: var(--android-on-surface-variant);
+    /* The clear-text icon: Material's mtrl_ic_cancel, a filled 24px circle (XCircleFilled draws its circle 20 of 24) */
+    --floating-input-clear-glyph-size: 20px;
+    --floating-input-clear-glyph-color: var(--android-on-surface-variant);
     --floating-input-label-scale: 0.75;
     --floating-input-inside-label-scale: 0.75;
     --floating-input-inside-label-shift: -12px;

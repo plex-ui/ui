@@ -1041,7 +1041,7 @@
      line starts to the card's edge. A card's last row, where no separator runs, ends 8 lower (a clear border, so its
      padding and the line's place are the rows' above): its line stands as far under its text as theirs and 7 over
      the card's edge (on the edge it read as the card's border), to where the card's 16 corner has curved in at that
-     height. An input card's field draws its own line. */
+     height, as far in from its end as from its start. An input card's field draws its own line. */
   [data-platform="android"] .Field:where([data-row]:not(:has(> .Content > .Control [data-row]))):has(> .Content > .Control :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="hidden"], [type="file"], [type="color"], [aria-hidden="true"]), textarea)) {
     position: relative;
 
@@ -1063,8 +1063,10 @@
       min-height: 62px;
       border-block-end: 8px solid transparent;
 
+      /* Inside the card, off its rounded corner: as far in from its end as from its start, under the row's
+         content, not a bar that runs into the corner */
       &::before {
-        inset-inline-end: 3px;
+        inset-inline-end: var(--field-group-separator-inset-start, var(--field-group-separator-inset, var(--field-row-padding-inline, 0px)));
       }
     }
 
@@ -1174,7 +1176,7 @@
 
     &:not(:focus-within):has(> .Content > .Control > [data-variant] > :is(input, textarea):placeholder-shown) > .LabelGroup > .Label {
       width: 100%;
-      color: var(--android-hint);
+      color: var(--android-on-surface-variant);
       translate: 0 0;
       scale: 1;
     }

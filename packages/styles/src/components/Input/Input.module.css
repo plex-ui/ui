@@ -737,8 +737,12 @@
     --input-gap: 12px;
     --input-font-size: 16px;
     --input-adornment-offset: 0px;
-    --input-outline-border-color: var(--android-field-line);
-    --input-outline-border-color-hover: var(--android-field-line);
+    --input-outline-border-color: var(--android-outline);
+    --input-outline-border-color-hover: var(--android-outline);
+    /* The clear-text icon: Material's mtrl_ic_cancel, a filled 24px circle in onSurfaceVariant (XCircleFilled draws
+       its circle 20 of 24) */
+    --input-clear-glyph-size: 20px;
+    --input-clear-glyph-color: var(--android-on-surface-variant);
     --input-outline-border-color-focus: var(--android-accent-text);
     --input-border-color-invalid: var(--android-danger-text);
     --input-soft-background-color: color-mix(in srgb, var(--color-text) 5%, transparent);
@@ -751,6 +755,12 @@
 
     &[data-variant="ghost"] {
       caret-color: var(--color-text);
+    }
+
+    /* The clear button shows while the field has focus and text, as Material Components' clear-text end icon
+       (ClearTextEndIconDelegate); the search field (soft, led by its magnifier) keeps it with the text */
+    &:not(:focus-within):not([data-variant="soft"][data-has-start-adornment]) > .Clear {
+      display: none;
     }
 
     &[data-variant="outline"]:not([data-disabled])[data-focused="true"] {

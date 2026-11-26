@@ -206,6 +206,12 @@
   .ClearButton:last-child {
     margin-inline-end: calc(var(--floating-input-height) / 2 - var(--floating-input-clear-size, 1em) / 2 - var(--floating-input-gutter) - 1px);
   }
+
+  /* The Plex Android look: the clear button shows while the field has focus and text, as Material Components'
+     clear-text end icon (ClearTextEndIconDelegate) */
+  [data-platform="android"] .Root:not(:focus-within) .ClearButton {
+    display: none;
+  }
 }
 
 /* Password reveal toggle — circular ghost button hugging the right edge */
