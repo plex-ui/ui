@@ -1065,7 +1065,8 @@
      colors of their bar (Toolbar.module.css). */
   .Button[data-disabled][data-variant] {
     --button-background-color: var(--button-mobile-disabled-background, var(--color-background-disabled));
-    --button-text-color: var(--mobile-label-tertiary, var(--color-text-disabled));
+    /* A brand's own disabled label (--button-mobile-disabled-color), else the tertiary label */
+    --button-text-color: var(--button-mobile-disabled-color, var(--mobile-label-tertiary, var(--color-text-disabled)));
   }
 
   .Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"]))) {

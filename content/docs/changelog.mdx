@@ -7,6 +7,16 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.7 (2026-11-26)
+
+`@plexui/ui` 0.62.7, `@plexui/vue` 0.42.7, `@plexui/styles` 0.17.6 and `@plexui/react-native` 0.2.28.
+
+### Added
+
+- **`--button-mobile-disabled-color`**: the label of a disabled button on a phone, for a brand whose disabled button has a label color of its own. It falls back to the tertiary label (`--mobile-label-tertiary`) as before, so the chevrons, disabled rows and placeholders that share that token stay as they are.
+  - On the web it holds for every variant under `touch.css`.
+  - In React Native it covers iOS, toolbar and list actions included, and is set through `ThemeProvider`'s `brand.tokens`. Android keeps Material's disabled label.
+
 ## @plexui/react-native 0.2.27 (2026-11-26)
 
 `@plexui/react-native` 0.2.27.

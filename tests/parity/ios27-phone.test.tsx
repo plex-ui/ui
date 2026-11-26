@@ -483,7 +483,7 @@ describe("a disabled Button and pop-up on a phone (kit iOS 27 Button - Content A
     expect(decls(phoneRules("packages/styles/src/components/Button/Button.module.css").get(".Button[data-disabled][data-variant]"))).toEqual({
       // iOS 27.2 keeps the gray of an enabled gray button under a disabled one (plan 178 block 3)
       "--button-background-color": "var(--button-mobile-disabled-background, var(--color-background-disabled))",
-      "--button-text-color": "var(--mobile-label-tertiary, var(--color-text-disabled))",
+      "--button-text-color": "var(--button-mobile-disabled-color, var(--mobile-label-tertiary, var(--color-text-disabled)))",
     })
     const select = phoneRules("packages/styles/src/components/SelectControl/SelectControl.module.css").get(".SelectControl[data-disabled][data-variant]")
     expect(decls(select)).toEqual({ color: "var(--mobile-label-tertiary, var(--color-text-disabled))" })

@@ -211,6 +211,11 @@ function iosPress(theme: Theme, variant: ButtonVariant, colors: Colors): Colors 
   return { ...colors, pressed, pressedText: lighten(theme, colors.text) }
 }
 
+/** iOS: a disabled button's label, the tertiary label unless a brand sets its own (`--button-mobile-disabled-color`). */
+function disabledLabel(theme: Theme) {
+  return theme.color("--button-mobile-disabled-color", theme.colors.labelTertiary)
+}
+
 export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVariant, disabled: boolean, selected: boolean): Colors {
   const c = (name: string) => theme.color(`--color-${name}`)
   if (disabled) {
@@ -223,13 +228,13 @@ export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVa
       const flat = variant === "ghost" || variant === "outline"
       return { background: flat ? "transparent" : veil, pressed: flat ? "transparent" : veil, text: withAlpha(onSurface, 0.38), border: variant === "outline" ? veil : undefined }
     }
-    // The phone CSS: the tertiary label in every style (iOS 27's disabled content-area button), the fill of a gray
-    // button behind a solid or soft one
+    // The phone CSS: the tertiary label in every style (iOS 27's disabled content-area button), or a brand's own
+    // disabled label (`--button-mobile-disabled-color`); the fill of a gray button behind a solid or soft one
     // An outline button is iOS's Gray (below): disabled, the gray fill as the others
     return {
       background: variant === "ghost" ? "transparent" : theme.color("--button-mobile-disabled-background"),
       pressed: "transparent",
-      text: theme.colors.labelTertiary,
+      text: disabledLabel(theme),
     }
   }
   const colors = ((): Colors => {
@@ -303,7 +308,7 @@ function barColors(
   // replace the fill
   if (neutral && !selected && (bar.inGroup || !flat)) {
     const pressed = bar.inGroup ? theme.color("--toolbar-group-item-active") : theme.color("--mobile-glass-background-active")
-    return { background: "transparent", pressed, text: disabled ? theme.colors.labelTertiary : colors.text }
+    return { background: "transparent", pressed, text: disabled ? disabledLabel(theme) : colors.text }
   }
   return colors
 }
@@ -468,7 +473,7 @@ function ListActionButton({
           : // The web's phone rows tint an action with the info text (#0169cc, blue-200 in the dark)
             theme.color("--color-text-info", theme.colors.accent)
         : buttonColors(theme, color, "ghost", false, false).text
-  const ink = disabled ? (android ? withAlpha(base, 0.5) : theme.colors.labelTertiary) : !row && pressed && !android ? lighten(theme, base) : base
+  const ink = disabled ? (android ? withAlpha(base, 0.5) : disabledLabel(theme)) : !row && pressed && !android ? lighten(theme, base) : base
   // Android: a row's words 16/20, a header's 15/20 Medium (the web's FieldGroup header action)
   const type = android
     ? row

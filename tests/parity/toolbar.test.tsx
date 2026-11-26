@@ -398,7 +398,7 @@ describe("Toolbar disabled buttons", () => {
     const css = readFileSync(`${process.cwd()}/packages/styles/src/components/Toolbar/Toolbar.module.css`, "utf8")
     const rule = (head: string) => css.slice(css.indexOf(head), css.indexOf("}", css.indexOf(head)))
     const glass = rule(".Toolbar :is(.Leading, .Trailing, .Content, .Group) > :where(button, a)[data-disabled][data-variant]:where(")
-    expect(glass).toContain("--button-text-color: var(--mobile-label-tertiary, var(--color-text-tertiary));")
+    expect(glass).toContain("--button-text-color: var(--button-mobile-disabled-color, var(--mobile-label-tertiary, var(--color-text-tertiary)));")
     expect(glass).toContain("--button-mobile-material-background: var(--mobile-glass-background);")
     expect(glass).toContain("--button-mobile-material-backdrop-filter: var(--mobile-glass-backdrop-filter);")
     expect(glass).toContain("--button-mobile-material-opacity: 1;")

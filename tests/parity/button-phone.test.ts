@@ -285,7 +285,7 @@ describe("A glass or uniform Button on a phone", () => {
       .toMatchObject({ "--button-mobile-material-background": "initial" })
     expect(declsOf(css, '.Button[data-disabled][data-variant]', true)).toEqual({
       "--button-background-color": "var(--button-mobile-disabled-background, var(--color-background-disabled))",
-      "--button-text-color": "var(--mobile-label-tertiary, var(--color-text-disabled))",
+      "--button-text-color": "var(--button-mobile-disabled-color, var(--mobile-label-tertiary, var(--color-text-disabled)))",
     })
   })
 
