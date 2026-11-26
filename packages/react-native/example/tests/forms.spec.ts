@@ -111,3 +111,54 @@ for (const scheme of ["light", "dark"] as const) {
     }
   })
 }
+
+// Android's text field shows its clear button while it has focus and text (Material Components'
+// ClearTextEndIconDelegate), not on a field at rest, and draws it as `mtrl_ic_cancel`: a solid circle with the X cut
+// out, in onSurfaceVariant (the color of a label at rest)
+for (const scheme of ["light", "dark"] as const) {
+  test(`Android's text field: its clear button shows with focus and text, filled, in onSurfaceVariant (${scheme})`, async ({ page }) => {
+    await openGallery(page, { platform: "android", scheme, screen: "fields" })
+    const field = page.getByRole("textbox", { name: "Full name", exact: true })
+    // The search field below keeps its own clear button: the field's is the one in its own box
+    const clears = page.getByRole("button", { name: "Clear" })
+    const others = await clears.count()
+    const clear = field.locator('xpath=ancestor::*[.//*[@role="button" and @aria-label="Clear"]][1]//*[@role="button" and @aria-label="Clear"]')
+    await field.click()
+    await expect(clears).toHaveCount(others)
+    await field.pressSequentially("Jane")
+    await expect(clears).toHaveCount(others + 1)
+    const glyph = await clear.evaluate((button) => {
+      const path = button.querySelector("svg path")
+      return { d: path?.getAttribute("d") ?? "", fill: path ? getComputedStyle(path).fill : "" }
+    })
+    // The filled shape: one solid circle (its outer arc only, no inner ring of the outlined `cancel`)
+    expect(glyph.d.startsWith("M12 2C6.47 2 2 6.47 2 12")).toBe(true)
+    // The resting label of a field is onSurfaceVariant too
+    const label = await page.getByLabel("Name", { exact: true }).evaluate((input) => {
+      let box: Element | null = input
+      while (box && !Array.from(box.querySelectorAll("*")).some((e) => e.childElementCount === 0 && e.textContent === "Name" && e !== input && e.checkVisibility({ opacityProperty: true }))) box = box.parentElement
+      const tag = Array.from(box!.querySelectorAll("*")).find((e) => e.childElementCount === 0 && e.textContent === "Name" && e !== input && e.checkVisibility({ opacityProperty: true }))!
+      return getComputedStyle(tag).color
+    })
+    expect(glyph.fill).toBe(label)
+    // Away from the field the button goes, the text stays
+    await page.getByRole("textbox", { name: "Name", exact: true }).click()
+    await expect(clears).toHaveCount(others)
+    await expect(field).toHaveValue("Jane")
+    // Back in it, the button returns and clears
+    await field.click()
+    await clear.click()
+    await expect(field).toHaveValue("")
+    await expect(field).toBeFocused()
+    // From the keyboard: Clear focused, Enter clears, the field keeps editing; away from it the button stays gone
+    await field.pressSequentially("Ann")
+    await clear.focus()
+    await expect(clear).toBeFocused()
+    await page.keyboard.press("Enter")
+    await expect(field).toHaveValue("")
+    await expect(field).toBeFocused()
+    await field.pressSequentially("Bo")
+    await page.getByRole("textbox", { name: "Name", exact: true }).click()
+    await expect(clears).toHaveCount(others)
+  })
+}

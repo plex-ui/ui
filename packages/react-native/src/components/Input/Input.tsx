@@ -14,7 +14,7 @@ import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { BarFieldContext, type ControlSize } from "../Button/Button"
 import { IconDefaultsProvider } from "../Icon/createIcon"
-import { MaterialCancel, MaterialClose } from "../Icon/material"
+import { MaterialCancelFilled, MaterialClose } from "../Icon/material"
 
 export type InputVariant = "outline" | "soft" | "ghost"
 
@@ -654,13 +654,14 @@ export function InputField({
   const labelColor = invalid ? dangerText(theme) : focused ? focusAccent(theme) : theme.isAndroid ? theme.material.onSurfaceVariant : look.placeholder
   const labelTint = useSpringColor(labelColor, FIELD_SPRING.stiffness, !floating || theme.reducedMotion)
   // iOS shows a form field's clear button while it is edited (UITextField's whileEditing), a search field's while it
-  // has text; Android while the field has text
+  // has text; Android's text field while it has focus and text (Material Components' ClearTextEndIconDelegate), its
+  // search fields with the text (androidClear, below)
   const searchField = rest.inputMode === "search" || barField != null
   // A value at a row's end has no clear button on iOS, as Settings' and Contacts' rows: only a value that starts its
   // column or stands on its own line under the label takes one
   const valueRight = !startAligned && (inRow || (fillsRow && valueAtEnd))
   const showClear =
-    !!onClear && filled && !disabled && !readOnly && (theme.isAndroid || ((focused || clearing || searchField) && !valueRight))
+    !!onClear && filled && !disabled && !readOnly && (theme.isAndroid ? focused || clearing : (focused || clearing || searchField) && !valueRight)
   // Android's search fields keep their clear button in place and show it with the text
   const androidClear = (search || barSearch) && !!onClear && !disabled && !readOnly
   // A 24dp icon stands 12 in, the text 12 past it (48 in); otherwise the text is 14 in (the outlined field), 21 in a
@@ -859,15 +860,17 @@ export function InputField({
           // On the web a press would blur the field before it lands and take the button away: the field keeps focus
           {...(Platform.OS === "web" ? ({ onMouseDown: (event: { preventDefault: () => void }) => event.preventDefault() } as object) : null)}
           onPress={() => {
-            // As UIKit's clear button, the field keeps editing; first, so a caller's onClear may still move the focus
-            if (!theme.isAndroid && !searchField) input.current?.focus()
+            // As UIKit's clear button and Material's clear-text icon, the field keeps editing (the button goes with
+            // the text, so it lets its own focus go); first, so a caller's onClear may still move the focus
+            setClearing(false)
+            if (!searchField) input.current?.focus()
             if (value === undefined) setOwn("")
             onChangeText?.("")
             onClear()
           }}
           style={[styles.clear, { width: look.clearTarget, minHeight: look.clearTarget }, theme.isAndroid ? styles.clearStretch : null, clearMargin]}
         >
-          {theme.isAndroid ? <MaterialCancel size={look.clearSize} color={look.trailingIcon} /> : <XCircleFilled size={look.clearSize} color={theme.color("--mobile-label-tertiary")} />}
+          {theme.isAndroid ? <MaterialCancelFilled size={look.clearSize} color={look.trailingIcon} /> : <XCircleFilled size={look.clearSize} color={theme.color("--mobile-label-tertiary")} />}
         </Pressable>
       ) : null}
       {endAdornment ? (

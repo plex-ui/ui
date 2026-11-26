@@ -7,7 +7,7 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
-## Unreleased
+## @plexui/react-native 0.2.30 (2026-11-26)
 
 ### Fixed
 
@@ -15,6 +15,10 @@ This changelog documents significant updates, bug fixes, and improvements to com
   - The line at rest is now Material 3's `outline` role, at least 3:1 on the surface.
   - The label is now `onSurfaceVariant`, resting or floating, at least 4.5:1.
   - Both apply in light and dark. The placeholder stays lighter, and focus and errors are unchanged.
+- **`@plexui/react-native`: Android's text field clear button follows Material.**
+  - It shows only while the field has focus and text, as Material Components' clear-text end icon. Before, it showed whenever the field had text. A search field keeps its own rule.
+  - It is drawn as `mtrl_ic_cancel`: a filled circle with the X cut out, 24dp, in the theme's `onSurfaceVariant`, so it follows dark mode.
+  - A press clears the text and the field keeps focus.
 
 ## 0.62.9 (2026-11-26)
 

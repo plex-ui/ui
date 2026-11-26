@@ -17,11 +17,12 @@ export function FieldsScreen() {
   const [email, setEmail] = useState("hello@")
   const [country, setCountry] = useState<string | null>("gb")
   const [code, setCode] = useState("4880")
+  const [name, setName] = useState("")
   return (
     <>
       <Section title="Input" note={theme.isAndroid ? "Android's outlined field: 50dp, 8dp corners, the accent on focus; search its 40dp pill" : "iOS 26: 44pt fields in 17pt type"}>
         <View style={styles.stack}>
-          <Input placeholder="Full name" />
+          <Input placeholder="Full name" value={name} onChangeText={setName} onClear={() => setName("")} accessibilityLabel="Full name" />
           <Input variant="soft" placeholder="Promo code" />
           <Input
             variant="soft"
