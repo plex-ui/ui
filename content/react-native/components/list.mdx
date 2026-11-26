@@ -147,6 +147,22 @@ On Android a footer stands 13dp into the card's width, as in the Settings app; a
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the section" },
 ]} />
 
+### ListStack
+
+Sections one under another, spaced as SwiftUI's Form and the web's stacked FieldGroups: on iOS 35pt rows to rows, less what a footer's block and a header's take; on Android 12dp apart, none after a footer. It ends with the last section's room.
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The sections (List) and any blocks between them" },
+  { prop: "gap", type: "number", default: "0", description: "The space between two blocks that are not both sections" },
+  { prop: "end", type: "boolean", default: "true", description: "Keeps the room under the last section: iOS 35pt over the home indicator, Android at least 16dp over the system's bar" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the stack" },
+]} />
+
+### useListMetrics
+
+Returns `{ rowInset, radius }`: where a row's text starts and the section's corner radius on this platform, for a block that lines up with a section.
+
 ### ListItem
 
 <PropsTable data={[
@@ -157,6 +173,7 @@ On Android a footer stands 13dp into the card's width, as in the Settings app; a
   { prop: "value", type: "ReactNode", description: "The current value at the end: in the secondary gray on iOS, in the accent on Android" },
   { prop: "valueColor", type: '"secondary" | "accent"', default: '"secondary" on iOS, "accent" on Android', description: "The color of the value at the end, and of a Select's value in the row: the secondary gray or the accent" },
   { prop: "valuePlacement", type: '"end" | "below" | "auto"', default: '"end"', description: "Where the value stands: at the end, below the label, or below only when the label and the value do not fit beside each other on one line; below the label it is in the secondary gray (13sp on Android)" },
+  { prop: "selected", type: "boolean", description: "A choice row's check at the end: iOS's 20pt checkmark in the accent, Android's 24dp in the primary; false keeps its room empty, so the labels stay put. Read as selected. Leave it out for a row that is no choice" },
   { prop: "trailing", type: "ReactNode", description: "A control at the end: a Switch, a Badge, an Input (on iOS a field fills the room after the label). A Switch or a Checkbox toggles on a press anywhere on a row without onPress" },
   { prop: "error", type: "ReactNode", description: "An error under the row in the danger color: on iOS a line of its own with an exclamation mark, on Android under the label; announced when it appears" },
   { prop: "disclosure", type: "boolean", default: "onPress && !trailing && !destructive", description: "The chevron of a row that opens a page, on iOS. Android draws none" },

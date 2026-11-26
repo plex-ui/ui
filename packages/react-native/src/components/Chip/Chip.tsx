@@ -1,6 +1,7 @@
 import { holdProps } from "../../internal/row"
 import { useEffect, useState, type ReactNode } from "react"
 import { Animated, Easing, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { useAndroidGlass } from "../../internal/BarBackdrop"
 import { Pressable } from "../../internal/Pressable"
 import ChevronDownSm from "../../icons/plex/ChevronDownSm"
 import CloseBold from "../../icons/plex/CloseBold"
@@ -37,10 +38,16 @@ export type ChipProps = {
   accessibilityLabel?: string
   /**
    * iOS: `tag`, a capsule of the gray fill 40pt tall (a tag cloud in a sheet, as Maps' Filters), or `glass`, a glass
-   * capsule 44pt tall (a filter in a row over content, as Maps' filters under its search). Android draws its chip with
-   * either. @default "tag"
+   * capsule 44pt tall (a filter in a row over content, as Maps' filters under its search). Android draws Material's
+   * chip with either; with `glass` it stands on a glass of its size (the bar circles'), readable over content.
+   * @default "tag"
    */
   appearance?: "tag" | "glass"
+  /**
+   * iOS: `sm`, a step under the regular chip, as a filter row a step under Maps' 44: 36pt tall, the label 15/20, the
+   * insides in proportion, the target still 44. Android keeps Material's 32dp chip. @default "md"
+   */
+  size?: "md" | "sm"
   /** An input chip: called when the reader takes the value back (a cross on Android; see `removeStyle` on iOS). */
   onRemove?: () => void
   /** The remove action's name, for screen readers. @default "Remove" */
@@ -85,6 +92,7 @@ export function Chip({
   expanded,
   accessibilityLabel,
   appearance = "tag",
+  size = "md",
   onRemove,
   removeLabel = "Remove",
   removeStyle = "token",
@@ -179,13 +187,14 @@ export function Chip({
   }, [blend, blends, selected])
   const fillPaint = blends ? blend.interpolate({ inputRange: [0, 1], outputRange: [androidFill.off, androidFill.on] }) : fill
   const labelPaint = blends ? blend.interpolate({ inputRange: [0, 1], outputRange: [androidColor.off, androidColor.on] }) : color
-  const height = android ? 32 : glass ? 44 : 40
-  const label = android ? { fontSize: 14, lineHeight: 18 } : { fontSize: 17, lineHeight: 22 }
+  const small = !android && size === "sm"
+  const height = android ? 32 : small ? 36 : glass ? 44 : 40
+  const label = android ? { fontSize: 14, lineHeight: 18 } : small ? { fontSize: 15, lineHeight: 20 } : { fontSize: 17, lineHeight: 22 }
   const leading = icon
-  // iOS: a 17pt symbol draws about 20 (the label's size)
-  const iconSize = android ? 18 : 20
+  // iOS: a 17pt symbol draws about 20 (the label's size), a 15pt one about 17
+  const iconSize = android ? 18 : small ? 17 : 20
   // A menu chip's chevron: Material's 18dp arrow_drop_down, iOS's small chevron.down at the label's weight
-  const trailing = trailingIcon ?? (menu ? android ? <MaterialArrowDropDown size={18} /> : <ChevronDownSm size={16} /> : null)
+  const trailing = trailingIcon ?? (menu ? android ? <MaterialArrowDropDown size={18} /> : <ChevronDownSm size={small ? 14 : 16} /> : null)
   const leadingColor = color
   // A symbol alone (Maps' filter button before its chips): a circle as tall as the chip, named by accessibilityLabel
   const symbolOnly = leading != null && (children == null || children === "") && trailing == null && !onRemove
@@ -202,6 +211,11 @@ export function Chip({
   // iOS's glass filter: a glass capsule (its rim and sheen), filled with the accent once chosen
   const glassLayer =
     glass && !selected ? <Glass pointerEvents="none" radius={radius} style={[StyleSheet.absoluteFill, { top: inset, bottom: inset }]} /> : null
+  // Android's chip over content (`glass`): it stands on a glass of its size, the Android bar circles' (a see-through
+  // card with a rim and a soft shadow), Material's fill and label over it
+  const androidGlass = useAndroidGlass("bar")
+  const androidBacking =
+    android && appearance === "glass" ? <View pointerEvents="none" style={[StyleSheet.absoluteFill, androidGlass, { top: inset, bottom: inset, borderRadius: radius }]} /> : null
   const layer = glassLayer ?? (
     <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { top: inset, bottom: inset, borderRadius: radius, backgroundColor: fillPaint, borderCurve: "continuous" }]}>
       {/* Android's press: the list selector over the chip, 6% black and 5% white at night (the dark theme's); over a
@@ -217,9 +231,9 @@ export function Chip({
     minHeight: target,
     paddingVertical: inset + (height - label.lineHeight) / 2,
     // Android: 12 at the sides, 8 before an icon and 6 after it
-    paddingLeft: symbolOnly ? (height - iconSize) / 2 : leading != null ? (android ? 8 : 12) : android ? 12 : 16,
+    paddingLeft: symbolOnly ? (height - iconSize) / 2 : leading != null ? (android ? 8 : small ? 10 : 12) : android ? 12 : small ? 14 : 16,
     // Android: 8 after a trailing icon (Compose's FilterChip), iOS 12
-    paddingRight: symbolOnly ? (height - iconSize) / 2 : cross ? 0 : trailing != null ? (android ? 8 : 12) : android ? 12 : 16,
+    paddingRight: symbolOnly ? (height - iconSize) / 2 : cross ? 0 : trailing != null ? (android ? 8 : small ? 10 : 12) : android ? 12 : small ? 14 : 16,
     gap: 6,
     opacity: !android && pressed ? 0.7 : 1,
   }
@@ -260,6 +274,8 @@ export function Chip({
   // Android dims a disabled chip, its fill with it, to half (as its other disabled controls)
   const dim = android && disabled ? styles.dim : null
   const handlers = {
+    // A symbol alone keeps the target's width past its circle (36 on iOS's small chip, 32 on Android's)
+    hitSlop: symbolOnly && height < target ? { left: (target - height) / 2, right: (target - height) / 2 } : undefined,
     ...(filter ? spaceToggles(press) : {}),
     // A menu chip is a button that opens its menu, even when it shows a chosen filter
     accessibilityRole: filter && !menu ? ("checkbox" as const) : ("button" as const),
@@ -305,6 +321,7 @@ export function Chip({
   if (cross) {
     return (
       <View testID={testID} style={[styles.chip, { minHeight: target }, dim, style]}>
+        {androidBacking}
         {layer}
         {interactive ? (
           <Pressable {...handlers} style={[styles.part, box]}>
@@ -328,6 +345,7 @@ export function Chip({
   if (!interactive) {
     return (
       <View testID={testID} style={[styles.chip, styles.part, box, dim, style]}>
+        {androidBacking}
         {layer}
         {body}
       </View>
@@ -335,6 +353,7 @@ export function Chip({
   }
   return (
     <Pressable {...handlers} testID={testID} style={[styles.chip, styles.part, box, dim, style]}>
+      {androidBacking}
       {layer}
       {body}
     </Pressable>

@@ -885,6 +885,21 @@ export const TabBar = Object.assign(TabBarRoot, { Item: TabBarItem })
 const MINIMIZE_AFTER = 8
 
 /**
+ * Where the tab bar's capsule stands, for what floats over it (a screen's floating buttons a set gap above it, a
+ * scroll that ends over it): `capsuleHeight`, and `bottom`, from the screen's bottom edge to the capsule's. iOS 26: the
+ * 54pt tabs in a capsule 4 above and below (62), 21 over the screen's bottom (or over the home indicator); Android:
+ * 56dp, 8 over the gesture bar. The bar itself (its soft edge) reaches higher. Pass the bar's `safeArea`.
+ */
+export function useTabBarMetrics({ safeArea = true, minimized = false }: { safeArea?: boolean; minimized?: boolean } = {}): { capsuleHeight: number; bottom: number } {
+  const theme = useTheme()
+  const insets = useSafeAreaInsets()
+  if (theme.isAndroid) return { capsuleHeight: 56, bottom: 8 + (safeArea ? insets.bottom : 0) }
+  const padBottom = minimized ? theme.length("--tab-bar-minimized-padding-bottom", 28) : theme.length("--tab-bar-padding-bottom", 21)
+  const capsuleHeight = minimized ? theme.length("--tab-bar-minimized-size", 48) : theme.length("--tab-bar-item-height", 54) + 2 * theme.length("--tab-bar-capsule-padding-block", 4)
+  return { capsuleHeight, bottom: safeArea ? Math.max(padBottom, insets.bottom - 13) : padBottom }
+}
+
+/**
  * Minimizes a TabBar while the screen scrolls down and expands it when it scrolls back up, as iOS 26
  * `tabBarMinimizeBehavior(.onScrollDown)`: pass `onScroll` to the ScrollView and `minimized` and
  * `onMinimizedChange` to the TabBar.

@@ -10,6 +10,12 @@ export type ScrollEdgeProps = {
   scrolled?: boolean
   /** The color of the screen it fades into (a grouped screen's canvas). @default the theme's background */
   canvasColor?: string
+  /**
+   * Top edge under a floating row (filters, tabs): where the fade ends, from the screen's top. Only what went under the
+   * row is muted, the content below it stays sharp: pass the row's bottom. On Android, too, the edge then is the row's
+   * (iOS 27.2's), not the status bar's alone.
+   */
+  fadeEnd?: number
   testID?: string
   style?: StyleProp<ViewStyle>
 }
@@ -21,13 +27,17 @@ export type ScrollEdgeProps = {
  * the screen's color that grows to 46% at the screen's edge. On Android the top edge is the soft edge of its top bar
  * over the status bar alone, the bottom one draws nothing. Lay it over the screen, after the scroll view.
  */
-export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, testID, style }: ScrollEdgeProps) {
+export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEnd, testID, style }: ScrollEdgeProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const canvas = canvasColor ?? theme.colors.background
   const top = edge === "top"
   if (top && !scrolled) return null
-  if (theme.isAndroid) {
+  const height = StyleSheet.flatten(style)?.height
+  // A row under the status bar (a height or a fade's end given): Android takes iOS's edge for it, as a row over
+  // content reads on neither platform under the status bar's edge alone
+  const row = top && (fadeEnd != null || typeof height === "number")
+  if (theme.isAndroid && !row) {
     if (!top) return null
     return (
       <View pointerEvents="none" testID={testID} style={[{ position: "absolute", top: 0, left: 0, right: 0, height: insets.top }, style]}>
@@ -36,14 +46,15 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, testID
     )
   }
   // The safe area at that edge, or the height the style gives the top edge (a bar's row of buttons under the status
-  // bar): the content is blurred in full down to it, and the veil and the blur ease out over the 34 past it
-  const height = StyleSheet.flatten(style)?.height
-  const reach = top && typeof height === "number" ? height + FULL_BLUR_SHORTFALL : insets.top
+  // bar): the content is blurred in full down to it, and the veil and the blur ease out over the 34 past it. A fade's
+  // end is where the veil's 34 end, so the content under it shows clear
+  const reach =
+    top && fadeEnd != null ? fadeEnd - FADE_PAST - FULL_BLUR_SHORTFALL : top && typeof height === "number" ? height + FULL_BLUR_SHORTFALL : insets.top
   return (
     <View
       pointerEvents="none"
       testID={testID}
-      style={[{ position: "absolute", left: 0, right: 0 }, top ? { top: 0, height: insets.top } : { bottom: 0, height: insets.bottom }, style]}
+      style={[{ position: "absolute", left: 0, right: 0 }, top ? { top: 0, height: fadeEnd ?? insets.top } : { bottom: 0, height: insets.bottom }, style]}
     >
       {top ? <SoftBottomVeil fill={canvas} bottom={reach} /> : <SoftBottomVeil fill={canvas} top={0} />}
     </View>
@@ -52,3 +63,5 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, testID
 
 /** The veil's blur is full 6 short of the edge it is turned over at (12 to 40 into its 34): a given height adds them. */
 const FULL_BLUR_SHORTFALL = 6
+/** From the height where the blur is whole, the fade runs on 28 more (the 34 of the veil less its shortfall). */
+const FADE_PAST = 28

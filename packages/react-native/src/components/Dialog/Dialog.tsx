@@ -1,9 +1,10 @@
-import { useId, useState, type ReactNode } from "react"
+import { createContext, useContext, useId, useState, type ReactNode } from "react"
 import { Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native"
 import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Glass } from "../../internal/Glass"
 import { useRipple } from "../../internal/ripple"
+import { buttonColors } from "../Button/Button"
 import { useKeyboardHeight } from "../../internal/keyboard"
 import { androidDialogMotion, canTransformGlass, glassOpacity, iosDim, Overlay, ANDROID_DIALOG, ANDROID_DIM } from "../../internal/Overlay"
 import { withAlpha, dangerText } from "../../theme/material"
@@ -41,8 +42,17 @@ export type DialogProps = {
   mobileLayout?: "inline" | "stacked"
   /** A tap outside, Android's back and Escape close it: Android's dialogs do, an iOS alert does not. @default Android true, iOS false */
   dismissible?: boolean
+  /**
+   * The colors of the main action: `accent`, as iOS fills an alert's preferred action and Android writes its dialog
+   * buttons; `primary`, the main button's own (the solid primary button's fill and label on iOS, the primary ghost
+   * button's text on Android), for an app whose main actions are in its ink. @default "accent"
+   */
+  actionColor?: "accent" | "primary"
   testID?: string
 }
+
+/** The dialog's `actionColor`, for its action buttons. */
+const ActionColorContext = createContext<"accent" | "primary">("accent")
 
 /**
  * A dialog that asks for a decision: on iOS the alert of iOS 26 (UIAlertController `.alert`: 320 wide, glass, radius
@@ -50,7 +60,15 @@ export type DialogProps = {
  * radius 21, a Medium 20 title over 16 text, text buttons in the accent at the end, Android's dialog animation). The
  * web Dialog's `mobileVariant="alert"` as one call; a sheet is `BottomSheet`.
  */
-export function Dialog({ open, onOpenChange, title, description, actions = [], children, mobileLayout, dismissible, testID }: DialogProps) {
+export function Dialog({ actionColor = "accent", ...props }: DialogProps) {
+  return (
+    <ActionColorContext.Provider value={actionColor}>
+      <DialogView {...props} />
+    </ActionColorContext.Provider>
+  )
+}
+
+function DialogView({ open, onOpenChange, title, description, actions = [], children, mobileLayout, dismissible, testID }: Omit<DialogProps, "actionColor">) {
   const theme = useTheme()
   const close = () => onOpenChange(false)
   const run = (action: DialogAction) => {
@@ -386,18 +404,23 @@ function IOSAction({ theme, action, run, type, grow }: { theme: Theme; action: D
   // a preferredAction (iOS 27.2: 0082f7 on every row); disabled, the phone's disabled fill (Button.module.css). A
   // destructive one keeps the alert's fill and its red label
   const accent = action.preferred && action.variant !== "destructive"
+  const primary = useContext(ActionColorContext) === "primary"
   const height = theme.length("--dialog-alert-action-height", 48)
   const fill = accent
     ? action.disabled
       ? theme.color("--button-mobile-disabled-background", theme.color("--color-background-disabled"))
-      : theme.color("--toolbar-prominent-background")
+      : primary
+        ? theme.color("--color-background-primary-solid")
+        : theme.color("--toolbar-prominent-background")
     : theme.color("--dialog-alert-fill")
   const text = action.disabled
     ? theme.color("--mobile-label-tertiary")
     : action.variant === "destructive"
       ? theme.color("--color-text-danger")
       : accent
-        ? theme.color("--toolbar-prominent-color")
+        ? primary
+          ? theme.color("--color-text-primary-solid")
+          : theme.color("--toolbar-prominent-color")
         : theme.colors.text
   const lit = accent && !action.disabled
   return (
@@ -412,7 +435,7 @@ function IOSAction({ theme, action, run, type, grow }: { theme: Theme; action: D
         {
           minHeight: height,
           borderRadius: height / 2,
-          backgroundColor: lit && pressed ? theme.color("--toolbar-prominent-background-active") : fill,
+          backgroundColor: lit && pressed ? theme.color(primary ? "--color-background-primary-solid-active" : "--toolbar-prominent-background-active") : fill,
           opacity: pressed && !lit ? 0.7 : 1,
         },
         grow ? styles.grow : null,
@@ -506,7 +529,8 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
  * ripple of the label's color at 10% from the touch point, clipped to its 20dp pill (the platform's on a device).
  */
 function AndroidDialogButton({ theme, action, run, onWidth }: { theme: Theme; action: DialogAction; run: (action: DialogAction) => void; onWidth: (width: number) => void }) {
-  const color = action.variant === "destructive" ? dangerText(theme) : theme.material.primary
+  const primary = useContext(ActionColorContext) === "primary"
+  const color = action.variant === "destructive" ? dangerText(theme) : primary ? buttonColors(theme, "primary", "ghost", false, false).text : theme.material.primary
   const press = withAlpha(color, 0.1)
   const nativeRipple = Platform.OS === "android"
   const ripple = useRipple(press, !nativeRipple, theme.reducedMotion)

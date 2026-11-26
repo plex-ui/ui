@@ -7,6 +7,24 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.27 (2026-11-26)
+
+`@plexui/react-native` 0.2.27.
+
+### Added
+
+- **ListItem `selected`**: the check of a choice row at its end (iOS's 20pt checkmark in the accent, Android's 24dp in the primary). With `false` the room stays empty, so the labels do not move. The row reads as selected.
+- **`ListStack`**: sections one under another, spaced as SwiftUI's Form and the web's stacked FieldGroups. On iOS it is 35pt from rows to rows, less what a footer's block and a header's take; on Android 12dp, and none after a footer. It ends with the last section's room over the home indicator or the system's bar, and `gap` spaces any other blocks.
+- **ScrollEdge `fadeEnd`**: where the top edge's fade ends, for a row of buttons under the status bar. Android draws the same veil in place of its scrim.
+- **Chip `size="sm"`**: on iOS a 36pt chip with 15/20 type, for a row of filters under a bar. On Android a glass chip now stands on a frosted backing, so it reads over a photo.
+- **EmptyMessage.Title `style`**, for a brand face.
+- **Dialog `actionColor="primary"`**: the preferred action in the primary (the text color), for a brand without a tint.
+- **`useTabBarMetrics()`** gives `{ capsuleHeight, bottom }`: the tab bar's height and its distance from the screen's bottom, for content that must stand clear of the bar.
+- **TextField `counter` and `labelAction`.**
+  - `counter` counts the characters against `maxLength` (3/15). On Android it is Material's counter at the end of the help's line; on iOS it sits at the end of the label's line.
+  - `labelAction` puts content in that same slot.
+- **TextLink `standalone`**: a small action of its own outside running text, such as Restore Purchases under a store's plans. On iOS it is 15/20 text in the link color with a 44pt target and the pressed fade; on Android, Material's small text button.
+
 ## 0.62.6 (2026-11-26)
 
 `@plexui/ui` 0.62.6 and `@plexui/vue` 0.42.6.

@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from "react"
-import { Linking, Platform, Text as RNText, type GestureResponderEvent, type StyleProp, type TextStyle } from "react-native"
+import { Linking, Platform, Pressable, Text as RNText, type GestureResponderEvent, type StyleProp, type TextStyle } from "react-native"
 import { controlHighlight } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { FontWeightName } from "../../theme/types"
+import { Button, buttonColors } from "../Button/Button"
+import { Text } from "../Text/Text"
 
 export type TextLinkProps = {
   /** The link's text; an icon after it (an external link's arrow) stands on the text's line. */
@@ -19,6 +21,12 @@ export type TextLinkProps = {
   onPress?: (event: GestureResponderEvent) => void
   /** The weight of the link's text; it takes the text's own around it by default (`--link-font-weight: inherit`). */
   weight?: FontWeightName
+  /**
+   * A small action of its own outside running text (Restore Purchases under a store's plans): on iOS the text alone
+   * at the subheadline (15/20, regular) in the link color with a 44pt target and the system's pressed fade; on Android
+   * Material's small text button. @default false
+   */
+  standalone?: boolean
   accessibilityLabel?: string
   testID?: string
   style?: StyleProp<TextStyle>
@@ -36,19 +44,54 @@ const underlineOffset = (value: unknown) => (typeof value === "number" ? value :
  * row in the Plex Android look (the text's ink at 11%, white at 5% at night). With `href` it is a `link` and opens the
  * URL (an `<a>` on the web, a new tab for an external one); with only `onPress` it is a `button`.
  */
-export function TextLink({ children, href, primary = false, underline = !primary, forceExternal, onPress, weight, accessibilityLabel, testID, style }: TextLinkProps) {
+export function TextLink({ children, href, primary = false, underline = !primary, forceExternal, onPress, weight, standalone = false, accessibilityLabel, testID, style }: TextLinkProps) {
   const theme = useTheme()
   const [pressed, setPressed] = useState(false)
   const external = forceExternal ?? EXTERNAL.test(href ?? "")
   const web = Platform.OS === "web"
   const press = (event: GestureResponderEvent) => {
     onPress?.(event)
+    // On the web the link is an anchor the browser opens (a new tab for an external one)
     if (!href || web || prevented(event)) return
     void Linking.openURL(href).catch(() => {})
   }
-  const actionable = href != null || onPress != null
   // react-native-web draws a Text with `href` as an anchor: the browser opens it, a new tab for an external one
   const anchor = web && href ? { href, hrefAttrs: external ? { target: "_blank", rel: "noopener noreferrer" } : undefined } : null
+  if (standalone) {
+    const role = href ? "link" : "button"
+    // A pressable is a View, which react-native-web draws as an anchor with the same `href`
+    const link = anchor as object | null
+    if (theme.isAndroid)
+      return (
+        <Button {...link} variant="ghost" color="primary" size="sm" onPress={press} accessibilityRole={role} accessibilityLabel={accessibilityLabel} testID={testID}>
+          {weight != null || style != null ? (
+            // A caller's face or type over the button's label (14/20 Medium in the primary)
+            <Text weight={weight ?? "medium"} color={buttonColors(theme, "primary", "ghost", false, false).text} style={[{ fontSize: 14, lineHeight: 20 }, style]}>
+              {children}
+            </Text>
+          ) : (
+            children
+          )}
+        </Button>
+      )
+    return (
+      // UIButton's plain style: no frame, the text faded while held, the target 44 tall
+      <Pressable
+        {...link}
+        onPress={press}
+        accessibilityRole={role}
+        accessibilityLabel={accessibilityLabel}
+        testID={testID}
+        hitSlop={{ left: 8, right: 8 }}
+        style={({ pressed: held }) => ({ minHeight: 44, justifyContent: "center", alignSelf: "flex-start", opacity: held ? 0.35 : 1 })}
+      >
+        <Text weight={weight ?? "regular"} color={theme.color("--link-primary-text-color", theme.colors.textAccent)} style={[{ fontSize: 15, lineHeight: 20 }, style]}>
+          {children}
+        </Text>
+      </Pressable>
+    )
+  }
+  const actionable = href != null || onPress != null
   // iOS's own Text highlights a press (as UITextView's links); elsewhere the press layer of a row
   const highlight = theme.isIOS && !web ? null : pressed ? { backgroundColor: controlHighlight(theme.scheme) } : null
   return (

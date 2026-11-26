@@ -1,5 +1,5 @@
 import { Children, cloneElement, createContext, isValidElement, useContext, type ReactNode } from "react"
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
 import { space } from "../../internal/spacing"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
@@ -95,7 +95,16 @@ function EmptyMessageIcon({ children, color = "secondary", size }: { children: R
 }
 EmptyMessageIcon.displayName = "EmptyMessage.Icon"
 
-function EmptyMessageTitle({ children, color }: { children: ReactNode; color?: Tone }) {
+function EmptyMessageTitle({
+  children,
+  color,
+  style,
+}: {
+  children: ReactNode
+  color?: Tone
+  /** Over the title's own type: a brand's display face at its size and line (`fontFamily`, `fontSize`, `lineHeight`). */
+  style?: StyleProp<TextStyle>
+}) {
   const { theme, size, align } = useEmpty("EmptyMessage.Title")
   const compact = size === "sm"
   // Android's empty view: the title Medium 20 (16 in the compact message)
@@ -113,7 +122,7 @@ function EmptyMessageTitle({ children, color }: { children: ReactNode; color?: T
       color={color && color !== "secondary" ? toneColor(theme, color) : undefined}
       // `left` is the start: React Native turns it to the right in a right-to-left layout. `auto` took the alignment of
       // the page around it on the web, where a centered page left a start-aligned message centered
-      style={{ fontSize: type.fontSize, lineHeight: type.lineHeight, textAlign: align === "center" ? "center" : "left", marginBottom: compact ? space(theme, 1) : 0 }}
+      style={[{ fontSize: type.fontSize, lineHeight: type.lineHeight, textAlign: align === "center" ? "center" : "left", marginBottom: compact ? space(theme, 1) : 0 }, style]}
     >
       {children}
     </Text>

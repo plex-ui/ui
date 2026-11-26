@@ -127,4 +127,8 @@ Android's Tabs are a different component (they switch views inside one screen): 
 
 `useTabBarMinimize()` returns `{ minimized, onMinimizedChange, onScroll, scrollEventThrottle }`: pass `onScroll` and `scrollEventThrottle` to the ScrollView, `minimized` and `onMinimizedChange` to the TabBar. A scroll of 8 points in one direction flips the bar, and the top of the content expands it.
 
+### useTabBarMetrics
+
+`useTabBarMetrics({ safeArea, minimized })` returns `{ capsuleHeight, bottom }`: the bar's height and its distance from the screen's bottom (iOS 62pt over the home indicator, Android 56dp over the gesture bar), for content that stands clear of it (a floating button, the room under a list).
+
 The bar is a tab list named Tabs, each tab a tab with its selected state, and a badge is read after the label. Minimized, the selected tab that stays expands the bar when pressed.

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ComponentRef, type ReactNode, type Ref } from "react"
 import { Animated, Easing, PixelRatio, Platform, StyleSheet, Text as NativeText, TextInput, View, processColor, type PressableProps, type StyleProp, type TextInputProps, type ViewProps, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
+import { Text } from "../Text/Text"
 import XCircleFilled from "../../icons/plex/XCircleFilled"
 import { useAndroidGlass } from "../../internal/BarBackdrop"
 import { FieldStack, FloatLabelContext } from "../../internal/fieldStack"
@@ -896,6 +897,13 @@ export type TextFieldProps = InputProps & {
   /** Shown under the field in place of the description, and marks it invalid. */
   errorMessage?: ReactNode
   required?: boolean
+  /** Content at the end of the label's line on iOS, or of the help's line on Android (where the label floats). */
+  labelAction?: ReactNode
+  /**
+   * Shows the count of characters against `maxLength` (`3/15`): Material's counter at the end of the help's line on
+   * Android, at the end of the label's line on iOS.
+   */
+  counter?: boolean
 }
 
 /**
@@ -903,11 +911,39 @@ export type TextFieldProps = InputProps & {
  * description or error under it (15/20, 4pt below, `--mobile-field-error-*`); Android is the outlined field with its
  * floating label (on the line of an outlined field) and the help under it (14, 14dp in).
  */
-export function TextField({ label, description, errorMessage, required, invalid, ...input }: TextFieldProps) {
+export function TextField({ label, description, errorMessage, required, invalid, labelAction, counter = false, ...input }: TextFieldProps) {
   const theme = useTheme()
+  const [typed, setTyped] = useState((input.defaultValue ?? "").length)
+  const count = input.value != null ? input.value.length : typed
+  const counterText =
+    counter && input.maxLength != null ? (
+      <Text
+        color="secondary"
+        accessibilityLabel={`${count} of ${input.maxLength}`}
+        style={[
+          theme.isAndroid ? styles.androidCounter : styles.iosCounter,
+          { opacity: input.disabled ? 0.5 : 1 },
+          theme.isAndroid ? { color: theme.colors.textSecondary } : null,
+        ]}
+      >
+        {count}/{input.maxLength}
+      </Text>
+    ) : null
+  const end =
+    labelAction != null && counterText != null ? (
+      <View style={styles.endRow}>
+        {labelAction}
+        {counterText}
+      </View>
+    ) : (
+      labelAction ?? counterText
+    )
+  // The count follows every edit, so a counter shown later reads the text as it is
+  const field: InputProps = { ...input, onChangeText: (next: string) => (setTyped(next.length), input.onChangeText?.(next)) }
   return (
     <FieldStack
       label={label}
+      labelAction={end ?? undefined}
       required={required}
       description={description}
       errorMessage={errorMessage}
@@ -919,10 +955,10 @@ export function TextField({ label, description, errorMessage, required, invalid,
     >
       {({ described, invalid: bad, shake }) =>
         theme.isAndroid ? (
-          <InputField {...input} {...described} label={label} required={required} invalid={bad} shift={shake} />
+          <InputField {...field} {...described} label={label} required={required} invalid={bad} shift={shake} />
         ) : (
           <InputField
-            {...input}
+            {...field}
             {...described}
             accessibilityLabel={input.accessibilityLabel ?? (typeof label === "string" ? label : undefined)}
             required={required}
@@ -940,6 +976,10 @@ const ROW_START: AdornmentPlace = { side: "start", row: true }
 const ROW_END: AdornmentPlace = { side: "end", row: true }
 
 const styles = StyleSheet.create({
+  // Material's counter: the help's type, at the end of its line, 16 from the help and 14 in from the field's end
+  androidCounter: { fontSize: 14, lineHeight: 18, paddingStart: 16, paddingEnd: 14, paddingTop: 6, fontVariant: ["tabular-nums"] },
+  iosCounter: { fontSize: 15, lineHeight: 20, fontVariant: ["tabular-nums"] },
+  endRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   adornmentButton: { alignItems: "center", justifyContent: "center" },
   // Centered in the 48dp target
   adornmentPressed: { position: "absolute", top: 4, start: 4, width: 40, height: 40, borderRadius: 20 },

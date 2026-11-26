@@ -66,6 +66,7 @@ const [weight, setWeight] = useState(undefined) // or "medium", "semibold"
   { prop: "underline", type: "boolean", default: "true", description: "Underline (default true unless primary)" },
   { prop: "forceExternal", type: "boolean", description: "Force external link behavior (a new tab on the web)" },
   { prop: "weight", type: '"regular" | "medium" | "semibold" | "bold"', description: "Weight of the link's text; the text's own by default" },
+  { prop: "standalone", type: "boolean", default: "false", description: "A small action of its own outside running text (Restore Purchases under a store's plans): on iOS the text alone at 15/20 in the link color with a 44pt target and the pressed fade; on Android Material's small text button" },
   { prop: "accessibilityLabel", type: "string", description: "Accessible name, when the text alone does not say where the link goes" },
   { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the link's text" },
   { prop: "testID", type: "string", description: "Test id" },

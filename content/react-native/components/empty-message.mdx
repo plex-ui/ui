@@ -106,6 +106,7 @@ const buttonSize = Platform.OS === "android" ? undefined : size === "sm" ? "md" 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "The title, announced as a header" },
   { prop: "color", type: '"secondary" | "danger" | "warning"', default: '"secondary"', description: "danger or warning tints the title; secondary keeps the text color" },
+  { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the title, as a brand face" },
 ]} />
 
 `EmptyMessage.Description` and `EmptyMessage.ActionRow` take `children` only.

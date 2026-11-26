@@ -1,6 +1,8 @@
 import { cloneElement, createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
 import { Animated, Easing, Platform, StyleSheet, View, type GestureResponderEvent, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Pressable } from "../../internal/Pressable"
+import CheckMd from "../../icons/plex/CheckMd"
 import Disclosure from "../../icons/plex/Disclosure"
 import ExclamationMarkCircle from "../../icons/plex/ExclamationMarkCircle"
 import { describedBy, spaceToggles, useDescription, useHint } from "../../internal/a11y"
@@ -316,6 +318,51 @@ export function List({
   )
 }
 
+export type ListStackProps = {
+  /** The sections (`List`) and any blocks between them (a note, a button). */
+  children: ReactNode
+  /** The space between two blocks that are not both sections, as the screen's own. @default 0 */
+  gap?: number
+  /**
+   * Keeps the room under the last section (iOS 35 over the home indicator, Android at least 16 over the system's bar).
+   * Off for a stack that is not the screen's end. @default true
+   */
+  end?: boolean
+  style?: StyleProp<ViewStyle>
+  testID?: string
+}
+
+/**
+ * Sections one under another, as SwiftUI's Form and the web's stacked FieldGroups space them: on iOS 35 rows to rows,
+ * less what a footer's block (17.33) and a header's (18.67, a prominent one 18, after a footer 11.33) take; on Android
+ * 12 apart, none after a footer. Blocks that are not sections keep `gap`; the stack ends with the last section's room.
+ */
+export function ListStack({ children, gap = 0, end = true, style, testID }: ListStackProps) {
+  const theme = useTheme()
+  const insets = useSafeAreaInsets()
+  const items = flattenChildren(children)
+  const section = (node: ReactNode): ListProps | null => (isValidElement(node) && node.type === List ? (node.props as ListProps) : null)
+  const space = (before: ListProps | null, after: ListProps | null) => {
+    if (before == null || after == null) return gap
+    const footer = before.footer != null || before.error != null
+    const header = after.header != null || after.description != null || after.action != null
+    if (theme.isAndroid) return footer ? 0 : 12
+    const prominent = after.headerProminence === "increased"
+    return 35 - (footer ? 17.33 : 0) - (header ? (prominent ? 18 : footer ? 11.33 : 18.67) : 0)
+  }
+  const last = section(items[items.length - 1])
+  const bottom = !end ? 0 : theme.isAndroid ? Math.max(16, insets.bottom) : last != null ? 35 + insets.bottom : insets.bottom
+  return (
+    <View style={[{ paddingBottom: bottom }, style]} testID={testID}>
+      {items.map((child, index) => (
+        <View key={isValidElement(child) && child.key != null ? child.key : index} style={index > 0 ? { marginTop: space(section(items[index - 1]), section(child)) } : null}>
+          {child}
+        </View>
+      ))}
+    </View>
+  )
+}
+
 export type ListItemProps = {
   /** The row's text, as @plexui/ui's NavigationRow `label`. */
   label: ReactNode
@@ -348,6 +395,12 @@ export type ListItemProps = {
    * control stays the one element for a screen reader, named by the label when it has no name of its own.
    */
   trailing?: ReactNode
+  /**
+   * A row of a list to pick one from (countries with their codes, a sound): `true` draws the check at its end (the
+   * accent's checkmark), `false` keeps the check's room, so the values of every row stand in one column and a pick
+   * moves no text. Read as selected. Leave `trailing` out.
+   */
+  selected?: boolean
   /**
    * An error under the row, as the web's FieldError in a form row: on iOS a line of its own across the row, 4 under the
    * label, 15/20 in the danger color after a 16pt exclamation mark; on Android under the label, 13sp in the error color.
@@ -401,7 +454,8 @@ export function ListItem({
   value,
   valuePlacement = "end",
   valueColor,
-  trailing,
+  trailing: trailingProp,
+  selected,
   error,
   checked: checkedProp,
   defaultChecked,
@@ -421,6 +475,7 @@ export function ListItem({
   // A menu opened from the row finds the row (Android lights it over the dim of the screen)
   const frameNode = useRef<unknown>(null)
   const frame = useMemo<RowFrame>(() => ({ node: frameNode, radius: { top, bottom } }), [top, bottom])
+  const trailing = trailingProp ?? (selected === undefined ? undefined : <CheckSlot selected={selected} />)
   const switchRow = checkedProp !== undefined || defaultChecked !== undefined || onCheckedChange !== undefined
   const [own, setOwn] = useState(defaultChecked ?? false)
   const checked = checkedProp ?? own
@@ -538,8 +593,10 @@ export function ListItem({
         tabIndex={endOwnsFocus ? -1 : undefined}
         accessibilityRole={endOwnsFocus ? undefined : switchRow ? "switch" : "button"}
         accessibilityLabel={endOwnsFocus ? undefined : name}
-        accessibilityState={endOwnsFocus ? undefined : switchRow ? { checked, disabled } : { disabled }}
+        accessibilityState={endOwnsFocus ? undefined : switchRow ? { checked, disabled } : { disabled, ...(selected !== undefined ? { selected } : null) }}
         aria-checked={switchRow ? checked : undefined}
+        // React Native Web drops a button's selected state: the web reads a chosen row as a pressed button
+        {...(Platform.OS === "web" && !endOwnsFocus && !switchRow && selected !== undefined ? ({ "aria-pressed": selected } as object) : null)}
         disabled={disabled || (press == null && onLongPress == null)}
         onPress={press}
         {...holdProps({ run: onLongPress, label: longPressLabel }, null)}
@@ -579,6 +636,17 @@ export function ListItem({
     >
       {named ? hintNode : null}
       {content(false)}
+    </View>
+  )
+}
+
+/** The check of a choice row, or its empty room: the accent's checkmark, 20 on iOS (a 17pt symbol), 24 on Android. */
+function CheckSlot({ selected }: { selected: boolean }) {
+  const theme = useTheme()
+  const size = theme.isAndroid ? 24 : 20
+  return (
+    <View style={{ width: size, height: size }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {selected ? <CheckMd size={size} color={theme.isAndroid ? theme.material.primary : theme.colors.accent} /> : null}
     </View>
   )
 }

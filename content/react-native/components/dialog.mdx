@@ -104,6 +104,7 @@ iOS calls its sheets dialogs too; for a sheet use [Bottom Sheet](/react-native/c
   { prop: "actions", type: "DialogAction[]", default: "[]", description: "The actions; two stand side by side on iOS, three or more stack" },
   { prop: "children", type: "ReactNode", description: "Content between the text and the actions, as a text field" },
   { prop: "mobileLayout", type: '"inline" | "stacked"', description: "stacked stacks the actions and inline keeps them in a row, on iOS and Android. By default on iOS two stand side by side while their labels fit on one line, else they stack, and three or more stack; on Android the buttons stand in a row while they fit, else they stack" },
+  { prop: "actionColor", type: '"accent" | "primary"', default: '"accent"', description: "The preferred action's color: the accent, or the primary (the text color, black in light, as a brand without a tint does)" },
   { prop: "dismissible", type: "boolean", default: "true on Android, false on iOS", description: "A tap outside, Android's back and Escape close it, as Android's dialogs do and an iOS alert does not" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />
