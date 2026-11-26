@@ -1588,6 +1588,11 @@ export const MenuRadioGroup = defineComponent({
      */
     indicatorPosition: { type: String as PropType<"start" | "end">, default: "end" },
     /**
+     * How the chosen option is marked: `radio` a radio circle on every option, filled on the chosen one; `check` a
+     * checkmark on the chosen option alone, its place kept empty on the others. A phone draws the iOS checkmark either way.
+     */
+    indicatorVariant: { type: String as PropType<"radio" | "check">, default: "radio" },
+    /**
      * `horizontal` sets the options side by side, each an icon over its label and the chosen one on a fill: a mode at
      * the top of an iOS menu, above its list, as Photos orders by Added or by Captured. No radio indicator is drawn;
      * choosing one closes the menu, as any item does.
@@ -1617,6 +1622,7 @@ export const MenuRadioGroup = defineComponent({
           "class": s.RadioGroup,
           "data-layout": horizontal ? "horizontal" : undefined,
           "data-indicator-position": horizontal ? undefined : props.indicatorPosition,
+          "data-indicator-variant": horizontal ? undefined : props.indicatorVariant,
         },
         slots.default?.(),
       )

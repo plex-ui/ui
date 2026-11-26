@@ -240,7 +240,7 @@ describe('the Menu Overview', () => {
         expect(reactDemo).toContain('const [icons, setIcons] = useState(true);');
         expect(section(reactDocs)).toContain('const [icons] = useState(true)');
         expect(reactDemo).toContain('<DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />');
-        expect(section(vueDocs)).toContain('{ name: "icons", type: "boolean", default: true }, { name: "checkmarks", type: "boolean", default: true }, { name: "pill", desktopOnly: true, type: "boolean", default: false }');
+        expect(section(vueDocs)).toContain('{ name: "icons", type: "boolean", default: true }, { name: "selection", type: "boolean", default: true }, { name: "indicatorVariant", desktopOnly: true, type: "select", options: RADIO_INDICATORS, default: "check" }, { name: "pill", desktopOnly: true, type: "boolean", default: false }');
         expect(section(vueDocs)).toContain('state={{ view: "list", sort: "date", group: "date" }}');
     });
 
@@ -263,7 +263,7 @@ describe('the Menu Overview', () => {
         expect(section(vueDocs, '### Submenus', '### Checkbox items')).toContain('state={{ sort: "Manual" }}');
     });
 
-    test('checkmarks off leaves the actions and View options: no radio rows and no submenu', () => {
+    test('selection off leaves the actions and View options: no radio rows and no submenu', () => {
         const wrapped = (source: string, open: string, close: string) => {
             const body = source.slice(source.indexOf(open), source.indexOf(close, source.indexOf(open)));
             expect(body).toContain('value="icons"');
@@ -271,11 +271,30 @@ describe('the Menu Overview', () => {
             expect(body).toContain('Group by');
             expect(source.indexOf(close, source.indexOf(open))).toBeLessThan(source.indexOf('View options'));
         };
-        expect(reactDemo).toContain('<DemoControlBoolean name="checkmarks" value={checkmarks} onChange={setCheckmarks} />');
-        expect(section(reactDocs)).toContain('const [checkmarks] = useState(true)');
-        wrapped(reactDemo, '{checkmarks && (', ')}');
-        wrapped(section(reactDocs), '{checkmarks && (', ')}');
-        wrapped(vueTemplate, '<template v-if="checkmarks">', '</template>');
+        expect(reactDemo).toContain('<DemoControlBoolean name="selection" value={selection} onChange={setSelection} />');
+        expect(section(reactDocs)).toContain('const [selection] = useState(true)');
+        wrapped(reactDemo, '{selection && (', ')}');
+        wrapped(section(reactDocs), '{selection && (', ')}');
+        wrapped(vueTemplate, '<template v-if="selection">', '</template>');
+    });
+
+    test('the Overview marks the chosen view and sort with a checkmark on a desktop, a choice of the demo', () => {
+        expect(reactDemo).toContain("useState<'check' | 'radio'>('check')");
+        expect(section(reactDocs)).toContain('const [indicatorVariant] = useState<"check" | "radio">("check")');
+        for (const source of [reactDemo, section(reactDocs)]) expect(source.match(/<Menu\.RadioGroup indicatorVariant=\{indicatorVariant\}/g)).toHaveLength(3);
+        expect(vueTemplate.match(/<MenuRadioGroup :indicator-variant="indicatorVariant"/g)).toHaveLength(3);
+    });
+
+    test('a check RadioGroup draws a checkmark on the chosen option alone, no circles, in React and Vue', () => {
+        const css = readFileSync('packages/styles/src/components/Menu/Menu.module.css', 'utf8');
+        const rule = css.slice(css.indexOf('.RadioGroup[data-indicator-variant="check"] .RadioIndicator {'));
+        expect(rule).toMatch(/^[^@]*box-shadow: none;[^@]*\.RadioIndicatorActive::after \{\s*display: none;[^@]*\.SelectionCheck \{\s*display: block;/);
+        const react = readFileSync('packages/ui/src/components/Menu/Menu.tsx', 'utf8');
+        expect(react).toContain('indicatorVariant = "radio",');
+        expect(react).toContain('data-indicator-variant={horizontal ? undefined : indicatorVariant}');
+        const vue = readFileSync('packages/vue/src/components/Menu/Menu.ts', 'utf8');
+        expect(vue).toContain('indicatorVariant: { type: String as PropType<"radio" | "check">, default: "radio" },');
+        expect(vue).toContain('"data-indicator-variant": horizontal ? undefined : props.indicatorVariant,');
     });
 
     test('Natural sizing is desktop only: a phone menu is the iOS panel whatever its sizes say', () => {

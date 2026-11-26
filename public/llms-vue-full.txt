@@ -573,7 +573,7 @@ Props:
     - disabled (boolean) default: false — Disable the item
 
 ### Overview
-A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group by in a submenu. Turn off icons for the same menu in plain text, and checkmarks for the folder's actions alone, a shorter menu with no checkmark column. pill on MenuContent makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out width, min-width and size. A pill menu is the same panel there, so the phone view leaves out pill.
+A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (description) while it is the chosen sort, and Group by in a submenu. Turn off icons for the same menu in plain text, and selection for the folder's actions alone, a shorter menu with no checkmark column. indicatorVariant on MenuRadioGroup marks the chosen option with a checkmark (check, as a desktop's menus do) or a radio circle on every option (radio, the default); a phone draws the iOS checkmark either way. pill on MenuContent makes a rounder list with fully rounded rows, for menus beside pill controls. On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out width, min-width and size. A pill menu is the same panel there, so the phone view leaves out pill.
 ```vue
 <!-- Desktop -->
 <Menu>
@@ -586,13 +586,13 @@ A folder's menu, as Files opens it on iOS: actions with their icons, then the vi
     <MenuItem @select="() => {}"><FileDocument v-if="icons" /> Scan documents</MenuItem>
     <MenuItem @select="() => {}"><Desktop v-if="icons" /> Connect to server</MenuItem>
     <MenuSeparator />
-    <template v-if="checkmarks">
-      <MenuRadioGroup v-model:value="view">
+    <template v-if="selection">
+      <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="view">
         <MenuRadioItem value="icons"><VideoGrid v-if="icons" /> Icons</MenuRadioItem>
         <MenuRadioItem value="list"><List v-if="icons" /> List</MenuRadioItem>
       </MenuRadioGroup>
       <MenuSeparator />
-      <MenuRadioGroup v-model:value="sort">
+      <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="sort">
         <MenuRadioItem value="name">Name</MenuRadioItem>
         <MenuRadioItem value="kind">Kind</MenuRadioItem>
         <MenuRadioItem value="date" :description="sort === 'date' ? 'Newest to oldest' : undefined">Date</MenuRadioItem>
@@ -603,7 +603,7 @@ A folder's menu, as Files opens it on iOS: actions with their icons, then the vi
       <MenuSub>
         <MenuSubTrigger>Group by</MenuSubTrigger>
         <MenuSubContent>
-          <MenuRadioGroup v-model:value="group">
+          <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="group">
             <MenuRadioItem value="none">None</MenuRadioItem>
             <MenuRadioItem value="kind">Kind</MenuRadioItem>
             <MenuRadioItem value="date">Date</MenuRadioItem>
@@ -631,13 +631,13 @@ A folder's menu, as Files opens it on iOS: actions with their icons, then the vi
         <MenuItem @select="() => {}"><FileDocument v-if="icons" /> Scan documents</MenuItem>
         <MenuItem @select="() => {}"><Desktop v-if="icons" /> Connect to server</MenuItem>
         <MenuSeparator />
-        <template v-if="checkmarks">
-          <MenuRadioGroup v-model:value="view">
+        <template v-if="selection">
+          <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="view">
             <MenuRadioItem value="icons"><VideoGrid v-if="icons" /> Icons</MenuRadioItem>
             <MenuRadioItem value="list"><List v-if="icons" /> List</MenuRadioItem>
           </MenuRadioGroup>
           <MenuSeparator />
-          <MenuRadioGroup v-model:value="sort">
+          <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="sort">
             <MenuRadioItem value="name">Name</MenuRadioItem>
             <MenuRadioItem value="kind">Kind</MenuRadioItem>
             <MenuRadioItem value="date" :description="sort === 'date' ? 'Newest to oldest' : undefined">Date</MenuRadioItem>
@@ -648,7 +648,7 @@ A folder's menu, as Files opens it on iOS: actions with their icons, then the vi
           <MenuSub>
             <MenuSubTrigger>Group by</MenuSubTrigger>
             <MenuSubContent>
-              <MenuRadioGroup v-model:value="group">
+              <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="group">
                 <MenuRadioItem value="none">None</MenuRadioItem>
                 <MenuRadioItem value="kind">Kind</MenuRadioItem>
                 <MenuRadioItem value="date">Date</MenuRadioItem>

@@ -468,6 +468,24 @@
   }
 }
 
+/* A checkmark marks the chosen option (RadioGroup indicatorVariant="check"), as a desktop's menus do (Finder's View
+   and Sort By): no circle on the others, whose place stays empty so the labels line up. */
+.RadioGroup[data-indicator-variant="check"] .RadioIndicator {
+  width: var(--menu-checkbox-indicator-size);
+  height: var(--menu-checkbox-indicator-size);
+  border-radius: 0;
+  box-shadow: none;
+
+  & .RadioIndicatorActive::before,
+  & .RadioIndicatorActive::after {
+    display: none;
+  }
+
+  & .SelectionCheck {
+    display: block;
+  }
+}
+
 @keyframes scale-in {
   0% {
     transform: scale(0);

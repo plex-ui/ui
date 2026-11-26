@@ -52,7 +52,7 @@ import {
   FileDocument,
   XSquare,
 } from '@plexui/ui/components/Icon';
-import { DemoControlBoolean, DemoControlRow, controlsTableStyle } from './ButtonDemos';
+import { DemoControlBoolean, DemoControlRow, DemoControlSelect, controlsTableStyle } from './ButtonDemos';
 import { menuPhoneTitle } from './menuPhone';
 import { usePreviewEmbed } from './PreviewEmbed';
 import p from './PageDemos.module.css';
@@ -136,7 +136,8 @@ export function MenuHeroContent() {
  * order with the order of the chosen sort under it (IMG_5687: Name, Ascending), and Group by (IMG_5689) as a submenu. */
 export function MenuBaseDemo() {
   const [icons, setIcons] = useState(true);
-  const [checkmarks, setCheckmarks] = useState(true);
+  const [selection, setSelection] = useState(true);
+  const [indicatorVariant, setIndicatorVariant] = useState<'check' | 'radio'>('check');
   const [pill, setPill] = useState(false);
   const [view, setView] = useState('list');
   const [sort, setSort] = useState('date');
@@ -147,7 +148,9 @@ export function MenuBaseDemo() {
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="icons" value={icons} onChange={setIcons} />
         {/* Without the selection rows the menu is the folder's actions alone, with no checkmark column */}
-        <DemoControlBoolean name="checkmarks" value={checkmarks} onChange={setCheckmarks} />
+        <DemoControlBoolean name="selection" value={selection} onChange={setSelection} />
+        {/* A desktop marks the chosen option with a checkmark or a radio circle; a phone draws the iOS checkmark */}
+        <DemoControlSelect name="indicatorVariant" options={['check', 'radio']} value={indicatorVariant} onChange={(value) => setIndicatorVariant(value as 'check' | 'radio')} desktopOnly />
         {/* A phone menu is the iOS panel either way: touch.css gives pill the plain menu's corner and spacing */}
         <DemoControlBoolean name="pill" value={pill} onChange={setPill} desktopOnly />
       </div>
@@ -165,14 +168,14 @@ export function MenuBaseDemo() {
           <Menu.Item onSelect={() => { }}>{icons && <FileDocument />} Scan documents</Menu.Item>
           <Menu.Item onSelect={() => { }}>{icons && <Desktop />} Connect to server</Menu.Item>
           <Menu.Separator />
-          {checkmarks && (
+          {selection && (
             <>
-              <Menu.RadioGroup value={view} onChange={setView}>
+              <Menu.RadioGroup indicatorVariant={indicatorVariant} value={view} onChange={setView}>
                 <Menu.RadioItem value="icons">{icons && <VideoGrid />} Icons</Menu.RadioItem>
                 <Menu.RadioItem value="list">{icons && <List />} List</Menu.RadioItem>
               </Menu.RadioGroup>
               <Menu.Separator />
-              <Menu.RadioGroup value={sort} onChange={setSort}>
+              <Menu.RadioGroup indicatorVariant={indicatorVariant} value={sort} onChange={setSort}>
                 <Menu.RadioItem value="name">Name</Menu.RadioItem>
                 <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
                 <Menu.RadioItem value="date" description={sort === 'date' ? 'Newest to oldest' : undefined}>Date</Menu.RadioItem>
@@ -183,7 +186,7 @@ export function MenuBaseDemo() {
               <Menu.Sub>
                 <Menu.SubTrigger>Group by</Menu.SubTrigger>
                 <Menu.SubContent>
-                  <Menu.RadioGroup value={group} onChange={setGroup}>
+                  <Menu.RadioGroup indicatorVariant={indicatorVariant} value={group} onChange={setGroup}>
                     <Menu.RadioItem value="none">None</Menu.RadioItem>
                     <Menu.RadioItem value="kind">Kind</Menu.RadioItem>
                     <Menu.RadioItem value="date">Date</Menu.RadioItem>

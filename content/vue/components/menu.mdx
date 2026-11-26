@@ -14,6 +14,7 @@ export const FRAME = pageStyles.Frame
 
 export const INDICATOR_POSITIONS = ["start", "end"]
 export const INDICATOR_VARIANTS = ["solid", "ghost"]
+export const RADIO_INDICATORS = ["check", "radio"]
 export const SIZES = ["sm", "md", "lg"]
 
 export const overview = `<Menu>
@@ -26,13 +27,13 @@ export const overview = `<Menu>
     <MenuItem @select="() => {}"><FileDocument v-if="icons" /> Scan documents</MenuItem>
     <MenuItem @select="() => {}"><Desktop v-if="icons" /> Connect to server</MenuItem>
     <MenuSeparator />
-    <template v-if="checkmarks">
-      <MenuRadioGroup v-model:value="view">
+    <template v-if="selection">
+      <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="view">
         <MenuRadioItem value="icons"><VideoGrid v-if="icons" /> Icons</MenuRadioItem>
         <MenuRadioItem value="list"><List v-if="icons" /> List</MenuRadioItem>
       </MenuRadioGroup>
       <MenuSeparator />
-      <MenuRadioGroup v-model:value="sort">
+      <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="sort">
         <MenuRadioItem value="name">Name</MenuRadioItem>
         <MenuRadioItem value="kind">Kind</MenuRadioItem>
         <MenuRadioItem value="date" :description="sort === 'date' ? 'Newest to oldest' : undefined">Date</MenuRadioItem>
@@ -43,7 +44,7 @@ export const overview = `<Menu>
       <MenuSub>
         <MenuSubTrigger>Group by</MenuSubTrigger>
         <MenuSubContent>
-          <MenuRadioGroup v-model:value="group">
+          <MenuRadioGroup :indicator-variant="indicatorVariant" v-model:value="group">
             <MenuRadioItem value="none">None</MenuRadioItem>
             <MenuRadioItem value="kind">Kind</MenuRadioItem>
             <MenuRadioItem value="date">Date</MenuRadioItem>
@@ -286,10 +287,10 @@ export const danger = `<Menu>
 ### Overview
 
 <ComponentPreview language="vue" details={<>
-  <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group by in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>pill</code> on <code>MenuContent</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
+  <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as radio items, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group by in a submenu. Turn off <code>icons</code> for the same menu in plain text, and <code>selection</code> for the folder's actions alone, a shorter menu with no checkmark column. <code>indicatorVariant</code> on <code>MenuRadioGroup</code> marks the chosen option with a checkmark (<code>check</code>, as a desktop's menus do) or a radio circle on every option (<code>radio</code>, the default); a phone draws the iOS checkmark either way. <code>pill</code> on <code>MenuContent</code> makes a rounder list with fully rounded rows, for menus beside pill controls.</p>
   <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos. There the panel covers the button, its top and end at the button's top and end, and is the 250px panel of iOS menus, so the phone code leaves out <code>width</code>, <code>min-width</code> and <code>size</code>. A pill menu is the same panel there, so the phone view leaves out <code>pill</code>.</p>
 </>} code={withMenuPhoneVue(overview, "Overview")} previewMinHeight={168}>
-  <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ view: "list", sort: "date", group: "date" }} controls={[{ name: "icons", type: "boolean", default: true }, { name: "checkmarks", type: "boolean", default: true }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
+  <VueDemo template={overview} phoneTemplate={menuPhoneTemplateVue(overview, "Overview", FRAME)} phoneStageClassName={STAGE} phoneState={{ open: true }} state={{ view: "list", sort: "date", group: "date" }} controls={[{ name: "icons", type: "boolean", default: true }, { name: "selection", type: "boolean", default: true }, { name: "indicatorVariant", desktopOnly: true, type: "select", options: RADIO_INDICATORS, default: "check" }, { name: "pill", desktopOnly: true, type: "boolean", default: false }]} />
 </ComponentPreview>
 
 ### Mode switch
@@ -458,7 +459,7 @@ export const danger = `<Menu>
   { prop: "disabled", type: "boolean", default: "false", description: "Disable the item" },
 ]} />
 
-**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`), `indicator-position` and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as a mode switch, the chosen one on a fill); MenuRadioItem takes `value`, `description` (a line under the label, as the order of the chosen sort; also a `description` slot), `disabled` and `@select`.
+**MenuRadioGroup** / **MenuRadioItem**: radio group with `v-model:value` (plus `@change`), `indicator-position`, `indicator-variant` (default `"radio"`, a radio circle on every option; `"check"` a checkmark on the chosen one alone, as a desktop's menus mark a choice; a phone draws the iOS checkmark either way) and `layout` (default `"vertical"`; `"horizontal"` sets the options side by side as a mode switch, the chosen one on a fill); MenuRadioItem takes `value`, `description` (a line under the label, as the order of the chosen sort; also a `description` slot), `disabled` and `@select`.
 
 **MenuItemActions** / **MenuItemAction**: MenuItemActions wraps hover actions; MenuItemAction emits `@click` and closes the menu.
 

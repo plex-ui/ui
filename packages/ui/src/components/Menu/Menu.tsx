@@ -963,6 +963,13 @@ export type MenuRadioGroupProps<T extends string> = {
    */
   indicatorPosition?: "start" | "end"
   /**
+   * How the chosen option is marked: `radio` a radio circle on every option, filled on the chosen one; `check` a
+   * checkmark on the chosen option alone, its place kept empty on the others, as a desktop's menus mark a choice
+   * (Finder's View and Sort By). A phone draws the iOS checkmark either way.
+   * @default "radio"
+   */
+  indicatorVariant?: "radio" | "check"
+  /**
    * `horizontal` sets the options side by side, each an icon over its label and the chosen one on a fill: a mode at the
    * top of an iOS menu, above its list, as Photos orders by Added or by Captured. No radio indicator is drawn; choosing
    * one closes the menu, as any item does.
@@ -976,6 +983,7 @@ const RadioGroup = <T extends string>({
   value,
   onChange,
   indicatorPosition = "end",
+  indicatorVariant = "radio",
   layout = "vertical",
   ...props
 }: MenuRadioGroupProps<T>) => {
@@ -988,6 +996,7 @@ const RadioGroup = <T extends string>({
       onValueChange={(v: string) => onChange(v as T)}
       data-layout={horizontal ? "horizontal" : undefined}
       data-indicator-position={horizontal ? undefined : indicatorPosition}
+      data-indicator-variant={horizontal ? undefined : indicatorVariant}
     >
       {children}
     </DropdownMenu.RadioGroup>

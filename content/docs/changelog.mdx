@@ -7,6 +7,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.8 (2026-11-26)
+
+`@plexui/ui` 0.62.8, `@plexui/vue` 0.42.8 and `@plexui/styles` 0.17.7.
+
+### Added
+
+- **Menu.RadioGroup `indicatorVariant`** (`indicator-variant` in Vue) sets how the chosen option is marked.
+  - `"radio"` (the default) draws a radio circle on every option.
+  - `"check"` draws a checkmark on the chosen option alone and leaves its place empty on the others, so the labels line up. This is how a desktop's menus mark a choice, as in Finder's View and Sort By.
+  - A phone draws the iOS checkmark either way.
+  - The Menu Overview uses `check`. Its `checkmarks` control is now `selection`, which is what it turns on and off.
+
 ## @plexui/react-native 0.2.29 (2026-11-26)
 
 `@plexui/react-native` 0.2.29.
