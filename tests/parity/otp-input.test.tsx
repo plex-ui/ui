@@ -277,3 +277,58 @@ describe("OTPInput behaviour parity", () => {
     expect(result.react[0]).not.toBe(result.react[1])
   })
 })
+
+describe.each(["React", "Vue"])("OTPInput %s one-time code autofill", (framework) => {
+  const mount = async (props: Props) => {
+    if (framework === "React") render(createElement(ROTPInput, props as never))
+    else { mountVue(() => h(OTPInput, props as never)); await flushVue() }
+    return document.querySelectorAll<HTMLInputElement>("input")
+  }
+  // The browser's own input: the value set past React's tracker, then an input event of the kind given
+  const input = (cell: HTMLInputElement, value: string, init: InputEventInit) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(cell, value)
+    cell.dispatchEvent(new InputEvent("input", { bubbles: true, ...init }))
+  }
+
+  test("the first cell holds a whole code and spreads it", async () => {
+    const onChange = vi.fn()
+    const cells = await mount({ onChange })
+    expect(cells[0].maxLength).toBe(6)
+    expect(cells[1].maxLength).toBe(1)
+    await interact(() => input(cells[0], "123456", { inputType: "insertReplacementText" }))
+    expect(onChange).toHaveBeenLastCalledWith("123456")
+  })
+
+  test("a digit typed into the filled first cell replaces its digit", async () => {
+    const onChange = vi.fn()
+    const cells = await mount({ onChange, value: "1" })
+    await interact(() => input(cells[0], "17", { inputType: "insertText", data: "7" }))
+    expect(onChange).toHaveBeenLastCalledWith("7")
+  })
+
+  test("a letter typed into the filled first cell is turned away", async () => {
+    const onChange = vi.fn()
+    const onComplete = vi.fn()
+    const cells = await mount({ onChange, onComplete, value: "123456" })
+    await interact(() => cells[0].focus())
+    await interact(() => input(cells[0], "1x", { inputType: "insertText", data: "x" }))
+    expect(onChange).not.toHaveBeenCalled()
+    expect(onComplete).not.toHaveBeenCalled()
+    expect(cells[0].value).toBe("1")
+    expect(document.activeElement).toBe(cells[0])
+  })
+
+  test("a whole code typed into the filled first cell spreads", async () => {
+    const onChange = vi.fn()
+    const cells = await mount({ onChange, value: "1" })
+    await interact(() => input(cells[0], "1654321", { inputType: "insertText", data: "654321" }))
+    expect(onChange).toHaveBeenLastCalledWith("654321")
+  })
+
+  test("a code autofilled over a filled first cell is the code", async () => {
+    const onChange = vi.fn()
+    const cells = await mount({ onChange, length: 2, value: "1" })
+    await interact(() => input(cells[0], "17", { inputType: "insertReplacementText" }))
+    expect(onChange).toHaveBeenLastCalledWith("17")
+  })
+})

@@ -165,7 +165,19 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
   const handleChange = useCallback(
     (index: number, evt: React.ChangeEvent<HTMLInputElement>) => {
       if (disabled) return
-      const typedDigits = evt.currentTarget.value.replace(/\D/g, "")
+      let typedDigits = evt.currentTarget.value.replace(/\D/g, "")
+      // The first cell takes a whole code (its autofill) and, while it holds a digit, what is typed into it
+      const typed = evt.nativeEvent as InputEvent
+      if (index === 0 && digits[0] && typed.inputType === "insertText" && typed.data != null) {
+        // What was typed, not what the cell now holds: one digit replaces the cell's, a whole code spreads; with no
+        // digit in it, it is turned away, as a one-character cell would, and the cell keeps its digit
+        const inserted = typed.data.replace(/\D/g, "")
+        if (!inserted) {
+          ;(evt.currentTarget as HTMLInputElement).value = digits[0]
+          return
+        }
+        typedDigits = inserted
+      }
 
       if (!typedDigits) {
         const nextDigits = [...digits]
@@ -280,7 +292,9 @@ export const OTPInput = forwardRef<HTMLDivElement, OTPInputProps>(function OTPIn
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]"
-                  maxLength={1}
+                  // A browser keeps an autofilled code to maxlength: the first cell, which takes the
+                  // one-time code, holds a whole one, and the change spreads it over the cells as a paste
+                  maxLength={index === 0 ? length : 1}
                   value={digits[index]}
                   disabled={disabled}
                   className={s.CellInput}

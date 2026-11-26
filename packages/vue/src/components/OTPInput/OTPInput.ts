@@ -161,7 +161,19 @@ export const OTPInput = defineComponent({
 
     const handleChange = (index: number, evt: Event) => {
       if (props.disabled) return
-      const typedDigits = (evt.currentTarget as HTMLInputElement).value.replace(/\D/g, "")
+      let typedDigits = (evt.currentTarget as HTMLInputElement).value.replace(/\D/g, "")
+      // The first cell takes a whole code (its autofill) and, while it holds a digit, what is typed into it
+      const typed = evt as InputEvent
+      if (index === 0 && digits.value[0] && typed.inputType === "insertText" && typed.data != null) {
+        // What was typed, not what the cell now holds: one digit replaces the cell's, a whole code spreads; with no
+        // digit in it, it is turned away, as a one-character cell would, and the cell keeps its digit
+        const inserted = typed.data.replace(/\D/g, "")
+        if (!inserted) {
+          ;(evt.currentTarget as HTMLInputElement).value = digits.value[0]
+          return
+        }
+        typedDigits = inserted
+      }
 
       if (!typedDigits) {
         const nextDigits = [...digits.value]
@@ -274,7 +286,9 @@ export const OTPInput = defineComponent({
                     "type": "text",
                     "inputmode": "numeric",
                     "pattern": "[0-9]",
-                    "maxlength": 1,
+                    // A browser keeps an autofilled code to maxlength: the first cell, which takes the one-time
+                    // code, holds a whole one, and the change spreads it over the cells as a paste
+                    "maxlength": index === 0 ? length.value : 1,
                     "value": digits.value[index],
                     "disabled": props.disabled,
                     "class": s.CellInput,

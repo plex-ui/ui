@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.6 (2026-11-26)
+
+`@plexui/ui` 0.62.6 and `@plexui/vue` 0.42.6.
+
+### Fixed
+
+- **OTPInput takes a one-time code autofilled from a mail or a message.** Its first cell, which carries `autocomplete="one-time-code"`, holds a whole code (`maxlength` is the code's length, other cells keep 1), so a browser that keeps a filled-in value to `maxlength` no longer cuts the code to one digit. The cell spreads the code over the cells as a paste does, A digit typed into it while it holds one replaces that digit, a whole code typed or pasted there spreads, and a letter is turned away as before.
+
 ## @plexui/react-native 0.2.26 (2026-11-26)
 
 `@plexui/react-native` 0.2.26.
