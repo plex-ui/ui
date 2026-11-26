@@ -1,0 +1,43 @@
+name: Deploy docs
+
+# Moves the `deploy` branch to master's tip at most every two hours. Vercel
+# builds plexui.com from `deploy` (its production branch), not from master, so
+# a busy day of pushes makes a handful of deployments instead of one per push.
+# That keeps the Hobby plan's deployment storage, ISR reads and origin transfer
+# in their limits: every new deployment starts with an empty CDN cache.
+#
+# Nothing happens when `deploy` is already at master. To ship the docs now,
+# run this workflow by hand from the Actions tab.
+
+on:
+  schedule:
+    - cron: '17 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: false
+
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move deploy to master
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          master=$(gh api "repos/$REPO/git/ref/heads/master" --jq .object.sha)
+          deploy=$(gh api "repos/$REPO/git/ref/heads/deploy" --jq .object.sha 2>/dev/null || true)
+          if [ "$master" = "$deploy" ]; then
+            echo "deploy is already at master ($master)"
+          elif [ -z "$deploy" ]; then
+            gh api "repos/$REPO/git/refs" -f ref=refs/heads/deploy -f sha="$master" > /dev/null
+            echo "created deploy at $master"
+          else
+            gh api -X PATCH "repos/$REPO/git/refs/heads/deploy" -f sha="$master" -F force=true > /dev/null
+            echo "moved deploy from $deploy to $master"
+          fi
