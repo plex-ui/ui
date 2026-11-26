@@ -2,6 +2,7 @@
   "framework": "nextjs",
   "buildCommand": "npm run build:styles && npm run build:ui && npm run build:vue && npm run build:react-native-icons && next build",
   "installCommand": "npm install",
+  "ignoreCommand": "if git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- . ':(exclude).memory'; then exit 0; else exit 1; fi",
   "git": {
     "deploymentEnabled": {
       "master": true,
