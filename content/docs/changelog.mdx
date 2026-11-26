@@ -7,6 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## Unreleased
+
+### Fixed
+
+- **`@plexui/react-native`: Android's outlined field reads on its surface.** Before, the line and the label at rest were too light: about 1.2:1 and 2:1 on a light screen.
+  - The line at rest is now Material 3's `outline` role, at least 3:1 on the surface.
+  - The label is now `onSurfaceVariant`, resting or floating, at least 4.5:1.
+  - Both apply in light and dark. The placeholder stays lighter, and focus and errors are unchanged.
+
 ## 0.62.9 (2026-11-26)
 
 `@plexui/ui` 0.62.9, `@plexui/vue` 0.42.9 and `@plexui/styles` 0.17.8.

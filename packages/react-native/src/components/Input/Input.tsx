@@ -174,7 +174,7 @@ export function fieldLook(
         gutter: 18,
       }
     }
-    // Android's fields: `outline` is the outlined field (radius 8, a hairline in a light gray that thickens to 1.5dp in
+    // Android's fields: `outline` is the outlined field (radius 8, a hairline in Material's outline that thickens to 1.5dp in
     // the accent on focus, the label floating on the top line, the text 16), `soft` a field filled with the text color
     // at 5% (the chips' and sheets' search fields), `ghost` the bare field of a card (the text 17, 22 in). The hint is
     // a light gray (#A8A8A8, #7D7D7D at night); a field is 50dp (a row's height), 56 with a label; disabled dims it to
@@ -184,8 +184,9 @@ export function fieldLook(
     const accent = state.invalid ? dangerText(theme) : state.focused ? focusAccent(theme) : null
     const height = label ? 56 : 50
     const radius = pill ? height / 2 : 8
-    // The idle line: a hairline in a light gray (#DBDBDB), the text at 24% in dark mode
-    const idle = androidGray(theme, "fieldLine")
+    // The idle line: Material 3's `outline` role (tone 50, 60 at night), at least 3:1 on the surface as a field's
+    // boundary needs; the lighter `--android-field-line` gray read as no field at all on a light screen
+    const idle = m.outline
     const frame: FieldFrame | null = outlined
       ? { outlined: true, color: accent ?? idle, width: state.focused && !state.disabled ? FOCUS_LINE : hairline(), radius }
       : state.invalid
@@ -648,8 +649,9 @@ export function InputField({
   useEffect(() => springTo(line, thick ? 1 : 0, FIELD_SPRING, theme.reducedMotion), [thick, line, theme.reducedMotion])
   const lineColor = useSpringColor(look.frame?.color ?? "transparent", FIELD_SPRING.stiffness, !lined || theme.reducedMotion)
   const lineMotion: FrameMotion | null = lined ? { color: lineColor, width: line.interpolate({ inputRange: [0, 1], outputRange: [hairline(), FOCUS_LINE] }) } : null
-  // Android's label is in the hint color at rest and in the accent while the field has focus, springing between them
-  const labelColor = invalid ? dangerText(theme) : focused ? focusAccent(theme) : look.placeholder
+  // Android's label is Material 3's `onSurfaceVariant` at rest or floating (tone 30, 80 at night: text contrast, which
+  // the hint gray is not) and the accent while the field has focus, springing between them; the hint stays lighter
+  const labelColor = invalid ? dangerText(theme) : focused ? focusAccent(theme) : theme.isAndroid ? theme.material.onSurfaceVariant : look.placeholder
   const labelTint = useSpringColor(labelColor, FIELD_SPRING.stiffness, !floating || theme.reducedMotion)
   // iOS shows a form field's clear button while it is edited (UITextField's whileEditing), a search field's while it
   // has text; Android while the field has text
