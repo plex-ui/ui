@@ -901,9 +901,10 @@ export type TextFieldProps = InputProps & {
   labelAction?: ReactNode
   /**
    * Shows the count of characters against `maxLength` (`3/15`): Material's counter at the end of the help's line on
-   * Android, at the end of the label's line on iOS.
+   * Android, at the end of the label's line on iOS. A string is a count of its own in that place (chosen tags,
+   * `"3/10"`).
    */
-  counter?: boolean
+  counter?: boolean | string
 }
 
 /**
@@ -915,18 +916,19 @@ export function TextField({ label, description, errorMessage, required, invalid,
   const theme = useTheme()
   const [typed, setTyped] = useState((input.defaultValue ?? "").length)
   const count = input.value != null ? input.value.length : typed
+  const own = typeof counter === "string" ? counter : null
   const counterText =
-    counter && input.maxLength != null ? (
+    own != null || (counter === true && input.maxLength != null) ? (
       <Text
         color="secondary"
-        accessibilityLabel={`${count} of ${input.maxLength}`}
+        accessibilityLabel={own ?? `${count} of ${input.maxLength}`}
         style={[
           theme.isAndroid ? styles.androidCounter : styles.iosCounter,
           { opacity: input.disabled ? 0.5 : 1 },
           theme.isAndroid ? { color: theme.colors.textSecondary } : null,
         ]}
       >
-        {count}/{input.maxLength}
+        {own ?? `${count}/${input.maxLength}`}
       </Text>
     ) : null
   const end =

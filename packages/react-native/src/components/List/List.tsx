@@ -1067,8 +1067,11 @@ function AndroidContent({
   // Android's row symbols are the text's ink over a light card and a gray over a dark one
   const symbol = dim(destructive ? danger : theme.scheme === "dark" ? theme.colors.labelSecondary : theme.colors.text)
   const tile = leading != null && !!leadingColor
+  // A picture wider than the symbol's 24 (a photo, an avatar) keeps its own size from the rows' inset (21, where the
+  // header and the footer stand), the text 16 past it, as Material's list item with a leading avatar; 0 for a symbol
+  const [wide, setWide] = useState(0)
   // The text (and the divider) 21 in, or 64 after a symbol, a tile or a choice's mark (its 20dp circle 22 in)
-  const textStart = leading == null ? ANDROID_INSET : 64
+  const textStart = leading == null ? ANDROID_INSET : wide > 0 && !tile && !leadingMark ? ANDROID_INSET + wide + 16 : 64
   // A value that ends the row stands 17 from the end (a value row), 20 in a row with a tile (a tiled row)
   const valueEnd = trailing == null && !tile ? 17 : 20
   // At the end the value takes half the row at most, 16 from the label and from a control
@@ -1086,7 +1089,18 @@ function AndroidContent({
       {leading == null ? null : leadingMark ? (
         <View style={styles.androidMark}>{leading}</View>
       ) : (
-        <View style={tile ? [styles.androidTile, { backgroundColor: leadingColor, opacity: disabled ? 0.5 : 1 }] : styles.androidIcon}>
+        <View
+          style={tile ? [styles.androidTile, { backgroundColor: leadingColor, opacity: disabled ? 0.5 : 1 }] : [styles.androidIcon, wide > 0 ? styles.androidWide : null]}
+          onLayout={
+            tile
+              ? undefined
+              : (event) => {
+                  const width = event.nativeEvent.layout.width
+                  const next = width > 24.5 ? width : 0
+                  if (Math.abs(next - wide) > 0.5) setWide(next)
+                }
+          }
+        >
           <IconDefaultsProvider size={24} color={tile ? "#ffffff" : symbol}>
             {leading}
           </IconDefaultsProvider>
@@ -1184,7 +1198,8 @@ const styles = StyleSheet.create({
   androidFooterPlain: { paddingHorizontal: ANDROID_INSET },
   androidRow: { flexDirection: "row", alignItems: "center", minHeight: 50, paddingStart: ANDROID_INSET, paddingEnd: ANDROID_INSET },
   // A 24dp symbol at 20, a 28dp tile at 18 with a 24dp symbol, or a choice's 20dp mark at 22: the text at 64
-  androidIcon: { width: 24, height: 24, alignItems: "center", justifyContent: "center", marginStart: -1, marginEnd: 20 },
+  androidIcon: { minWidth: 24, minHeight: 24, alignItems: "center", justifyContent: "center", marginStart: -1, marginEnd: 20 },
+  androidWide: { marginStart: 0, marginEnd: 16 },
   androidMark: { width: 20, alignItems: "center", justifyContent: "center", marginStart: 1, marginEnd: 22 },
   androidTile: { width: 28, height: 28, borderRadius: 10, alignItems: "center", justifyContent: "center", marginStart: -3, marginEnd: 18 },
   androidText: { flex: 1, minWidth: 0, gap: 4 },

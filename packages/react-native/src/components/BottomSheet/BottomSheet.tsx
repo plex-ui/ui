@@ -286,7 +286,7 @@ export function BottomSheetBase({
   const barItem = useMemoBarItem(background)
   const header = android ? (
     title != null ? (
-      <View onStartShouldSetResponderCapture={gesture.chrome} onLayout={(event) => setAndroidBarHeight(Math.max(ANDROID_BAR_HEIGHT, event.nativeEvent.layout.height))} style={styles.androidBar}>
+      <View onStartShouldSetResponderCapture={gesture.chrome} onLayout={(event) => setAndroidBarHeight(Math.max(ANDROID_BAR_HEIGHT, event.nativeEvent.layout.height))} style={[styles.androidBar, { paddingHorizontal: androidInline }]}>
         <SheetBarFade fill={background} shown={scrolled} />
         <View style={styles.androidCircle}>
           {dismissible ? (

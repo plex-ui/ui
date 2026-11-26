@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.29 (2026-11-26)
+
+`@plexui/react-native` 0.2.29.
+
+### Changed
+
+- **TextField `counter`** takes a string: a count of its own (chosen tags, "3/10") in the counter's place and type.
+
+### Fixed
+
+- **A wider picture at a List row's start on Android** (a 32dp photo, a 40dp avatar) keeps its own size from the rows' inset (21dp, where the header and the footer stand), and the text and its divider follow 16 past it, as Material's list item with a leading avatar. A symbol keeps its 24dp box.
+- **A floating BottomActions button keeps its place in the tree on iOS** when it is enabled or disabled. Its backing of the screen's color goes clear instead of going away, so focus, a screen reader's place and a press under way hold.
+- **An Android BottomSheet's bar follows `--bottom-sheet-android-padding-inline`**, as its content and footer do, so the close circle lines up with the content.
+
 ## 0.62.7 (2026-11-26)
 
 `@plexui/ui` 0.62.7, `@plexui/vue` 0.42.7, `@plexui/styles` 0.17.6 and `@plexui/react-native` 0.2.28.

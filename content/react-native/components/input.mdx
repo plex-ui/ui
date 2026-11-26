@@ -283,5 +283,5 @@ A button in `startAdornment` or `endAdornment`, as the web's `Input.AdornmentBut
   { prop: "errorMessage", type: "ReactNode", description: "Shown under the field in place of the description, and marks it invalid" },
   { prop: "required", type: "boolean", description: "Adds an asterisk to the label and marks the field required" },
   { prop: "labelAction", type: "ReactNode", description: "Content at the end of the label's line on iOS, of the help's line on Android (where the label floats)" },
-  { prop: "counter", type: "boolean", default: "false", description: "Shows the count of characters against maxLength (3/15): Material's counter at the end of the help's line on Android, at the end of the label's line on iOS" },
+  { prop: "counter", type: "boolean | string", default: "false", description: "Shows the count of characters against maxLength (3/15): Material's counter at the end of the help's line on Android, at the end of the label's line on iOS. A string is a count of its own in that place (chosen tags, \"3/10\")" },
 ]} />

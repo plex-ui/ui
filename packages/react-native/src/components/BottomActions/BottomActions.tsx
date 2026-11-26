@@ -74,10 +74,14 @@ export function BottomActions({ children, floating = false, background = "soft",
       style: [{ minHeight: height, borderRadius: height / 2 }, props.style],
     })
     // A disabled button's fill is see-through (the gray of iOS's disabled button): floating over the content it stands
-    // on the screen's color, so the rows under it do not show through
-    if (!floating || !props.disabled || android) return button
+    // on the screen's color, so the rows under it do not show through. The backing stays, clear, while the button is
+    // enabled: the button keeps its place in the tree, and with it focus, a screen reader's place and a press
+    if (!floating || android) return button
     return (
-      <View key={child.key ?? index} style={{ borderRadius: height / 2, backgroundColor: canvas, alignSelf: (props.block ?? true) ? "stretch" : "flex-start" }}>
+      <View
+        key={child.key ?? index}
+        style={{ borderRadius: height / 2, backgroundColor: props.disabled ? canvas : "transparent", alignSelf: (props.block ?? true) ? "stretch" : "flex-start" }}
+      >
         {button}
       </View>
     )
