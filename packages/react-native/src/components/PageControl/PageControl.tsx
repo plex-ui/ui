@@ -199,8 +199,10 @@ export function PageControl({
   const gap = small ? 4 : android ? ANDROID_GAP : theme.length("--page-control-gap", 8)
   const padding = small ? 6 : theme.length("--page-control-padding-inline", 12)
   const pitch = dot + gap
-  // Android draws every page's dot at full size; the iOS kit shrinks the ends from seven pages
-  const sizes = android ? Array.from({ length: Math.max(0, count) }, (): PageControlDotSize => "full") : pageControlDots(count, clampIndex(typeof positionProp === "number" ? Math.round(positionProp) : near, count))
+  // Android draws every page's dot at full size up to ANDROID_MAX_DOTS; past that, and on iOS from seven pages, the
+  // dots are a window that holds the current page, so a long run of pages never runs off the screen
+  const windowed = !android || count > ANDROID_MAX_DOTS
+  const sizes = windowed ? pageControlDots(count, clampIndex(typeof positionProp === "number" ? Math.round(positionProp) : near, count)) : Array.from({ length: Math.max(0, count) }, (): PageControlDotSize => "full")
   // The small and smaller ends keep their share of a full dot (6 and 4 of 8 on iOS)
   const dotSize = (kind: PageControlDotSize) =>
     kind === "full"
@@ -226,7 +228,7 @@ export function PageControl({
   const off = onColor ? "rgba(255, 255, 255, 0.4)" : android ? (theme.scheme === "dark" ? "#555555" : "#BBBBBB") : theme.color("--page-control-dot-color", theme.colors.labelTertiary)
   // Android's current dot is drawn over the gray ones (it stretches between pages) unless the pages' scroll drives the
   // dots, when their color crosses over as on iOS; a pill is a dot of its own
-  const worm = android && !pill && positionProp == null
+  const worm = android && !pill && positionProp == null && !windowed
   // Android draws no capsule, not even for `prominent`
   const capsuleHeight = small ? 16 : theme.length("--page-control-height", 24)
   const target = android ? 48 : theme.length("--page-control-target-size", 44)
@@ -345,6 +347,8 @@ const ANDROID_SLIDE = { duration: 300, easing: Easing.bezier(0.2, 0, 0, 1) }
 /** Android's page dots: 5dp, 11dp from one to the next. */
 const ANDROID_DOT = 5
 const ANDROID_GAP = 6
+/** The most pages whose dots Android draws all; more take the window of dots the iOS kit keeps. */
+const ANDROID_MAX_DOTS = 9
 /**
  * A page change the pager settles on its own (a tap, a change from code): one page in 200ms, on an ease-out quint
  * standing in for the pager's 1 + (t − 1)⁵.

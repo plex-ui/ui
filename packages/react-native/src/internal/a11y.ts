@@ -5,6 +5,19 @@ import { textOf } from "./children"
 type KeyEvent = { key: string; preventDefault: () => void }
 
 /**
+ * A hint (what a press does) for a screen reader: `accessibilityHint` on a phone; on the web, where React Native Web
+ * drops that prop, the id of an unseen text (`nodeProps`, the text's `nativeID`) that `aria-describedby` points at.
+ */
+export function useHint(hint: string | undefined) {
+  const id = useId()
+  if (hint == null || hint === "") return { id: undefined, props: {} }
+  return { id: Platform.OS === "web" ? id : undefined, props: Platform.OS === "web" ? { "aria-describedby": id } : { accessibilityHint: hint } }
+}
+
+/** Ids for `aria-describedby`, the empty ones left out. */
+export const describedBy = (...ids: (string | undefined)[]) => ids.filter(Boolean).join(" ") || undefined
+
+/**
  * The description of a control for a screen reader: read after its label and state, as VoiceOver and TalkBack
  * read a hint, and tied to the text by `aria-describedby` on the web. Give `id` to the description's text as its
  * `nativeID`.

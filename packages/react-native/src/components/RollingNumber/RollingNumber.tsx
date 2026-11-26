@@ -14,6 +14,8 @@ export type RollingNumberProps = Omit<TextProps, "children"> & {
   format?: Intl.NumberFormatOptions
   /** The style of the row of characters. */
   containerStyle?: StyleProp<ViewStyle>
+  /** How long a change takes, in ms. @default `--rolling-number-duration` (600) on iOS, 320 on Android */
+  duration?: number
 }
 
 type Character = { character: string; digit: number | null; key: string }
@@ -63,7 +65,7 @@ export const rollingNumberParts = (value: number, locales: Intl.LocalesArgument 
  * 0.3 of the font size while the new one comes in, in 320ms (ease-out quint), up for a larger number. With reduced
  * motion it changes at once. A screen reader reads the written number.
  */
-export function RollingNumber({ value, locales, format, containerStyle, style, size, variant, weight, mono, testID, accessibilityLabel, ...text }: RollingNumberProps) {
+export function RollingNumber({ value, locales, format, containerStyle, duration, style, size, variant, weight, mono, testID, accessibilityLabel, ...text }: RollingNumberProps) {
   const theme = useTheme()
   const { text: written, glyphs, characters } = rollingNumberParts(value, locales, format)
   const flat = StyleSheet.flatten(style) as TextStyle | undefined
@@ -86,13 +88,13 @@ export function RollingNumber({ value, locales, format, containerStyle, style, s
     >
       {characters.map(({ character, digit, key }) =>
         theme.isAndroid ? (
-          <Changing key={key} character={character} up={last.up} lift={0.3 * fontSize} reduced={theme.reducedMotion} text={glyphProps} />
+          <Changing key={key} character={character} up={last.up} lift={0.3 * fontSize} reduced={theme.reducedMotion} duration={duration ?? 320} text={glyphProps} />
         ) : digit === null ? (
           <Text key={key} {...glyphProps}>
             {character}
           </Text>
         ) : (
-          <Reel key={key} digit={digit} character={character} glyphs={glyphs} lineHeight={lineHeight} text={glyphProps} />
+          <Reel key={key} digit={digit} character={character} glyphs={glyphs} lineHeight={lineHeight} duration={duration} text={glyphProps} />
         ),
       )}
     </View>
@@ -100,11 +102,11 @@ export function RollingNumber({ value, locales, format, containerStyle, style, s
 }
 
 /** iOS's reel: the digit itself, hidden, keeps the width and height; a column of 0 to 9 turns over it. */
-function Reel({ digit, character, glyphs, lineHeight, text }: { digit: number; character: string; glyphs: string[]; lineHeight: number; text: TextProps }) {
+function Reel({ digit, character, glyphs, lineHeight, duration, text }: { digit: number; character: string; glyphs: string[]; lineHeight: number; duration?: number; text: TextProps }) {
   const theme = useTheme()
   const [line, setLine] = useState(lineHeight)
   const position = useTransitionValue(digit, {
-    duration: theme.duration("--rolling-number-duration", 600),
+    duration: duration ?? theme.duration("--rolling-number-duration", 600),
     easing: cssEasing(theme.token("--rolling-number-ease"), curves.easeInOut),
     native: true,
     reducedMotion: theme.reducedMotion,
@@ -132,7 +134,7 @@ function Reel({ digit, character, glyphs, lineHeight, text }: { digit: number; c
 }
 
 /** Android's animated text: a new character comes in as the old one leaves, both fading and moving by `lift`. */
-function Changing({ character, up, lift, reduced, text }: { character: string; up: boolean; lift: number; reduced: boolean; text: TextProps }) {
+function Changing({ character, up, lift, reduced, duration, text }: { character: string; up: boolean; lift: number; reduced: boolean; duration: number; text: TextProps }) {
   const [pair, setPair] = useState({ old: null as string | null, now: character, up })
   if (pair.now !== character) setPair({ old: pair.now, now: character, up })
   const [progress] = useState(() => new Animated.Value(1))
@@ -142,12 +144,12 @@ function Changing({ character, up, lift, reduced, text }: { character: string; u
   }, [pair, progress, reduced])
   useEffect(() => {
     if (pair.old == null || reduced) return
-    const animation = Animated.timing(progress, { toValue: 1, duration: 320, easing: curves.easeOutQuint, useNativeDriver: nativeDriver, isInteraction: false })
+    const animation = Animated.timing(progress, { toValue: 1, duration, easing: curves.easeOutQuint, useNativeDriver: nativeDriver, isInteraction: false })
     animation.start(({ finished }) => {
       if (finished) setPair((current) => (current === pair ? { ...current, old: null } : current))
     })
     return () => animation.stop()
-  }, [pair, progress, reduced])
+  }, [duration, pair, progress, reduced])
   const direction = pair.up ? 1 : -1
   return (
     <View>

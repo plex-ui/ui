@@ -3,7 +3,7 @@ import { Animated, Easing, StyleSheet, View, type StyleProp, type ViewStyle } fr
 import { Pressable } from "../../internal/Pressable"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
-import { RowActionContext, RowEndContext, RowHoldContext, holdProps, rowHold } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowHoldContext, holdProps, rowHint, rowHold } from "../../internal/row"
 import { androidGray } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { SelectionColor, Theme } from "../../theme/types"
@@ -128,6 +128,7 @@ export function Switch({
       disabled={disabled}
       {...rowHold(hold)}
       {...holdProps({}, rowEnd ? rowAction : null)}
+      {...rowHint(rowAction, described)}
       onPress={toggle}
       testID={testID}
       // Android's switch row: 50dp, the text ending 11dp before the switch's 37dp view

@@ -3,7 +3,7 @@ import { Animated, Easing, Platform, StyleSheet, View, type GestureResponderEven
 import { Pressable } from "../../internal/Pressable"
 import Disclosure from "../../icons/plex/Disclosure"
 import ExclamationMarkCircle from "../../icons/plex/ExclamationMarkCircle"
-import { spaceToggles, useDescription } from "../../internal/a11y"
+import { describedBy, spaceToggles, useDescription, useHint } from "../../internal/a11y"
 import { useRipple } from "../../internal/ripple"
 import { flattenChildren, textOf } from "../../internal/children"
 import { cssBox } from "../../internal/cssBox"
@@ -75,15 +75,33 @@ const ANDROID_CARD_RADIUS = 16
 /** The start and end of an Android row's text, 21dp in from the card's edge (`--list-row-inset`). */
 const ANDROID_INSET = 21
 
+/**
+ * Where a List's rows start their text inside the card and how round the card is, for a card built beside a List
+ * that must line up with it: iOS `--list-row-inset` (20) and `--field-group-radius` (26), Android 21 and 16.
+ */
+export function useListMetrics(): { rowInset: number; radius: number } {
+  const theme = useTheme()
+  return theme.isAndroid
+    ? { rowInset: ANDROID_INSET, radius: ANDROID_CARD_RADIUS }
+    : { rowInset: theme.length("--list-row-inset", 20), radius: theme.length("--field-group-radius", 26) }
+}
+
 /** A row's place in its section, and the radius of the corners it shares with the section's card (none in a plain list). */
 type RowPlace = { first: boolean; last: boolean; top: number; bottom: number }
 const PlaceContext = createContext<RowPlace>({ first: true, last: true, top: 0, bottom: 0 })
 
 /**
- * A header's action that is not a Button (a count such as "2/3") takes the header's type, so it stands on the title's
- * line: iOS 17/22 on its last line, Android the header's 15sp on its 40dp row. Its own style still wins.
+ * How far a line's baseline stands over the line's bottom: half the leading under the face's box, and its descent.
+ * The kit's faces (Inter, SF Pro, Roboto) draw about 1.21 of the size from ascent to descent, 0.24 of it a descent.
  */
-function headerAction(action: ReactNode, type: StyleProp<TextStyle>, color: string): ReactNode {
+const baselineOverBottom = (fontSize: number, lineHeight: number) => (lineHeight - fontSize * 1.21) / 2 + fontSize * 0.24
+
+/**
+ * A header's action that is not a Button (a count such as "2/3") takes the header's type, so it stands on the title's
+ * line: iOS 17/22 on its last line, Android the header's 15sp on its 40dp row. Its own style still wins; on iOS
+ * (`onBaseline`) a Text in a type of its own is lifted onto the title's baseline.
+ */
+function headerAction(action: ReactNode, type: StyleProp<TextStyle>, color: string, onBaseline = false): ReactNode {
   if (typeof action === "string" || typeof action === "number") {
     return (
       <Text color={color} tabularNums style={type}>
@@ -92,7 +110,15 @@ function headerAction(action: ReactNode, type: StyleProp<TextStyle>, color: stri
     )
   }
   if (isValidElement<{ style?: StyleProp<TextStyle> }>(action) && action.type === Text) {
-    return cloneElement(action, { style: [type, action.props.style] })
+    // A count in a type of its own (a 15/20 subheadline beside the 17/22 title) is lifted onto the title's baseline,
+    // the row still set at its bottoms so the count stays on the title's last line
+    const header = StyleSheet.flatten(type) ?? {}
+    const own = StyleSheet.flatten([type, action.props.style]) ?? {}
+    const lift =
+      onBaseline && typeof header.fontSize === "number" && typeof header.lineHeight === "number" && typeof own.fontSize === "number" && typeof own.lineHeight === "number"
+        ? baselineOverBottom(header.fontSize, header.lineHeight) - baselineOverBottom(own.fontSize, own.lineHeight)
+        : 0
+    return cloneElement(action, { style: [type, action.props.style, lift !== 0 ? { marginBottom: lift } : null] })
   }
   return action
 }
@@ -246,6 +272,7 @@ export function List({
                     action,
                     { fontSize: theme.length("--field-group-title-font-size", 17), lineHeight: theme.length("--field-group-title-line-height", 22) },
                     theme.colors.labelSecondary,
+                    true,
                   )}
                 </ListActionContext.Provider>
               ) : null}
@@ -349,6 +376,8 @@ export type ListItemProps = {
   /** A row in red, as a destructive action row. */
   destructive?: boolean
   accessibilityLabel?: string
+  /** What a press does, read after the name ("Edit date of birth"): on the row, or on the control that takes its focus. */
+  accessibilityHint?: string
   testID?: string
 }
 
@@ -384,6 +413,7 @@ export function ListItem({
   disabled = false,
   destructive = false,
   accessibilityLabel,
+  accessibilityHint,
   testID,
 }: ListItemProps) {
   const theme = useTheme()
@@ -429,7 +459,17 @@ export function ListItem({
   }, [])
   const handed = !switchRow && !onPress && !control && !disabled ? endPress : null
   const press = switchRow ? toggle : (onPress ?? control?.toggle ?? handed ?? undefined)
+  const hinted = useHint(accessibilityHint)
+  // On the web the hint is an unseen text the row's element, or the control that takes its focus, is described by
+  const hintNode = hinted.id != null ? <Text nativeID={hinted.id} style={styles.unseen}>{accessibilityHint}</Text> : null
   const endOwnsFocus = control != null || handed != null || (endHands && press == null)
+  // The hint goes to the control at the end only when it takes the row's focus: a switch of its own beside a row that
+  // opens a page keeps to its own words
+  const controlHint = endOwnsFocus ? accessibilityHint : undefined
+  const rowAction = useMemo(
+    () => (onLongPress == null && controlHint == null ? null : { run: disabled ? undefined : onLongPress, label: longPressLabel, hint: controlHint, hintId: hinted.id }),
+    [controlHint, disabled, hinted.id, longPressLabel, onLongPress],
+  )
   // A destructive row is an action, not a page (Settings' Sign Out has no chevron)
   const chevron = disclosure ?? (!!onPress && !switchRow && trailing == null && !destructive)
   const name = accessibilityLabel ?? ([textOf(label), textOf(value)].filter(Boolean).join(", ") || undefined)
@@ -485,6 +525,12 @@ export function ListItem({
         ref={frameNode as never}
         collapsable={false}
         {...described.props}
+        // The hint over the description's (a phone's one hint), or beside it on the web
+        {...(endOwnsFocus || accessibilityHint == null
+          ? null
+          : Platform.OS === "web"
+            ? { "aria-describedby": describedBy(described.id, hinted.id) }
+            : hinted.props)}
         {...(switchRow ? spaceToggles(toggle) : null)}
         // A row that toggles its control is not a second element for a screen reader or a Tab stop: the control is
         accessible={endOwnsFocus ? false : undefined}
@@ -505,7 +551,8 @@ export function ListItem({
       >
         {({ pressed }) => (
           <RowHoldContext.Provider value={disabled ? null : theme.isAndroid ? hold : setHeld}>
-            <RowActionContext.Provider value={disabled || onLongPress == null ? null : { run: onLongPress, label: longPressLabel }}>
+            <RowActionContext.Provider value={rowAction}>
+              {hintNode}
               {ripple.layer}
               {theme.isAndroid ? null : <RowHighlight on={(pressed || held) && lit} last={last} />}
               {content(pressed || held)}
@@ -525,10 +572,12 @@ export function ListItem({
       testID={testID}
       accessible={named || undefined}
       accessibilityLabel={accessibilityLabel}
+      {...(named ? hinted.props : null)}
       accessibilityRole={named && Platform.OS !== "web" ? "text" : undefined}
       role={named && Platform.OS === "web" ? "group" : undefined}
       style={row}
     >
+      {named ? hintNode : null}
       {content(false)}
     </View>
   )
@@ -1096,6 +1145,7 @@ const styles = StyleSheet.create({
   androidEndEdge: { marginStart: "auto" },
   endAtEdge: { justifyContent: "flex-end" },
   iosHeaderRow: { flexDirection: "row", alignItems: "flex-end", gap: 16 },
+  unseen: { display: "none" },
   androidHeaderRow: { flexDirection: "row", alignItems: "flex-start", minHeight: 40, paddingHorizontal: ANDROID_INSET, paddingTop: 14, paddingBottom: 6, gap: 16 },
   androidHeaderTitle: { flex: 1, minWidth: 0, fontSize: 15, lineHeight: 20 },
   androidHeaderTitleType: { fontSize: 15, lineHeight: 20 },

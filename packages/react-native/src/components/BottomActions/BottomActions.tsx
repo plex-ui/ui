@@ -31,6 +31,11 @@ export type BottomActionsProps = {
   background?: BottomActionsBackground
   /** The color the floating edge fades into: the screen's (a grouped screen's gray). @default the theme's background */
   canvasColor?: string
+  /**
+   * No main action: the lone Button takes the second action's look (iOS 26's glass capsule, Android's ghost button),
+   * as a step whose rows move on by themselves keeps only its way past ("Skip"). @default false
+   */
+  secondary?: boolean
   testID?: string
   style?: StyleProp<ViewStyle>
 }
@@ -42,7 +47,7 @@ export type BottomActionsProps = {
  * action stands under it, 8 apart. Android: the Plex Android look's 48dp full-width button, 16dp from the sides and
  * 16 above the gesture bar. Each Button inside is a block of the size `3xl` unless it sets its own.
  */
-export function BottomActions({ children, floating = false, background = "soft", canvasColor, testID, style }: BottomActionsProps) {
+export function BottomActions({ children, floating = false, background = "soft", canvasColor, secondary = false, testID, style }: BottomActionsProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const android = theme.isAndroid
@@ -57,7 +62,7 @@ export function BottomActions({ children, floating = false, background = "soft",
     const props = child.props as ButtonProps
     // The second action: iOS 26's glass capsule of the main one's size, Android's ghost button
     const second =
-      index > 0 && props.variant === undefined
+      (index > 0 || secondary) && props.variant === undefined
         ? android
           ? { variant: "ghost" as const, color: props.color ?? ("secondary" as const) }
           : { variant: "soft" as const, color: props.color ?? ("secondary" as const), mobileMaterial: props.mobileMaterial ?? ("glass" as const) }

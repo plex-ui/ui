@@ -246,6 +246,8 @@ import { DotsVertical, EditPencil, RemoveTrash } from "@plexui/react-native/icon
   { prop: "children", type: "ReactNode", description: "Items, separators and labels" },
   { prop: "align", type: '"start" | "end"', default: '"start"', description: "The menu's edge that lines up with the trigger's" },
   { prop: "width", type: "number", default: "250 on iOS", description: "Width of the menu; on Android it fits its items, 196 to 288" },
+  { prop: "multiple", type: "boolean", default: "false", description: "Several options to pick: a press on an item with `checked` checks or unchecks it and the menu stays open; the items read as checkboxes" },
+  { prop: "cover", type: "boolean", default: "true", description: "Opens over the trigger; `false` opens it under the trigger, its top at the trigger's bottom edge, as Material's dropdown menu under a chip" },
   { prop: "aria-label", type: "string", description: "Accessible name of the menu" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />

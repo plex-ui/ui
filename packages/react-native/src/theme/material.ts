@@ -236,6 +236,8 @@ export const elevationShadow = {
   bar: "0 2px 8px rgba(0, 0, 0, 0.06)",
   /** The same over a dark screen, where a light shadow does not show: the controls stand apart by their fill. */
   barDark: "0 2px 8px rgba(0, 0, 0, 0.3)",
+  /** Level 1: an elevated card. */
+  level1: "0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15)",
   level2: "0 2px 6px 2px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.3)",
   level3: "0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15)",
 } as const

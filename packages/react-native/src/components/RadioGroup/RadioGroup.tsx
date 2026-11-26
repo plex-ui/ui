@@ -5,7 +5,7 @@ import CheckMd from "../../icons/plex/CheckMd"
 import { useDescription } from "../../internal/a11y"
 import { ControlLabel } from "../../internal/ControlLabel"
 import { isRTL, nextKey } from "../../internal/direction"
-import { RowActionContext, RowEndContext, RowHoldContext, RowStartContext, holdProps, rowHold } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowHoldContext, RowStartContext, holdProps, rowHint, rowHold } from "../../internal/row"
 import { mix } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { ANDROID_ROW_END, androidEaseInOut, iosCheckmarkColor, selectionColor } from "../Switch/Switch"
@@ -150,6 +150,7 @@ function RadioGroupItem({ value, children, description, disabled: itemDisabled =
       disabled={disabled}
       {...rowHold(hold)}
       {...holdProps({ run: disabled ? undefined : onLongPress, label: longPressLabel }, inRow || atStart ? rowAction : null)}
+      {...rowHint(rowAction, described)}
       onPress={() => !selected && context.select(value)}
       testID={testID}
       style={[

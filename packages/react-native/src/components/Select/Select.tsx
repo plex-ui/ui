@@ -5,7 +5,7 @@ import Svg, { Path } from "react-native-svg"
 import ChevronUpDown from "../../icons/plex/ChevronUpDown"
 import { spaceToggles } from "../../internal/a11y"
 import { useRipple } from "../../internal/ripple"
-import { RowEndContext, RowFrameContext, RowHoldContext, rowHold } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowFrameContext, RowHoldContext, rowHint, rowHold } from "../../internal/row"
 import { androidSelector, withAlpha } from "../../theme/material"
 import { MaterialArrowDropDown } from "../Icon/material"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -147,6 +147,8 @@ export function Select<T extends SelectOption>(props: SelectProps<T>) {
   const look = fieldLook(theme, { variant, size, pill }, { focused: open, filled: shownLabel != null, disabled, invalid })
   const row = useContext(RowEndContext)
   const hold = useContext(RowHoldContext)
+  // At a row's end the select takes the row's focus, and with it the row's hint
+  const rowAction = useContext(RowActionContext)
   const rowEnd = row != null
   const inRow = rowEnd && !android
   // At the end of an Android row the select is the row's value, as in an Android value row. On both platforms a press
@@ -177,6 +179,7 @@ export function Select<T extends SelectOption>(props: SelectProps<T>) {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={ariaLabel ? `${ariaLabel}, ${shownLabel ?? placeholder}` : undefined}
+        {...(row != null ? rowHint(rowAction, { props: {} }) : null)}
         accessibilityState={{ disabled, expanded: open }}
         aria-haspopup={dialog ? "dialog" : "menu"}
         aria-expanded={open}

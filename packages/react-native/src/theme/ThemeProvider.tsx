@@ -24,9 +24,10 @@ export type ThemeProviderProps = {
   selectionColor?: SelectionColor
   /**
    * The product's brand: colors, faces and radii over the Plex UI defaults. A nested ThemeProvider keeps its
-   * parent's brand and lays its own over it.
+   * parent's brand and lays its own over it; `null` draws its subtree in Plex UI's own colors and radii, not the
+   * parent's brand (a stand-in for a system prompt, which is in the system's colors, never the app's). Faces stay.
    */
-  brand?: BrandTheme
+  brand?: BrandTheme | null
   /**
    * Faces of the kit (a nested ThemeProvider takes its parent's). Without them the platform's own face is used; see
    * `interFonts` and `robotoFonts`. Faces per drawn platform, `{ ios, android }`, take the one of `platform`: the
@@ -261,8 +262,10 @@ export function ThemeProvider({ scheme, platform, selectionColor, brand, fonts: 
   // The phone layers of the CSS apply up to 767px: a tablet keeps the touch sizes. Only the bands of the CSS matter.
   const band = width >= 414 ? 414 : 393
   const highDensity = PixelRatio.get() >= 1.5
-  const own = brandOverrides(brand)
-  const overrides = parent?.overrides || own ? { ...parent?.overrides, ...own } : undefined
+  const own = brandOverrides(brand ?? undefined)
+  // `brand={null}` starts again from Plex UI's tokens rather than from the parent's brand
+  const inherited = brand === null ? undefined : parent?.overrides
+  const overrides = inherited || own ? { ...inherited, ...own } : undefined
   const overridesKey = JSON.stringify(overrides ?? null)
   const resolver = useMemo(() => {
     const context: TokenContext = { width: band, highDensity, reducedMotion }

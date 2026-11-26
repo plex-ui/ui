@@ -72,6 +72,7 @@ const row = (choice: string) => (
   { prop: "floating", type: "boolean", default: "false", description: "Puts the actions over the content (a scroll view under them), on a soft edge; off, they take their room at the end of the screen" },
   { prop: "background", type: '"soft" | "fade"', default: '"soft"', description: "The edge under floating actions: `soft`, the screen's color in over 27pt above them over a light blur; `fade`, TabBar's fade from the top action's top (60pt to 85%, no blur). Android draws its soft edge for both" },
   { prop: "canvasColor", type: "string", description: "The color the floating edge fades into: the screen's (a grouped screen's gray). Defaults to the theme's background" },
+  { prop: "secondary", type: "boolean", default: "false", description: "No main action: a lone Button takes the second action's look (iOS 26's glass capsule, Android's ghost button), as a step whose rows move on by themselves keeps only \"Skip\"" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the bar" },
 ]} />

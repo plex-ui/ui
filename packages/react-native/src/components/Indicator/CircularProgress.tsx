@@ -15,8 +15,16 @@ export type CircularProgressProps = {
   progress?: number
   /** Size of the indicator, in pixels. @default 28 */
   size?: number
-  /** Stroke width of the ring, in pixels of its 20px drawing, between 1 and 4. @default 2 */
+  /** Stroke width of the ring, in pixels of its 20px drawing, between 1 and 4 (with `ring="edge"`, in pixels of `size`). @default 2 */
   strokeWidth?: number
+  /**
+   * Where the ring stands in its box: `"inset"`, the web's drawing (a ring of radius 8 in 20, so 28 across draws a
+   * ring of about 24); `"edge"`, the ring's outside on the box's edge, `size` the ring's own size.
+   * @default "inset"
+   */
+  ring?: "inset" | "edge"
+  /** How long a new value takes to draw, in ms. @default 300 on iOS, 200 on Android */
+  duration?: number
   /** Color of the active progress track (stroke): a color or a token, such as `"var(--gray-1000)"`. */
   trackActiveColor?: string
   /** Color of the base track (background stroke): a color or a token, such as `"var(--alpha-15)"`. */
@@ -89,6 +97,8 @@ export function CircularProgress({
   progress: progressProp,
   size = 28,
   strokeWidth,
+  ring = "inset",
+  duration,
   trackActiveColor,
   trackColor,
   "aria-label": ariaLabel,
@@ -100,11 +110,17 @@ export function CircularProgress({
   const simulated = useSimulatedProgress(maxDuration, progressProp !== undefined || done)
   const progress = Math.max(0, Math.min(100, progressProp ?? simulated))
   const shown = useTweenedNumber(progress, {
-    duration: theme.isAndroid ? 200 : 300,
+    duration: duration ?? (theme.isAndroid ? 200 : 300),
     easing: theme.isAndroid ? curves.decelerate : cssEase,
     reducedMotion: theme.reducedMotion,
   })
-  const stroke = strokeWidth ? Math.min(4, strokeWidth) : 2
+  const edge = ring === "edge"
+  const stroke = edge ? Math.min(size / 2, strokeWidth ?? 2) : strokeWidth ? Math.min(4, strokeWidth) : 2
+  // The drawing: 20 units with a ring of 8 inset, or the box itself with the ring's outside on its edge
+  const box = edge ? size : 20
+  const center = box / 2
+  const radius = edge ? Math.max(0, (size - stroke) / 2) : 8
+  const dash = edge ? 2 * Math.PI * radius : DASH
   // The web's `light-dark(#deede9, var(--green-a50))`: a light green, the green at 15% at night
   const track = resolve(theme, trackColor, theme.scheme === "dark" ? theme.color("--green-a50") : "#DEEDE9")
   const active = resolve(theme, trackActiveColor, theme.color("--green-500"))
@@ -120,20 +136,20 @@ export function CircularProgress({
       testID={testID}
       style={[{ width: size, height: size }, style]}
     >
-      <Svg width={size} height={size} viewBox="0 0 20 20">
-        <Circle cx={10} cy={10} r={8} fill="none" stroke={track} strokeWidth={stroke} />
+      <Svg width={size} height={size} viewBox={`0 0 ${box} ${box}`}>
+        <Circle cx={center} cy={center} r={radius} fill="none" stroke={track} strokeWidth={stroke} />
         <Circle
-          cx={10}
-          cy={10}
-          r={8}
+          cx={center}
+          cy={center}
+          r={radius}
           fill="none"
           stroke={active}
           strokeWidth={stroke}
           strokeLinecap="round"
-          strokeDasharray={[DASH, DASH]}
-          strokeDashoffset={DASH - DASH * (shown / 100)}
+          strokeDasharray={[dash, dash]}
+          strokeDashoffset={dash - dash * (shown / 100)}
           // The dash starts at 12 o'clock, as the web's ring turned back a quarter
-          transform="rotate(-90 10 10)"
+          transform={`rotate(-90 ${center} ${center})`}
         />
       </Svg>
     </View>

@@ -42,6 +42,11 @@ export type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   uniform?: boolean
   /** Takes the whole width. */
   block?: boolean
+  /**
+   * The most lines a text label takes before it ends in an ellipsis: 2 lets a long label ("Get 3 months for €35.99" in a
+   * longer language or at a large text size) wrap within the button, which grows from its height. @default 1
+   */
+  labelLines?: number
   selected?: boolean
   loading?: boolean
   disabled?: boolean
@@ -380,13 +385,19 @@ function Spinner({ color }: { color: string }) {
 }
 
 /** Strings and numbers in a row make one label ("Pressed {count}"); an element (an icon) stands on its own. */
-function renderChildren(children: ReactNode, metrics: Metrics) {
+function renderChildren(children: ReactNode, metrics: Metrics, lines = 1) {
   const out: ReactNode[] = []
   let label: (string | number)[] = []
   const flush = () => {
     if (!label.length) return
     out.push(
-      <Text key={`label-${out.length}`} numberOfLines={1} weight={metrics.weight} style={{ fontSize: metrics.fontSize, lineHeight: metrics.lineHeight }}>
+      <Text
+        key={`label-${out.length}`}
+        numberOfLines={lines}
+        weight={metrics.weight}
+        // A label on more lines than one shrinks to the button and centers its lines
+        style={[{ fontSize: metrics.fontSize, lineHeight: metrics.lineHeight }, lines > 1 ? styles.wraps : null]}
+      >
         {label.join("")}
       </Text>,
     )
@@ -432,6 +443,7 @@ function ListActionButton({
   disabled = false,
   loading = false,
   inert: inertProp = loading,
+  labelLines,
   children,
   style,
   onPressIn,
@@ -470,7 +482,7 @@ function ListActionButton({
   const trailingIcon = row && parts.length > 1 && isValidElement(parts[parts.length - 1])
   const content = parts.map((part, index) =>
     typeof part === "string" || typeof part === "number" ? (
-      <Text key={`label-${index}`} weight={android && !row ? "medium" : "regular"} numberOfLines={row ? undefined : 1} style={[type, trailingIcon && index < parts.length - 1 ? styles.grow : null]}>
+      <Text key={`label-${index}`} weight={android && !row ? "medium" : "regular"} numberOfLines={labelLines ?? (row ? undefined : 1)} style={[type, trailingIcon && index < parts.length - 1 ? styles.grow : null, labelLines != null && labelLines > 1 && !row ? styles.shrinks : null]}>
         {part}
       </Text>
     ) : (
@@ -524,6 +536,7 @@ function ButtonBody({
   mobileMaterial,
   uniform = false,
   block = false,
+  labelLines = 1,
   selected = false,
   loading = false,
   disabled = false,
@@ -732,7 +745,7 @@ function ButtonBody({
   const content = (
     <TextColorProvider value={ink}>
       <IconDefaultsProvider size={metrics.iconSize} color={ink}>
-        <Animated.View style={[styles.row, android ? styles.fromTop : null, { gap: metrics.gap }, labelMotion]}>{renderChildren(children, metrics)}</Animated.View>
+        <Animated.View style={[styles.row, android ? styles.fromTop : null, labelLines > 1 ? styles.shrinks : null, { gap: metrics.gap }, labelMotion]}>{renderChildren(children, metrics, labelLines)}</Animated.View>
         {spinner}
       </IconDefaultsProvider>
     </TextColorProvider>
@@ -780,4 +793,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
   fromTop: { alignSelf: "stretch", transformOrigin: "top" },
   grow: { flexGrow: 1, flexShrink: 1 },
+  wraps: { flexShrink: 1, minWidth: 0, textAlign: "center" },
+  shrinks: { flexShrink: 1, minWidth: 0, maxWidth: "100%" },
 })

@@ -3,14 +3,14 @@ import { Image, Platform, StyleSheet, View, type ImageSourcePropType, type Style
 import { Pressable } from "../../internal/Pressable"
 import { flattenChildren } from "../../internal/children"
 import { space } from "../../internal/spacing"
-import { controlHighlight, withAlpha } from "../../theme/material"
+import { barShadow, controlHighlight, elevationShadow, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { materialType } from "../../theme/typography"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text, TextColorProvider } from "../Text/Text"
 
-export type CardVariant = "outline" | "solid" | "ghost"
+export type CardVariant = "outline" | "solid" | "ghost" | "elevated"
 export type CardSize = "sm" | "md" | "lg"
 /** A fill of the palette: the accent, the Plex primary, or a semantic color. */
 export type CardColor = "accent" | "primary" | "info" | "success" | "warning" | "caution" | "danger" | "discovery"
@@ -60,6 +60,8 @@ export function cardSurface(theme: Theme, variant: CardVariant) {
     // from those cards on the page
     if (variant === "outline") return { backgroundColor: theme.colors.groupedSurface }
     if (variant === "solid") return { backgroundColor: theme.material.surfaceContainerHigh }
+    // Material's elevated card: the low container lifted at level 1
+    if (variant === "elevated") return { backgroundColor: theme.material.surfaceContainerLow, boxShadow: elevationShadow.level1 }
     return { backgroundColor: "transparent" }
   }
   // On a phone an outline card is a section of an inset grouped list (no border, the section's fill: the grouped
@@ -67,6 +69,9 @@ export function cardSurface(theme: Theme, variant: CardVariant) {
   // sections (Card.module.css, touch.css)
   if (variant === "outline") return { backgroundColor: theme.colors.groupedSurface }
   if (variant === "solid") return { backgroundColor: theme.color("--card-solid-section-background", theme.colors.surfaceSecondary) }
+  // Lifted off the page by the soft shadow of a floating control (2 down, 8 across, 6% black; 30% on a dark screen),
+  // so a card laid over another reads as on top
+  if (variant === "elevated") return { backgroundColor: theme.colors.groupedSurface, boxShadow: barShadow(theme.scheme) }
   return { backgroundColor: "transparent" }
 }
 
@@ -100,7 +105,7 @@ function CardRoot({ children, variant = "outline", size = "md", color, onPress, 
       ? cloneElement(child as ReactElement<CardMediaProps & EdgeProps>, { first: index === 0, last: index === parts.length - 1 })
       : child,
   )
-  const box = [styles.card, { padding, gap, borderRadius: radius }, ghost && !tint ? styles.ghost : null, tint ? { backgroundColor: tint.fill } : cardSurface(theme, variant), style]
+  const box = [styles.card, { padding, gap, borderRadius: radius }, ghost && !tint ? styles.ghost : null, tint ? { backgroundColor: tint.fill, ...(variant === "elevated" ? { boxShadow: cardSurface(theme, variant).boxShadow } : null) } : cardSurface(theme, variant), style]
   const content = tint ? (
     <Context.Provider value={{ padding, inset, radius, theme, ink: tint.ink }}>
       <TextColorProvider value={tint.ink}>

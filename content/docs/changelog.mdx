@@ -7,6 +7,28 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.2.26 (2026-11-26)
+
+`@plexui/react-native` 0.2.26.
+
+### Added
+
+- **ListItem `accessibilityHint`**: what a press does, read after the row's name ("Edit date of birth"). On a control at the row's end that takes the row's focus (a Checkbox, a Switch, a choice, a Select), it goes to the control.
+- **`useListMetrics()`**: where a List's rows start their text in the card and how round the card is (iOS `--list-row-inset` 20 and `--field-group-radius` 26, Android 21 and 16), for a card built beside a List that must line up with it.
+- **CircularProgress `ring="edge"`** sets the ring's outside on the box's edge, so `size` is the ring's own size and `strokeWidth` is in points of it. The default `inset` keeps the web's drawing (a ring of radius 8 in 20). **CircularProgress and RollingNumber `duration`** set how long a change takes.
+- **Button `labelLines`**: a text label on up to that many lines before its ellipsis. The button grows from its height, and the lines are centered.
+- **BottomActions `secondary`**: a lone Button takes the second action's look (iOS 26's glass capsule, Android's ghost button), for a step that keeps only its way past ("Skip").
+- **Menu.Content `multiple` and `cover`.** `multiple` keeps the menu open while each checked item is checked or unchecked, and the items read as checkboxes. This holds in a submenu too, whose items follow the app's state while it shows. `cover={false}` opens the menu under its trigger, as Material's dropdown menu opens under a chip.
+- **Card `variant="elevated"`**: a card lifted off the page. On iOS it is the section's fill with a floating control's soft shadow; on Android, Material's elevated card (the low container at level 1).
+- **`ThemeProvider brand={null}`** draws its subtree in Plex UI's own colors and radii instead of the parent's brand, for a stand-in for a system prompt.
+
+### Changed
+
+- **PageControl on Android from ten pages** takes the iOS kit's window of dots, so the row never runs off the screen. Its current dot crosses over in color instead of stretching. Up to nine pages Android still shows every dot.
+- **An Android BottomSheet's title wraps to a second line** instead of ending in an ellipsis. The bar grows if the two lines need more than its height.
+- **On iOS a List header's count in a type of its own stands on the title's baseline.** A Text count in its own type, such as a 15/20 count beside the 17/22 title, was set by its bottom and sat under the title's baseline. It is now lifted by the difference between the two lines' baselines, and it still stands on the title's last line when the title wraps.
+- **On the web, TextLink's underline stands a tenth of the type under the letters** (`--link-underline-decoration-offset`), clear of the descenders, as on @plexui/ui.
+
 ## @plexui/react-native 0.2.25 (2026-11-26)
 
 `@plexui/react-native` 0.2.25.

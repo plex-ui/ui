@@ -66,5 +66,6 @@ const secondary = useTheme().color("--color-text-secondary")
   { prop: "size, weight, color, variant…", type: "TextProps", description: "The props of Text, for the type and color; the figures are tabular" },
   { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the characters, such as a font size" },
   { prop: "containerStyle", type: "StyleProp<ViewStyle>", description: "Style of the row of characters" },
+  { prop: "duration", type: "number", default: "600 on iOS, 320 on Android", description: "How long a change takes, in ms" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />

@@ -26,6 +26,9 @@ export type TextLinkProps = {
 
 const EXTERNAL = /^https?:\/\//
 
+/** The underline's distance under the letters on the web: the token, else a tenth of the type. */
+const underlineOffset = (value: unknown) => (typeof value === "number" ? value : typeof value === "string" && value !== "" ? value : "0.1em")
+
 /**
  * A link in running text, as @plexui/ui's TextLink: put it inside a `Text`, whose face, size and color it takes
  * (the web's `currentcolor`), underlined; `primary` colors it with `--link-primary-text-color` and drops the underline.
@@ -60,6 +63,9 @@ export function TextLink({ children, href, primary = false, underline = !primary
       style={[
         primary ? { color: theme.color("--link-primary-text-color", theme.colors.textAccent) } : null,
         underline ? { textDecorationLine: "underline" } : null,
+        // The web sets the line a tenth of the type under the letters (`--link-underline-decoration-offset`), clear of
+        // the descenders; a phone draws it where the platform does
+        underline && Platform.OS === "web" ? ({ textUnderlineOffset: underlineOffset(theme.token("--link-underline-decoration-offset")) } as TextStyle) : null,
         weight ? theme.font(weight) : null,
         highlight,
         style,

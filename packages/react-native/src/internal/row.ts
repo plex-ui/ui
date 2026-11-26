@@ -1,5 +1,5 @@
 import { createContext } from "react"
-import type { GestureResponderEvent } from "react-native"
+import { Platform, type GestureResponderEvent } from "react-native"
 
 /** The end of a List row, as its control sees it. */
 export type RowEnd = {
@@ -69,7 +69,8 @@ export function rowHold(hold: ((held: boolean, event?: GestureResponderEvent) =>
 }
 
 /** A List row's touch and hold, for the control at its end, which takes the row's touches and its screen reader focus. */
-export type RowAction = { run: () => void; label?: string }
+/** A row's touch and hold (`run`, named by `label`) and its press's hint, for the control that takes the row's focus. */
+export type RowAction = { run?: () => void; label?: string; hint?: string; hintId?: string }
 
 /**
  * Set by a row with `onLongPress`: a control at its end that takes its own touches (a checkbox, a switch, a choice)
@@ -102,4 +103,15 @@ export function holdProps(
       else onAction?.(event)
     },
   }
+}
+
+/**
+ * The row's hint on the control that takes the row's focus, kept with the control's own description: a phone reads
+ * both as one hint; on the web the control is described by its description and the row's unseen hint text.
+ */
+export function rowHint(row: RowAction | null, described: { id?: string; props: { accessibilityHint?: string } }) {
+  if (row?.hint == null) return null
+  if (Platform.OS === "web") return row.hintId != null ? { "aria-describedby": [described.id, row.hintId].filter(Boolean).join(" ") } : null
+  const own = described.props.accessibilityHint
+  return { accessibilityHint: own ? `${own}. ${row.hint}` : row.hint }
 }

@@ -50,7 +50,7 @@ type MenuContextValue = {
 const MenuContext = createContext<MenuContextValue | null>(null)
 
 /** Closes the menu once an item is chosen; also used by Select. */
-const SurfaceContext = createContext<{ close: () => void; check: boolean; multiple?: boolean; openSub?: (sub: OpenSub) => void; subOpen?: boolean; header?: boolean }>({ close: () => {}, check: false })
+const SurfaceContext = createContext<{ close: () => void; check: boolean; multiple?: boolean; openSub?: (sub: OpenSub) => void; refreshSub?: (owner: object, items: ReactNode) => void; subOpen?: boolean; header?: boolean }>({ close: () => {}, check: false })
 
 export type MenuProps = {
   children: ReactNode
@@ -190,6 +190,16 @@ export type MenuContentProps = {
   align?: "start" | "end"
   /** @default 250 on iOS; on Android the popup fits its items, 196 to 288 */
   width?: number
+  /**
+   * Several options to pick: a press on an item with `checked` checks or unchecks it and the menu stays open; its items
+   * read as checkboxes. @default false
+   */
+  multiple?: boolean
+  /**
+   * The menu opens over its trigger, as Android's popup and the web's phone menu; `false` opens it under the trigger,
+   * its top at the trigger's bottom edge, as Material's dropdown menu under a chip. @default true
+   */
+  cover?: boolean
   "aria-label"?: string
   testID?: string
 }
@@ -212,10 +222,6 @@ type SurfaceProps = MenuContentProps & {
   anchor: MenuAnchor | null
   onClose: () => void
   check?: boolean
-  /** Select's `multiple`: a press checks or unchecks an option and the menu stays open. */
-  multiple?: boolean
-  /** The menu opens over its trigger, as Android's popup and the web's phone menu (a dropdown field's list opens under it). @default true */
-  cover?: boolean
   /** The List row the menu opens from: on Android the screen dims around it and the popup stands under it. */
   row?: MenuRow | null
   /** Opened from a bar's button: on Android the header menu, in the bar's glass. */
@@ -329,9 +335,11 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
     moveTo(step, 1, true)
   }
   const collapse = () => moveTo(step, 0, false, () => setSub(null))
-  const surface = { close: onClose, check, multiple, openSub, subOpen: sub != null }
+  // A multiple choice keeps the submenu open: its items follow the app's state while it shows
+  const refreshSub = (owner: object, items: ReactNode) => setSub((current) => (current == null || current.owner !== owner || current.items === items ? current : { ...current, items }))
+  const surface = { close: onClose, check, multiple, openSub, refreshSub, subOpen: sub != null }
   const content = <SurfaceContext.Provider value={surface}>{children}</SurfaceContext.Provider>
-  const subItems = sub != null ? <SurfaceContext.Provider value={{ close: onClose, check: hasCheckedItems(sub.items) }}>{sub.items}</SurfaceContext.Provider> : null
+  const subItems = sub != null ? <SurfaceContext.Provider value={{ close: onClose, check: hasCheckedItems(sub.items), multiple }}>{sub.items}</SurfaceContext.Provider> : null
   const scale = !theme.reducedMotion && canTransformGlass
   // The web's keyboard, as the WAI-ARIA menu pattern: focus starts at the chosen item (else the first), the arrows
   // move to the next one and stop at the ends, Home and End go to the first and the last
@@ -808,11 +816,12 @@ function AndroidMenuSurface({ open, anchor, row, header = false, onClose, align 
       },
     })
   })
-  const surface = { close: onClose, check, multiple, openSub, subOpen: sub != null, header }
+  const refreshSub = (owner: object, items: ReactNode) => setSub((current) => (current == null || current.owner !== owner || current.items === items ? current : { ...current, items }))
+  const surface = { close: onClose, check, multiple, openSub, refreshSub, subOpen: sub != null, header }
   // The submenu's page: Back, the 8dp band, the items
   const subItems =
     sub != null ? (
-      <SurfaceContext.Provider value={{ close: onClose, check: hasCheckedItems(sub.items), header }}>
+      <SurfaceContext.Provider value={{ close: onClose, check: hasCheckedItems(sub.items), multiple, header }}>
         <MenuRow icon={<ArrowLeftLg />} stay={collapse}>
           {sub.backLabel}
         </MenuRow>
@@ -1235,7 +1244,8 @@ function MenuRow({ children, icon, description, danger = false, disabled = false
 const inlineExtra = (theme: Theme) => theme.length("--menu-padding-inline", 16) - theme.length("--menu-gutter", 10)
 
 /** The heading of a submenu stays and its items scroll; the menu's own items are a submenu's `items`. */
-type OpenSub = { label: ReactNode; items: ReactNode; backLabel: string; y: number }
+/** An open submenu; `owner` is the row that opened it, the only one whose items it follows. */
+type OpenSub = { label: ReactNode; items: ReactNode; backLabel: string; y: number; owner?: object }
 
 export type MenuSubContentProps = {
   /** The submenu's items: Menu.Item, Menu.Separator, Menu.Label. */
@@ -1270,8 +1280,14 @@ function MenuSubTrigger({ children, icon, disabled, testID }: MenuSubTriggerProp
   const row = useRef<unknown>(null)
   const open = () => {
     if (!sub) return
-    measure(row.current as Measurable | null, (box) => surface.openSub?.({ label: children, items: sub.children, backLabel: sub.backLabel ?? "Back", y: box.y }))
+    measure(row.current as Measurable | null, (box) => surface.openSub?.({ label: children, items: sub.children, backLabel: sub.backLabel ?? "Back", y: box.y, owner: row }))
   }
+  // The submenu this row opened follows the app's state while it shows (a multiple choice keeps it open)
+  const items = sub?.children
+  const { subOpen, refreshSub } = surface
+  useEffect(() => {
+    if (subOpen) refreshSub?.(row, items)
+  }, [items, subOpen, refreshSub])
   return (
     <MenuRow icon={icon} disabled={disabled} testID={testID} rowRef={row} stay={open} opens expanded={surface.subOpen}>
       {children}

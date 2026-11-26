@@ -275,6 +275,8 @@ export function BottomSheetBase({
   const margin = theme.length("--mobile-layout-margin", 16)
   // Android: content scrolled under the bar fades out under it; the footer's height sets the room under the content
   const [scrolled, setScrolled] = useState(false)
+  // The Android bar's height: 69 with a title on one line, a line more when it wraps to a second
+  const [androidBarHeight, setAndroidBarHeight] = useState(ANDROID_BAR_HEIGHT)
   const [footerHeight, setFooterHeight] = useState(0)
   // Android's sheet has no handle: the whole sheet takes the drag. With a title its bar is the reference's sheet bar,
   // over the content: Close in a 46dp glass circle 12 under the top edge and 12 from the side (in line with the
@@ -284,7 +286,7 @@ export function BottomSheetBase({
   const barItem = useMemoBarItem(background)
   const header = android ? (
     title != null ? (
-      <View onStartShouldSetResponderCapture={gesture.chrome} style={styles.androidBar}>
+      <View onStartShouldSetResponderCapture={gesture.chrome} onLayout={(event) => setAndroidBarHeight(Math.max(ANDROID_BAR_HEIGHT, event.nativeEvent.layout.height))} style={styles.androidBar}>
         <SheetBarFade fill={background} shown={scrolled} />
         <View style={styles.androidCircle}>
           {dismissible ? (
@@ -294,7 +296,7 @@ export function BottomSheetBase({
           ) : null}
         </View>
         <View style={styles.androidHeading}>
-          <Text nativeID={titleId} accessibilityRole="header" weight="medium" align="center" numberOfLines={1} color={m.onSurface} style={{ fontSize: titleType.fontSize, lineHeight: titleType.lineHeight }}>
+          <Text nativeID={titleId} accessibilityRole="header" weight="medium" align="center" numberOfLines={2} color={m.onSurface} style={{ fontSize: titleType.fontSize, lineHeight: titleType.lineHeight }}>
             {title}
           </Text>
         </View>
@@ -399,7 +401,8 @@ export function BottomSheetBase({
                       styles.androidContent,
                       // A screen whose gutter is Material's compact 16 sets it with --bottom-sheet-android-padding-inline
                       { paddingHorizontal: androidInline },
-                      title != null ? styles.androidContentUnderBar : null,
+                      // 2 under the bar: 71 under a one-line title
+                      title != null ? { paddingTop: androidBarHeight + 2 } : null,
                       // Over a footer: 8 above its height, which reaches over the sheet's bottom padding
                       footer ? { paddingBottom: 8 + Math.max(0, footerHeight - insets.bottom - keyboard) } : null,
                     ]
@@ -493,6 +496,9 @@ function SheetBarFade({ fill, shown }: { fill: string; shown: boolean }) {
  */
 export const BottomSheet = Object.assign(BottomSheetRoot, { Footer: BottomSheetFooter })
 
+/** An Android sheet's bar: Close's 46dp circle 12 under the top edge and 11 over the bar's end. */
+const ANDROID_BAR_HEIGHT = 12 + 46 + 11
+
 const styles = StyleSheet.create({
   bottom: { flex: 1, justifyContent: "flex-end", alignItems: "center" },
   sheet: { alignSelf: "stretch", overflow: "hidden", borderCurve: "continuous", marginHorizontal: "auto", width: "100%" },
@@ -511,7 +517,6 @@ const styles = StyleSheet.create({
   // The content 12 from the sides (as a page's groups), 16 over the navigation bar; under a bar 13 under its circles
   // (71 from the sheet's top, 2 under the bar)
   androidContent: { paddingHorizontal: 12, paddingTop: 4, paddingBottom: 16 },
-  androidContentUnderBar: { paddingTop: 12 + 46 + 13 },
   iosFooter: { gap: 10, paddingTop: 12 },
   iosFooterEdge: { position: "absolute", top: -15, left: 0, right: 0, bottom: 0 },
   // Android's sheet actions: 48dp buttons 4 apart, 12 from the sides and above, 12 over the gesture bar, over the

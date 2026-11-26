@@ -89,6 +89,8 @@ const [trackActiveColor, setTrackActiveColor] = useState(undefined) // or "var(-
   { prop: "maxDuration", type: "number", default: "15000", description: "Duration of the simulated progress in ms" },
   { prop: "size", type: "number", default: "28", description: "Diameter in points" },
   { prop: "strokeWidth", type: "number", default: "2", description: "Stroke thickness in points of its 20pt drawing, capped at 4" },
+  { prop: "ring", type: '"inset" | "edge"', default: '"inset"', description: "`inset`: the web's drawing, a ring of radius 8 in 20 (28 across draws a ring of about 24). `edge`: the ring's outside on the box's edge, so `size` is the ring's own size and `strokeWidth` is in points of it" },
+  { prop: "duration", type: "number", default: "300 on iOS, 200 on Android", description: "How long a new value takes to draw, in ms" },
   { prop: "trackColor", type: "string", description: "Track color: a color or a token (var(--…))" },
   { prop: "trackActiveColor", type: "string", description: "Active segment color: a color or a token (var(--…))" },
   { prop: "aria-label", type: "string", description: "The name read out, as a progress bar with its value" },

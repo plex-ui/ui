@@ -59,6 +59,9 @@ export default function App() {
 >
 ```
 
+A nested `ThemeProvider` keeps its parent's brand and lays its own over it; `brand={null}` draws its subtree in Plex
+UI's own colors and radii (a stand-in for a system prompt, which is in the system's colors, never the app's).
+
 `useTheme()` gives any token resolved for the current scheme: `theme.color("--color-text")`,
 `theme.length("--button-size-md")`, and Material 3 roles on `theme.material`.
 

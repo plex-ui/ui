@@ -6,7 +6,7 @@ import CheckMd from "../../icons/plex/CheckMd"
 import Minus from "../../icons/plex/Minus"
 import { spaceToggles, useDescription } from "../../internal/a11y"
 import { ControlLabel, controlLabelLine } from "../../internal/ControlLabel"
-import { RowActionContext, RowEndContext, RowHoldContext, RowStartContext, holdProps, rowHold } from "../../internal/row"
+import { RowActionContext, RowEndContext, RowHoldContext, RowStartContext, holdProps, rowHint, rowHold } from "../../internal/row"
 import { androidGray, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { ANDROID_ROW_END, iosCheckmarkColor, selectionColor } from "../Switch/Switch"
@@ -186,6 +186,7 @@ export function Checkbox({
       disabled={disabled}
       {...rowHold(hold)}
       {...holdProps({}, inRow || atRowStart ? rowAction : null)}
+      {...rowHint(rowAction, described)}
       onPress={toggle}
       testID={testID}
       style={[

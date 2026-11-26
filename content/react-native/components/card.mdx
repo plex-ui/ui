@@ -94,7 +94,7 @@ const [color, setColor] = useState<CardColor>("accent")
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "The card's parts" },
-  { prop: "variant", type: '"outline" | "solid" | "ghost"', default: '"outline"', description: "Fill style" },
+  { prop: "variant", type: '"outline" | "solid" | "ghost" | "elevated"', default: '"outline"', description: "Fill style. `elevated` lifts the card off the page: on iOS the section's fill with a floating control's soft shadow, on Android Material's elevated card (the low container at level 1)" },
   { prop: "size", type: '"sm" | "md" | "lg"', default: '"md"', description: "The padding: 12, 16 or 20 on iOS; 12, 16 or 24 on Android" },
   { prop: "color", type: '"accent" | "primary" | "info" | "success" | "warning" | "caution" | "danger" | "discovery"', description: "Fills the card with a color of the palette in place of its variant's surface; the title, text and icons take the color made for it, the description that color at 80%" },
   { prop: "onPress", type: "() => void", description: "Makes the whole card a button" },

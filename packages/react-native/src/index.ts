@@ -95,7 +95,7 @@ export { Badge, type BadgeColor, type BadgeProps, type BadgeSize, type BadgeVari
 export { BottomActions, type BottomActionsBackground, type BottomActionsProps } from "./components/BottomActions/BottomActions"
 export { IntroHeader, type IntroHeaderAlign, type IntroHeaderProps } from "./components/IntroHeader/IntroHeader"
 export { Card, cardColors, type CardColor, type CardMediaProps, type CardProps, type CardSize, type CardVariant } from "./components/Card/Card"
-export { List, ListItem, type ListItemProps, type ListProps } from "./components/List/List"
+export { List, ListItem, useListMetrics, type ListItemProps, type ListProps } from "./components/List/List"
 export { Chip, type ChipProps } from "./components/Chip/Chip"
 export { Skeleton, type SkeletonProps } from "./components/Skeleton/Skeleton"
 export { Progress, progressSegments, type ProgressColor, type ProgressProps, type ProgressSegment, type ProgressSize } from "./components/Progress/Progress"
