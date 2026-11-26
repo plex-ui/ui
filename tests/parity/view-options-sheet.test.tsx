@@ -5,6 +5,8 @@ import { h, reactive } from "vue"
 import { ViewOptionsSheet as ReactSheet, ViewOptionsSheetDemo as ReactDemo } from "../../components/docs/ViewOptionsSheet"
 import { ViewOptionsSheet as VueSheet, ViewOptionsSheetDemo as VueDemo } from "../../components/docs/vue/ViewOptionsSheet"
 import { extensionNote, initialViewOptions, type ViewOptions } from "../../components/docs/viewOptionsData"
+import { PhoneLayout as ReactPhoneLayout } from "../../packages/ui/src/components/PhoneLayout"
+import { PhoneLayout as VuePhoneLayout } from "../../packages/vue/src/components/PhoneLayout"
 import { flushVue, mountVue } from "./harness"
 import { interact } from "./pair"
 
@@ -19,6 +21,8 @@ vi.mock("@plexui/ui/components/FieldGroup", async () => import("../../packages/u
 vi.mock("@plexui/vue/components/FieldGroup", async () => import("../../packages/vue/src/components/FieldGroup"))
 vi.mock("@plexui/ui/components/Page", async () => import("../../packages/ui/src/components/Page"))
 vi.mock("@plexui/vue/components/Page", async () => import("../../packages/vue/src/components/Page"))
+vi.mock("@plexui/ui/components/PhoneLayout", async () => import("../../packages/ui/src/components/PhoneLayout"))
+vi.mock("@plexui/vue/components/PhoneLayout", async () => import("../../packages/vue/src/components/PhoneLayout"))
 vi.mock("@plexui/ui/components/Select", async () => import("../../packages/ui/src/components/Select"))
 vi.mock("@plexui/vue/components/Select", async () => import("../../packages/vue/src/components/Select"))
 vi.mock("@plexui/ui/components/Switch", async () => import("../../packages/ui/src/components/Switch"))
@@ -35,10 +39,13 @@ const click = async (element: HTMLElement) => interact(() => { fireEvent.click(e
 const page = () => within(document.body)
 const sheet = () => page().getByRole("dialog", { name: "View Options" })
 
-const mountDemo = async (framework: Framework, initialOpen = false) => {
-  if (framework === "React") await act(async () => { render(<ReactDemo initialOpen={initialOpen} />) })
-  else {
-    mountVue(() => h(VueDemo, { initialOpen }))
+// phone: inside a PhoneLayout, as in the docs' phone frame, where the sheet confirms with Done
+const mountDemo = async (framework: Framework, initialOpen = false, phone = false) => {
+  if (framework === "React") {
+    const demo = <ReactDemo initialOpen={initialOpen} />
+    await act(async () => { render(phone ? <ReactPhoneLayout>{demo}</ReactPhoneLayout> : demo) })
+  } else {
+    mountVue(() => phone ? h(VuePhoneLayout, null, { default: () => h(VueDemo, { initialOpen }) }) : h(VueDemo, { initialOpen }))
     await flushVue()
   }
 }
@@ -79,13 +86,23 @@ describe.each<Framework>(["React", "Vue"])("%s View Options Sheet", (framework) 
     const focusCall = focus.mock.contexts.findIndex((element) => element === heading)
     expect(focusCall).toBeGreaterThanOrEqual(0)
     expect(focus.mock.calls[focusCall]).toEqual([{ preventScroll: true }])
-    expect(content.queryByRole("button", { name: "Close dialog" })).toBeNull()
+    // A desktop dialog closes with its own close button; the checkmark Done is the phone sheet's alone
+    expect(content.getByRole("button", { name: "Close dialog" })).toBeTruthy()
+    expect(content.queryByRole("button", { name: "Done" })).toBeNull()
     // On a phone the sheet is the library bottom sheet on the grouped surface, not a floating panel.
     expect(document.querySelector('[data-mobile-variant="sheet"]')?.getAttribute("data-surface")).toBe("grouped")
   })
 
+  test("on a phone the sheet confirms with Done and has no close button", async () => {
+    await mountDemo(framework, false, true)
+    await openSheet()
+    const content = within(sheet())
+    expect(content.getByRole("button", { name: "Done" })).toBeTruthy()
+    expect(content.queryByRole("button", { name: "Close dialog" })).toBeNull()
+  })
+
   test("each nested Select updates immediately; Done restores focus and reopening keeps all choices", async () => {
-    await mountDemo(framework)
+    await mountDemo(framework, false, true)
     const current = page().getByRole("group", { name: "Current view" })
     const trigger = await openSheet()
     await selectOption("Sort By", "Size")
@@ -105,7 +122,7 @@ describe.each<Framework>(["React", "Vue"])("%s View Options Sheet", (framework) 
   })
 
   test("an initially open Phone composition can close and reopen with its immediate switch value intact", async () => {
-    await mountDemo(framework, true)
+    await mountDemo(framework, true, true)
     await click(within(sheet()).getByRole("switch", { name: "Show All Filename Extensions" }))
     await click(within(sheet()).getByRole("button", { name: "Done" }))
     await waitFor(() => expect(page().queryByRole("dialog")).toBeNull())

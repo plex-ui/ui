@@ -7,6 +7,18 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.9 (2026-11-26)
+
+`@plexui/ui` 0.62.9, `@plexui/vue` 0.42.9 and `@plexui/styles` 0.17.8.
+
+### Changed
+
+- **A phone bottom sheet moves like iOS.** A Dialog sheet at the bottom of a phone no longer grows from the button that opened it. It slides up from the bottom edge and back down.
+  - The motion is iOS's sheet spring: 0.34 s with no bounce, 500 ms both ways. It is set by the new `--spring-sheet` and `--spring-sheet-duration` tokens.
+  - The dimming behind the sheet fades on the same curve and timer.
+  - A sheet pulled down with a finger still leaves at the finger's speed. Reduce Motion and Android keep their own motion.
+- **View options sheet demo:** on a desktop the dialog closes with its regular close button; the checkmark Done is the phone sheet's alone.
+
 ## 0.62.8 (2026-11-26)
 
 `@plexui/ui` 0.62.8, `@plexui/vue` 0.42.8 and `@plexui/styles` 0.17.7.

@@ -7,6 +7,7 @@ import { Field } from '@plexui/ui/components/Field';
 import { FieldGroup } from '@plexui/ui/components/FieldGroup';
 import { DotsHorizontal } from '@plexui/ui/components/Icon';
 import { Page } from '@plexui/ui/components/Page';
+import { usePhoneLayout } from '@plexui/ui/components/PhoneLayout';
 import { Select } from '@plexui/ui/components/Select';
 import { Switch } from '@plexui/ui/components/Switch';
 import { extensionNote, groupingOptions, iconSizeOptions, initialViewOptions, sortOptions, viewOptionLabel, type ViewOptions } from './viewOptionsData';
@@ -23,6 +24,8 @@ export type ViewOptionsSheetProps = {
 /** Options apply immediately. Done and outside dismissal preserve the controlled value. */
 export function ViewOptionsSheet({ open, onOpenChange, value, onValueChange, trigger }: ViewOptionsSheetProps) {
   const heading = useRef<HTMLDivElement>(null);
+  // A phone sheet confirms with the bar's checkmark; a desktop dialog closes with its own close button
+  const phone = usePhoneLayout();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -30,15 +33,17 @@ export function ViewOptionsSheet({ open, onOpenChange, value, onValueChange, tri
         {/* An icon in the bar, as the More button of Files is: native Files opens View Options from it (IMG_5686). */}
         {trigger ?? <Button color="secondary" variant="soft" pill uniform aria-label="View options"><DotsHorizontal /></Button>}
       </Dialog.Trigger>
-      <Dialog.Content mobileVariant="sheet" surface="grouped" showClose={false}
+      <Dialog.Content mobileVariant="sheet" surface="grouped" showClose={!phone}
         onOpenAutoFocus={(event) => { event.preventDefault(); heading.current?.focus({ preventScroll: true }); }}>
         <Dialog.Header>
           <div ref={heading} tabIndex={-1} className={s.Heading}><Dialog.Title>View Options</Dialog.Title></div>
           <Dialog.Description className="sr-only">Choose how items are sorted and displayed. Changes apply immediately.</Dialog.Description>
-          <Dialog.HeaderAction>
-            {/* The shared confirm of a bar: the accent capsule and the checkmark of native sheets (IMG_5686). */}
-            <Dialog.Close><NavigationButton action="confirm" label="Done" /></Dialog.Close>
-          </Dialog.HeaderAction>
+          {phone && (
+            <Dialog.HeaderAction>
+              {/* The shared confirm of a bar: the accent capsule and the checkmark of native sheets (IMG_5686). */}
+              <Dialog.Close><NavigationButton action="confirm" label="Done" /></Dialog.Close>
+            </Dialog.HeaderAction>
+          )}
         </Dialog.Header>
         <Dialog.Body>
           <div className={s.Sections}>

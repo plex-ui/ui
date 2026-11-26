@@ -4,6 +4,7 @@ import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, Dial
 import { Field } from '@plexui/vue/components/Field';
 import { FieldGroup } from '@plexui/vue/components/FieldGroup';
 import { DotsHorizontal } from '@plexui/vue/components/Icon';
+import { usePhoneLayout } from '@plexui/vue/components/PhoneLayout';
 import { Page, PageActions, PageBar, PageContent, PageHeader, PageTitle } from '@plexui/vue/components/Page';
 import { Select } from '@plexui/vue/components/Select';
 import { Switch } from '@plexui/vue/components/Switch';
@@ -25,18 +26,20 @@ export const ViewOptionsSheet = defineComponent({
   },
   setup(props, { emit, slots }) {
     const heading = ref<HTMLDivElement | null>(null);
+    // A phone sheet confirms with the bar's checkmark; a desktop dialog closes with its own close button
+    const phone = usePhoneLayout();
     const update = <Key extends keyof ViewOptions>(key: Key, next: ViewOptions[Key]) => emit('update:value', { ...props.value, [key]: next });
 
     return () => h(Dialog, { open: props.open, 'onUpdate:open': (open: boolean) => emit('update:open', open) }, () => [
       h(DialogTrigger, null, () => slots.trigger?.() ?? h(Button, { color: 'secondary', variant: 'soft', pill: true, uniform: true, 'aria-label': 'View options' }, () => h(DotsHorizontal))),
       h(DialogContent, {
-        mobileVariant: 'sheet', surface: 'grouped', showClose: false,
+        mobileVariant: 'sheet', surface: 'grouped', showClose: !phone.value,
         onOpenAutoFocus: (event: Event) => { event.preventDefault(); heading.value?.focus({ preventScroll: true }); },
       }, () => [
         h(DialogHeader, null, () => [
           h('div', { ref: heading, tabindex: -1, class: s.Heading }, [h(DialogTitle, null, () => 'View Options')]),
           h(DialogDescription, { class: 'sr-only' }, () => 'Choose how items are sorted and displayed. Changes apply immediately.'),
-          h(DialogHeaderAction, null, () => h(DialogClose, null, () =>
+          phone.value && h(DialogHeaderAction, null, () => h(DialogClose, null, () =>
             // The shared confirm of a bar: the accent capsule and the checkmark of native sheets (IMG_5686).
             h(NavigationButton, { action: 'confirm', label: 'Done' }),
           )),
