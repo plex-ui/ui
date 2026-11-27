@@ -27,7 +27,7 @@ const ButtonComponent = defineComponent({
     /** Determines if the button should be a fully rounded pill shape. @default false */
     pill: { type: Boolean, default: false },
     /** Phone surface for neutral soft/ghost buttons; desktop retains the variant. */
-    mobileMaterial: String as PropType<"glass" | "flat">,
+    mobileMaterial: String as PropType<"glass" | "flat" | "clear">,
     /** Determines if the button should have matching width and height, based on the `size`. @default false */
     uniform: { type: Boolean, default: false },
     /** Controls size of the button: height, plus defaults for `gutterSize`, `iconSize` and font size. @default "md" */

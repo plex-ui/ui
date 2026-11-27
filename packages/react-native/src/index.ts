@@ -87,7 +87,7 @@ export { ContextMenu, type ContextMenuContentProps, type ContextMenuProps } from
 export { ScrollEdge, type ScrollEdgeProps } from "./components/ScrollEdge/ScrollEdge"
 export { DatePicker, type DatePickerDisplay, type DatePickerMode, type DatePickerProps } from "./components/DatePicker/DatePicker"
 export { ActionSheet, type ActionSheetAction, type ActionSheetProps } from "./components/ActionSheet/ActionSheet"
-export { BottomSheet, type BottomSheetFooterProps, type BottomSheetProps } from "./components/BottomSheet/BottomSheet"
+export { BottomSheet, type BottomSheetFooterProps, type BottomSheetHero, type BottomSheetHeroTone, type BottomSheetProps } from "./components/BottomSheet/BottomSheet"
 export { Dialog, type DialogAction, type DialogProps } from "./components/Dialog/Dialog"
 export { Toaster, toast, type ToasterProps, type ToastId, type ToastOptions, type ToastT, type ToastType } from "./components/Toast/Toast"
 

@@ -146,7 +146,7 @@ Props:
   - color ("primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning") default: "primary" — Visual color scheme
   - variant ("solid" | "soft" | "outline" | "ghost") default: "solid" — Button style variant
   - size ("3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl") default: "md" — Control height and default gutter/icon size
-  - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
+  - mobileMaterial ("glass" | "flat" | "clear") — Phone surface for neutral soft/ghost buttons; clear over a photo, a video or a color
   - pill (boolean) default: false — Fully rounded corners
   - block (boolean) default: false — Full width
   - uniform (boolean) default: false — Square icon button (width equals height)
@@ -177,7 +177,7 @@ Props:
     - external (boolean) — Force external-link behavior
     - opticallyAlign ("start" | "end") — Apply optical negative margin alignment
     - block (boolean) default: false — Full width
-    - mobileMaterial ("glass" | "flat") — Phone surface for neutral soft/ghost buttons
+    - mobileMaterial ("glass" | "flat" | "clear") — Phone surface for neutral soft/ghost buttons; clear over a photo, a video or a color
     - pill (boolean) default: false — Fully rounded
     - disabled (boolean) default: false — Disable link
     - disabledTone ("relaxed") — Use relaxed visual tone for disabled state

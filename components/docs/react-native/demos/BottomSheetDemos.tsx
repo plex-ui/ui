@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BottomSheet, Button, Input, Text } from '@plexui/react-native';
 import { View } from 'react-native';
+import { Email } from '@plexui/react-native/icons';
 import { DemoControlBoolean, controlsTableStyle } from '../../ButtonDemos';
 import { usePreviewEmbed } from '../../PreviewEmbed';
 import { RNScreen, docsDemo } from '../RNScreen';
@@ -57,19 +58,25 @@ export const Overview = docsDemo(function Overview() {
   const ios = useNativePlatform() === 'ios';
   const { open, setOpen, hideTrigger } = useSheetState();
   const [title, setTitle] = useState(true);
+  const [hero, setHero] = useState(false);
   const [dismissible, setDismissible] = useState(true);
   const [email, setEmail] = useState('');
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
-        <DemoControlBoolean name="title" value={title} onChange={setTitle} />
+        <DemoControlBoolean name="hero" value={hero} onChange={setHero} />
+        {!hero && <DemoControlBoolean name="title" value={title} onChange={setTitle} />}
         <DemoControlBoolean name="dismissible" value={dismissible} onChange={setDismissible} />
       </div>
       <RNScreen screen minHeight={200}>
         <Trigger label="Sign in" hidden={hideTrigger} onPress={() => setOpen(true)} />
-        <BottomSheet open={open} onOpenChange={setOpen} title={title ? 'Sign in' : undefined} aria-label="Sign in" dismissible={dismissible}>
+        <BottomSheet open={open} onOpenChange={setOpen} title={title ? 'Sign in' : undefined}
+          hero={hero ? { icon: <Email />, title: 'Sign in', description: 'We’ll send a code to this address.' } : undefined}
+          aria-label="Sign in"
+          dismissible={dismissible}
+        >
           <View style={{ gap: 20 }}>
-            <Text color="secondary">We’ll send a code to this address.</Text>
+            {!hero && <Text color="secondary">We’ll send a code to this address.</Text>}
             <Input
               accessibilityLabel="Email"
               placeholder="Email address"

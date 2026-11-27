@@ -36,8 +36,12 @@ export type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   pill?: boolean
   /** The shape on Android: a pill (default), as newer Android screens draw a button, or 8dp corners. */
   shape?: "round" | "square"
-  /** The glass of iOS 26 for a neutral soft or ghost button. Android has no glass. */
-  mobileMaterial?: "glass" | "flat"
+  /**
+   * The glass of iOS 26 for a neutral soft or ghost button, or its clear glass over a photo, a video or a color (a
+   * light frost and a #f5f5f5 label, in both themes). Android has no glass: a clear button there is a translucent
+   * gray with the same label.
+   */
+  mobileMaterial?: "glass" | "flat" | "clear"
   /** A button as wide and tall: an icon alone. */
   uniform?: boolean
   /** Takes the whole width. */
@@ -591,22 +595,38 @@ function ButtonBody({
           // its buttons on glass and its plain ones; the token alone gives the Regular of the plain button
           weight: theme.isIOS && variant !== "ghost" ? "medium" : base.weight,
         }
-  const colors = barColors(theme, buttonColors(theme, color, variant, disabled, selected), { bar, prominent: accentAction, neutral, disabled, selected, flat: mobileMaterial === "flat" })
+  const barred = barColors(theme, buttonColors(theme, color, variant, disabled, selected), { bar, prominent: accentAction, neutral, disabled, selected, flat: mobileMaterial === "flat" })
+  // Clear glass over a photo, a video or a color: the kit's #f5f5f5 label in both themes, on iOS clear glass and on
+  // Android (no glass) its gray at 17%, a little more when pressed
+  const clear = mobileMaterial === "clear" && neutral && !bar
+  const clearLabel = clear ? theme.color("--mobile-glass-clear-label", "#f5f5f5") : ""
+  const colors: typeof barred = clear
+    ? {
+        ...barred,
+        text: disabled ? withAlpha(clearLabel, 0.4) : clearLabel,
+        pressedText: undefined,
+        background: theme.color("--mobile-glass-clear-background", "rgba(153, 153, 153, 0.17)"),
+        pressed: theme.color("--mobile-glass-clear-background-active", "rgba(153, 153, 153, 0.28)"),
+        border: undefined,
+      }
+    : barred
   // In a bar every neutral soft or ghost button is glass, as on iOS 26, unless it asks to stay flat or is selected.
   // A disabled glass button keeps its glass, as the phone CSS's
   const wantsGlass = bar ? mobileMaterial !== "flat" && neutral && !selected && !bar.inGroup : mobileMaterial === "glass" && neutral
-  const glass = theme.isIOS && wantsGlass
+  const glass = theme.isIOS && (wantsGlass || clear)
   // On Android the same button stands on a glass of its own, as the Android bar circles: a see-through card with a
   // rim and a soft shadow (the glass of a plain bar)
   const card = theme.isAndroid && !!bar && !bar.plain && (wantsGlass || (accentAction && disabled && !bar.inGroup))
   const androidGlass = useAndroidGlass("bar", bar?.canvas)
   if (glass && !bar) {
-    // The Liquid Glass text button of the iOS 27 kit: Medium (`--button-glass-font-weight`), 17/22 at md and lg
+    // The Liquid Glass text button of the iOS 27 kit: Medium (`--button-glass-font-weight`), 17/22 at md and lg, 12 a side
     const glassWeight = theme.length("--button-glass-font-weight", 510)
     metrics.weight = glassWeight >= 590 ? "semibold" : glassWeight >= 500 ? "medium" : "regular"
     if (size === "md" || size === "lg") {
       metrics.fontSize = theme.length("--button-glass-font-size", metrics.fontSize)
       metrics.lineHeight = theme.length("--button-glass-line-height", metrics.lineHeight)
+      // 12 each side, where a bordered medium button's Subheadline label takes 14
+      if (!gutterSize) metrics.gutter = theme.length("--button-glass-gutter", metrics.gutter)
     }
   }
   const nativeRipple = useMaterialPress(theme)
@@ -771,7 +791,7 @@ function ButtonBody({
   if (glass) {
     return (
       <Pressable {...pressable} style={[{ alignSelf: block ? "stretch" : "flex-start" }, style]}>
-        <Glass interactive={!inert} elevation={bar?.raised ? "raised" : "regular"} radius={metrics.radius} fillToken={pressed && !inert ? "--mobile-glass-background-active" : undefined} style={[body, { borderRadius: metrics.radius }]}>
+        <Glass interactive={!inert} clear={clear} elevation={bar?.raised ? "raised" : "regular"} radius={metrics.radius} fillToken={pressed && !inert ? (clear ? "--mobile-glass-clear-background-active" : "--mobile-glass-background-active") : undefined} style={[body, { borderRadius: metrics.radius }]}>
           {content}
         </Glass>
       </Pressable>

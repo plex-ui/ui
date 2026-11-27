@@ -129,6 +129,7 @@ export function ActionSheet({ open, onOpenChange, title, message, actions, cance
         // With reduced motion the exit is at once either way
         exit={quick && !theme.reducedMotion ? ANDROID_PICK_EXIT : undefined}
         onExited={runPicked}
+        androidClose={false}
       >
         {/* Android's plain sheet title: Regular 16 in its secondary gray (#757575, #7D7D7D at night), 16 around it; a
             message under it in 14 */}

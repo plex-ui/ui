@@ -13,6 +13,12 @@ export type GlassProps = ViewProps & {
   tint?: string
   /** Native glass reacts to touches (iOS 26 interactive glass). */
   interactive?: boolean
+  /**
+   * iOS 26's clear glass, for controls over a photo, a video or a color: native `.clear` glass on iOS 26, elsewhere
+   * the kit's clear fill (`--mobile-glass-clear-background`, gray 153 at 17%) with a light blur, a 0.5 rim and a
+   * faint shadow (`--mobile-glass-clear-*`), the same in light and dark: what is under it decides how it reads.
+   */
+  clear?: boolean
   /** A fill token for the glass instead of `--mobile-glass-background` (menus, alerts and toasts set their own). */
   fillToken?: string
   /**
@@ -116,6 +122,12 @@ const lensMask = (width: number, height: number, radius: number) => {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
 }
 
+/** The clear glass where its tokens are not set: the kit's gray 153 at 17% over a light blur. */
+const CLEAR_FILL = "rgba(153, 153, 153, 0.17)"
+const CLEAR_FILTER = "blur(4px) brightness(1.08)"
+/** Clear glass with no blur (Reduce Transparency, no blur module): a dark gray, as the clear glass over a dark photo. */
+const CLEAR_OPAQUE = "#3a3a3c"
+
 /** The filter and the shadow of the glass surfaces of the phone layer, by their fill (mobile-materials.css, touch.css). */
 const SURFACES: Record<string, { filter: string; shadow: string }> = {
   "--menu-mobile-background": { filter: "--menu-mobile-backdrop-filter", shadow: "--menu-shadow" },
@@ -141,6 +153,7 @@ export function Glass({
   elevation = "regular",
   tint,
   interactive,
+  clear = false,
   fillToken,
   filterToken,
   shadowToken,
@@ -156,7 +169,7 @@ export function Glass({
   const overrides = useThemeOverrides()
   const shape: ViewStyle = { borderRadius: radius, borderCurve: "continuous" }
   const surface = fillToken ? SURFACES[fillToken] : undefined
-  const shadow = theme.token(shadowToken ?? surface?.shadow ?? (elevation === "raised" ? "--mobile-glass-shadow-raised" : "--mobile-glass-shadow"))
+  const shadow = theme.token(shadowToken ?? surface?.shadow ?? (clear ? "--mobile-glass-clear-shadow" : elevation === "raised" ? "--mobile-glass-shadow-raised" : "--mobile-glass-shadow"))
   const boxShadow = typeof shadow === "string" ? shadow : undefined
   const native = liquidGlassModule()
   // iOS 26's own glass turns frostier by itself with Reduce Transparency
@@ -165,7 +178,7 @@ export function Glass({
     return (
       <GlassView
         {...rest}
-        glassEffectStyle="regular"
+        glassEffectStyle={clear ? "clear" : "regular"}
         colorScheme={theme.scheme}
         tintColor={tint}
         isInteractive={interactive}
@@ -176,8 +189,8 @@ export function Glass({
     )
   }
   const web = Platform.OS === "web"
-  const fillName = fillToken ?? "--mobile-glass-background"
-  const filterName = filterToken ?? surface?.filter ?? "--mobile-glass-backdrop-filter"
+  const fillName = fillToken ?? (clear ? "--mobile-glass-clear-background" : "--mobile-glass-background")
+  const filterName = filterToken ?? surface?.filter ?? (clear ? "--mobile-glass-clear-backdrop-filter" : "--mobile-glass-backdrop-filter")
   const dense = web && !theme.isAndroid ? WEB_DENSE[fillName] : undefined
   const denseFill = dense != null && tint == null && overrides?.[fillName] == null
   // Glass with a fill of its own and the plain glass's filter (the large segmented control) blurs as the plain glass
@@ -185,9 +198,9 @@ export function Glass({
   const plainFilter = web && !theme.isAndroid && dense == null && filterToken == null && filterName === "--mobile-glass-backdrop-filter" && overrides?.[filterName] == null
   const denseFilter = (dense != null && filterToken == null && overrides?.[filterName] == null) || plainFilter
   const webFilter = dense ?? WEB_DENSE["--mobile-glass-background"]
-  const fill = tint ?? (denseFill ? theme.color(dense.fill, theme.scheme === "dark" ? dense.dark : dense.light) : theme.color(fillName))
+  const fill = tint ?? (denseFill ? theme.color(dense.fill, theme.scheme === "dark" ? dense.dark : dense.light) : theme.color(fillName, clear ? CLEAR_FILL : undefined))
   const filterValue = denseFilter ? (theme.token(webFilter.filter) ?? webFilter.blur) : theme.token(filterName)
-  const filter = blur != null ? `blur(${blur}px)` : typeof filterValue === "string" ? filterValue : "blur(12px)"
+  const filter = blur != null ? `blur(${blur}px)` : typeof filterValue === "string" ? filterValue : clear ? CLEAR_FILTER : "blur(12px)"
   const module = web || Platform.OS !== "ios" ? null : blurModule()
   const opaque = reduceTransparency || (!web && module == null)
   if (web && !opaque) {
@@ -243,11 +256,12 @@ export function Glass({
     <View {...rest} style={[shape, { boxShadow }, style]}>
       <View style={[StyleSheet.absoluteFill, shape, { overflow: "hidden" }]} pointerEvents="none">
         {opaque ? (
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: theme.color("--mobile-surface-elevated-plain-primary", theme.colors.surfaceElevated) }]} />
+          // Clear glass carries a light label over a photo or a color: opaque, it stands on a dark gray so the label reads
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: clear ? theme.color("--mobile-glass-clear-opaque-background", CLEAR_OPAQUE) : theme.color("--mobile-surface-elevated-plain-primary", theme.colors.surfaceElevated) }]} />
         ) : module ? (
           <module.BlurView
             intensity={intensityOf(radiusPx)}
-            tint={theme.scheme === "dark" ? "systemChromeMaterialDark" : "systemChromeMaterialLight"}
+            tint={clear ? "systemUltraThinMaterial" : theme.scheme === "dark" ? "systemChromeMaterialDark" : "systemChromeMaterialLight"}
             style={StyleSheet.absoluteFill}
           />
         ) : null}

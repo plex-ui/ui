@@ -306,12 +306,14 @@ describe("Liquid Glass text buttons on a phone (kit iOS 27 Button - Liquid Glass
 
   test("a glass Button's label is Medium, and 17px at md and lg, with touch.css only", () => {
     const button = phoneRules("packages/styles/src/components/Button/Button.module.css")
-    const glass = '.Button[data-mobile-material="glass"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"])'
+    const glass = '.Button:is([data-mobile-material="glass"], [data-mobile-material="clear"]):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"])'
     expect(decls(button.get(glass))).toEqual({ "font-weight": "var(--button-glass-font-weight, var(--button-font-weight))" })
     expect(decls(button.get('&:where([data-size="md"], [data-size="lg"])'))).toEqual({
       "font-size": "var(--button-glass-font-size, var(--button-font-size))",
       "line-height": "var(--button-glass-line-height, var(--button-line-height, 1))",
     })
+    // 12 a side at md and lg, but not over a set gutter or an icon alone
+    expect(decls(button.get('&:where([data-size="md"], [data-size="lg"]):not([data-gutter-size], [data-uniform])'))).toEqual({ "--button-gutter": "var(--button-glass-gutter, var(--button-gutter-md))" })
     for (const token of ["--button-glass-font-weight: var(--toolbar-label-font-weight);", "--button-glass-font-size: 17px;", "--button-glass-line-height: 22px;"]) expect(touch).toContain(token)
   })
 })

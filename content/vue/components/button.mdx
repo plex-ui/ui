@@ -272,7 +272,7 @@ You can also pass your link component to the `as` prop:
 
 ## API
 
-For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobile toolbar surface below 768px with `touch.css`. Its label is the Liquid Glass text button's of the iOS 27 kit: Medium, 17px from `md` up (`--button-glass-font-weight`, `--button-glass-font-size`). Page toolbar icon buttons use it automatically. Use `mobileMaterial="flat"` to keep the original variant in a toolbar. Desktop appearance is unchanged.
+For neutral `soft` or `ghost` buttons, `mobileMaterial="glass"` applies the mobile toolbar surface below 768px with `touch.css`. Its label is the Liquid Glass text button's of the iOS 27 kit: Medium, 17px from `md` up (`--button-glass-font-weight`, `--button-glass-font-size`). Page toolbar icon buttons use it automatically. Use `mobileMaterial="flat"` to keep the original variant in a toolbar. `mobileMaterial="clear"` is iOS 26's clear glass, for a button over a photo, a video or a color: gray 153 at 17%, a light frost, a 0.5px rim and the kit's #f5f5f5 label, the same in both themes (`--mobile-glass-clear-*`). Desktop appearance is unchanged.
 
 Props mirror the React Button. In Vue, pass classes with `class` (React's `className`) and listen with `@click`.
 
@@ -280,7 +280,7 @@ Props mirror the React Button. In Vue, pass classes with `class` (React's `class
   { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"', default: '"primary"', description: "Visual color scheme" },
   { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Button style variant" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Control height and default gutter/icon size" },
-  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "Phone surface for neutral soft/ghost buttons" },
+  { prop: "mobileMaterial", type: '"glass" | "flat" | "clear"', description: "Phone surface for neutral soft/ghost buttons; clear over a photo, a video or a color" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded corners" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
   { prop: "uniform", type: "boolean", default: "false", description: "Square icon button (width equals height)" },
@@ -323,7 +323,7 @@ A link with Button's look; a relative `href` or `to` goes through the link compo
   { prop: "external", type: "boolean", description: "Force external-link behavior" },
   { prop: "optically-align", type: '"start" | "end"', description: "Apply optical negative margin alignment" },
   { prop: "block", type: "boolean", default: "false", description: "Full width" },
-  { prop: "mobileMaterial", type: '"glass" | "flat"', description: "Phone surface for neutral soft/ghost buttons" },
+  { prop: "mobileMaterial", type: '"glass" | "flat" | "clear"', description: "Phone surface for neutral soft/ghost buttons; clear over a photo, a video or a color" },
   { prop: "pill", type: "boolean", default: "false", description: "Fully rounded" },
   { prop: "disabled", type: "boolean", default: "false", description: "Disable link" },
   { prop: "disabled-tone", type: '"relaxed"', description: "Use relaxed visual tone for disabled state" },

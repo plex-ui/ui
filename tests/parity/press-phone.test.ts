@@ -28,7 +28,7 @@ const phoneDecls = (path: string, selector: string) => {
 
 const button = "packages/styles/src/components/Button/Button.module.css"
 const fieldGroup = "packages/styles/src/components/FieldGroup/FieldGroup.module.css"
-const enabled = ':not([data-mobile-material="glass"], [data-disabled])'
+const enabled = ':not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled])'
 
 describe("press on a phone", () => {
   test("no button scales; its label lightens 30% toward white in light and 22% in dark, at once", () => {
@@ -37,7 +37,7 @@ describe("press on a phone", () => {
     expect(press.color).toContain("#fff calc(22% * (1 - var(--button-mobile-material-opacity, 0)))")
     expect(press["transition-duration"]).toBe("0s")
     // Its layers never take a transform on a phone, nor declare a transition for one (M5): a press starts none
-    const layers = '.Button.Button[data-variant]:not([data-mobile-material="glass"])'
+    const layers = '.Button.Button[data-variant]:not([data-mobile-material="glass"], [data-mobile-material="clear"])'
     const both = phoneDecls(button, `${layers}::before, ${layers}::after`)
     expect(both.transform).toBe("none")
     expect(both["transition-property"]).not.toContain("transform")

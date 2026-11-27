@@ -1,5 +1,5 @@
 import { cloneElement, isValidElement, useState, type ReactElement, type ReactNode } from "react"
-import { StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
+import { ActivityIndicator, StyleSheet, View, useWindowDimensions, type GestureResponderEvent, type StyleProp, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
 import Svg, { Path } from "react-native-svg"
 import X from "../../icons/plex/X"
@@ -7,7 +7,7 @@ import { flattenChildren, isRenderable, textOf } from "../../internal/children"
 import { FloatingPanel } from "../../internal/FloatingPanel"
 import { anchorProps, type FloatingAlign, type FloatingSide } from "../../internal/floating"
 import { Glass } from "../../internal/Glass"
-import { accentText, barSurface, controlHighlight, dangerText, elevationShadow } from "../../theme/material"
+import { accentText, barSurface, controlHighlight, dangerText, elevationShadow, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
 import { Button, type ButtonColor, type ButtonProps } from "../Button/Button"
@@ -116,6 +116,9 @@ function TipBody({ title, description, icon, actions, mobileActions = "rows", on
   const closable = onClose != null
   const descriptionColor = android ? theme.colors.textSecondary : theme.color("--tip-description-color", theme.colors.textSecondary)
   const paddingBottom = !hasActions ? m.bottomNone : buttons ? m.bottomButtons : m.bottomRows
+  // iOS's tip with button actions is TipKit's mini tip (its kit's Hint View): 22 over the title, 4 between the title
+  // and the message, 22 from the words to the action and 16 under it
+  const miniTip = !android && hasActions && buttons
   const textStart = hasIcon ? m.iconFrame + m.iconGap : 0
   return (
     <View
@@ -126,11 +129,11 @@ function TipBody({ title, description, icon, actions, mobileActions = "rows", on
         styles.tip,
         {
           borderRadius: m.radius,
-          paddingTop: m.top,
+          paddingTop: miniTip ? 22 : m.top,
           paddingHorizontal: m.inline,
           paddingBottom,
           columnGap: m.iconGap,
-          rowGap: hasActions && buttons ? m.gapButtons : m.gap,
+          rowGap: miniTip ? 22 : hasActions && buttons ? m.gapButtons : m.gap,
           backgroundColor: background ?? theme.colors.groupedSurface,
         },
         style,
@@ -148,7 +151,7 @@ function TipBody({ title, description, icon, actions, mobileActions = "rows", on
         <Text variant="headline">{title}</Text>
         {isRenderable(description) ? (
           <TextColorProvider value={descriptionColor}>
-            <Text variant="subheadline" color={descriptionColor} style={android ? styles.androidDescription : null}>
+            <Text variant="subheadline" color={descriptionColor} style={android ? styles.androidDescription : miniTip ? styles.miniDescription : null}>
               {description}
             </Text>
           </TextColorProvider>
@@ -182,18 +185,67 @@ function TipBody({ title, description, icon, actions, mobileActions = "rows", on
   )
 }
 
-/** An action as a capsule across the tip, its Button's color and variant kept: 48 tall on iOS, 40dp on Android. */
+/**
+ * An action as a capsule across the tip. On iOS it is TipKit's action (the kit's Hint View): 50 tall, a 17 Semibold
+ * label in the action's color (the accent for a primary one) on that color at 8% over the gray fill at 8%. On Android
+ * the Button keeps its color and variant, a 40dp capsule.
+ */
 function ActionButton({ item }: { item: ReactNode }) {
   const theme = useTheme()
   if (!isValidElement(item) || item.type !== Button) return <>{item}</>
   const button = item as ReactElement<ButtonProps>
-  return cloneElement(button, {
-    size: theme.isAndroid ? "lg" : "xl",
-    pill: true,
-    block: true,
-    style: [button.props.style, theme.isAndroid ? null : { minHeight: 48 }],
-  })
+  if (theme.isAndroid) return cloneElement(button, { size: "lg", pill: true, block: true })
+  // The Button's look props stay here; its handlers, ref and accessibility props pass on to the capsule
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  const {
+    color = "primary",
+    children,
+    disabled = false,
+    loading = false,
+    inert: inertProp = loading,
+    variant,
+    size,
+    pill,
+    shape,
+    mobileMaterial,
+    uniform,
+    block,
+    labelLines,
+    selected,
+    iconSize,
+    gutterSize,
+    opticallyAlign,
+    style,
+    accessibilityState,
+    ...pressable
+  } = button.props
+  /* eslint-enable @typescript-eslint/no-unused-vars */
+  // As the Button: a loading or inert action takes no presses and keeps its look; a disabled one dims
+  const inert = disabled || inertProp
+  const ink = color === "primary" ? theme.colors.accent : theme.color(`--color-text-${color}-ghost`, theme.colors.accent)
+  return (
+    <Pressable
+      accessibilityRole="button"
+      {...pressable}
+      accessibilityState={{ ...accessibilityState, disabled: inert, busy: loading }}
+      aria-busy={loading}
+      disabled={inert}
+      style={({ pressed }) => [styles.miniAction, { backgroundColor: MINI_GRAY, opacity: disabled ? 0.4 : 1 }, pressed && !inert ? styles.pressed : null]}
+    >
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.miniActionTint, { backgroundColor: withAlpha(ink, 0.08) }]} />
+      {loading ? (
+        <ActivityIndicator color={ink} />
+      ) : (
+        <Text variant="body" weight="semibold" numberOfLines={2} style={styles.miniLabel} color={ink}>
+          {children as ReactNode}
+        </Text>
+      )}
+    </Pressable>
+  )
 }
+
+/** The gray under a TipKit action's tint: the kit's rgba(116, 116, 128, 0.08). */
+const MINI_GRAY = "rgba(116, 116, 128, 0.08)"
 
 /**
  * An action as a row of text in its Button's color under a separator, 46 tall, as iOS tips list them; on Android a
@@ -398,6 +450,10 @@ const styles = StyleSheet.create({
   androidDescription: { marginTop: 2 },
   actions: { flexBasis: "100%", flexGrow: 1, flexDirection: "column" },
   buttons: { gap: 10 },
+  miniDescription: { marginTop: 4 },
+  miniAction: { minHeight: 50, paddingHorizontal: 20, paddingVertical: 14, borderRadius: 25, borderCurve: "continuous", alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  miniActionTint: { borderRadius: 25 },
+  miniLabel: { lineHeight: 18, textAlign: "center" },
   androidActions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   row: { minHeight: 46, paddingVertical: 12, borderTopWidth: 1, justifyContent: "center" },
   androidRow: { alignSelf: "flex-start", minHeight: 40, paddingHorizontal: 12, borderRadius: 20, justifyContent: "center" },

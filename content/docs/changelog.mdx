@@ -7,6 +7,30 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.14 (2026-11-27)
+
+`@plexui/ui` 0.62.14, `@plexui/vue` 0.42.14, `@plexui/styles` 0.17.12 and `@plexui/react-native` 0.4.0.
+
+### Added
+
+- **Button: `mobileMaterial="clear"`, iOS 26's clear glass,** for a neutral soft or ghost button over a photo, a video or a color. It is gray 153 at 17% over a light frost, with a 0.5px rim, a faint shadow and the kit's #f5f5f5 label, the same in light and dark (`--mobile-glass-clear-*`).
+  - It works in React, Vue and React Native. On iOS 26 React Native draws native `.clear` glass; on Android, which has no glass, the button is the gray at 17% with the same label.
+  - Disabled keeps the glass and dims the label to 40%. With Reduce Transparency it stands on a dark gray, so the label still reads.
+- **`@plexui/react-native`: BottomSheet `hero`.** `hero={{ icon, title, description, tone }}` puts a hero header at the top of the content in place of a title in the bar, as a setup or what's-new sheet does.
+  - On iOS: a 56pt symbol over a centered Title 1 bold (28/34) and a 17/22 description; the bar keeps only Close.
+  - On Android: Material's hero icon (24dp, secondary) over a centered 24/32 headline and 14/20 supporting text, with Close in the bar's circle.
+  - `tone` colors the symbol; `icon` also takes a drawing of the app's own. The hero names the sheet.
+
+### Changed
+
+- **Phone Button type:** a bordered medium or large button (`md`, `lg`) takes the iOS 27 kit's Subheadline, 15/20, with 14 a side (it was 17/22 with 12). The weight stays 510. A glass button keeps 17/22 with 12 a side (`--button-glass-gutter`), except where `gutterSize` is set or the button is an icon alone.
+- **Tip on a phone, `mobileActions="buttons"`:** on iOS the action is TipKit's: a 50pt capsule with a 17 Semibold label in the action's color, on that color at 8% over the gray at 8%. The tip has 22 above, 22 from the words to the action and 4 between the title and the message. A disabled action keeps the Button's disabled look; in React Native a loading action shows its spinner and takes no presses.
+- **`@plexui/react-native`: an Android BottomSheet without a title shows Close in its circle** while it is `dismissible`, as iOS does. ActionSheet keeps its plain list.
+- **`@plexui/react-native`: ContextMenu's lifted preview stays 16 from the screen's sides.** One wider than that is scaled down about its middle, as iOS 27.2 does, and the menu stands 16 from what is seen.
+- **`@plexui/react-native`: a List row with a picture taller than its symbol** (a 40pt photo or avatar) keeps the cell's margins over and under it: 10 on iOS (a 60 row) and 8 on Android (a 56 row).
+
+---
+
 ## 0.62.13 (2026-11-27)
 
 `@plexui/ui` 0.62.13, `@plexui/vue` 0.42.13 and `@plexui/react-native` 0.3.0.

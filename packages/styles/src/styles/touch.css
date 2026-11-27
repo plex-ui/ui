@@ -136,9 +136,10 @@
     /* A disabled button keeps the gray of a gray button, as iOS 27.2 draws one (Button.module.css) */
     --button-mobile-disabled-background: var(--color-background-secondary-soft-alpha);
 
-    /* Native text buttons: small 28px, medium 34px, large 50px. iOS 27.2 (SwiftUI controlSize and UIKit
-       buttonSize on an iPhone 17) sets the small one's label at 15pt with 10pt each side, the medium and the
-       large ones' at 17pt with 12 and 20pt: "Bordered" stands 83.7, 94.7 and 110.7pt wide. */
+    /* Native text buttons: small 28px, medium 34px, large 50px. The iOS 26/27 kit (Buttons 507:24673, Button -
+       Content Area, Bordered and Bordered Prominent) sets the small and the medium ones' label in Subheadline 15/20
+       with 10 and 14pt each side, the large one's in Body 17/22 with 20pt (owner 27.11: the kit's 15/20 at 34, the
+       510 weight kept; a 17pt label looked too big for a 34pt capsule). Tracking stays Inter's table. */
     --button-touch-radius: var(--radius-full);
     --button-font-weight: var(--font-weight-normal);
     /* An icon-only button that is not `uniform` is the kit's symbol button, with no gutters (Button.module.css) */
@@ -160,13 +161,13 @@
     --button-font-size-sm: 15px;
     --button-line-height-sm: 20px;
     --button-size-md: 34px;
-    --button-gutter-md: 12px;
-    --button-font-size-md: 17px;
-    --button-line-height-md: 22px;
+    --button-gutter-md: 14px;
+    --button-font-size-md: 15px;
+    --button-line-height-md: 20px;
     --button-size-lg: 34px;
-    --button-gutter-lg: 12px;
-    --button-font-size-lg: 17px;
-    --button-line-height-lg: 22px;
+    --button-gutter-lg: 14px;
+    --button-font-size-lg: 15px;
+    --button-line-height-lg: 20px;
     --button-size-xl: 50px;
     --button-gutter-xl: 20px;
     --button-font-size-xl: 17px;
@@ -184,6 +185,8 @@
     --button-glass-font-weight: var(--toolbar-label-font-weight);
     --button-glass-font-size: 17px;
     --button-glass-line-height: 22px;
+    /* Its 12px each side at 34px (the kit's 12 x 8): the bordered medium button's 14 is the Subheadline label's */
+    --button-glass-gutter: 12px;
     /* A button's symbol is set at the size of its label (kit Buttons 507:24673): the plus of iOS 27.2 draws 12pt
        in the small button and 13.7pt in the medium and the large ones, which take the same 17pt label. So 3xs to
        sm show the 18px icon and md to 3xl the 20px one. The spinner of a loading button is UIKit's: 18pt in

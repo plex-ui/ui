@@ -346,6 +346,38 @@
     max-width: none;
   }
 
+  /* On iOS a tip with button actions is TipKit's mini tip (its kit's Hint View): 22 over the title, 4 between the
+     title and the message, 22 from the words to the action and 16 under it; the action a 50 capsule across the tip,
+     its 17 Semibold label in the action's color (the accent for a primary one) on that color at 8% over the gray
+     at 8% (rgba 116 116 128). The Android look keeps the Button as given. */
+  .Tip[data-mobile-actions="buttons"]:has(> .Actions):not(:where([data-platform="android"] *)) {
+    --tip-padding-top: 22px;
+    --tip-gap: 22px;
+    --tip-description-gap: 4px;
+
+    & > .Actions > [data-variant][data-color] {
+      --tip-mini-ink: var(--tip-action-color, var(--color-accent));
+      --button-size: 50px;
+      --button-gutter: 20px;
+      --button-font-size: 17px;
+      --button-line-height: 18px;
+      --button-font-weight: var(--font-weight-semibold);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* The colors for an action that takes presses: a disabled one keeps the Button's disabled look */
+    & > .Actions > [data-variant][data-color]:not([data-disabled]) {
+      --button-text-color: var(--tip-mini-ink);
+      --button-text-color-hover: var(--tip-mini-ink);
+      --button-background-color: color-mix(in srgb, var(--tip-mini-ink) 8%, rgb(116 116 128 / 0.08));
+      --button-background-color-hover: var(--button-background-color);
+    }
+
+    & > .Actions > [data-color="primary"] {
+      --tip-action-color: var(--color-accent);
+    }
+  }
+
   .Popover {
     filter: none;
 

@@ -24,7 +24,7 @@ export const ButtonLink = defineComponent({
     /** Fully rounded pill shape. @default false */
     pill: { type: Boolean, default: false },
     /** Phone surface for neutral soft/ghost buttons; desktop retains the variant. */
-    mobileMaterial: String as PropType<"glass" | "flat">,
+    mobileMaterial: String as PropType<"glass" | "flat" | "clear">,
     /** Control height and typography scale. @default "md" */
     size: { type: String as PropType<ControlSize>, default: "md" },
     gutterSize: String as PropType<Sizes<"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl">>,

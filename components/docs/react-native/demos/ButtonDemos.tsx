@@ -15,7 +15,7 @@ const SIZES = ['sm', 'md', 'xl'] as const;
 const ICONS = ['none', 'start', 'end', 'only'] as const;
 const ICON_SIZES = ['auto', 'sm', 'md', 'lg', 'xl', '2xl'] as const;
 const SHAPES = ['round', 'square'] as const;
-const MATERIALS = ['flat', 'glass'] as const;
+const MATERIALS = ['flat', 'glass', 'clear'] as const;
 
 /**
  * One button with every setting, as the React page's Overview: `color` and `variant` style it, `size` picks the
@@ -39,6 +39,7 @@ export const Overview = docsDemo(function Overview() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(false);
   const translucent = variant === 'soft' || variant === 'ghost';
+  const clearOn = !android && translucent && material === 'clear' && (color === 'primary' || color === 'secondary');
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
@@ -56,7 +57,13 @@ export const Overview = docsDemo(function Overview() {
         {android && <DemoControlBoolean name="selected" value={selected} onChange={setSelected} />}
       </div>
       <RNScreen minHeight={200}>
-        <View style={{ alignSelf: block ? 'stretch' : 'center' }}>
+        {/* Clear glass stands over a photo, a video or a color: a band of color shows it */}
+        <View
+          style={[
+            { alignSelf: block ? 'stretch' : 'center' },
+            clearOn ? { alignSelf: 'stretch', alignItems: block ? 'stretch' : 'center', padding: 24, backgroundColor: '#2D5BD0' } : null,
+          ]}
+        >
           <Button
             color={color}
             variant={variant}

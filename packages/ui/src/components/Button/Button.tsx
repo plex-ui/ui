@@ -35,8 +35,11 @@ type CommonProps = {
    * @default false
    */
   pill?: boolean
-  /** Phone surface for neutral soft/ghost buttons. Desktop keeps the chosen variant. */
-  mobileMaterial?: "glass" | "flat"
+  /**
+   * Phone surface for neutral soft/ghost buttons: iOS 26 glass, flat, or clear glass for a button over a photo, a
+   * video or a color (a light frost, a #f5f5f5 label, the same in both themes). Desktop keeps the chosen variant.
+   */
+  mobileMaterial?: "glass" | "flat" | "clear"
   /**
    * Disables the button visually and from interactions
    * @default false

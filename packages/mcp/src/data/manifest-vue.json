@@ -68,8 +68,8 @@
         },
         {
           "name": "mobileMaterial",
-          "type": "\"glass\" | \"flat\"",
-          "description": "Phone surface for neutral soft/ghost buttons"
+          "type": "\"glass\" | \"flat\" | \"clear\"",
+          "description": "Phone surface for neutral soft/ghost buttons; clear over a photo, a video or a color"
         },
         {
           "name": "pill",
@@ -256,8 +256,8 @@
             },
             {
               "name": "mobileMaterial",
-              "type": "\"glass\" | \"flat\"",
-              "description": "Phone surface for neutral soft/ghost buttons"
+              "type": "\"glass\" | \"flat\" | \"clear\"",
+              "description": "Phone surface for neutral soft/ghost buttons; clear over a photo, a video or a color"
             },
             {
               "name": "pill",
@@ -7443,5 +7443,5 @@
       "docsUrl": "https://plexui.com/vue/components/table"
     }
   ],
-  "generatedAt": "2026-11-26T11:54:19.823Z"
+  "generatedAt": "2026-11-27T20:49:25.054Z"
 }

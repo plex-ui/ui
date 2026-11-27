@@ -286,26 +286,38 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
   const fitsBelow = below + height <= window.height - bottomEdge
   const above = over ? box.y + box.height - height : box.y - gap - height
   let top = size == null ? -window.height - 1000 : fitsBelow ? below : Math.max(topEdge, above)
-  let previewTop = box.y
+  // A preview wider than the screen less 16 a side is scaled down about its middle to fit, as iOS 27.2 shrinks a
+  // lifted cell or card, and one that would cross the 16 is moved in: `seen` is where it shows
+  const fit = 16
+  const fitScale = context && box.width > window.width - fit * 2 ? (window.width - fit * 2) / box.width : 1
+  const seenWidth = box.width * fitScale
+  const seenHeight = box.height * fitScale
+  const seen = {
+    x: context && box.width > 0 ? Math.max(fit, Math.min(box.x + (box.width - seenWidth) / 2, window.width - fit - seenWidth)) : box.x,
+    y: box.y + (box.height - seenHeight) / 2,
+    width: seenWidth,
+    height: seenHeight,
+  }
+  let previewTop = seen.y
   if (context) {
     // iOS 27.2 places a context menu by where the element stands (ref-app menus-context): in the left third at its
     // left edge, in the right third at its right edge, else at its centre; 16 under it, or over it when the element
     // is in the lower half and the menu fits there (the web's ContextMenu, contextMenuPreview)
-    const centre = box.x + box.width / 2
-    left = centre < window.width / 3 ? box.x : centre > (window.width * 2) / 3 ? box.x + box.width - measured : centre - measured / 2
+    const centre = seen.x + seen.width / 2
+    left = centre < window.width / 3 ? seen.x : centre > (window.width * 2) / 3 ? seen.x + seen.width - measured : centre - measured / 2
     left = Math.max(margin, Math.min(left, window.width - measured - margin))
     const lift = 16
-    const overIt = box.y - lift - height
-    const underIt = box.y + box.height + lift
-    const lower = box.y + box.height / 2 > window.height / 2
+    const overIt = seen.y - lift - height
+    const underIt = seen.y + seen.height + lift
+    const lower = seen.y + seen.height / 2 > window.height / 2
     if (size != null) {
       if (lower && overIt >= topEdge) top = overIt
       else {
         // Where the menu does not fit under the element it lifts the element up with it, as iOS moves the preview, so
         // the menu never covers it
         const overflow = underIt + height - (window.height - bottomEdge)
-        previewTop = overflow > 0 ? Math.max(topEdge, box.y - overflow) : box.y
-        top = Math.max(topEdge, Math.min(previewTop + box.height + lift, window.height - bottomEdge - height))
+        previewTop = overflow > 0 ? Math.max(topEdge, seen.y - overflow) : seen.y
+        top = Math.max(topEdge, Math.min(previewTop + seen.height + lift, window.height - bottomEdge - height))
       }
     }
   }
@@ -404,11 +416,13 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
                 pointerEvents="none"
                 style={[
                   styles.preview,
-                  swap ? { right: box.x } : { left: box.x },
+                  // Drawn at its own size and scaled about its middle onto where it is seen
+                  swap ? { right: seen.x + (seen.width - box.width) / 2 } : { left: seen.x + (seen.width - box.width) / 2 },
                   {
-                    top: previewTop,
+                    top: previewTop + (seen.height - box.height) / 2,
                     width: box.width,
                     height: box.height,
+                    transform: fitScale < 1 ? [{ scale: fitScale }] : undefined,
                     borderRadius: context.radius,
                     backgroundColor: theme.colors.groupedSurface,
                     boxShadow: String(theme.token("--context-menu-preview-shadow") ?? "0 0 32px rgba(0, 0, 0, 0.2)"),

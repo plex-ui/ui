@@ -7,8 +7,10 @@ metaDescription: "A React Native bottom sheet with content of its own: the iOS 2
 import { RNExample } from "@/components/docs/react-native/RNExample"
 
 export const overviewCode = `import { BottomSheet, Button, Input, Text } from "@plexui/react-native"
+import { Email } from "@plexui/react-native/icons"
 
 const [open, setOpen] = useState(false)
+const [hero, setHero] = useState(false)
 const [title, setTitle] = useState(true)
 const [dismissible, setDismissible] = useState(true)
 const [email, setEmail] = useState("")
@@ -20,11 +22,13 @@ const [email, setEmail] = useState("")
   open={open}
   onOpenChange={setOpen}
   title={title ? "Sign in" : undefined}
+  // A symbol over a large centered title; the bar keeps Close alone
+  hero={hero ? { icon: <Email />, title: "Sign in", description: "We’ll send a code to this address." } : undefined}
   aria-label="Sign in"
   dismissible={dismissible}
 >
   <View style={{ gap: 20 }}>
-    <Text color="secondary">We’ll send a code to this address.</Text>
+    {!hero && <Text color="secondary">We’ll send a code to this address.</Text>}
     <Input
       accessibilityLabel="Email"
       placeholder="Email address"
@@ -76,6 +80,7 @@ A choice of actions is an [Action Sheet](/react-native/components/action-sheet).
   <p>BottomSheet is the sheet the web <a href="/components/dialog">Dialog</a> is on a phone by default. On iOS it is the sheet of iOS 26 as the web's phone Sheet draws it: radius 38 on its top corners, a bar 16pt under its top edge with Close at the leading edge and the 17pt semibold title centered, the content 32pt under the bar where its soft edge ends, and no grabber, since its height does not change. On Android it is a plain sheet: white (dark gray at night) with 35dp top corners, no drag handle, and with a title a bar over the content: Close in a 46dp glass circle 12 from the top and the side, in line with the content and concentric with the corner, and the title 17 Medium centered; a 20% dim, and the screen's full width in portrait (80% of it in landscape). On both a tap on the dim, a drag down or Back closes it: on iOS the drag of its bar, on Android a drag anywhere on the sheet, down past about 50dp or a flick, starting on the content once it is scrolled to its top. Let go short of that, the Android sheet goes back to its place. A decision is a <a href="/react-native/components/dialog">Dialog</a>.</p>
   <p>One sheet with every setting, laid out as the web Dialog's Steps lay out their first step, and as Apple Account asks for an address: its text and a soft capsule field, with the action pinned under them in <code>BottomSheet.Footer</code>. As the web Dialog's sheets do in its phone preview, the sheet here opens with the phone's screen.</p>
   <p><code>title</code> stands in the sheet's bar: on iOS centered on the 44pt row of Close, as the web's phone Sheet sets it, on Android in Medium 20 at the start of the sheet's top. A sheet without a title takes an <code>aria-label</code>. <code>dismissible</code> (the default) lets a tap on the dim, a drag down, Close, Android's back and Escape close the sheet; with <code>dismissible={"{false}"}</code> none of them does and iOS draws no Close, so the content closes the sheet through <code>onOpenChange</code>, as Continue does here. <code>closeLabel</code> names what closes it for VoiceOver and TalkBack: Close on iOS, the dim above the sheet on Android.</p>
+  <p><code>hero</code> puts a hero header at the top of the content instead of a title in the bar, as a setup or a what's-new sheet: <code>{"hero={{ icon, title, description, tone }}"}</code>. On iOS a 56pt symbol 12pt over a centered Title 1 bold (28/34) and a 17/22 secondary description, 24pt over the content, the bar keeping only Close; on Android Material's hero icon, 24dp in the secondary color, 16dp over a centered 24/32 headline and a 14/20 supporting text, Close in its bar's circle. <code>tone</code> colors the symbol (accent by default, or secondary, success, warning, danger); <code>icon</code> also takes a drawing of the app's own, at its own size. The hero names the sheet. An Android sheet with no title keeps Close in its circle while it is <code>dismissible</code>, as iOS keeps it.</p>
   <p>The sheet is as tall as its content by default and rises over the keyboard while a field has focus. <code>detent</code> fixes its height, as a native sheet's detents do: <code>"medium"</code> half the screen, <code>"large"</code> a page sheet as tall as it can be, or a number of points; its content scrolls inside that height.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="bottom-sheet/Overview" />
@@ -104,9 +109,10 @@ On Android the content and the actions stand 12dp from the sheet's sides, as a p
   { prop: "open", type: "boolean", description: "Shows the sheet (required)" },
   { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called with false when a tap on the dim, a drag down, Close or Back closes it (required)" },
   { prop: "title", type: "ReactNode", description: "A title in the sheet's bar: centered on iOS, at the start on Android" },
+  { prop: "hero", type: '{ icon?: ReactNode; title: ReactNode; description?: ReactNode; tone?: "accent" | "secondary" | "success" | "warning" | "danger" }', description: "A hero header at the top of the content instead of a title in the bar: a symbol over a large centered title; the bar keeps Close alone" },
   { prop: "children", type: "ReactNode", description: "The content; it scrolls when it is taller than the screen" },
   { prop: "detent", type: '"content" | "medium" | "large" | number', default: '"content"', description: "The sheet's height: as tall as its content, half the screen, as tall as it can be (16pt under the status bar on iOS, at it on Android), or a height in points; a fixed height leaves the room under short content empty" },
-  { prop: "dismissible", type: "boolean", default: "true", description: "A tap on the dim, a drag down, Close, Android's back and Escape close it; iOS draws Close only then" },
+  { prop: "dismissible", type: "boolean", default: "true", description: "A tap on the dim, a drag down, Close, Android's back and Escape close it; Close is drawn only then" },
   { prop: "aria-label", type: "string", description: "Accessible name when there is no title" },
   { prop: "closeLabel", type: "string", default: '"Close"', description: "Accessible name of what closes the sheet: Close on iOS, the dim above the sheet on Android" },
   { prop: "contentStyle", type: "StyleProp<ViewStyle>", description: "Style of the sheet's content area" },

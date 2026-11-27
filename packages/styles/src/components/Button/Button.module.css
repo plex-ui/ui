@@ -984,11 +984,39 @@
     --button-mobile-material-scale: 1;
   }
 
+  /* Clear glass (mobileMaterial="clear") for a button over a photo, a video or a color: iOS 26's clear glass with the
+     kit's #f5f5f5 label, in both themes; the type is the glass button's (below). */
+  .Button.Button.Button[data-mobile-material="clear"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+    --button-mobile-material-background: var(--mobile-glass-clear-background);
+    --button-mobile-material-hover: var(--mobile-glass-clear-background);
+    --button-mobile-material-active: var(--mobile-glass-clear-background-active);
+    --button-mobile-material-sheen: none;
+    --button-mobile-material-shadow: var(--mobile-glass-clear-shadow);
+    --button-mobile-material-backdrop-filter: var(--mobile-glass-clear-backdrop-filter);
+    --button-mobile-material-opacity: 1;
+    --button-mobile-material-scale: 1;
+    --button-text-color: var(--mobile-glass-clear-label);
+    --button-text-color-hover: var(--mobile-glass-clear-label);
+    --button-text-color-active: var(--mobile-glass-clear-label);
+
+    /* Disabled keeps the clear glass, as a glass button does, and dims its label to 40% */
+    &[data-disabled] {
+      --button-text-color: color-mix(in srgb, var(--mobile-glass-clear-label) 40%, transparent);
+      --button-text-color-hover: color-mix(in srgb, var(--mobile-glass-clear-label) 40%, transparent);
+      --button-text-color-active: color-mix(in srgb, var(--mobile-glass-clear-label) 40%, transparent);
+    }
+  }
+
   /* A glass text button is the Liquid Glass text button of the iOS 27 kit (Button - Liquid Glass - Text 5473:21667):
-     its label is Medium, 17px from the medium (34px) size up, as a content-area button's is there (iOS 27.2);
-     the small one keeps 15px. With touch.css, as the glass itself; disabled ones keep it. */
-  .Button[data-mobile-material="glass"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
+     its label is Medium, 17px from the medium (34px) size up with 12px each side, where a bordered button takes
+     Subheadline 15px and 14px; the small one keeps 15px. With touch.css, as the glass itself; disabled ones keep it. */
+  .Button:is([data-mobile-material="glass"], [data-mobile-material="clear"]):where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"]) {
     font-weight: var(--button-glass-font-weight, var(--button-font-weight));
+
+    /* 12 a side unless a gutter is set (gutterSize) or the button is an icon alone */
+    &:where([data-size="md"], [data-size="lg"]):not([data-gutter-size], [data-uniform]) {
+      --button-gutter: var(--button-glass-gutter, var(--button-gutter-md));
+    }
 
     &:where([data-size="md"], [data-size="lg"]) {
       font-size: var(--button-glass-font-size, var(--button-font-size));
@@ -1003,7 +1031,7 @@
      242 for gray), and an outline one with it. It shows at once and fades when the finger lifts. A glass button keeps
      its own press, and a row of a list its gray fill (FieldGroup); so does a button a bar or a group makes glass
      (--button-mobile-material-opacity 1, Toolbar, Page, ButtonGroup): its fill stays and its label does not change. */
-  .Button[data-variant]:not([data-mobile-material="glass"], [data-disabled]):active {
+  .Button[data-variant]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active {
     color: var(
       --button-press-text-color,
       light-dark(
@@ -1020,7 +1048,7 @@
 
   /* Its press does not scale, so on a phone the layers of a button that is not glass never take a transform, nor
      declare a transition for one: a press changes their fill alone, and starts no transform transition. */
-  .Button.Button[data-variant]:not([data-mobile-material="glass"]) {
+  .Button.Button[data-variant]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     &::before,
     &::after {
       transform: none;
@@ -1033,23 +1061,23 @@
     }
   }
 
-  .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     opacity: var(--button-press-fill-opacity, var(--button-mobile-material-opacity, 0));
   }
 
-  .Button:is([data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-disabled]):active::before {
+  .Button:is([data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     opacity: var(--button-press-fill-opacity, calc(0.7 + 0.3 * var(--button-mobile-material-opacity, 0)));
   }
 
-  .Button[data-variant="soft"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  .Button[data-variant="soft"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     background-color: var(--button-mobile-material-active, var(--button-background-color));
   }
 
-  .Button[data-variant="outline"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  .Button[data-variant="outline"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     background-color: var(--button-mobile-material-active, var(--button-outline-context-background, var(--button-outline-background)));
   }
 
-  .Button[data-variant="solid"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  .Button[data-variant="solid"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     background-color: light-dark(
       color-mix(in srgb, var(--button-background-color), #fff 30%),
       color-mix(in srgb, var(--button-background-color), #fff 22%)
@@ -1069,7 +1097,7 @@
     --button-text-color: var(--button-mobile-disabled-color, var(--mobile-label-tertiary, var(--color-text-disabled)));
   }
 
-  .Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"]))) {
+  .Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"], [data-mobile-material="clear"]))) {
     --button-mobile-material-background: initial;
     --button-mobile-material-hover: initial;
     --button-mobile-material-active: initial;
@@ -1112,7 +1140,7 @@
     --button-icon-size: 24px;
   }
 
-  [data-platform="android"] .Button[data-variant]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-variant]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-press-text-color: var(--button-text-color);
     --android-button-press: color-mix(in srgb, var(--button-text-color) 10%, transparent);
     --android-ripple-ink: var(--android-button-press);
@@ -1126,7 +1154,7 @@
     background-image: var(--android-ripple-image);
   }
 
-  [data-platform="android"] .Button:is([data-variant="solid"], [data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-uniform], [data-navigation-action], :where([data-row], [data-slot="input-group"], [data-slot="input"], [data-toolbar]:not([data-placement="bottom"])) *) {
+  [data-platform="android"] .Button:is([data-variant="solid"], [data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-uniform], [data-navigation-action], :where([data-row], [data-slot="input-group"], [data-slot="input"], [data-toolbar]:not([data-placement="bottom"])) *) {
     transition:
       opacity var(--transition-duration-basic) var(--transition-ease-basic),
       color var(--transition-duration-basic) var(--transition-ease-basic),
@@ -1142,7 +1170,7 @@
   /* A ghost button in a field or a row (InputGroup.Button, a row's own small action; not a full-row action) and a
      ghost icon-only one ripple borderless, as the reference's small buttons (its 20dp circle, no mask): a circle of
      20px round the button's center, not clipped to the button's box, in the list selector. */
-  [data-platform="android"] .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-block]):is([data-uniform], :where([data-row], [data-slot="input-group"], [data-slot="input"]) *) {
+  [data-platform="android"] .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-block]):is([data-uniform], :where([data-row], [data-slot="input-group"], [data-slot="input"]) *) {
     --android-ripple-radius: 20px;
     --android-ripple-ink: var(--android-ripple-color);
 
@@ -1155,176 +1183,176 @@
     }
   }
 
-  [data-platform="android"] .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  [data-platform="android"] .Button[data-variant="ghost"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     background-color: transparent;
     opacity: 1;
   }
 
-  [data-platform="android"] .Button:is([data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-disabled]):active::before {
+  [data-platform="android"] .Button:is([data-variant="soft"], [data-variant="outline"]):not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     opacity: 1;
   }
 
-  [data-platform="android"] .Button[data-variant="soft"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  [data-platform="android"] .Button[data-variant="soft"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     background-color: var(--button-mobile-material-background, var(--button-background-color));
   }
 
-  [data-platform="android"] .Button[data-variant="outline"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  [data-platform="android"] .Button[data-variant="outline"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     background-color: var(--button-outline-context-background, var(--button-outline-background));
   }
 
-  [data-platform="android"] .Button[data-variant="solid"]:not([data-mobile-material="glass"], [data-disabled]):active::before {
+  [data-platform="android"] .Button[data-variant="solid"]:not([data-mobile-material="glass"], [data-mobile-material="clear"], [data-disabled]):active::before {
     background-color: var(--button-background-color);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="primary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="primary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-primary-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-primary-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="primary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="primary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-primary-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-primary-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="primary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="primary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-primary-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-primary-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="primary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="primary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-primary-ghost) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="secondary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="secondary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-secondary-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-secondary-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="secondary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="secondary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-secondary-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-secondary-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="secondary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="secondary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-secondary-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-secondary-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="secondary"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="secondary"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-secondary-ghost) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="success"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="success"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-success-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-success-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="success"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="success"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-success-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-success-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="success"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="success"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-success-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-success-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="success"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="success"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-success-ghost) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="danger"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="danger"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-danger-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-danger-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="danger"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="danger"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-danger-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-danger-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="danger"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="danger"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-danger-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-danger-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="danger"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="danger"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-danger-ghost) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="warning"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="warning"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-warning-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-warning-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="warning"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="warning"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-warning-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-warning-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="warning"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="warning"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-warning-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-warning-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="warning"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="warning"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-warning-ghost) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="caution"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="caution"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-caution-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-caution-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="caution"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="caution"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-caution-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-caution-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="caution"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="caution"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-caution-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-caution-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="caution"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="caution"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-caution-ghost) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="info"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="info"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-info-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-info-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="info"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="info"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-info-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-info-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="info"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="info"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-info-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-info-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="info"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="info"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-info-ghost) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="discovery"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="solid"][data-color="discovery"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-discovery-solid);
     --button-text-color: color-mix(in srgb, var(--color-text-discovery-solid) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="discovery"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="soft"][data-color="discovery"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-background-color: var(--color-background-discovery-soft);
     --button-text-color: color-mix(in srgb, var(--color-text-discovery-soft) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="discovery"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="outline"][data-color="discovery"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-border-color: var(--color-border-discovery-outline);
     --button-text-color: color-mix(in srgb, var(--color-text-discovery-outline) 50%, transparent);
   }
 
-  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="discovery"]:not([data-mobile-material="glass"]) {
+  [data-platform="android"] .Button[data-disabled][data-variant="ghost"][data-color="discovery"]:not([data-mobile-material="glass"], [data-mobile-material="clear"]) {
     --button-text-color: color-mix(in srgb, var(--color-text-discovery-ghost) 50%, transparent);
   }
 }

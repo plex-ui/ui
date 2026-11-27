@@ -10,13 +10,35 @@ import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { BarItemContext, type BarItemStyle } from "../Button/Button"
 import { NavigationButton } from "../NavigationButton/NavigationButton"
+import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text } from "../Text/Text"
+
+/** The tones of a hero's symbol. */
+export type BottomSheetHeroTone = "accent" | "secondary" | "success" | "warning" | "danger"
+
+export type BottomSheetHero = {
+  /** A symbol (an icon of the set, sized and colored by the sheet) or a drawing of the app's own, at its own size. */
+  icon?: ReactNode
+  /** The sheet's title, large and centered under the symbol. */
+  title: ReactNode
+  /** A line or two under the title. */
+  description?: ReactNode
+  /** The symbol's color. @default "accent" */
+  tone?: BottomSheetHeroTone
+}
 
 export type BottomSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   /** A title over the content, centered on iOS. */
   title?: ReactNode
+  /**
+   * A hero header at the top of the content instead of a title in the bar, as a setup or a what's-new sheet: on iOS a
+   * 56pt symbol over a centered Title 1 bold (28/34) and an optional 17/22 description, the bar keeping only Close; on
+   * Android Material's hero icon (24dp, secondary) over a centered headline (24/32) and a 14/20 supporting text, Close
+   * in its bar's circle. It names the sheet.
+   */
+  hero?: BottomSheetHero
   children?: ReactNode
   /** A tap on the dim, a drag down, Close, Android's back and Escape close it. @default true */
   dismissible?: boolean
@@ -203,6 +225,8 @@ type SheetExit = {
   exit?: number
   /** Called once the sheet has left. */
   onExited?: () => void
+  /** Android draws Close without a title (a plain list of choices, ActionSheet, does not). @default true */
+  androidClose?: boolean
 }
 
 function BottomSheetRoot(props: BottomSheetProps) {
@@ -213,7 +237,8 @@ function BottomSheetRoot(props: BottomSheetProps) {
 export function BottomSheetBase({
   open,
   onOpenChange,
-  title,
+  title: titleProp,
+  hero,
   children,
   dismissible = true,
   "aria-label": ariaLabel,
@@ -223,8 +248,11 @@ export function BottomSheetBase({
   detent = "content",
   exit,
   onExited,
+  androidClose = true,
 }: BottomSheetProps & SheetExit) {
   const theme = useTheme()
+  // A hero names the sheet from its content: the bar keeps Close alone
+  const title = hero ? undefined : titleProp
   const insets = useSafeAreaInsets()
   const { width, height: screen } = useWindowDimensions()
   const [height, setHeight] = useState(0)
@@ -263,7 +291,7 @@ export function BottomSheetBase({
   const web = Platform.OS === "web"
   // The web names the dialog by its title; a phone keeps the modal view
   const a11y = web
-    ? { role: "dialog" as const, "aria-modal": true, "aria-labelledby": title != null ? titleId : undefined, "aria-label": title != null ? undefined : ariaLabel }
+    ? { role: "dialog" as const, "aria-modal": true, "aria-labelledby": title != null || hero ? titleId : undefined, "aria-label": title != null || hero ? undefined : ariaLabel }
     : { accessibilityViewIsModal: true, "aria-label": ariaLabel }
   // Android's sheet stands under the status bar at most; the phone layer's 16 under the top inset
   const maxHeight = screen - insets.top - (android ? 0 : 16)
@@ -285,8 +313,10 @@ export function BottomSheetBase({
   // (69 in all). Content scrolled under it shows through the sheet's color at
   // 63% over a light blur, let go over its last 32dp (12 past the bar), with no line
   const barItem = useMemoBarItem(background)
+  // Android's bar stands with a title, or with Close alone where the sheet can be closed (as iOS's)
+  const androidBar = android && (title != null || (dismissible && androidClose))
   const header = android ? (
-    title != null ? (
+    androidBar ? (
       <View onStartShouldSetResponderCapture={gesture.chrome} onLayout={(event) => setAndroidBarHeight(Math.max(ANDROID_BAR_HEIGHT, event.nativeEvent.layout.height))} style={[styles.androidBar, { paddingHorizontal: androidInline }]}>
         <SheetBarFade fill={background} shown={scrolled} />
         <View style={styles.androidCircle}>
@@ -297,9 +327,9 @@ export function BottomSheetBase({
           ) : null}
         </View>
         <View style={styles.androidHeading}>
-          <Text nativeID={titleId} accessibilityRole="header" weight="medium" align="center" numberOfLines={2} color={m.onSurface} style={{ fontSize: titleType.fontSize, lineHeight: titleType.lineHeight }}>
+          {title == null ? null : <Text nativeID={titleId} accessibilityRole="header" weight="medium" align="center" numberOfLines={2} color={m.onSurface} style={{ fontSize: titleType.fontSize, lineHeight: titleType.lineHeight }}>
             {title}
-          </Text>
+          </Text>}
         </View>
         <View style={styles.androidCircle} />
       </View>
@@ -380,7 +410,7 @@ export function BottomSheetBase({
               },
             ]}
           >
-            {android && title != null ? null : header}
+            {androidBar ? null : header}
             {/* Content taller than the screen scrolls; on iOS the drag stays on the bar, on Android it starts at the
                 content's top */}
             <ScrollView
@@ -404,7 +434,7 @@ export function BottomSheetBase({
                       // A screen whose gutter is Material's compact 16 sets it with --bottom-sheet-android-padding-inline
                       { paddingHorizontal: androidInline },
                       // 2 under the bar: 71 under a one-line title
-                      title != null ? { paddingTop: androidBarHeight + 2 } : null,
+                      androidBar ? { paddingTop: androidBarHeight + 2 } : null,
                       // Over a footer: 8 above its height, which reaches over the sheet's bottom padding
                       footer ? { paddingBottom: 8 + Math.max(0, footerHeight - insets.bottom - keyboard) } : null,
                     ]
@@ -414,10 +444,11 @@ export function BottomSheetBase({
               keyboardShouldPersistTaps="handled"
               bounces={false}
             >
+              {hero ? <SheetHero hero={hero} id={titleId} /> : null}
               {content}
             </ScrollView>
             {/* Android's bar stands over the content, which scrolls under it */}
-            {android && title != null ? header : null}
+            {androidBar ? header : null}
             {footer ? (
               <View
                 onStartShouldSetResponderCapture={android ? gesture.chrome : undefined}
@@ -456,6 +487,59 @@ export function BottomSheetBase({
         </InSheetContext.Provider>
       )}
     </Overlay>
+  )
+}
+
+/**
+ * A sheet's hero header. iOS: a 56pt symbol, 12 over a centered Title 1 bold (28/34, 4 more over a 17/22 secondary
+ * description), 24 over the content, as Apple's setup sheets. Android: Material's dialog hero, a 24dp icon in the
+ * secondary color 16 over a centered headline small (24/32), 16 over a 14/20 onSurfaceVariant text, 24 over the content.
+ */
+function SheetHero({ hero, id }: { hero: BottomSheetHero; id: string }) {
+  const theme = useTheme()
+  const android = theme.isAndroid
+  const m = theme.material
+  const tone = hero.tone ?? "accent"
+  const ink =
+    tone === "accent"
+      ? android
+        ? m.secondary
+        : theme.colors.accent
+      : tone === "secondary"
+        ? android
+          ? m.onSurfaceVariant
+          : theme.colors.labelSecondary
+        : theme.color(`--color-text-${tone}-ghost`, theme.colors.accent)
+  const size = android ? 24 : theme.length("--bottom-sheet-hero-icon-size", 56)
+  return (
+    <View style={[styles.hero, { paddingBottom: 24 }]}>
+      {hero.icon != null ? (
+        <View style={{ marginBottom: android ? 16 : 12 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <IconDefaultsProvider size={size} color={ink}>
+            {hero.icon}
+          </IconDefaultsProvider>
+        </View>
+      ) : null}
+      <Text
+        nativeID={id}
+        accessibilityRole="header"
+        align="center"
+        weight={android ? "regular" : "bold"}
+        color={android ? m.onSurface : undefined}
+        style={android ? { fontSize: 24, lineHeight: 32 } : { fontSize: theme.length("--bottom-sheet-hero-title-font-size", 28), lineHeight: theme.length("--bottom-sheet-hero-title-line-height", 34) }}
+      >
+        {hero.title}
+      </Text>
+      {hero.description != null ? (
+        <Text
+          align="center"
+          color={android ? m.onSurfaceVariant : theme.colors.labelSecondary}
+          style={android ? { fontSize: 14, lineHeight: 20, marginTop: 16 } : { fontSize: 17, lineHeight: 22, marginTop: 4 }}
+        >
+          {hero.description}
+        </Text>
+      ) : null}
+    </View>
   )
 }
 
@@ -517,6 +601,7 @@ const styles = StyleSheet.create({
   androidCircle: { width: 46, height: 46 },
   androidHeading: { flex: 1, minWidth: 0, alignItems: "center", justifyContent: "center" },
   androidGrip: { height: 8 },
+  hero: { alignItems: "center" },
   // The content 12 from the sides (as a page's groups), 16 over the navigation bar; under a bar 13 under its circles
   // (71 from the sheet's top, 2 under the bar)
   androidContent: { paddingHorizontal: 12, paddingTop: 4, paddingBottom: 16 },

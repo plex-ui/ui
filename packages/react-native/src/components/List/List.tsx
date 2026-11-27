@@ -928,6 +928,9 @@ function IOSContent({ handPress, valueColor, theme, label, description, descript
   // A picture wider than the tile (a photo, an avatar) keeps its own size: it starts at the row's inset, where the
   // header and the footer stand, and the text follows 14 past it, as UIKit's image to text padding
   const [wide, setWide] = useState(false)
+  // A picture taller than the tile (a 40 photo) keeps the cell's margins over and under it, 10 as UIKit's content
+  // configuration keeps them: a 40 photo makes a 60 row
+  const [tall, setTall] = useState(false)
   // In a List with `columns` a field's value starts at one column, 40% into the row (`--field-row-column-width`)
   // A switch, a checkbox and a radio stay at the row's edge
   const columns = useContext(ListOptionsContext)?.columns === true && trailing != null
@@ -950,11 +953,14 @@ function IOSContent({ handPress, valueColor, theme, label, description, descript
           style={[
             styles.tile,
             { minWidth: tile, minHeight: tile, marginStart: wide ? 0 : theme.length("--field-row-icon-offset", -2), marginEnd: theme.length("--field-row-icon-gap", 14) },
+            tall ? { marginVertical: theme.length("--field-row-picture-margin-block", 10) } : null,
             leadingColor ? { backgroundColor: leadingColor, borderRadius: theme.length("--field-row-icon-radius", 7) } : null,
           ]}
           onLayout={(event) => {
             const next = event.nativeEvent.layout.width > tile + 0.5
             if (next !== wide) setWide(next)
+            const taller = event.nativeEvent.layout.height > tile + 0.5
+            if (taller !== tall) setTall(taller)
           }}
         >
           <IconDefaultsProvider size={leadingColor ? 20 : theme.length("--field-row-icon-symbol-size", 24)} color={leadingColor ? "#ffffff" : disabled ? theme.colors.labelTertiary : theme.colors.accent}>
@@ -1070,6 +1076,9 @@ function AndroidContent({
   // A picture wider than the symbol's 24 (a photo, an avatar) keeps its own size from the rows' inset (21, where the
   // header and the footer stand), the text 16 past it, as Material's list item with a leading avatar; 0 for a symbol
   const [wide, setWide] = useState(0)
+  // A picture taller than the symbol's 24 (a 40 avatar) keeps 8 over and under it, Material's list item with a leading
+  // avatar: a 40 photo makes a 56 row
+  const [tall, setTall] = useState(false)
   // The text (and the divider) 21 in, or 64 after a symbol, a tile or a choice's mark (its 20dp circle 22 in)
   const textStart = leading == null ? ANDROID_INSET : wide > 0 && !tile && !leadingMark ? ANDROID_INSET + wide + 16 : 64
   // A value that ends the row stands 17 from the end (a value row), 20 in a row with a tile (a tiled row)
@@ -1090,7 +1099,7 @@ function AndroidContent({
         <View style={styles.androidMark}>{leading}</View>
       ) : (
         <View
-          style={tile ? [styles.androidTile, { backgroundColor: leadingColor, opacity: disabled ? 0.5 : 1 }] : [styles.androidIcon, wide > 0 ? styles.androidWide : null]}
+          style={tile ? [styles.androidTile, { backgroundColor: leadingColor, opacity: disabled ? 0.5 : 1 }] : [styles.androidIcon, wide > 0 ? styles.androidWide : null, tall ? styles.androidTall : null]}
           onLayout={
             tile
               ? undefined
@@ -1098,6 +1107,8 @@ function AndroidContent({
                   const width = event.nativeEvent.layout.width
                   const next = width > 24.5 ? width : 0
                   if (Math.abs(next - wide) > 0.5) setWide(next)
+                  const taller = event.nativeEvent.layout.height > 24.5
+                  if (taller !== tall) setTall(taller)
                 }
           }
         >
@@ -1198,6 +1209,7 @@ const styles = StyleSheet.create({
   androidFooterPlain: { paddingHorizontal: ANDROID_INSET },
   androidRow: { flexDirection: "row", alignItems: "center", minHeight: 50, paddingStart: ANDROID_INSET, paddingEnd: ANDROID_INSET },
   // A 24dp symbol at 20, a 28dp tile at 18 with a 24dp symbol, or a choice's 20dp mark at 22: the text at 64
+  androidTall: { marginVertical: 8 },
   androidIcon: { minWidth: 24, minHeight: 24, alignItems: "center", justifyContent: "center", marginStart: -1, marginEnd: 20 },
   androidWide: { marginStart: 0, marginEnd: 16 },
   androidMark: { width: 20, alignItems: "center", justifyContent: "center", marginStart: 1, marginEnd: 22 },

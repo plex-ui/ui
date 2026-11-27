@@ -146,7 +146,9 @@ describe("Button on a phone", () => {
       expect(root[`--button-indicator-size-${step}`]).toBe("18px")
     }
     for (const step of ["md", "lg"]) {
-      expect([root[`--button-size-${step}`], root[`--button-gutter-${step}`], root[`--button-font-size-${step}`], root[`--button-line-height-${step}`]]).toEqual(["34px", "12px", "17px", "22px"])
+      expect([root[`--button-size-${step}`], root[`--button-gutter-${step}`], root[`--button-font-size-${step}`], root[`--button-line-height-${step}`]]).toEqual(["34px", "14px", "15px", "20px"])
+      // Owner 27.11: the bordered medium button takes the kit's Subheadline 15/20 with 14 a side; glass keeps 17/22, 12
+      expect(root["--button-glass-gutter"]).toBe("12px")
       expect(root[`--button-icon-size-${step}`]).toBe("var(--control-icon-size-lg)")
     }
     for (const step of ["md", "lg", "xl", "2xl", "3xl"]) expect(root[`--button-indicator-size-${step}`]).toBe("20px")
@@ -281,7 +283,7 @@ describe("A glass or uniform Button on a phone", () => {
   test("a disabled glass button keeps the glass; flat and other disabled buttons drop the material", () => {
     expect(declsOf(css, '.Button[data-mobile-material="glass"]:where([data-color="primary"], [data-color="secondary"]):where([data-variant="soft"], [data-variant="ghost"])', true))
       .toMatchObject({ "--button-mobile-material-background": "var(--mobile-glass-background)", "--button-mobile-material-opacity": "1" })
-    expect(declsOf(css, '.Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"])))', true))
+    expect(declsOf(css, '.Button:is([data-mobile-material="flat"], [data-disabled]:where(:not([data-mobile-material="glass"], [data-mobile-material="clear"])))', true))
       .toMatchObject({ "--button-mobile-material-background": "initial" })
     expect(declsOf(css, '.Button[data-disabled][data-variant]', true)).toEqual({
       "--button-background-color": "var(--button-mobile-disabled-background, var(--color-background-disabled))",
