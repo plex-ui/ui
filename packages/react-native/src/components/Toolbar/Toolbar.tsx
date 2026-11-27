@@ -738,7 +738,10 @@ const styles = StyleSheet.create({
   slot: { flexDirection: "row", alignItems: "center" },
   trailing: { justifyContent: "flex-end" },
   label: { justifyContent: "center" },
-  content: { justifyContent: "center" },
+  // No wider than the middle it stands in: on the web a one-line text's min-content (nowrap) would otherwise push it
+  // under the bar's buttons; held to the middle, a child that shrinks cuts its line, as UIKit fits a title view
+  // between the bar items (Yoga's AT_MOST measuring does the same on a device)
+  content: { justifyContent: "center", maxWidth: "100%" },
   // A filling content stretches its control across (a search field, a block button), as a column would
   fill: { flex: 1, flexDirection: "column", alignItems: "stretch" },
   // A row's control fills it when it is a block control, and stands at the leading edge otherwise

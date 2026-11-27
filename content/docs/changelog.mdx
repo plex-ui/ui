@@ -7,6 +7,12 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.6.1 (2026-11-28)
+
+### Fixed
+
+- **Toolbar.Content in the iOS bar's middle stays between the bar's buttons on the web.** It is no wider than the middle, so a line that shrinks (`numberOfLines={1}`) ends in an ellipsis instead of running under Back and More, as UIKit fits a title view between the bar items.
+
 ## @plexui/react-native 0.6.0 (2026-11-27)
 
 ### Added
