@@ -14,7 +14,12 @@ const exports = mdxExports("content/vue/components/auth-forms.mdx")
 const read = (name: string): unknown => new Function(`return ${exports.get(name)}`)()
 const template = read("oauth")
 const modeControl = read("modeControl")
+const providersControl = read("providersControl")
 if (typeof template !== "string") throw new Error("OAuth template is missing")
+
+const mount = (framework: string) => render(framework === "React"
+  ? <OAuthFormDemo />
+  : <VueFormExampleDemo auth template={template} state={{ email: "", submitted: false }} controls={[modeControl as never, providersControl as never]} />)
 
 const interact = async (action: () => void) => act(async () => { action(); await flushVue() })
 beforeEach(() => vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} }))
@@ -25,7 +30,7 @@ describe.each(["React", "Vue"])("%s OAuth log in or sign up", (framework) => {
   test("the cross-link and the mode control switch the copy and the phone provider, keeping the email", async () => {
     const view = render(framework === "React"
       ? <OAuthFormDemo />
-      : <VueFormExampleDemo auth template={template} state={{ email: "", submitted: false }} controls={[modeControl as never]} />)
+      : <VueFormExampleDemo auth template={template} state={{ email: "", submitted: false }} controls={[modeControl as never, providersControl as never]} />)
     await act(async () => { await flushVue() })
     const page = within(view.container)
     const title = () => view.container.querySelector("[data-auth-title]")?.textContent?.trim()
@@ -46,5 +51,26 @@ describe.each(["React", "Vue"])("%s OAuth log in or sign up", (framework) => {
     await interact(() => fireEvent.click(page.getByRole("radio", { name: "Log in", exact: true })))
     expect(title()).toBe("Welcome back")
     expect(phone()).not.toBeNull()
+  })
+
+  // The providers control: the OAuth buttons as outline (secondary) or primary (filled), the logos from the Icon set
+  test("providers draws every provider button outline or primary", async () => {
+    const view = mount(framework)
+    await act(async () => { await flushVue() })
+    const page = within(view.container)
+    const providers = () => ["Google", "Apple", "Microsoft", "phone"].map((name) => page.getByRole("button", { name: `Continue with ${name}` }))
+    for (const button of providers()) {
+      expect(button.getAttribute("data-color")).toBe("secondary")
+      expect(button.getAttribute("data-variant")).toBe("outline")
+      expect(button.querySelector("svg")).not.toBeNull()
+    }
+    await interact(() => fireEvent.click(page.getByRole("radio", { name: "Primary", exact: true })))
+    for (const button of providers()) {
+      expect(button.getAttribute("data-color")).toBe("primary")
+      expect(button.getAttribute("data-variant")).toBe("solid")
+    }
+    // The Google G keeps its four colors on the filled button; Apple's mark takes the label's color
+    expect([...providers()[0].querySelectorAll("path")].map((path) => path.getAttribute("fill"))).toEqual(["#4285F4", "#34A853", "#FBBC05", "#EA4335"])
+    expect(providers()[1].querySelector("path")?.getAttribute("fill")).toBe("currentColor")
   })
 })

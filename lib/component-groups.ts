@@ -90,6 +90,7 @@ export const NATIVE_ONLY_GROUPS: Readonly<Record<string, ComponentGroup['id']>> 
   list: 'content',
   'phone-input': 'text-input',
   'scroll-edge': 'navigation',
+  'sign-in-button': 'actions',
   text: 'content',
 };
 

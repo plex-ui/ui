@@ -32,6 +32,7 @@ export const Overview = docsDemo(function Overview() {
   const [destructiveValue, setDestructive] = useState(false);
   const [preferredValue, setPreferred] = useState(true);
   const [message, setMessage] = useState(true);
+  const [titled, setTitled] = useState(true);
   const [fieldValue, setField] = useState(false);
   const [stackedValue, setStacked] = useState(false);
   const [name, setName] = useState('Untitled');
@@ -42,19 +43,25 @@ export const Overview = docsDemo(function Overview() {
   const field = actions === '2' && !destructive && fieldValue;
   const preferred = !destructive && preferredValue;
   const stacked = ios && actions === '2' && stackedValue;
-  const text = alertText(field, actions, destructive);
+  // Without a title the alert is its message alone (an iOS alert with only a message, Material 3's supporting text);
+  // three actions then ask whether to turn a feature off for good, with an upgrade offered first
+  const untitledChoice = !titled && actions === '3';
+  const text = untitledChoice
+    ? { title: '', message: 'If you turn this off now, you won’t be able to turn it on again.', action: 'Upgrade' }
+    : alertText(field, actions, destructive);
   // The main action: preferred (the accent fill), plain, or destructive (a red label on the alert's fill)
   const main: DialogAction = { label: text.action, variant: destructive ? 'destructive' : 'default', preferred, disabled: field && !name.trim() };
   const cancel: DialogAction = { label: 'Cancel', variant: 'cancel' };
   const list: DialogAction[] =
-    actions === '1' ? [main] : actions === '2' ? [cancel, main] : [main, { label: 'Don’t save', variant: 'destructive' }, cancel];
+    actions === '1' ? [main] : actions === '2' ? [cancel, main] : [main, { label: untitledChoice ? 'Turn off' : 'Don’t save', variant: 'destructive' }, cancel];
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <Segments name="actions" options={ACTIONS} value={actions} onChange={setActions} />
         {actions === '2' && !fieldValue && <DemoControlBoolean name="destructive" value={destructiveValue} onChange={setDestructive} />}
         {ios && !destructive && <DemoControlBoolean name="preferred" value={preferredValue} onChange={setPreferred} />}
-        <DemoControlBoolean name="message" value={message} onChange={setMessage} />
+        <DemoControlBoolean name="title" value={titled} onChange={setTitled} />
+        {titled && <DemoControlBoolean name="message" value={message} onChange={setMessage} />}
         {actions === '2' && !destructive && <DemoControlBoolean name="field" value={fieldValue} onChange={setField} />}
         {ios && actions === '2' && <DemoControlBoolean name="stacked" value={stackedValue} onChange={setStacked} />}
       </div>
@@ -77,8 +84,8 @@ export const Overview = docsDemo(function Overview() {
         <Dialog
           open={open}
           onOpenChange={setOpen}
-          title={text.title}
-          description={message ? text.message : undefined}
+          title={titled ? text.title : undefined}
+          description={message || !titled ? text.message : undefined}
           actions={list}
           mobileLayout={stacked ? 'stacked' : undefined}
         >

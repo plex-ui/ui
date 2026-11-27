@@ -7,6 +7,25 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.13 (2026-11-27)
+
+`@plexui/ui` 0.62.13, `@plexui/vue` 0.42.13 and `@plexui/react-native` 0.3.0.
+
+### Added
+
+- **Brand logos in the Icon set: `AppleLogo`, `GoogleLogo` and `MicrosoftLogo`.** They are in `@plexui/ui`, `@plexui/vue` and `@plexui/react-native/icons`, for sign-in buttons and anywhere else.
+  - `AppleLogo` is the filled Apple mark of Sign in with Apple, in the icon's color. The outlined `Apple` icon stays a different drawing.
+  - `GoogleLogo` is the standard four-color G and `MicrosoftLogo` the four-square logo; both keep their brand colors whatever color they are given.
+- **Forms: Auth, Log in or sign up (OAuth): a `providers` control.** The provider buttons are `outline` (secondary, as before) or `primary` (filled: black in light mode, white in dark), in React and Vue. The example now takes its logos from the Icon set.
+- **`@plexui/react-native`: `SignInButton`, the sign-in buttons of Apple and Google drawn to the providers' brand rules.**
+  - `provider="apple"` (an iOS app's button) is black with a white logo and title in a light scheme, and white with black ones in a dark scheme or over a photo or video (`overMedia`). The title is in the system font.
+  - `provider="google"` (iOS and Android) is light (white, a 1px #747775 outline inside), dark (#131314, a #8E918F outline) or `neutral` (#F2F2F2). It has the four-color G and a 14/20 Medium title, with 16 · 12 · 16 spacing on iOS and 12 · 10 · 12 on Android.
+  - `action` picks Continue with, Sign in with or Sign up with. `scheme` sets the look; without it the button follows the theme.
+  - The button takes the height and shape of a Button of its `size` (`xl` by default: iOS's 50pt capsule, Android's 48dp pill), the whole width, and at least 140 wide.
+  - `disabled` keeps the brand's colors at 40% and takes no presses.
+  - A new [Sign In Button](/react-native/components/sign-in-button) page has examples on light and dark and over a video.
+- **`@plexui/react-native`: Dialog without a title.** `title` is optional now. Without one the dialog is its message alone: an iOS alert with only a message, or Material 3's dialog with only its supporting text. On the web the message then names the dialog. The Dialog page's Overview has a `title` setting; with three actions it asks "If you turn this off now, you won't be able to turn it on again." with Upgrade, Turn off and Cancel.
+
 ## 0.62.12 (2026-11-27)
 
 `@plexui/ui` 0.62.12, `@plexui/vue` 0.42.12, `@plexui/styles` 0.17.11 and `@plexui/react-native` 0.2.32.

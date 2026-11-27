@@ -1,0 +1,108 @@
+---
+title: Sign In Button
+description: "Sign in with Apple or Google: the providers' own buttons, drawn to their brand rules, as tall as the screen's other buttons."
+metaDescription: "React Native Sign in with Apple and Sign in with Google buttons: Apple's black or white button with the Apple logo, Google's light, dark or neutral button with the four-color G, on iOS and Android, in light and dark mode and over a photo or video."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { SignInButton } from "@plexui/react-native"
+
+const [provider, setProvider] = useState<"apple" | "google">("apple") // Apple on iOS
+const [action, setAction] = useState<"continue" | "sign-in" | "sign-up">("continue")
+const [scheme, setScheme] = useState<"light" | "dark">() // the theme's by default
+const [neutral, setNeutral] = useState(false) // Google
+const [block, setBlock] = useState(true)
+const [disabled, setDisabled] = useState(false)
+
+<SignInButton
+  provider={provider}
+  action={action}
+  scheme={scheme}
+  neutral={neutral}
+  block={block}
+  disabled={disabled}
+  onPress={() => signIn(provider)}
+/>`
+
+export const looksCode = `import { Button, SignInButton } from "@plexui/react-native"
+
+<Button size="xl" block>Continue with email</Button>
+{/* On light */}
+<View style={{ gap: 12, marginHorizontal: -16, padding: 16, backgroundColor: "#FFFFFF" }}>
+  <SignInButton provider="apple" scheme="light" /> {/* black, iOS */}
+  <SignInButton provider="google" scheme="light" />
+  <SignInButton provider="google" neutral />
+</View>
+{/* On dark */}
+<View style={{ gap: 12, marginHorizontal: -16, padding: 16, backgroundColor: "#000000" }}>
+  <SignInButton provider="apple" scheme="dark" /> {/* white, iOS */}
+  <SignInButton provider="google" scheme="dark" />
+</View>`
+
+export const overMediaCode = `import { SignInButton, Text } from "@plexui/react-native"
+
+<View style={{ flex: 1, justifyContent: "flex-end", padding: 16, paddingBottom: 32, gap: 12 }}>
+  <Video source={welcome} style={StyleSheet.absoluteFill} resizeMode="cover" repeat muted />
+  <Text style={{ color: "#FFFFFF", fontSize: 28, lineHeight: 34, fontWeight: "700" }}>Welcome</Text>
+  <SignInButton provider="apple" overMedia /> {/* white over media, iOS */}
+  <SignInButton provider="google" scheme="light" />
+</View>`
+
+<UsageBlock>{`import { SignInButton } from "@plexui/react-native"
+import { AppleLogo, GoogleLogo } from "@plexui/react-native/icons"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<span id="apple" />
+<span id="google" />
+<span id="disabled" />
+
+<ComponentPreview details={<>
+  <p>A provider's sign-in button is drawn to the provider's rules, not to the theme. <code>provider="apple"</code> is Sign in with Apple as Apple's Human Interface Guidelines set it: black with a white logo and title in a light scheme, white with black ones in a dark scheme and over a photo or video (<code>overMedia</code>), never black on a dark background, with the Apple logo of Apple's design resources and the title in the system font, of one color with the logo. It is an iOS app's button, so the Android example offers Google's alone.</p>
+  <p><code>provider="google"</code> follows Google's Sign-In branding guidelines on both platforms: light (white, a 1px #747775 outline inside, #1F1F1F text), dark (#131314, a #8E918F outline, #E3E3E3 text) or <code>neutral</code> (#F2F2F2 with no outline), with the standard four-color G. Its title is 14/20 Medium in Google Sans where the app bundles it, else the system font, with 16 before the G, 12 to the title and 16 after it on iOS, and 12, 10 and 12 on Android.</p>
+  <p><code>action</code> picks the title the brands allow: Continue with (the default), Sign in with or Sign up with. <code>scheme</code> sets the look against the screen; without it the button follows the theme. The button takes the height and shape of the screen's other buttons through <code>size</code> (<code>xl</code> by default: iOS's large 50pt capsule, Android's 48dp pill), the whole width by default (<code>block</code>), and at least 140 wide. <code>disabled</code> keeps the brand's colors at 40% and takes no presses: the gray of a disabled Button would break them.</p>
+</>} code={overviewCode} previewMinHeight={200}>
+  <RNExample demo="sign-in-button/Overview" />
+</ComponentPreview>
+
+### Looks
+
+<ComponentPreview details={<>Every look on the background it is made for, all of one height and width: under a screen's main button: on light, Apple's black button (iOS) and Google's light and neutral ones; on dark, Apple's white button and Google's dark one.</>} code={looksCode} previewMinHeight={460}>
+  <RNExample demo="sign-in-button/Looks" />
+</ComponentPreview>
+
+### Over a video
+
+<ComponentPreview details={<>Over a photo or a video the Apple button is white (<code>overMedia</code>) and Google's is its light one, at the foot of a full-screen welcome.</>} code={overMediaCode} previewMinHeight={520}>
+  <RNExample demo="sign-in-button/OverMedia" />
+</ComponentPreview>
+
+## Logos
+
+The logos are icons of `@plexui/react-native/icons`, made with `createIcon`, for anywhere else they stand: `AppleLogo`, Apple's mark in the icon's color, and `GoogleLogo`, the four-color G, which keeps its colors whatever `color` says. `MicrosoftLogo` is there too. The Tabler brand icons are other drawings: a monochrome G breaks Google's rules.
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Apple | ASAuthorizationAppleIDButton: black, white over dark or media, a capsule | Not offered (an iOS app's button) |
+| Google | The light, dark or neutral button, a capsule, 16 · 12 · 16 | The same looks, a pill, 12 · 10 · 12 |
+
+## API
+
+<PropsTable data={[
+  { prop: "provider", type: '"apple" | "google"', description: "Whose sign-in (required)" },
+  { prop: "action", type: '"continue" | "sign-in" | "sign-up"', default: '"continue"', description: "The title: Continue with, Sign in with or Sign up with the provider" },
+  { prop: "scheme", type: '"light" | "dark"', description: "The brand look against the screen; the theme's scheme by default. Apple: black in light, white in dark. Google: its light or dark button" },
+  { prop: "overMedia", type: "boolean", default: "false", description: "Over a photo or video: Apple's white button" },
+  { prop: "neutral", type: "boolean", default: "false", description: "Google's neutral button: #F2F2F2 with no outline" },
+  { prop: "size", type: '"3xs" | … | "3xl"', default: '"xl"', description: "Height step of the Button scale, to match the screen's other buttons" },
+  { prop: "block", type: "boolean", default: "true", description: "Takes the whole width" },
+  { prop: "disabled", type: "boolean", default: "false", description: "Keeps the brand's colors at 40% and takes no presses" },
+  { prop: "accessibilityLabel", type: "string", description: "Defaults to the title" },
+  { prop: "onPress", type: "(event) => void", description: "Called on a press (all of Pressable's props pass through)" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the button" },
+]} />

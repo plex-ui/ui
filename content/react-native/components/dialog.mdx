@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: "An alert that asks for a decision: a title, a message, up to three actions and an optional field."
+description: "An alert that asks for a decision: a title or a message alone, up to three actions and an optional field."
 metaDescription: "A React Native dialog that asks for a decision: the iOS 26 alert on iOS, an alert with text buttons on Android, with a title, a message, actions and an optional field."
 ---
 
@@ -12,6 +12,7 @@ const [open, setOpen] = useState(false)
 const [actions, setActions] = useState("2") // or "1", "3"
 const [destructive, setDestructive] = useState(false) // with two actions
 const [preferred, setPreferred] = useState(true) // the main action is filled
+const [title, setTitle] = useState(true) // off: the message alone
 const [message, setMessage] = useState(true)
 const [field, setField] = useState(false) // with two actions, not destructive
 const [stacked, setStacked] = useState(false) // iOS: two actions, one under the other
@@ -24,7 +25,11 @@ function alertText(field, actions, destructive) {
   if (destructive) return { title: "Delete document?", message: "This document will be deleted. You can’t undo this.", action: "Delete" }
   return { title: "Save changes?", message: "Do you want to save the changes you made to this document?", action: "Save" }
 }
-const text = alertText(field, actions, destructive)
+// Without a title, three actions ask whether to turn a feature off for good
+const untitledChoice = !title && actions === "3"
+const text = untitledChoice
+  ? { message: "If you turn this off now, you won’t be able to turn it on again.", action: "Upgrade" }
+  : alertText(field, actions, destructive)
 
 const main = {
   label: text.action,
@@ -40,12 +45,12 @@ const cancel = { label: "Cancel", variant: "cancel" }
 <Dialog
   open={open}
   onOpenChange={setOpen}
-  title={text.title}
-  description={message ? text.message : undefined}
+  title={title ? text.title : undefined}
+  description={message || !title ? text.message : undefined}
   actions={
     actions === "1" ? [main]
     : actions === "2" ? [cancel, main]
-    : [main, { label: "Don’t save", variant: "destructive" }, cancel]
+    : [main, { label: untitledChoice ? "Turn off" : "Don’t save", variant: "destructive" }, cancel]
   }
   mobileLayout={stacked ? "stacked" : undefined}
 >
@@ -73,10 +78,11 @@ For a sheet use [Bottom Sheet](/react-native/components/bottom-sheet), for a cho
 <span id="destructive-confirmation" />
 <span id="three-actions" />
 <span id="text-field" />
+<span id="message-only" />
 
 <ComponentPreview details={<>
   <p>Dialog is the web Dialog's <code>mobileVariant="alert"</code> as one call with props: a short question and its answers. On iOS it is the alert of iOS 26 and UIAlertController, a 320pt glass panel with radius 34 whose actions are 48pt capsules, and a tap outside does nothing. On Android it is a white panel (dark gray at night) at most 356dp wide with 21dp corners over a 50% dim, and a tap outside or Back closes it. It comes in growing from 90% of its size over 220ms as it fades in over 150ms, and leaves the same way back.</p>
-  <p>One alert with every setting. One, two or three actions: two stand side by side with Cancel first, as iOS sets them, while each label fits its half on one line; iOS never wraps an alert button's label, so a longer one stacks the two at the full width, Cancel last, as UIAlertController does. Three or more stack in the order written, as the web's alert does; <code>mobileLayout="stacked"</code> stacks two always, <code>"inline"</code> keeps them side by side. The main action is <code>preferred</code> (semibold white on the accent, with the edge of a bar's prominent button), plain (on the alert's fill), or <code>variant="destructive"</code> (a red label on the alert's fill). A title without a message stands centered. A field, the dialog's children, asks for one short value: a 48pt capsule on iOS, its text selected when it takes focus, and Rename unavailable (<code>disabled</code>) while it is empty. On the web the alert itself takes the first focus as it opens, so the field raises no keyboard and no button shows a focus ring. Label actions in title case, as iOS does.</p>
+  <p>One alert with every setting. One, two or three actions: two stand side by side with Cancel first, as iOS sets them, while each label fits its half on one line; iOS never wraps an alert button's label, so a longer one stacks the two at the full width, Cancel last, as UIAlertController does. Three or more stack in the order written, as the web's alert does; <code>mobileLayout="stacked"</code> stacks two always, <code>"inline"</code> keeps them side by side. The main action is <code>preferred</code> (semibold white on the accent, with the edge of a bar's prominent button), plain (on the alert's fill), or <code>variant="destructive"</code> (a red label on the alert's fill). A title without a message stands centered. <code>title</code> is optional: without one the alert is its message alone, as an iOS alert with only a message (in the label color) and Material 3's dialog with only its supporting text (in onSurfaceVariant); on the web the message then names the dialog. Here <code>title</code> off with three actions asks If you turn this off now, you won’t be able to turn it on again, with Upgrade, Turn off and Cancel. A field, the dialog's children, asks for one short value: a 48pt capsule on iOS, its text selected when it takes focus, and Rename unavailable (<code>disabled</code>) while it is empty. On the web the alert itself takes the first focus as it opens, so the field raises no keyboard and no button shows a focus ring. Label actions in title case, as iOS does.</p>
   <p>On Android the title stands at the start in Medium 20 and the message in 16sp, and every action is a text button in the accent, Medium 16, red when it is destructive and faded to half when disabled. The <code>preferred</code> action, or else the last that is not a cancel, stands last at the end of the row with a cancel before it, and any other action stands at the start of the row. Buttons that do not fit side by side stack at the end, the preferred one on top; <code>mobileLayout</code> sets the row or the stack here too. On both platforms the dialog stays unseen until its actions are measured, so its first frame already shows them as they stay. A field is Input's outlined field.</p>
   <p>Any action closes the dialog after its <code>onPress</code>, unless it sets <code>keepOpen</code>. As the React page's phone preview, the alert here opens with the phone's screen.</p>
 </>} code={overviewCode} previewMinHeight={168}>
@@ -99,8 +105,8 @@ iOS calls its sheets dialogs too; for a sheet use [Bottom Sheet](/react-native/c
 <PropsTable data={[
   { prop: "open", type: "boolean", description: "Shows the dialog (required)" },
   { prop: "onOpenChange", type: "(open: boolean) => void", description: "Called with false when an action, a tap outside or Back closes it (required)" },
-  { prop: "title", type: "ReactNode", description: "The title (required)" },
-  { prop: "description", type: "ReactNode", description: "The message under the title" },
+  { prop: "title", type: "ReactNode", description: "The title. Without one the dialog is its message alone: an iOS alert with only a message, Material 3's supporting text alone" },
+  { prop: "description", type: "ReactNode", description: "The message under the title, or the whole text of a dialog without one" },
   { prop: "actions", type: "DialogAction[]", default: "[]", description: "The actions; two stand side by side on iOS, three or more stack" },
   { prop: "children", type: "ReactNode", description: "Content between the text and the actions, as a text field" },
   { prop: "mobileLayout", type: '"inline" | "stacked"', description: "stacked stacks the actions and inline keeps them in a row, on iOS and Android. By default on iOS two stand side by side while their labels fit on one line, else they stack, and three or more stack; on Android the buttons stand in a row while they fit, else they stack" },

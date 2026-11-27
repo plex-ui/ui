@@ -28,8 +28,12 @@ export type DialogAction = {
 export type DialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  title: ReactNode
-  /** The message under the title. */
+  /**
+   * The title. Without one the dialog is its message alone: an iOS alert with only a message, a Material 3 dialog
+   * with only its supporting text.
+   */
+  title?: ReactNode
+  /** The message under the title, or the whole text of a dialog without one. */
   description?: ReactNode
   /** The actions; two stand side by side on iOS, three or more stack. */
   actions?: DialogAction[]
@@ -89,7 +93,13 @@ function DialogView({ open, onOpenChange, title, description, actions = [], chil
   // The web names the alert dialog by its title and describes it by its message; a phone keeps the modal view
   const a11y =
     Platform.OS === "web"
-      ? { role: "alertdialog" as const, "aria-modal": true, "aria-labelledby": ids.title, "aria-describedby": description != null ? ids.description : undefined }
+      ? {
+          role: "alertdialog" as const,
+          "aria-modal": true,
+          // A dialog without a title is named by its message
+          "aria-labelledby": title != null ? ids.title : description != null ? ids.description : undefined,
+          "aria-describedby": title != null && description != null ? ids.description : undefined,
+        }
       : { accessibilityRole: "alert" as const, accessibilityViewIsModal: true }
   if (theme.isAndroid) {
     return (
@@ -304,7 +314,7 @@ export function PickerDialog({ open, onClose, onOk, cancelLabel, okLabel, label,
 
 type PanelProps = {
   theme: Theme
-  title: ReactNode
+  title?: ReactNode
   description?: ReactNode
   actions: DialogAction[]
   run: (action: DialogAction) => void
@@ -313,8 +323,7 @@ type PanelProps = {
   children?: ReactNode
 }
 
-type AndroidPanelProps = Omit<PanelProps, "title"> & {
-  title?: ReactNode
+type AndroidPanelProps = PanelProps & {
   /** Rows across the panel's width under the title, in place of the text (an Android dialog with a list of rows). */
   list?: ReactNode
   /** The buttons in a row or stacked; by default in a row while they fit. */
@@ -371,11 +380,18 @@ function IOSAlert({ theme, title, description, actions, run, ids, layout, childr
       <ScrollView style={styles.scroll} contentContainerStyle={{ gap: 10 }} bounces={false}>
         {/* The text 31 from the sides: 16 of padding and 15 of the header's own */}
         <View style={{ paddingTop: 5, paddingHorizontal: 15, paddingBottom: 5.5, gap: 5.67 }}>
-          <Text nativeID={ids.title} weight="semibold" style={[type, { textAlign: description == null ? "center" : "auto" }]} accessibilityRole="header">
-            {title}
-          </Text>
+          {title != null ? (
+            <Text nativeID={ids.title} weight="semibold" style={[type, { textAlign: description == null ? "center" : "auto" }]} accessibilityRole="header">
+              {title}
+            </Text>
+          ) : null}
           {description != null ? (
-            <Text nativeID={ids.description} color={theme.color("--dialog-alert-message-color")} style={{ fontSize: 15, lineHeight: 20 }}>
+            // Without a title the message is the alert's whole text, in the label color (UIAlertController with a nil title)
+            <Text
+              nativeID={ids.description}
+              color={title != null ? theme.color("--dialog-alert-message-color") : undefined}
+              style={{ fontSize: 15, lineHeight: 20 }}
+            >
               {description}
             </Text>
           ) : null}
@@ -501,11 +517,14 @@ function AndroidDialog({ theme, title, description, actions, run, ids, children,
         </>
       ) : (
         <ScrollView style={styles.scroll} contentContainerStyle={styles.androidText} bounces={false}>
-          <Text nativeID={ids.title} color={m.onSurface} accessibilityRole="header" style={[styles.androidTitle, theme.font("medium")]}>
-            {title}
-          </Text>
+          {title != null ? (
+            <Text nativeID={ids.title} color={m.onSurface} accessibilityRole="header" style={[styles.androidTitle, theme.font("medium")]}>
+              {title}
+            </Text>
+          ) : null}
           {description != null ? (
-            <Text nativeID={ids.description} color={m.onSurface} style={styles.androidMessage}>
+            // Material 3's dialog with no headline: the supporting text alone, in onSurfaceVariant
+            <Text nativeID={ids.description} color={title != null ? m.onSurface : m.onSurfaceVariant} style={styles.androidMessage}>
               {description}
             </Text>
           ) : null}

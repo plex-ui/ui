@@ -15,7 +15,7 @@ const CONTACTS = [
 
 export function OverlaysScreen() {
   const theme = useTheme()
-  const [dialog, setDialog] = useState<"two" | "three" | "field" | null>(null)
+  const [dialog, setDialog] = useState<"two" | "three" | "field" | "message" | null>(null)
   const [sheet, setSheet] = useState(false)
   const [actions, setActions] = useState(false)
   // An action sheet from its button: on iOS 26 a glass panel at the button, no Cancel
@@ -35,7 +35,7 @@ export function OverlaysScreen() {
     setSeen(link)
     const open = link?.open
     if (open) {
-      setDialog(open === "dialog" ? "two" : open === "dialog-three" ? "three" : open === "dialog-field" ? "field" : null)
+      setDialog(open === "dialog" ? "two" : open === "dialog-three" ? "three" : open === "dialog-field" ? "field" : open === "dialog-message" ? "message" : null)
       setSheet(open === "sheet")
       setActions(open === "actions")
       setMenu(open === "menu")
@@ -59,6 +59,9 @@ export function OverlaysScreen() {
           </Button>
           <Button color="secondary" variant="soft" onPress={() => setDialog("field")} testID="open-dialog-field">
             With a field
+          </Button>
+          <Button color="secondary" variant="soft" onPress={() => setDialog("message")} testID="open-dialog-message">
+            Message only
           </Button>
         </Row>
       </Section>
@@ -168,6 +171,17 @@ export function OverlaysScreen() {
       >
         <Input variant="soft" size="3xl" pill={theme.isIOS} defaultValue="Untitled folder" accessibilityLabel="Name" />
       </Dialog>
+      <Dialog
+        open={dialog === "message"}
+        onOpenChange={() => setDialog(null)}
+        description="If you turn this off now, you won't be able to turn it on again."
+        actions={[
+          { label: "Upgrade", preferred: true, onPress: () => setLast("Upgrade") },
+          { label: "Turn off", variant: "destructive", onPress: () => setLast("Turn off") },
+          { label: "Cancel", variant: "cancel" },
+        ]}
+        testID="dialog-message"
+      />
       <BottomSheet open={sheet} onOpenChange={setSheet} title="Share" testID="sheet">
         <View style={styles.sheet}>
           <Row gap={20}>

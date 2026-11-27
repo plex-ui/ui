@@ -61,6 +61,7 @@ export {
 } from "./components/SegmentedControl/SegmentedControl"
 
 export { Switch, type SwitchProps } from "./components/Switch/Switch"
+export { SignInButton, type SignInAction, type SignInButtonProps, type SignInProvider } from "./components/SignInButton/SignInButton"
 export { Checkbox, type CheckboxProps } from "./components/Checkbox/Checkbox"
 export { RadioGroup, type RadioGroupItemProps, type RadioGroupProps } from "./components/RadioGroup/RadioGroup"
 export { Input, InputAdornmentButton, TextField, type InputAdornmentButtonProps, type InputProps, type InputVariant, type TextFieldProps } from "./components/Input/Input"

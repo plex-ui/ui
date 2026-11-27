@@ -6,6 +6,7 @@ type DemoModule = Record<string, ComponentType>;
 export const demoModules: Record<string, () => Promise<DemoModule>> = {
   button: () => import('./ButtonDemos'),
   switch: () => import('./SwitchDemos'),
+  'sign-in-button': () => import('./SignInButtonDemos'),
   dialog: () => import('./DialogDemos'),
   'action-sheet': () => import('./ActionSheetDemos'),
   'bottom-sheet': () => import('./BottomSheetDemos'),

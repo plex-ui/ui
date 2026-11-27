@@ -10,7 +10,7 @@ import { VueFormExampleDemo } from "@/components/docs/vue/VueFormExamplesDemos"
 import { VueFileUploadDemo } from "@/components/docs/vue/VueFileUploadDemos"
 import formStyles from "@/components/docs/FormRowsDemos.module.css"
 
-export const withAuthHelpers = (code) => `<script setup lang="ts">\nimport { ref } from 'vue';\nimport { AuthFormStage } from './AuthFormStage';\n${code.includes('FormScreen') ? "import { FormScreen } from './FormScreen';\n" : ''}${code.includes('AuthLegalNotice') ? "import { AuthLegalNotice } from './AuthLegalNotice';\n" : ''}${code.includes('AuthInput') ? "import { AuthInput } from './AuthInput';\n" : ''}${code.includes('AuthFields') ? "import { AuthFields } from './AuthFields';\n" : ''}${code.includes('authFieldsStyles') ? "import authFieldsStyles from './AuthFields.module.css';\n" : ''}\nconst surface = ref<'plain' | 'grouped'>('grouped');\nconst dialog = ref(false);\n${code.includes("mode === 'log-in'") ? "const mode = ref<'log-in' | 'sign-up'>('log-in');\n" : ''}${code.includes(':invalid="error"') ? 'const error = ref(false);\n' : ''}</script>\n\n<template>\n${code.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}\n</template>`
+export const withAuthHelpers = (code) => `<script setup lang="ts">\nimport { ref } from 'vue';\nimport { AuthFormStage } from './AuthFormStage';\n${code.includes('FormScreen') ? "import { FormScreen } from './FormScreen';\n" : ''}${code.includes('AuthLegalNotice') ? "import { AuthLegalNotice } from './AuthLegalNotice';\n" : ''}${code.includes('AuthInput') ? "import { AuthInput } from './AuthInput';\n" : ''}${code.includes('AuthFields') ? "import { AuthFields } from './AuthFields';\n" : ''}${code.includes('authFieldsStyles') ? "import authFieldsStyles from './AuthFields.module.css';\n" : ''}${code.includes('GoogleLogo') ? "import { AppleLogo, GoogleLogo, MicrosoftLogo } from '@plexui/vue/components/Icon';\n" : ''}\nconst surface = ref<'plain' | 'grouped'>('grouped');\nconst dialog = ref(false);\n${code.includes("mode === 'log-in'") ? "const mode = ref<'log-in' | 'sign-up'>('log-in');\n" : ''}${code.includes("providers === 'primary'") ? "const providers = ref<'outline' | 'primary'>('outline');\n" : ''}${code.includes(':invalid="error"') ? 'const error = ref(false);\n' : ''}</script>\n\n<template>\n${code.replaceAll(' :phone-preview="phonePreview" :phone-host="phoneHost"', '')}\n</template>`
 
 export const STAGE = "py-10 flex justify-center"
 
@@ -280,10 +280,10 @@ export const oauth = `<component :is="AuthFormStage" :title="mode === 'log-in' ?
   </div>
 
   <div class="flex flex-col gap-3 [--field-group-gap:0px]">
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="GoogleLogo" />Continue with Google</Button>
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="AppleLogo" />Continue with Apple</Button>
-    <Button color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
-    <Button v-if="mode === 'log-in'" color="secondary" variant="outline" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="PhoneLogo" />Continue with phone</Button>
+    <Button v-bind="providers === 'primary' ? { color: 'primary' } : { color: 'secondary', variant: 'outline' }" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="GoogleLogo" />Continue with Google</Button>
+    <Button v-bind="providers === 'primary' ? { color: 'primary' } : { color: 'secondary', variant: 'outline' }" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="AppleLogo" />Continue with Apple</Button>
+    <Button v-bind="providers === 'primary' ? { color: 'primary' } : { color: 'secondary', variant: 'outline' }" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="MicrosoftLogo" />Continue with Microsoft</Button>
+    <Button v-if="mode === 'log-in'" v-bind="providers === 'primary' ? { color: 'primary' } : { color: 'secondary', variant: 'outline' }" size="3xl" type="button" pill block class="h-[3.25rem]"><component :is="PhoneLogo" />Continue with phone</Button>
   </div>
 
   <div class="mt-8"><component :is="AuthLegalNotice" /></div>
@@ -291,6 +291,8 @@ export const oauth = `<component :is="AuthFormStage" :title="mode === 'log-in' ?
 </component>`
 
 export const modeControl = { name: "mode", type: "select", options: [{ value: "log-in", label: "Log in" }, { value: "sign-up", label: "Sign up" }], default: "log-in" }
+
+export const providersControl = { name: "providers", type: "select", options: [{ value: "outline", label: "Outline" }, { value: "primary", label: "Primary" }], default: "outline" }
 
 export const countrySelect = `<component :is="AuthFields">
 <Select
@@ -679,8 +681,8 @@ Sign-up, log-in, password and verification screens composed from [Float Input](/
 
 ## Log in or sign up (OAuth)
 
-<ComponentPreview phonePresentation="screen" language="vue" details={<>OpenAI-style log-in and sign-up on one screen: the <code>mode</code> control or the cross-link switches between <code>Welcome back</code> with a <code>Don&apos;t have an account? Sign up</code> link and <code>Create an account</code> with <code>Already have an account? Log in</code>. Email + <code>Continue</code>, an <code>OR</code> divider, then Google, Apple, Microsoft and, when logging in, phone, all with 20×20 brand glyphs. The entered email stays when the mode changes. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={withAuthHelpers(oauth)} previewMinHeight={760}>
-  <VueFormExampleDemo auth template={oauth} stageClassName={STAGE} state={{ email: "", submitted: false }} controls={[modeControl]} />
+<ComponentPreview phonePresentation="screen" language="vue" details={<>OpenAI-style log-in and sign-up on one screen: the <code>mode</code> control or the cross-link switches between <code>Welcome back</code> with a <code>Don&apos;t have an account? Sign up</code> link and <code>Create an account</code> with <code>Already have an account? Log in</code>. Email + <code>Continue</code>, an <code>OR</code> divider, then Google, Apple, Microsoft and, when logging in, phone, all with 20×20 brand glyphs. The <code>providers</code> control draws those buttons as <code>outline</code> (secondary) or <code>primary</code> (filled black, white in dark mode); the <code>AppleLogo</code>, <code>GoogleLogo</code> and <code>MicrosoftLogo</code> icons keep their brand look on both. The entered email stays when the mode changes. <code>Terms of Use</code> / <code>Privacy Policy</code> footer.</>} code={withAuthHelpers(oauth)} previewMinHeight={760}>
+  <VueFormExampleDemo auth template={oauth} stageClassName={STAGE} state={{ email: "", submitted: false }} controls={[modeControl, providersControl]} />
 </ComponentPreview>
 
 ## Sign up (phone)

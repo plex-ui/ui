@@ -121,7 +121,7 @@ const passwordError = submitted && !password;
 
 ## Log in or sign up (OAuth)
 
-<ComponentPreview phonePresentation="screen" details={<>OpenAI-style log-in and sign-up on one screen: the <code>mode</code> control or the cross-link switches between <code>Welcome back</code> with a <code>Don&apos;t have an account? Sign up</code> link and <code>Create an account</code> with <code>Already have an account? Log in</code>. Email + <code>Continue</code>, an <code>OR</code> divider, then Google, Apple, Microsoft and, when logging in, phone, all with 20×20 brand glyphs. The entered email stays when the mode changes. <code>Terms of Use</code> / <code>Privacy Policy</code> footer. <code>OrDivider</code> and the brand logos are small helpers of the example.</>} code={`import { AuthFormStage } from './AuthFormStage';
+<ComponentPreview phonePresentation="screen" details={<>OpenAI-style log-in and sign-up on one screen: the <code>mode</code> control or the cross-link switches between <code>Welcome back</code> with a <code>Don&apos;t have an account? Sign up</code> link and <code>Create an account</code> with <code>Already have an account? Log in</code>. Email + <code>Continue</code>, an <code>OR</code> divider, then Google, Apple, Microsoft and, when logging in, phone, all with 20×20 brand glyphs. The <code>providers</code> control draws those buttons as <code>outline</code> (secondary) or <code>primary</code> (filled black, white in dark mode); the <code>AppleLogo</code>, <code>GoogleLogo</code> and <code>MicrosoftLogo</code> icons keep their brand look on both. The entered email stays when the mode changes. <code>Terms of Use</code> / <code>Privacy Policy</code> footer. <code>OrDivider</code> and the phone glyph are small helpers of the example.</>} code={`import { AuthFormStage } from './AuthFormStage';
 import authFieldsStyles from './AuthFields.module.css';
 import { ScreenPresentationControls, useScreenPresentation } from './ScreenPresentationControls';
 import { SegmentedControl } from '@plexui/ui/components/SegmentedControl';
@@ -129,10 +129,14 @@ import { DemoControlRow, controlsTableStyle } from './ButtonDemos';
 import { useDemoControlSync } from './PreviewEmbed';
 import { AuthInput } from './AuthInput';
 import { AuthLegalNotice } from './AuthLegalNotice';
+import { AppleLogo, GoogleLogo, MicrosoftLogo } from '@plexui/ui/components/Icon';
 
 const presentation = useScreenPresentation();
 const [mode, setMode] = useState<'log-in' | 'sign-up'>('log-in');
 useDemoControlSync('mode', mode, setMode);
+const [providers, setProviders] = useState<'outline' | 'primary'>('outline');
+useDemoControlSync('providers', providers, setProviders);
+const provider = providers === 'primary' ? { color: 'primary' as const } : { color: 'secondary' as const, variant: 'outline' as const };
 const [email, setEmail] = useState('');
 const logIn = mode === 'log-in';
 const title = logIn ? 'Welcome back' : 'Create an account';
@@ -143,6 +147,12 @@ const title = logIn ? 'Welcome back' : 'Create an account';
       <SegmentedControl value={mode} onChange={setMode} aria-label="mode" size="xs">
         <SegmentedControl.Option value="log-in">Log in</SegmentedControl.Option>
         <SegmentedControl.Option value="sign-up">Sign up</SegmentedControl.Option>
+      </SegmentedControl>
+    </DemoControlRow>
+    <DemoControlRow name="providers">
+      <SegmentedControl value={providers} onChange={setProviders} aria-label="providers" size="xs">
+        <SegmentedControl.Option value="outline">Outline</SegmentedControl.Option>
+        <SegmentedControl.Option value="primary">Primary</SegmentedControl.Option>
       </SegmentedControl>
     </DemoControlRow>
     <ScreenPresentationControls {...presentation} />
@@ -161,10 +171,10 @@ const title = logIn ? 'Welcome back' : 'Create an account';
   <OrDivider />
 
   <div className="flex flex-col gap-3 [--field-group-gap:0px]">
-    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem]"><GoogleLogo />Continue with Google</Button>
-    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem]"><AppleLogo />Continue with Apple</Button>
-    <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem]"><MicrosoftLogo />Continue with Microsoft</Button>
-    {logIn && <Button color="secondary" variant="outline" size="3xl" pill block className="h-[3.25rem]"><PhoneLogo />Continue with phone</Button>}
+    <Button {...provider} size="3xl" pill block className="h-[3.25rem]"><GoogleLogo />Continue with Google</Button>
+    <Button {...provider} size="3xl" pill block className="h-[3.25rem]"><AppleLogo />Continue with Apple</Button>
+    <Button {...provider} size="3xl" pill block className="h-[3.25rem]"><MicrosoftLogo />Continue with Microsoft</Button>
+    {logIn && <Button {...provider} size="3xl" pill block className="h-[3.25rem]"><PhoneLogo />Continue with phone</Button>}
   </div>
 
   <div className="mt-8"><AuthLegalNotice /></div>
