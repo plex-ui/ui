@@ -1214,7 +1214,8 @@ export const tokenLayers: readonly TokenLayer[] = [
       "--toolbar-search-icon-size": "23.75px",
       "--toolbar-search-font-weight": "400",
       "--toolbar-search-placeholder-color": "light-dark(var(--alpha-40), var(--alpha-60))",
-      "--toolbar-search-icon-color": "var(--toolbar-search-placeholder-color)",
+      "--toolbar-search-icon-color": "var(--color-text)",
+      "--toolbar-search-sheet-color": "light-dark(alpha(var(--alpha-base), 49%), var(--alpha-60))",
       "--toolbar-flat-opacity": "80%",
       "--toolbar-flat-blur": "60px",
       "--toolbar-large-title-gap": "13.3px",
@@ -1680,7 +1681,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1496,
+    "order": 1497,
     "tokens": {
       "--radius-2xs": "0.125rem",
       "--radius-xs": "0.25rem",
@@ -1712,7 +1713,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1517,
+    "order": 1518,
     "when": {
       "maxWidth": 767
     },
@@ -1744,7 +1745,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1533,
+    "order": 1534,
     "when": {
       "maxWidth": 767
     },
@@ -1785,7 +1786,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1558,
+    "order": 1559,
     "when": {
       "maxWidth": 767
     },
@@ -1802,7 +1803,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 1585,
+    "order": 1586,
     "when": {
       "maxWidth": 767
     },
@@ -2277,7 +2278,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2137,
+    "order": 2138,
     "when": {
       "minWidth": 414,
       "maxWidth": 767
@@ -2295,7 +2296,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2138,
+    "order": 2139,
     "when": {
       "maxWidth": 575
     },
@@ -4055,11 +4056,12 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--toolbar-row-gap": 10,
     "--toolbar-search-font-weight": 400,
     "--toolbar-search-gutter": 10.54,
-    "--toolbar-search-icon-color": "rgba(13, 13, 13, 0.4)",
+    "--toolbar-search-icon-color": "#0d0d0d",
     "--toolbar-search-icon-gap": 6.43,
     "--toolbar-search-icon-size": 23.75,
     "--toolbar-search-padding-bottom": 14,
     "--toolbar-search-placeholder-color": "rgba(13, 13, 13, 0.4)",
+    "--toolbar-search-sheet-color": "rgba(13, 13, 13, 0.49)",
     "--toolbar-sheet-padding-top": 16,
     "--toolbar-subtitle-font-size": 12,
     "--toolbar-subtitle-font-weight": 500,
@@ -5839,11 +5841,12 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--toolbar-row-gap": 10,
     "--toolbar-search-font-weight": 400,
     "--toolbar-search-gutter": 10.54,
-    "--toolbar-search-icon-color": "rgba(255, 255, 255, 0.6)",
+    "--toolbar-search-icon-color": "#ffffff",
     "--toolbar-search-icon-gap": 6.43,
     "--toolbar-search-icon-size": 23.75,
     "--toolbar-search-padding-bottom": 14,
     "--toolbar-search-placeholder-color": "rgba(255, 255, 255, 0.6)",
+    "--toolbar-search-sheet-color": "rgba(255, 255, 255, 0.6)",
     "--toolbar-sheet-padding-top": 16,
     "--toolbar-subtitle-font-size": 12,
     "--toolbar-subtitle-font-weight": 500,

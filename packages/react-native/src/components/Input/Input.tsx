@@ -15,6 +15,7 @@ import type { Theme } from "../../theme/types"
 import { BarFieldContext, type ControlSize } from "../Button/Button"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { MaterialCancelFilled, MaterialClose } from "../Icon/material"
+import { InSheetContext } from "../BottomSheet/context"
 
 export type InputVariant = "outline" | "soft" | "ghost"
 
@@ -113,6 +114,7 @@ export function fieldLook(
     bar = null,
     label = false,
     search = false,
+    inSheet = false,
   }: {
     variant: InputVariant
     size: ControlSize
@@ -123,6 +125,8 @@ export function fieldLook(
     label?: boolean
     /** Android: the pill search field (40dp) of a screen or a sheet; a bar's own field, in or under it, is `bar`. */
     search?: boolean
+    /** iOS: a bar's field inside a BottomSheet (its magnifier and hint in one gray) */
+    inSheet?: boolean
   },
   state: FrameState,
 ) {
@@ -225,8 +229,8 @@ export function fieldLook(
   }
   if (bar) {
     // A Toolbar's search field (Toolbar.module.css, iOS 26 kit Search Top and Bottom): the bar's item height, the
-    // glass of its buttons, the bar's magnifier in the hint's gray (iOS 26 draws the glyph and "Search" in one
-    // color, typed in or not), its text Regular at the bar's label size
+    // glass of its buttons, the bar's magnifier in the text color (Contacts, IMG_5737), its text Regular at the bar's
+    // label size; in a sheet the magnifier and the hint are one darker gray, typed in or not (IMG_5491)
     const gutter = theme.length("--toolbar-search-gutter", 10.54)
     return {
       box: {
@@ -243,8 +247,12 @@ export function fieldLook(
         lineHeight: theme.length("--toolbar-label-line-height", 22),
         color: theme.color("--input-text-color", theme.colors.text),
       },
-      placeholder: theme.color("--toolbar-search-placeholder-color", theme.colors.textTertiary),
-      icon: theme.color("--toolbar-search-icon-color", theme.color("--toolbar-search-placeholder-color", theme.colors.textTertiary)),
+      placeholder: inSheet
+        ? theme.color("--toolbar-search-sheet-color", theme.colors.textTertiary)
+        : theme.color("--toolbar-search-placeholder-color", theme.colors.textTertiary),
+      icon: inSheet
+        ? theme.color("--toolbar-search-sheet-color", theme.colors.textTertiary)
+        : theme.color("--toolbar-search-icon-color", theme.colors.text),
       frame: null as FieldFrame | null,
       trailingIcon: theme.color("--mobile-label-secondary"),
       caret: theme.color("--color-background-accent-solid"),
@@ -578,6 +586,7 @@ export function InputField({
   // `readOnly={false}` cannot unlock a disabled field
   const locked = disabled || readOnly
   const barField = useContext(BarFieldContext)
+  const inSheet = useContext(InSheetContext)
   // At an iOS row's end the field is the row's value, as the web's field in a `[data-row]`: it fills the room after the
   // label, with no frame (the row's error marks it invalid), its text at the end and the placeholder in the tertiary label
   // (on Android it fills the room too, keeping its own field look)
@@ -615,7 +624,7 @@ export function InputField({
   const androidGlass = useAndroidGlass("bar", barField?.canvas)
   const fieldLookOf = fieldLook(
     theme,
-    { variant, size, pill, startAdornment: !!startAdornment, bar: barField, label: label != null, search },
+    { variant, size, pill, startAdornment: !!startAdornment, bar: barField, label: label != null, search, inSheet },
     { focused, filled, disabled, invalid },
   )
   const look = barSearch

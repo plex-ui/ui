@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.12 (2026-11-27)
+
+`@plexui/ui` 0.62.12, `@plexui/vue` 0.42.12, `@plexui/styles` 0.17.11 and `@plexui/react-native` 0.2.32.
+
+### Fixed
+
+- **A bar search field's magnifier is the text color again; a sheet's search field draws it gray.** 0.62.11 made every bar's magnifier gray. iOS 26 does that only in a sheet's own search field.
+  - A bar's magnifier is the text color and its hint the lighter gray, as in Contacts' bottom search: `--toolbar-search-icon-color` now defaults to `--color-text`.
+  - An iOS sheet's search field draws the magnifier and the hint in one darker gray, typed in or not, as a system sheet's bottom search: the new `--toolbar-search-sheet-color` token, black at 49% (rgb 134 on the capsule's 249).
+  - In the web kit it applies in a phone Dialog sheet. In `@plexui/react-native` it applies to a bar's search field inside a BottomSheet. Android keeps its own.
+
 ## 0.62.11 (2026-11-27)
 
 `@plexui/ui` 0.62.11, `@plexui/vue` 0.42.11, `@plexui/styles` 0.17.10 and `@plexui/react-native` 0.2.31.

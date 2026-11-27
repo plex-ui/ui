@@ -1,4 +1,5 @@
 import { isValidElement, useId, useLayoutEffect, useMemo, useState, type ReactNode } from "react"
+import { InSheetContext } from "./context"
 import { Animated, Easing, PanResponder, Platform, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -349,6 +350,7 @@ export function BottomSheetBase({
       testID={testID}
     >
       {(progress, _opening, focus) => (
+        <InSheetContext.Provider value>
         <View pointerEvents="box-none" style={styles.bottom}>
           <Animated.View
             {...a11y}
@@ -451,6 +453,7 @@ export function BottomSheetBase({
             />
           ) : null}
         </View>
+        </InSheetContext.Provider>
       )}
     </Overlay>
   )

@@ -950,21 +950,31 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
       "--toolbar-search-icon-size: 23.75px;",
       "--toolbar-search-font-weight: 400;",
       "--toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));",
-      "--toolbar-search-icon-color: var(--toolbar-search-placeholder-color);",
+      "--toolbar-search-icon-color: var(--color-text);",
+      "--toolbar-search-sheet-color: light-dark(alpha(var(--alpha-base), 49%), var(--alpha-60));",
       "--toolbar-icon-size-sm: 23.56px;",
     ]) expect(tokens).toContain(token)
   })
 
-  test("a bar search field's magnifier is the hint's gray, as iOS 26 draws it; Android keeps the text color", () => {
+  test("a bar search field's magnifier is the text color; an iOS sheet's draws it and its hint in one gray (IMG_5737, IMG_5491)", () => {
     const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8")
     for (const path of [
       "packages/styles/src/components/Toolbar/Toolbar.module.css",
       "packages/styles/src/components/ButtonGroup/ButtonGroup.module.css",
       "packages/styles/src/components/Input/Input.module.css",
     ]) expect(read(path), path).toMatch(/height: var\(--toolbar-search-icon-size\);\s*color: var\(--toolbar-search-icon-color\);/)
-    // Android sets it for the whole screen, so a field in a bar's ButtonGroup keeps the text color too
-    expect(read("packages/styles/src/styles/android.css")).toMatch(/:root\[data-platform="android"\] \{\s*(\/\*[\s\S]*?\*\/\s*)?--toolbar-search-icon-color: var\(--color-text\);/)
-    expect(read("packages/react-native/src/components/Input/Input.tsx")).toContain('icon: theme.color("--toolbar-search-icon-color"')
+    expect(read("packages/styles/src/components/Dialog/Dialog.module.css")).toMatch(
+      /\n  \.Content\[data-mobile-variant="sheet"\] \{\s*--toolbar-search-placeholder-color: var\(--toolbar-search-sheet-color\);\s*--toolbar-search-icon-color: var\(--toolbar-search-sheet-color\);/,
+    )
+    expect(read("packages/styles/src/components/Dialog/Dialog.module.css")).toMatch(
+      /\[data-platform="android"\] \.Content\[data-mobile-variant="sheet"\] \{\s*--toolbar-search-placeholder-color: light-dark\(var\(--alpha-40\), var\(--alpha-60\)\);\s*--toolbar-search-icon-color: var\(--color-text\);/,
+    )
+    // The phone scoping reaches a sheet in a PhoneLayout at any width
+    const built = read("packages/styles/dist/es/components/Dialog/Dialog.module.css")
+    expect(built).toContain(':where([data-plex-layout="phone"]) .Content[data-mobile-variant="sheet"]')
+    const input = read("packages/react-native/src/components/Input/Input.tsx")
+    expect(input).toContain('theme.color("--toolbar-search-icon-color"')
+    expect(input).toContain('theme.color("--toolbar-search-sheet-color"')
   })
 
   test("the background never moves the items: a band (glass, hard) only starts 10 above them (owner 13.11)", () => {

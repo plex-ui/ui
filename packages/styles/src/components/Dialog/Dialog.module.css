@@ -753,6 +753,18 @@
     --dialog-panel-radius: var(--dialog-sheet-radius) var(--dialog-sheet-radius) 0 0;
   }
 
+  /* An iOS sheet's own search field (IMG_5491): its magnifier and its hint in one gray, darker than a bar's hint.
+     Android keeps a bar's own (its magnifier in the text color). */
+  .Content[data-mobile-variant="sheet"] {
+    --toolbar-search-placeholder-color: var(--toolbar-search-sheet-color);
+    --toolbar-search-icon-color: var(--toolbar-search-sheet-color);
+  }
+
+  [data-platform="android"] .Content[data-mobile-variant="sheet"] {
+    --toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));
+    --toolbar-search-icon-color: var(--color-text);
+  }
+
   .Content[data-mobile-variant="sheet"][data-mobile-placement="fullscreen"] {
     --dialog-panel-max-height: var(--dialog-viewport-height, 100dvh);
     --dialog-panel-radius: 0;
