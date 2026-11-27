@@ -11,8 +11,21 @@ type ContextMenuState = {
   setOpen: (next: boolean) => void
   anchor: MenuAnchor | null
   preview: ReactNode
-  setTarget: (node: Measurable | null, preview: ReactNode) => void
+  look: PreviewLook
+  setTarget: (node: Measurable | null, preview: ReactNode, look: PreviewLook) => void
 }
+
+/** How the held element lifts: its own corner radius, and whether it stands on the preview's card or on its own. */
+type PreviewLook = { radius?: number; shape: ContextMenuPreviewShape }
+
+/**
+ * `card`: the element on the preview's card (a grouped surface, clipped to the kit's 30 or half the element's height).
+ * `element`: an element that draws its own shape, such as a chat bubble, lifts as it is, with no card and no clip,
+ * its shadow following its `radius` (UIKit's UITargetedPreview with a clear background and a visible path).
+ */
+export type ContextMenuPreviewShape = "card" | "element"
+
+const CARD: PreviewLook = { shape: "card" }
 
 const ContextMenuContext = createContext<ContextMenuState | null>(null)
 
@@ -40,8 +53,9 @@ function ContextMenuRoot({ children, open: openProp, onOpenChange }: ContextMenu
   const [own, setOwn] = useState(false)
   const open = openProp ?? own
   const [anchor, setAnchor] = useState<MenuAnchor | null>(null)
-  const target = useRef<{ node: Measurable | null; preview: ReactNode }>({ node: null, preview: null })
+  const target = useRef<{ node: Measurable | null; preview: ReactNode; look: PreviewLook }>({ node: null, preview: null, look: CARD })
   const [preview, setPreview] = useState<ReactNode>(null)
+  const [look, setLook] = useState<PreviewLook>(CARD)
   const apply = useCallback(
     (next: boolean) => {
       if (openProp === undefined) setOwn(next)
@@ -64,6 +78,7 @@ function ContextMenuRoot({ children, open: openProp, onOpenChange }: ContextMenu
       if (!live) return
       setAnchor(box)
       setPreview(target.current.preview)
+      setLook(target.current.look)
     })
     // A turn of the screen moves the element: the menu closes, as iOS dismisses a context menu on rotation
     const sub = Dimensions.addEventListener("change", () => applyRef.current(false))
@@ -72,10 +87,10 @@ function ContextMenuRoot({ children, open: openProp, onOpenChange }: ContextMenu
       sub.remove()
     }
   }, [open])
-  const setTarget = useCallback((node: Measurable | null, next: ReactNode) => {
-    target.current = { node, preview: next }
+  const setTarget = useCallback((node: Measurable | null, next: ReactNode, nextLook: PreviewLook) => {
+    target.current = { node, preview: next, look: nextLook }
   }, [])
-  return <ContextMenuContext.Provider value={{ open, setOpen, anchor, preview, setTarget }}>{children}</ContextMenuContext.Provider>
+  return <ContextMenuContext.Provider value={{ open, setOpen, anchor, preview, look, setTarget }}>{children}</ContextMenuContext.Provider>
 }
 ContextMenuRoot.displayName = "ContextMenu"
 
@@ -91,7 +106,20 @@ type Holdable = {
  * runs; a touch and hold opens the menu, and so does a right click on the web. The lifted preview on iOS is the
  * element drawn again from its props, so state the element keeps inside itself is not in it.
  */
-function ContextMenuTrigger({ children, style }: { children: ReactElement<Holdable>; style?: StyleProp<ViewStyle> }) {
+export type ContextMenuTriggerProps = {
+  children: ReactElement<Holdable>
+  style?: StyleProp<ViewStyle>
+  /**
+   * The element's own corner radius. On iOS the lifted preview keeps these corners (and with `shape="element"` its
+   * shadow follows them); on Android the dimming is cut around the element at them. Unset: a card at the kit's 30
+   * (half the element's height at most) on iOS, square on Android.
+   */
+  radius?: number
+  /** `card` (default) lifts the element on the preview's card; `element` lifts an element that draws its own shape as it is. */
+  shape?: ContextMenuPreviewShape
+}
+
+function ContextMenuTrigger({ children, style, radius, shape = "card" }: ContextMenuTriggerProps) {
   const theme = useTheme()
   const { setOpen, setTarget, open, anchor } = useContextMenu("ContextMenu.Trigger")
   const child = isValidElement<Holdable>(children) ? children : null
@@ -117,7 +145,7 @@ function ContextMenuTrigger({ children, style }: { children: ReactElement<Holdab
   const web = Platform.OS === "web"
   return (
     <View
-      ref={(next: unknown) => setTarget(next as Measurable | null, preview)}
+      ref={(next: unknown) => setTarget(next as Measurable | null, preview, { radius, shape })}
       collapsable={false}
       // On iOS the element hides under its lifted preview while the menu is open, so it is not drawn twice; Android
       // keeps it lit in its place
@@ -142,16 +170,18 @@ export type ContextMenuContentProps = Omit<MenuContentProps, "align">
 /** The menu: Menu's items, 250 wide on iOS. */
 function ContextMenuContent(props: ContextMenuContentProps) {
   const theme = useTheme()
-  const { open, setOpen, anchor, preview } = useContextMenu("ContextMenu.Content")
-  // The preview keeps a row's corners to half its height, else the kit's 30 (--context-menu-preview-radius)
+  const { open, setOpen, anchor, preview, look } = useContextMenu("ContextMenu.Content")
+  // The preview keeps a row's corners to half its height, else the kit's 30 (--context-menu-preview-radius); a
+  // Trigger's `radius` is the element's own corners
   // Items that say `checked` make a set of options, with the checkmark's column, as in Menu
   const check = hasCheckedItems(props.children)
-  const radius = Math.min(theme.length("--context-menu-preview-radius", 30), (anchor?.height ?? 60) / 2)
+  const half = (anchor?.height ?? 60) / 2
+  const radius = Math.min(look.radius ?? theme.length("--context-menu-preview-radius", 30), half)
   if (theme.isAndroid) {
     // Android: Material's popup under the element at its end, the screen dimmed around it
-    return <MenuSurface {...props} check={check} open={open && anchor != null} anchor={anchor} row={anchor ? { box: anchor, radius: { top: 0, bottom: 0 } } : null} cover={false} onClose={() => setOpen(false)} />
+    return <MenuSurface {...props} check={check} open={open && anchor != null} anchor={anchor} row={anchor ? { box: anchor, radius: { top: look.radius ?? 0, bottom: look.radius ?? 0 } } : null} cover={false} onClose={() => setOpen(false)} />
   }
-  return <MenuSurface {...props} check={check} open={open && anchor != null} anchor={anchor} context={{ preview, radius }} onClose={() => setOpen(false)} />
+  return <MenuSurface {...props} check={check} open={open && anchor != null} anchor={anchor} context={{ preview, radius, bare: look.shape === "element" }} onClose={() => setOpen(false)} />
 }
 ContextMenuContent.displayName = "ContextMenu.Content"
 

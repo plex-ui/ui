@@ -41,7 +41,8 @@ function Trigger({ label, hidden, onPress }: { label: string; hidden: boolean; o
     <View style={{ flex: 1, justifyContent: 'center', padding: 16, opacity: hidden ? 0 : 1 }}>
       {/* A Button stands at the start of its row (alignSelf): centered here as the React stage centers it */}
       <View style={{ alignSelf: 'center' }}>
-        <Button color="secondary" variant="outline" onPress={onPress}>
+        {/* Alone on the screen it is its main action: the kit's Large button, 50 tall, as EmptyMessage's */}
+        <Button color="secondary" variant="outline" size="3xl" onPress={onPress}>
           {label}
         </Button>
       </View>

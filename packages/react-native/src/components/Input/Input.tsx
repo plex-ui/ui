@@ -267,7 +267,9 @@ export function fieldLook(
   const row = IOS_FIELD[size] ?? IOS_FIELD.md
   const height = theme.length(`--control-size-${row.height}`, 44)
   const radius = pill ? height / 2 : theme.length(`--control-radius-${row.radius}`, IOS_RADIUS[row.radius])
-  const gutter = startAdornment ? 11 : 14
+  // A tall capsule (50 and up) sets its text 20 in, as iOS 26's own (Mail's Add Account, Apple Account's Add Email
+  // Address); a smaller field keeps 14
+  const gutter = startAdornment ? 11 : pill && height >= 48 ? 20 : 14
   const border =
     variant === "outline"
       ? state.invalid

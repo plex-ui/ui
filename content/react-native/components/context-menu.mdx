@@ -25,6 +25,23 @@ import { Copy, RemoveTrash, Share } from "@plexui/react-native/icons"
   ))}
 </List>`
 
+export const ownShapeCode = `import { ContextMenu, Text } from "@plexui/react-native"
+import { Pressable } from "react-native"
+
+<ContextMenu>
+  <ContextMenu.Trigger radius={18} shape="element">
+    <Pressable onLongPress={() => {}} style={{ borderRadius: 18, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: bubble }}>
+      <Text>Yes, 7 at the usual place</Text>
+    </Pressable>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content aria-label="Message">
+    <ContextMenu.Item icon={<Reply />} onSelect={reply}>Reply</ContextMenu.Item>
+    <ContextMenu.Item icon={<Copy />} onSelect={copy}>Copy</ContextMenu.Item>
+    <ContextMenu.Separator />
+    <ContextMenu.Item icon={<RemoveTrash />} danger onSelect={remove}>Delete</ContextMenu.Item>
+  </ContextMenu.Content>
+</ContextMenu>`
+
 <UsageBlock>{`import { ContextMenu } from "@plexui/react-native"`}</UsageBlock>
 
 A menu from a button is a [Menu](/react-native/components/menu).
@@ -38,6 +55,12 @@ A menu from a button is a [Menu](/react-native/components/menu).
   <p>The items are Menu's: <code>ContextMenu.Item</code> with an <code>icon</code>, <code>danger</code> for a destructive one, <code>ContextMenu.Separator</code> and <code>ContextMenu.Label</code>; items that say <code>checked</code> make a set of options with a checkmark, as in Menu. With <code>open</code> the menu measures the element as it opens; a turn of the screen closes it. Delete takes the note off the list. VoiceOver and TalkBack reach the menu through the element's long-press action.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="context-menu/Overview" />
+</ComponentPreview>
+
+### Own shape
+
+<ComponentPreview details={<>An element that draws its own shape, such as a chat bubble, is the trigger alone, with <code>shape="element"</code> and its <code>radius</code>. On iOS it lifts as it is, with no card behind it and no clip, its shadow following its corners, as UIKit's targeted preview with a clear background and the element's path; on Android the dimming is cut around it at its corners. A <code>radius</code> alone keeps the card at those corners.</>} code={ownShapeCode} previewMinHeight={168}>
+  <RNExample demo="context-menu/OwnShape" />
 </ComponentPreview>
 
 ## Platforms
@@ -62,6 +85,8 @@ A menu from a button is a [Menu](/react-native/components/menu).
 <PropsTable data={[
   { prop: "children", type: "ReactElement", description: "The element: a ListItem, a Pressable, anything with onLongPress (required). Its own onPress and onLongPress still run; the iOS preview is drawn again from its props" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the wrapper the element is measured in" },
+  { prop: "radius", type: "number", description: "The element's own corner radius: the iOS preview keeps these corners (half the element's height at most), and Android cuts the dimming around the element at them. Unset: the kit's 30 on iOS, square on Android" },
+  { prop: "shape", type: '"card" | "element"', default: '"card"', description: "card lifts the element on the preview's card (a grouped surface, clipped); element lifts an element that draws its own shape as it is, with no card and no clip, its shadow following radius" },
 ]} />
 
 ### ContextMenu.Content

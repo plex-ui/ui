@@ -7,6 +7,25 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.5.0 (2026-11-27)
+
+`@plexui/react-native` 0.5.0.
+
+### Added
+
+- **ContextMenu.Trigger `radius` and `shape`, for an element that draws its own shape,** such as a chat bubble.
+  - `radius` is the element's own corners. On iOS the lifted preview keeps them; on Android the dimming is cut around the element at them, so a rounded element shows no undimmed corners.
+  - `shape="element"` lifts the element as it is on iOS: no card behind it and no clip, its shadow following `radius`, as UIKit's targeted preview with a clear background. `card` (default) keeps the preview's card.
+  - New example: Own shape.
+
+### Changed
+
+- **iOS BottomSheet, as iOS 26's sheets:**
+  - The bar and the footer stand over the content, which scrolls under them into soft edges: the bar's (a veil over a blur, once scrolled) and the soft bottom edge.
+  - Close sits 20 from the top and the side, and the content 20 from the sides (it was 16).
+  - The footer's buttons are BottomActions': 52pt capsules, 36 from the sides and from the bottom (at least 2 over the home indicator), 8 apart.
+- **iOS Input:** a capsule field 48pt or taller sets its text 20 in (it was 14), as Mail's and Apple Account's fields.
+
 ## 0.62.14 (2026-11-27)
 
 `@plexui/ui` 0.62.14, `@plexui/vue` 0.42.14, `@plexui/styles` 0.17.12 and `@plexui/react-native` 0.4.0.

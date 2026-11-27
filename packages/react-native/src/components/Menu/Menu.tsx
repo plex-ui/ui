@@ -230,7 +230,7 @@ type SurfaceProps = MenuContentProps & {
    * A context menu's touch and hold (ContextMenu): on iOS the screen dims and blurs but the element, drawn again
    * over the dimming as its lifted `preview`, and the menu stands 16 from it, by the third of the screen it is in.
    */
-  context?: { preview: ReactNode; radius: number }
+  context?: { preview: ReactNode; radius: number; bare?: boolean }
 }
 
 /** The floating panel of a menu, placed under its anchor (over it when the screen ends first). */
@@ -424,7 +424,8 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
                     height: box.height,
                     transform: fitScale < 1 ? [{ scale: fitScale }] : undefined,
                     borderRadius: context.radius,
-                    backgroundColor: theme.colors.groupedSurface,
+                    // An element that draws its own shape lifts as it is: no card behind it and no clip of its own
+                    ...(context.bare ? { overflow: "visible" as const } : { backgroundColor: theme.colors.groupedSurface }),
                     boxShadow: String(theme.token("--context-menu-preview-shadow") ?? "0 0 32px rgba(0, 0, 0, 0.2)"),
                   },
                 ]}
