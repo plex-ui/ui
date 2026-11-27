@@ -577,6 +577,9 @@
     --toolbar-search-icon-size: 23.75px;
     --toolbar-search-font-weight: 400;
     --toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));
+    /* The magnifier in the hint's gray, typed in or not: an iOS 26 search capsule draws its glyph and its "Search" in
+       one color (a system sheet's bottom search field, at 3x: both 134 134 138 on the capsule's 249 249 252) */
+    --toolbar-search-icon-color: var(--toolbar-search-placeholder-color);
     --toolbar-flat-opacity: 80%;
     --toolbar-flat-blur: 60px;
     /* The large title of iOS 27.2 (Files, Settings, UIKit and SwiftUI on an iPhone 17, plan 178 block 10): the top

@@ -7,6 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## 0.62.11 (2026-11-27)
+
+`@plexui/ui` 0.62.11, `@plexui/vue` 0.42.11, `@plexui/styles` 0.17.10 and `@plexui/react-native` 0.2.31.
+
+### Fixed
+
+- **The magnifier of a bar's search field is the hint's gray.** On an iOS phone the search field of a Toolbar (a bar, a bar's group or row, a search Input) drew its magnifier in the text color. It now takes the new `--toolbar-search-icon-color` token, which defaults to `--toolbar-search-placeholder-color`, with a query typed in too. iOS 26 draws the glyph and "Search" in one gray. Android keeps the text color. `@plexui/react-native` reads the same token.
+- **Its size:** `--toolbar-search-icon-size` (23.75) is set for `SearchSm`, whose ink is a 16.3pt magnifier, as on iOS. `Search` draws larger (about 18.8). Use `SearchSm` in a bar's search field.
+
 ## 0.62.10 (2026-11-26)
 
 `@plexui/ui` 0.62.10, `@plexui/vue` 0.42.10 and `@plexui/styles` 0.17.9.

@@ -225,7 +225,8 @@ export function fieldLook(
   }
   if (bar) {
     // A Toolbar's search field (Toolbar.module.css, iOS 26 kit Search Top and Bottom): the bar's item height, the
-    // glass of its buttons, the bar's magnifier in the label color, its text Regular at the bar's label size
+    // glass of its buttons, the bar's magnifier in the hint's gray (iOS 26 draws the glyph and "Search" in one
+    // color, typed in or not), its text Regular at the bar's label size
     const gutter = theme.length("--toolbar-search-gutter", 10.54)
     return {
       box: {
@@ -243,7 +244,7 @@ export function fieldLook(
         color: theme.color("--input-text-color", theme.colors.text),
       },
       placeholder: theme.color("--toolbar-search-placeholder-color", theme.colors.textTertiary),
-      icon: theme.color("--color-text", theme.colors.text),
+      icon: theme.color("--toolbar-search-icon-color", theme.color("--toolbar-search-placeholder-color", theme.colors.textTertiary)),
       frame: null as FieldFrame | null,
       trailingIcon: theme.color("--mobile-label-secondary"),
       caret: theme.color("--color-background-accent-solid"),

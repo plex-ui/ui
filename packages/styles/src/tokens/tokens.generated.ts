@@ -1214,6 +1214,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       "--toolbar-search-icon-size": "23.75px",
       "--toolbar-search-font-weight": "400",
       "--toolbar-search-placeholder-color": "light-dark(var(--alpha-40), var(--alpha-60))",
+      "--toolbar-search-icon-color": "var(--toolbar-search-placeholder-color)",
       "--toolbar-flat-opacity": "80%",
       "--toolbar-flat-blur": "60px",
       "--toolbar-large-title-gap": "13.3px",
@@ -1679,7 +1680,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1495,
+    "order": 1496,
     "tokens": {
       "--radius-2xs": "0.125rem",
       "--radius-xs": "0.25rem",
@@ -1711,7 +1712,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1516,
+    "order": 1517,
     "when": {
       "maxWidth": 767
     },
@@ -1743,7 +1744,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1532,
+    "order": 1533,
     "when": {
       "maxWidth": 767
     },
@@ -1784,7 +1785,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       0
     ],
-    "order": 1557,
+    "order": 1558,
     "when": {
       "maxWidth": 767
     },
@@ -1801,7 +1802,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 1584,
+    "order": 1585,
     "when": {
       "maxWidth": 767
     },
@@ -2276,7 +2277,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2136,
+    "order": 2137,
     "when": {
       "minWidth": 414,
       "maxWidth": 767
@@ -2294,7 +2295,7 @@ export const tokenLayers: readonly TokenLayer[] = [
       1,
       1
     ],
-    "order": 2137,
+    "order": 2138,
     "when": {
       "maxWidth": 575
     },
@@ -4054,6 +4055,7 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--toolbar-row-gap": 10,
     "--toolbar-search-font-weight": 400,
     "--toolbar-search-gutter": 10.54,
+    "--toolbar-search-icon-color": "rgba(13, 13, 13, 0.4)",
     "--toolbar-search-icon-gap": 6.43,
     "--toolbar-search-icon-size": 23.75,
     "--toolbar-search-padding-bottom": 14,
@@ -5837,6 +5839,7 @@ export const resolvedTokens: { readonly light: Readonly<Record<string, TokenValu
     "--toolbar-row-gap": 10,
     "--toolbar-search-font-weight": 400,
     "--toolbar-search-gutter": 10.54,
+    "--toolbar-search-icon-color": "rgba(255, 255, 255, 0.6)",
     "--toolbar-search-icon-gap": 6.43,
     "--toolbar-search-icon-size": 23.75,
     "--toolbar-search-padding-bottom": 14,

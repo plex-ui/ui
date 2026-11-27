@@ -141,6 +141,9 @@
      light card and its lighter text at night; red text is the danger solid, its soft text at night; the line between
      rows is a light gray, the darkest gray at night. */
   :root[data-platform="android"] {
+    /* A search field's magnifier keeps the text color: the iOS hint gray (--toolbar-search-icon-color) is iOS's alone,
+       in a bar, a bar's group or a row */
+    --toolbar-search-icon-color: var(--color-text);
     --android-accent-text: light-dark(var(--color-background-accent-solid), var(--color-text-accent));
     --android-danger-text: light-dark(var(--color-background-danger-solid), var(--color-text-danger-soft));
     --android-divider: light-dark(#d9d9d9, var(--gray-0));

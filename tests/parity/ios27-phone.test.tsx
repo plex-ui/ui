@@ -164,7 +164,7 @@ describe("a search field in the content and the large title above it (iOS 27.2 F
       "font-weight": "var(--toolbar-search-font-weight)",
     })
     const svg = rule?.nodes?.find((node): node is postcss.Rule => node.type === "rule" && node.selector === "& > svg")
-    expect(decls(svg)).toEqual({ flex: "none", width: "var(--toolbar-search-icon-size)", height: "var(--toolbar-search-icon-size)" })
+    expect(decls(svg)).toEqual({ flex: "none", width: "var(--toolbar-search-icon-size)", height: "var(--toolbar-search-icon-size)", color: "var(--toolbar-search-icon-color)" })
     // One look wherever it stands: with touch.css a soft one takes the glass of the bar's field, as the bar gives its
     // own, outside the kit's layer (over the focus outline); an invalid one keeps its red outline (Codex #13)
     const touch = postcss.parse(read("packages/styles/src/styles/touch.css"))

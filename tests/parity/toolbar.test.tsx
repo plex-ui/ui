@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs"
+import { join } from "node:path"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { createElement, useEffect, type ComponentType, type ReactNode } from "react"
 import { afterEach, describe, expect, test, vi } from "vitest"
@@ -949,8 +950,21 @@ describe("Phone bottom bar after iOS 26 Mail and Contacts (430 x 932)", () => {
       "--toolbar-search-icon-size: 23.75px;",
       "--toolbar-search-font-weight: 400;",
       "--toolbar-search-placeholder-color: light-dark(var(--alpha-40), var(--alpha-60));",
+      "--toolbar-search-icon-color: var(--toolbar-search-placeholder-color);",
       "--toolbar-icon-size-sm: 23.56px;",
     ]) expect(tokens).toContain(token)
+  })
+
+  test("a bar search field's magnifier is the hint's gray, as iOS 26 draws it; Android keeps the text color", () => {
+    const read = (path: string) => readFileSync(join(process.cwd(), path), "utf8")
+    for (const path of [
+      "packages/styles/src/components/Toolbar/Toolbar.module.css",
+      "packages/styles/src/components/ButtonGroup/ButtonGroup.module.css",
+      "packages/styles/src/components/Input/Input.module.css",
+    ]) expect(read(path), path).toMatch(/height: var\(--toolbar-search-icon-size\);\s*color: var\(--toolbar-search-icon-color\);/)
+    // Android sets it for the whole screen, so a field in a bar's ButtonGroup keeps the text color too
+    expect(read("packages/styles/src/styles/android.css")).toMatch(/:root\[data-platform="android"\] \{\s*(\/\*[\s\S]*?\*\/\s*)?--toolbar-search-icon-color: var\(--color-text\);/)
+    expect(read("packages/react-native/src/components/Input/Input.tsx")).toContain('icon: theme.color("--toolbar-search-icon-color"')
   })
 
   test("the background never moves the items: a band (glass, hard) only starts 10 above them (owner 13.11)", () => {

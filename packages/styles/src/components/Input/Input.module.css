@@ -576,6 +576,7 @@
       flex: none;
       width: var(--toolbar-search-icon-size);
       height: var(--toolbar-search-icon-size);
+      color: var(--toolbar-search-icon-color);
     }
   }
 
