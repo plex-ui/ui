@@ -7,7 +7,7 @@ import { useTheme } from "../../theme/ThemeProvider"
 import { Button, type ButtonProps } from "../Button/Button"
 
 /** What stands between floating actions and the content under them */
-export type BottomActionsBackground = "soft" | "fade"
+export type BottomActionsBackground = "soft" | "fade" | "none"
 
 export type BottomActionsProps = {
   /**
@@ -26,7 +26,9 @@ export type BottomActionsProps = {
    * The edge under floating actions. `soft`: the screen's color in over 27pt above the actions, over a light blur.
    * `fade`: TabBar's fade, the content running on under the actions, crisp: from the top action's top the screen's
    * color comes in over 60pt to 85% and holds to the screen's edge; no blur. Android draws its soft edge for both, as
-   * TabBar does. @default "soft"
+   * TabBar does. `none`: nothing under the actions, the content running on bare under them, as Apple's own screens
+   * float their actions; a disabled Button still stands on `canvasColor` on iOS, so the rows do not show through its
+   * gray. @default "soft"
    */
   background?: BottomActionsBackground
   /** The color the floating edge fades into: the screen's (a grouped screen's gray). @default the theme's background */
@@ -92,7 +94,7 @@ export function BottomActions({ children, floating = false, background = "soft",
       pointerEvents="box-none"
       style={[styles.bar, { paddingHorizontal: side, paddingTop, paddingBottom: bottom, gap: 8 }, floating ? styles.floating : null, style]}
     >
-      {floating ? (
+      {floating && background !== "none" ? (
         android ? (
           <SoftBottomEdge fill={withAlpha(canvas, ANDROID_FADE_ALPHA)} top={paddingTop - 13 + 60} tail={60} blur={0} stops={ANDROID_FADE_STOPS} />
         ) : background === "fade" ? (

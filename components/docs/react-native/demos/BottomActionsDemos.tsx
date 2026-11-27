@@ -6,7 +6,7 @@ import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDe
 import { RNScreen, docsDemo } from '../RNScreen';
 import { PhonePage } from './ToolbarDemos';
 
-const BACKGROUNDS = ['soft', 'fade'] as const;
+const BACKGROUNDS = ['soft', 'fade', 'none'] as const;
 type Background = (typeof BACKGROUNDS)[number];
 
 /** The forms of a medication, as the Health app's "Choose the Medication Type" step lists them */
