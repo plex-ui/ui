@@ -42,10 +42,14 @@ export type ButtonProps = Omit<PressableProps, "children" | "style"> & {
   shape?: "round" | "square"
   /**
    * The glass of iOS 26 for a neutral soft or ghost button, or its clear glass over a photo, a video or a color (a
-   * light frost and a #f5f5f5 label, in both themes). Android has no glass: a clear button there is a translucent
-   * gray with the same label.
+   * light frost and a #f5f5f5 label, in both themes); `clear-light` is the clear glass over a bright color, a white
+   * frost and a dark label, as iOS 26 turns its glyph dark over a light background. Android has no glass: a clear button there is a translucent
+   * gray with the same label. On a solid button outside a bar, `glass` is iOS 26's prominent glass (`.glassProminent`):
+   * the button's color with the glass rim and sheen of a bar's prominent action (`--button-prominent-glass-shadow`,
+   * `--button-prominent-glass-background` for a fill of a brand's own); disabled, the gray glass
+   * (`--button-disabled-glass`), the same element. Android keeps its flat fill.
    */
-  mobileMaterial?: "glass" | "flat" | "clear"
+  mobileMaterial?: "glass" | "flat" | "clear" | "clear-light"
   /** A button as wide and tall: an icon alone. */
   uniform?: boolean
   /** Takes the whole width. */
@@ -85,7 +89,7 @@ type Metrics = {
   /** A selected (toggle) button's resting corners (the same as at rest on both platforms today). */
   selectedRadius: number
   indicator: number
-  weight: "regular" | "medium" | "semibold"
+  weight: "regular" | "medium" | "semibold" | "bold"
 }
 
 /**
@@ -624,18 +628,44 @@ function ButtonBody({
           // its buttons on glass and its plain ones; the token alone gives the Regular of the plain button
           weight: theme.isIOS && variant !== "ghost" ? "medium" : base.weight,
         }
+  // A brand's accent button (its own call to action): `--button-accent-height`, `-font-size`, `-line-height`,
+  // `-font-weight` and `-radius`, set round it; unset, the size's own
+  if (color === "accent" && !bar) {
+    const tall = theme.token("--button-accent-height") != null ? theme.length("--button-accent-height") : null
+    // A capsule stays a capsule at the new height; a square (rounded) shape keeps its corners
+    const capsule = metrics.radius >= metrics.height / 2
+    if (tall) metrics.height = tall
+    if (theme.token("--button-accent-font-size") != null) metrics.fontSize = theme.length("--button-accent-font-size")
+    if (theme.token("--button-accent-line-height") != null) metrics.lineHeight = theme.length("--button-accent-line-height")
+    const accentWeight = theme.token("--button-accent-font-weight")
+    if (accentWeight != null) {
+      const w = theme.length("--button-accent-font-weight", 500)
+      metrics.weight = w >= 700 ? "bold" : w >= 590 ? "semibold" : w >= 500 ? "medium" : "regular"
+    }
+    if (theme.token("--button-accent-radius") != null || (tall && capsule)) {
+      const corner = Math.min(theme.length("--button-accent-radius", 9999), metrics.height / 2)
+      metrics.radius = corner
+      metrics.pressedRadius = corner
+      metrics.selectedRadius = corner
+    }
+  }
   const barred = barColors(theme, buttonColors(theme, color, variant, disabled, selected), { bar, prominent: accentAction, neutral, disabled, selected, flat: mobileMaterial === "flat" })
   // Clear glass over a photo, a video or a color: the kit's #f5f5f5 label in both themes, on iOS clear glass and on
   // Android (no glass) its gray at 17%, a little more when pressed
-  const clear = mobileMaterial === "clear" && neutral && !bar
-  const clearLabel = clear ? theme.color("--mobile-glass-clear-label", "#f5f5f5") : ""
+  const clear = (mobileMaterial === "clear" || mobileMaterial === "clear-light") && neutral && !bar
+  // Over a bright color (a glow, a light gradient) iOS 26's clear glass turns light and its glyph dark: a white frost
+  // (`--mobile-glass-clear-light-background`) and a dark label (`--mobile-glass-clear-light-label`)
+  const bright = clear && mobileMaterial === "clear-light"
+  const clearLabel = !clear ? "" : bright ? theme.color("--mobile-glass-clear-light-label", "rgba(0, 0, 0, 0.85)") : theme.color("--mobile-glass-clear-label", "#f5f5f5")
   const colors: typeof barred = clear
     ? {
         ...barred,
         text: disabled ? withAlpha(clearLabel, 0.4) : clearLabel,
         pressedText: undefined,
-        background: theme.color("--mobile-glass-clear-background", "rgba(153, 153, 153, 0.17)"),
-        pressed: theme.color("--mobile-glass-clear-background-active", "rgba(153, 153, 153, 0.28)"),
+        background: bright ? theme.color("--mobile-glass-clear-light-background", "rgba(255, 255, 255, 0.42)") : theme.color("--mobile-glass-clear-background", "rgba(153, 153, 153, 0.17)"),
+        pressed: bright
+          ? theme.color("--mobile-glass-clear-light-background-active", "rgba(255, 255, 255, 0.6)")
+          : theme.color("--mobile-glass-clear-background-active", "rgba(153, 153, 153, 0.28)"),
         border: undefined,
       }
     : barred
@@ -643,6 +673,8 @@ function ButtonBody({
   // A disabled glass button keeps its glass, as the phone CSS's
   const wantsGlass = bar ? mobileMaterial !== "flat" && neutral && !selected && !bar.inGroup : mobileMaterial === "glass" && neutral
   const glass = theme.isIOS && (wantsGlass || clear)
+  // iOS 26's prominent glass outside a bar: a solid button in its color, the rim and sheen of the bar's prominent action
+  const prominentGlass = theme.isIOS && !bar && mobileMaterial === "glass" && variant === "solid"
   // On Android the same button stands on a glass of its own, as the Android bar circles: a see-through card with a
   // rim and a soft shadow (the glass of a plain bar)
   const card = theme.isAndroid && !!bar && !bar.plain && (wantsGlass || (accentAction && disabled && !bar.inGroup))
@@ -720,7 +752,15 @@ function ButtonBody({
     onPressOut?.(event)
   }
   const inert = disabled || inertProp
-  const background = pressed && theme.isIOS ? colors.pressed : colors.background
+  const background = prominentGlass
+    ? disabled
+      ? theme.color("--button-disabled-glass", theme.scheme === "dark" ? "rgba(120, 120, 128, 0.36)" : "rgba(120, 120, 128, 0.34)")
+      : pressed && !inert
+        ? theme.color("--button-prominent-glass-background-active", colors.pressed)
+        : theme.color("--button-prominent-glass-background", colors.background)
+    : pressed && theme.isIOS
+      ? colors.pressed
+      : colors.background
   // A glass button keeps its own press: only its glass changes
   const text = pressed && !inert && theme.isIOS && !glass && colors.pressedText ? colors.pressedText : colors.text
   // Material 3's disabled label is the on-surface color at 38% (buttonColors), drawn as it is
@@ -751,6 +791,8 @@ function ButtonBody({
   const shadow =
     prominent && !disabled
       ? theme.token("--toolbar-prominent-shadow")
+      : prominentGlass
+        ? (theme.token("--button-prominent-glass-shadow") ?? theme.token("--toolbar-prominent-shadow"))
       : theme.isAndroid && bar && !bar.plain && accentAction && !disabled
         ? barShadow(theme.scheme)
         : undefined
@@ -820,7 +862,7 @@ function ButtonBody({
   if (glass) {
     return (
       <Pressable {...pressable} style={[{ alignSelf: block ? "stretch" : "flex-start" }, style]}>
-        <Glass interactive={!inert} clear={clear} elevation={bar?.raised ? "raised" : "regular"} radius={metrics.radius} fillToken={pressed && !inert ? (clear ? "--mobile-glass-clear-background-active" : "--mobile-glass-background-active") : undefined} style={[body, { borderRadius: metrics.radius }]}>
+        <Glass interactive={!inert} clear={clear} tint={bright ? (pressed && !inert ? colors.pressed : colors.background) : undefined} elevation={bar?.raised ? "raised" : "regular"} radius={metrics.radius} fillToken={pressed && !inert ? (clear ? "--mobile-glass-clear-background-active" : "--mobile-glass-background-active") : undefined} style={[body, { borderRadius: metrics.radius }]}>
           {content}
         </Glass>
       </Pressable>

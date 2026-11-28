@@ -65,7 +65,10 @@ export function badgeColors(theme: Theme, variant: BadgeVariant, color: BadgeCol
 
 /**
  * A short label of a status or a count, as @plexui/ui's Badge (`--badge-*`: the size, gutter, radius and semibold
- * type of each size; soft, solid and outline fills of the semantic colors). Material 3's badge is a dot or a count on
+ * type of each size; soft, solid and outline fills of the semantic colors). A brand sets a badge of its own round it
+ * (a date on a capsule): `--badge-background`, `--badge-color`, `--badge-font-family` (`mono` for its mono face),
+ * `--badge-font-weight`, `--badge-text-transform`, `--badge-letter-spacing`, and the size's `--badge-size-*`,
+ * `--badge-font-size-*`, `--badge-gutter-*`. Material 3's badge is a dot or a count on
  * an icon (TabBar draws that), so Android draws the Plex badge too, in the same tokens. With
  * `variant="counter"` a badge is a counter, as an unread count: solid, a capsule, one size (`size` and `pill` aside).
  * On Android a counter of a whole number grows in from 0, shrinks away at 0 and rolls its changed digits.
@@ -165,6 +168,14 @@ function AndroidCounter(props: BadgeProps) {
   return <BadgeView {...props} motion={{ count: shown, from: roll?.from ?? null, up: roll?.up ?? true, change, scale: Animated.multiply(presence, pulse) }} />
 }
 
+/** A brand's badge weight, named or numeric (400, 500, 600, 700), as the face's weights. */
+function badgeWeight(weight: unknown): "regular" | "medium" | "semibold" | "bold" {
+  if (weight === "regular" || weight === "medium" || weight === "semibold" || weight === "bold") return weight
+  const n = typeof weight === "number" ? weight : typeof weight === "string" ? Number(weight) : NaN
+  if (!Number.isFinite(n)) return "semibold"
+  return n >= 700 ? "bold" : n >= 590 ? "semibold" : n >= 500 ? "medium" : "regular"
+}
+
 function BadgeView({
   children,
   variant = "soft",
@@ -180,7 +191,22 @@ function BadgeView({
 }: BadgeProps & { motion?: CountMotion }) {
   const theme = useTheme()
   const counter = variant === "counter"
-  const colors = badgeColors(theme, variant, color)
+  const own = badgeColors(theme, variant, color)
+  // A brand's badge (a date on a capsule): its fill and words round the badge (`--badge-background`, `--badge-color`)
+  const colors = {
+    ...own,
+    background: !counter && theme.token("--badge-background") != null ? theme.color("--badge-background") : own.background,
+    text: !counter && theme.token("--badge-color") != null ? theme.color("--badge-color") : own.text,
+  }
+  // and its face: `--badge-font-family` (a family, or `mono` for the brand's mono), `--badge-text-transform`,
+  // `--badge-letter-spacing`, `--badge-font-weight`
+  const family = theme.token("--badge-font-family")
+  // `mono` goes through Text's own mono face (its weights and zero tracking); a family is set as it is
+  const mono = !counter && typeof family === "string" && family.trim() === "mono"
+  const face = typeof family === "string" && family.trim() && !mono ? { fontFamily: family.trim().replace(/^["']|["']$/g, "") } : null
+  const transform = theme.token("--badge-text-transform")
+  const tracking = theme.token("--badge-letter-spacing") != null ? theme.length("--badge-letter-spacing") : undefined
+  const weight = theme.token("--badge-font-weight")
   const height = counter ? COUNTER.height : theme.length(`--badge-size-${size}`, 20)
   const fontSize = counter ? COUNTER.fontSize : theme.length(`--badge-font-size-${size}`, 12)
   const iconSize = counter ? COUNTER.fontSize : theme.length(`--badge-icon-font-size-${size}`, 12)
@@ -192,11 +218,19 @@ function BadgeView({
   const slop = Math.max(0, ((theme.isAndroid ? 48 : 44) - iconSize) / 2)
   // A badge's label scales with the text size up to 130%: past that it would crowd what it labels
   const label: TextProps = {
-    weight: counter ? "medium" : "semibold",
+    weight: counter ? "medium" : badgeWeight(weight),
+    mono,
     numberOfLines: 1,
     maxFontSizeMultiplier: 1.3,
     color: colors.text,
-    style: { fontSize, lineHeight: Math.round(fontSize * 1.34), flexShrink: 1 },
+    style: [
+      { fontSize, lineHeight: Math.round(fontSize * 1.34), flexShrink: 1 },
+      // A family of the brand's own is set with its weight: Text gives a weight as a family of its own where the fonts
+      // come one per weight, which this family replaces
+      counter || !face ? null : { ...face, fontWeight: ({ regular: "400", medium: "500", semibold: "600", bold: "700" } as const)[badgeWeight(weight)] },
+      !counter && (transform === "uppercase" || transform === "lowercase" || transform === "capitalize") ? { textTransform: transform } : null,
+      !counter && tracking != null ? { letterSpacing: tracking } : null,
+    ],
   }
   const cross = onRemove ? (
     <Pressable accessibilityRole="button" accessibilityLabel={removeLabel} hitSlop={slop} onPress={onRemove} style={({ pressed }) => [styles.remove, pressed ? styles.pressed : null]}>

@@ -1,6 +1,7 @@
 import { useContext, useState, type ReactNode } from 'react';
-import { Button, Card, IconButton, Text, Toolbar, useTheme } from '@plexui/react-native';
+import { Button, Card, IconButton, ProgressScale, Text, Toolbar, useTheme } from '@plexui/react-native';
 import { MoreIcon } from './MoreIcon';
+import { Clock } from '@plexui/react-native/icons';
 import { ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DemoControlBoolean, DemoControlSelect, Segments, controlsTableStyle } from '../../ButtonDemos';
@@ -122,3 +123,95 @@ export const Colored = docsDemo(function Colored() {
     </>
   );
 });
+
+const RESULTS = [
+  { title: 'Sleep', value: '7 h 40', share: 72, text: 'Within your usual range for the last two weeks.' },
+  { title: 'Steps', value: '8,412', share: 48, text: 'About the same as last week.' },
+  { title: 'Resting heart rate', value: '58', share: 30, text: 'A little lower than your average.' },
+] as const;
+const BANDS = ['Low', 'Usual', 'High'];
+
+/**
+ * Group: results as cards, each a title with its value at the end, a scale under them and a line about it, joined in
+ * one inset grouped section as Health's summaries; `joined` off sets them apart.
+ */
+export const Group = docsDemo(function Group() {
+  const { page } = useContext(NativeScreenTitleContext);
+  const [joined, setJoined] = useState(true);
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlBoolean name="joined" value={joined} onChange={setJoined} />
+      </div>
+      <RNScreen screen grouped minHeight={560}>
+        <GroupedScreen bar={page}>
+          <Card.Group joined={joined}>
+            {RESULTS.map((result) => (
+              <Card key={result.title}>
+                <Card.Header>
+                  <Card.Title>{result.title}</Card.Title>
+                  <Card.Value>{result.value}</Card.Value>
+                </Card.Header>
+                <ProgressScale aria-label={result.title} bands={BANDS} value={result.share} />
+                <Card.Content>
+                  <Text>{result.text}</Text>
+                </Card.Content>
+              </Card>
+            ))}
+          </Card.Group>
+        </GroupedScreen>
+      </RNScreen>
+    </>
+  );
+});
+
+const FILLS = ['picture', 'gradient'] as const;
+
+/**
+ * Suggestion: a media card as Fitness+ and Journal suggest a session, the media filling the card, Title 2 and a line
+ * over a scrim from its foot, the time and Start at the end (Android: Material's elevated card, the words under the
+ * media). `fill` gradient draws the media from two colors where there is no picture.
+ */
+export const Suggestion = docsDemo(function Suggestion() {
+  const { page } = useContext(NativeScreenTitleContext);
+  const [fill, setFill] = useState<(typeof FILLS)[number]>('gradient');
+  return (
+    <>
+      <div data-demo-controls style={controlsTableStyle}>
+        <DemoControlSelect name="fill" options={FILLS} value={fill} onChange={setFill} />
+      </div>
+      <RNScreen screen grouped minHeight={620}>
+        <GroupedScreen bar={page}>
+          <SuggestionCard fill={fill} />
+        </GroupedScreen>
+      </RNScreen>
+    </>
+  );
+});
+
+/** The suggestion card, inside the screen: its theme is the screen's platform's */
+function SuggestionCard({ fill }: { fill: (typeof FILLS)[number] }) {
+  const theme = useTheme();
+  return (
+    <Card variant={theme.isAndroid ? 'elevated' : 'outline'}>
+      <Card.Media
+        size="lg"
+        source={fill === 'picture' ? { uri: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=70' } : undefined}
+        fill={fill === 'gradient' ? 'linear-gradient(160deg, #ff8a5c 0%, #c2185b 100%)' : undefined}
+        title="Morning stretch"
+        description="Loosen up before the day starts"
+        meta={
+          <>
+            <Clock size={16} />
+            <Text variant="footnote">10 min</Text>
+          </>
+        }
+        action={
+          <Button size="sm" pill color={theme.isAndroid ? 'secondary' : 'primary'} variant={theme.isAndroid ? 'soft' : 'solid'}>
+            Start
+          </Button>
+        }
+      />
+    </Card>
+  );
+}

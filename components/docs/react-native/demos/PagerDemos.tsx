@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { List, ListItem, Pager, SegmentedControl, Toolbar, useTheme } from '@plexui/react-native';
+import { List, ListItem, Pager, SegmentedControl, Toolbar, ToolbarInsetProvider, useTheme, useToolbarInset } from '@plexui/react-native';
 import { ScrollView, View } from 'react-native';
 import { DemoControlBoolean, controlsTableStyle } from '../../ButtonDemos';
 import { RNScreen, docsDemo } from '../RNScreen';
@@ -48,14 +48,26 @@ export const Overview = docsDemo(function Overview() {
 
 /** The control and its pages, inside the screen so that they take its theme */
 function Trip({ swipe }: { swipe: boolean }) {
+  return (
+    <ToolbarInsetProvider>
+      <TripScreen swipe={swipe} />
+    </ToolbarInsetProvider>
+  );
+}
+
+/** The bar floats over the pages: each page starts under it and runs on under its soft edge as it scrolls */
+function TripScreen({ swipe }: { swipe: boolean }) {
   const [page, setPage] = useState(0);
   const [position, setPosition] = useState(0);
+  // Each page's scroll, for the bar's edge to show once content is under it
+  const [under, setUnder] = useState<Record<number, boolean>>({});
+  const inset = useToolbarInset();
   // The bar's edge takes the grouped screen's gray
   const canvas = useTheme().colors.groupedBackground;
   return (
     <View style={{ flex: 1 }}>
       {/* The bar takes the status bar's room; its row holds the segments, as an iOS bar sets a segmented control */}
-      <Toolbar canvasColor={canvas}>
+      <Toolbar floating background="soft" scrolled={!!under[page]} canvasColor={canvas}>
         <Toolbar.Title>Lisbon</Toolbar.Title>
         <Toolbar.Row>
           <SegmentedControl
@@ -74,8 +86,17 @@ function Trip({ swipe }: { swipe: boolean }) {
         </Toolbar.Row>
       </Toolbar>
       <Pager page={page} onPageChange={setPage} onPageScroll={setPosition} scrollEnabled={swipe} style={{ flex: 1 }}>
-        {TABS.map((tab) => (
-          <ScrollView key={tab} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 }}>
+        {TABS.map((tab, index) => (
+          <ScrollView
+            key={tab}
+            scrollEventThrottle={16}
+            onScroll={(event: { nativeEvent: { contentOffset: { y: number } } }) => {
+              const next = event.nativeEvent.contentOffset.y > 0;
+              setUnder((old) => (old[index] === next ? old : { ...old, [index]: next }));
+            }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: inset.top + 16, paddingBottom: 24 }}
+            scrollIndicatorInsets={{ top: inset.top }}
+          >
             <List>
               {ROWS[tab].map((row) => (
                 <ListItem key={row.label} label={row.label} value={row.detail} />

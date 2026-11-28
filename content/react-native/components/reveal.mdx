@@ -1,0 +1,64 @@
+---
+title: Reveal
+description: Items coming in one after another, each fading in and rising a little.
+metaDescription: A React Native stagger for items coming in one after another, each fading in and rising a little on the system's spring, with an order, a stagger, a delay, each item's time and a done callback.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Card, Reveal } from "@plexui/react-native"
+
+<Reveal
+  gap={12}[[#order=reversed]]
+  order={[2, 1, 0]}[[/order=reversed]][[#timing=one by one]]
+  stagger={500}
+  duration={500}[[/timing=one by one]]
+  onDone={() => setDone(true)}
+>
+  {items.map((item) => (
+    <Card key={item.title}>
+      <Card.Header>
+        <Card.Title>{item.title}</Card.Title>
+        <Card.Description>{item.text}</Card.Description>
+      </Card.Header>
+    </Card>
+  ))}
+</Reveal>`
+
+<UsageBlock>{`import { Reveal } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>Reveal brings its items in one after another, each fading in and rising a little (8 pt), as a list&apos;s rows come in on iOS and Material&apos;s lists enter. By default each starts 50 ms after the one before, on the system&apos;s smooth spring (about 0.35 s).</p>
+  <p><code>order</code> sets which comes first, by the items&apos; indexes. <code>stagger</code>, <code>delay</code> and <code>duration</code> set the timing: a <code>stagger</code> as long as the <code>duration</code> plays them one after the other, as <code>timing</code> one by one does here. <code>onDone</code> is told when the last is in, for what follows (a button fading in). <code>play=&#123;false&#125;</code> holds them unseen until the screen is ready.</p>
+  <p>A screen reader finds every item from the start. With reduced motion they are all there at once, and <code>onDone</code> is told at once.</p>
+</>} code={overviewCode} codeValues={{ timing: "stagger", order: "in order" }} previewMinHeight={420}>
+  <RNExample demo="reveal/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | None: SwiftUI's opacity and offset transitions on the smooth spring | None: Material's enter motion for a list |
+| Look | Items fading in and rising, 50 ms apart | The same |
+
+## API
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "The items, one child each" },
+  { prop: "play", type: "boolean", default: "true", description: "Whether the items come in now; while false they wait unseen" },
+  { prop: "order", type: "number[]", description: "The order the items come in, by their indexes (the rest after them)" },
+  { prop: "stagger", type: "number", default: "50", description: "How long after the one before an item starts, ms" },
+  { prop: "delay", type: "number", default: "0", description: "How long before the first starts, ms" },
+  { prop: "duration", type: "number", description: "Each item's own time, ms; without it the system's spring" },
+  { prop: "easing", type: "EasingFunction", default: "ease-out", description: "The curve of a timed item" },
+  { prop: "rise", type: "number", default: "8", description: "How far an item rises as it fades in, pt" },
+  { prop: "onDone", type: "() => void", description: "Called once the last item is in" },
+  { prop: "gap", type: "number", description: "The gap between the items" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the column" },
+]} />

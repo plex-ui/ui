@@ -42,6 +42,9 @@ export {
   type ToolbarTitleAlign,
   type ToolbarTitleProps,
   type ToolbarTitleStyle,
+  ToolbarInsetProvider,
+  useToolbarInset,
+  type ToolbarInset,
 } from "./components/Toolbar/Toolbar"
 export {
   TabBar,
@@ -95,7 +98,7 @@ export { Avatar, AvatarGroup, type AvatarColor, type AvatarGroupProps, type Avat
 export { Badge, type BadgeColor, type BadgeProps, type BadgeSize, type BadgeVariant } from "./components/Badge/Badge"
 export { BottomActions, useHideOnScroll, type BottomActionsBackground, type BottomActionsProps, type HideOnScrollOptions } from "./components/BottomActions/BottomActions"
 export { IntroHeader, type IntroHeaderAlign, type IntroHeaderProps } from "./components/IntroHeader/IntroHeader"
-export { Card, cardColors, type CardColor, type CardMediaProps, type CardProps, type CardSize, type CardVariant } from "./components/Card/Card"
+export { Card, type CardGroupProps, cardColors, type CardColor, type CardMediaProps, type CardProps, type CardSize, type CardVariant } from "./components/Card/Card"
 export { List, ListItem, ListStack, useListMetrics, type ListItemProps, type ListProps, type ListStackProps } from "./components/List/List"
 export { Chip, type ChipProps } from "./components/Chip/Chip"
 export { Skeleton, type SkeletonProps } from "./components/Skeleton/Skeleton"
@@ -122,3 +125,5 @@ export {
 } from "./components/Popover/Popover"
 export { Separator, type SeparatorProps } from "./components/Separator/Separator"
 export { TextLink, type TextLinkProps } from "./components/TextLink/TextLink"
+export { ProgressScale, dropBox, type ProgressScaleProps, type ProgressScaleBand, type ProgressScaleMotion } from "./components/ProgressScale/ProgressScale"
+export { Reveal, type RevealProps } from "./components/Reveal/Reveal"

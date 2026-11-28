@@ -306,6 +306,7 @@ iOS calls only the bottom bar a toolbar; here `Toolbar` is both bars, and `place
   { prop: "scrolled", type: "boolean", default: "false", description: "Content is under the bar: scrolled under a top bar, running on under a bottom one" },
   { prop: "canvasColor", type: "string", default: "the theme's background", description: "The color of the screen under the bar, which its scroll edge takes (a grouped screen's canvas)" },
   { prop: "safeArea", type: "boolean", default: "true", description: "Pads the bar for the status bar or the home indicator" },
+  { prop: "floating", type: "boolean", default: "false", description: "The bar lies over the content at its edge, the content running on under it. Inside a ToolbarInsetProvider it tells its height to useToolbarInset() ({ top, bottom }), for the content's padding so it starts under the bar" },
   { prop: "children", type: "ReactNode", description: "The parts of the bar" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the bar (all of View's props pass through)" },
 ]} />

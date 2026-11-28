@@ -56,6 +56,42 @@ const [color, setColor] = useState<CardColor>("accent")
   </Card.Footer>
 </Card>`
 
+export const groupCode = `import { Card, ProgressScale, Text } from "@plexui/react-native"
+
+<Card.Group[[^joined]] joined={false}[[/joined]]>
+  {results.map((result) => (
+    <Card key={result.title}>
+      <Card.Header>
+        <Card.Title>{result.title}</Card.Title>
+        <Card.Value>{result.value}</Card.Value>
+      </Card.Header>
+      <ProgressScale aria-label={result.title} bands={["Low", "Usual", "High"]} value={result.share} />
+      <Card.Content>
+        <Text>{result.text}</Text>
+      </Card.Content>
+    </Card>
+  ))}
+</Card.Group>`
+
+export const suggestionCode = `import { Button, Card, Text } from "@plexui/react-native"
+import { Clock } from "@plexui/react-native/icons"
+
+<Card>
+  <Card.Media
+    size="lg"
+[[#fill=picture]]
+    source={{ uri: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=70" }}
+[[/fill=picture]]
+[[#fill=gradient]]
+    fill="linear-gradient(160deg, #ff8a5c 0%, #c2185b 100%)"
+[[/fill=gradient]]
+    title="Morning stretch"
+    description="Loosen up before the day starts"
+    meta={<><Clock size={16} /><Text variant="footnote">10 min</Text></>}
+    action={<Button size="sm" pill>Start</Button>}
+  />
+</Card>`
+
 <UsageBlock>{`import { Card } from "@plexui/react-native"`}</UsageBlock>
 
 ## Examples
@@ -79,6 +115,25 @@ const [color, setColor] = useState<CardColor>("accent")
 
 <ComponentPreview details={<><code>color</code> fills the card with a color of the palette in place of its variant's surface: <code>accent</code>, <code>primary</code> or a semantic color (<code>info</code>, <code>success</code>, <code>warning</code>, <code>caution</code>, <code>danger</code>, <code>discovery</code>), the solid background of that color. The title, the text and the icons take the color made to stand on it, and the description that color at 80%. A colored card that is a button shows its press as a veil of that text color. Use it for one card that should stand out, such as an offer or a status, not for every card of a screen.</>} code={coloredCode} previewMinHeight={168}>
   <RNExample demo="card/Colored" />
+</ComponentPreview>
+
+### Group
+
+<ComponentPreview details={<>
+  <p><code>Card.Group</code> sets cards together. Joined, as it is by default, they are one inset grouped section with the list&apos;s hairline between them, inset by the card&apos;s padding, as Apple joins a section&apos;s rows (Health&apos;s summaries); on Android one card with dividers. <code>joined=&#123;false&#125;</code> sets them <code>--card-group-gap</code> (16) apart.</p>
+  <p><code>Card.Value</code> puts a figure at the end of the header: Title 2 semibold in the accent on iOS, Headline Small in primary on Android. A string is drawn in it; a RollingNumber takes its color. Here each card holds a <a href="/react-native/components/progress-scale">ProgressScale</a> under its header.</p>
+  <p>A brand sets the card with tokens: <code>--card-radius</code>, <code>--card-padding-sm</code>/<code>-md</code>/<code>-lg</code>, an outline (<code>--card-outline-width</code>, <code>--card-outline-color</code>; round a joined group the frame is the group&apos;s and runs between its cards), the title (<code>--card-title-color</code>, <code>-font-size</code>, <code>-line-height</code>, <code>-font-family</code>), the value (<code>--card-value-color</code>, <code>-font-size</code>, <code>-line-height</code>, <code>-font-family</code>) and <code>--card-group-gap</code>.</p>
+</>} code={groupCode} codeValues={{ joined: true }} previewMinHeight={560}>
+  <RNExample demo="card/Group" />
+</ComponentPreview>
+
+### Suggestion
+
+<ComponentPreview details={<>
+  <p><code>Card.Media</code> at <code>size=&quot;lg&quot;</code> is a suggestion card, as Fitness+ and Journal suggest a session: the media fills the card (a picture, a video or an animation in <code>background</code>, or <code>fill</code>, a color or a gradient), a scrim darkens its foot, and over it the title in Title 2 bold and a line in Subheadline in white, then a meta row (a symbol and a time, or a ring of progress) and an action at its end. On Android it is Material&apos;s elevated card: the media on top and the words under it.</p>
+  <p>A brand sets <code>--media-card-fill</code>, <code>--media-card-ink</code> (the words over the media), <code>--media-card-title-font-size</code>, <code>--media-card-title-line-height</code>, <code>--media-card-title-font-family</code> and <code>--media-card-height</code>; the action is a Button of its own.</p>
+</>} code={suggestionCode} codeValues={{ fill: "gradient" }} previewMinHeight={620}>
+  <RNExample demo="card/Suggestion" />
 </ComponentPreview>
 
 ## Platforms
@@ -108,7 +163,13 @@ const [color, setColor] = useState<CardColor>("accent")
 
 <PropsTable data={[
   { prop: "source", type: "ImageSourcePropType", description: "The picture: a bundled image or { uri }" },
-  { prop: "aspectRatio", type: "number", default: "16 / 9", description: "Width over height" },
+  { prop: "fill", type: "string", description: "The media where there is no picture: a color or a CSS gradient; --media-card-fill by default" },
+  { prop: "background", type: "ReactNode", description: "Anything drawn as the media (a video, an animation), under the scrim and the words" },
+  { prop: "size", type: '"md" | "lg"', default: '"md"', description: "md: a caption over the picture's foot. lg: a suggestion card (Title 2 bold, a meta row, an action); on Android the words under the media" },
+  { prop: "aspectRatio", type: "number", default: "16 / 9 (4 / 5 at lg)", description: "Width over height" },
+  { prop: "height", type: "number", description: "A height instead of a ratio (--media-card-height too)" },
+  { prop: "meta", type: "ReactNode", description: "A row under the words, such as a symbol and a time, in the words' color" },
+  { prop: "action", type: "ReactNode", description: "An action at the end of the meta row, such as a small capsule Button" },
   { prop: "accessibilityLabel", type: "string", description: "The picture's description for screen readers; without it the picture is decorative" },
   { prop: "title", type: "ReactNode", description: "Caption title over the bottom of the picture" },
   { prop: "description", type: "ReactNode", description: "Caption text under the title" },
@@ -126,3 +187,5 @@ const [color, setColor] = useState<CardColor>("accent")
 | `Card.Content` | `children`, `style`, `testID` | The body of the card |
 | `Card.Footer` | `children`, `style`, `testID` | The buttons at the bottom, at the end on Android |
 | `Card.Action` | `children`, `style`, `testID` | An action at the end of the header, such as a menu or a close button |
+| `Card.Value` | `children`, `style`, `testID` | A figure at the end of the header, in the accent |
+| `Card.Group` | `children`, `joined` (default `true`), `style`, `testID` | Cards joined in one inset grouped section with hairlines between them, or `--card-group-gap` apart |

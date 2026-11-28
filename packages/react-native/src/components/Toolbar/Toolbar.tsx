@@ -1,4 +1,4 @@
-import { cloneElement, createContext, isValidElement, memo, useContext, useEffect, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
+import { cloneElement, createContext, isValidElement, memo, useCallback, useContext, useEffect, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
 import { Animated, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewProps, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import {
@@ -56,9 +56,40 @@ export type ToolbarProps = ViewProps & {
   canvasColor?: string
   /** Pads the bar for the status bar or the home indicator. @default true */
   safeArea?: boolean
+  /**
+   * The bar lies over the content at its edge, as iOS's bars do: the content runs on under it and starts its scroll
+   * below it. Inside a `ToolbarInsetProvider` it tells its height, which `useToolbarInset()` gives the content (a
+   * scroll view's top or bottom padding, each page of a Pager).
+   */
+  floating?: boolean
   style?: StyleProp<ViewStyle>
   children?: ReactNode
 }
+
+/** The room the floating bars of a screen take at its top and bottom. */
+export type ToolbarInset = { top: number; bottom: number }
+type InsetStore = { inset: ToolbarInset; set: (edge: "top" | "bottom", height: number) => void }
+const InsetContext = createContext<InsetStore | null>(null)
+
+/**
+ * Holds the room of a screen's floating bars (`Toolbar floating`), for its content to start under them: wrap the
+ * screen, bars and content together.
+ */
+export function ToolbarInsetProvider({ children }: { children?: ReactNode }) {
+  const [inset, setInset] = useState<ToolbarInset>({ top: 0, bottom: 0 })
+  const set = useCallback((edge: "top" | "bottom", height: number) => setInset((old) => (old[edge] === height ? old : { ...old, [edge]: height })), [])
+  const store = useMemo<InsetStore>(() => ({ inset, set }), [inset, set])
+  return <InsetContext.Provider value={store}>{children}</InsetContext.Provider>
+}
+
+/**
+ * The room the screen's floating bars take (their full height, the status bar's or the home indicator's room in it):
+ * pad a scroll view's content with it, so its content starts under the bar and runs on under it as it scrolls.
+ */
+export function useToolbarInset(): ToolbarInset {
+  return useContext(InsetContext)?.inset ?? NO_INSET
+}
+const NO_INSET: ToolbarInset = { top: 0, bottom: 0 }
 
 type Placement = { placement: ToolbarPlacement; plain?: boolean }
 const ToolbarContext = createContext<Placement>({ placement: "top" })
@@ -275,11 +306,13 @@ function ToolbarRow({ children, style, ...rest }: ViewProps) {
   // A row holds ordinary controls: the metrics and glass of bar actions belong to the action slots only. A search
   // field learns it stands in a row (on Android it keeps the capsule of the bar's own search)
   const field = useContext(BarFieldContext)
+  const edge = useContext(RowEdgeContext)
+  const rowContext = useMemo(() => (edge ? { inRow: true, edge } : ROW), [edge])
   const rowField = field ? (ROW_FIELD[`${field.height}${field.raised ? " raised" : ""} ${field.canvas ?? ""}`] ??= { ...field, row: true }) : null
   return (
     <BarItemContext.Provider value={null}>
       <BarFieldContext.Provider value={rowField}>
-        <SegmentedControlRowContext.Provider value={ROW}>
+        <SegmentedControlRowContext.Provider value={rowContext}>
           <View {...rest} style={[styles.row, style]}>
             {children}
           </View>
@@ -289,6 +322,8 @@ function ToolbarRow({ children, style, ...rest }: ViewProps) {
   )
 }
 const ROW = { inRow: true }
+/** The bar's side padding, handed to its rows: a row's tabs reach past it to the screen's edges. */
+const RowEdgeContext = createContext<{ left: number; right: number } | undefined>(undefined)
 ToolbarRow.displayName = "Toolbar.Row"
 
 type BarField = { height: number; raised: boolean; row?: boolean; canvas?: string }
@@ -441,11 +476,23 @@ function ToolbarRoot({
   scrolled = false,
   canvasColor,
   safeArea = true,
+  floating = false,
   style,
   children,
   ...rest
 }: ToolbarProps) {
   const theme = useTheme()
+  const insetStore = useContext(InsetContext)
+  const setInset = insetStore?.set
+  // The bar's height as last laid out: a bar turned floating (or moved) without a new size tells no new layout
+  const measuredHeight = useRef(0)
+  // A floating bar gone (or no longer floating) gives its room back
+  useEffect(() => {
+    if (!floating || !setInset) return
+    const edge = placement === "top" ? "top" : "bottom"
+    if (measuredHeight.current) setInset(edge, measuredHeight.current)
+    return () => setInset(edge, 0)
+  }, [floating, placement, setInset])
   const insets = useSafeAreaInsets()
   const { leading, title, content, trailing, rows } = parts(children)
   const top = placement === "top"
@@ -489,6 +536,8 @@ function ToolbarRoot({
         ? Math.max(bottomPadding, insets.bottom - 6)
         : bottomPadding
   const gutter = android ? (top ? (plain ? 4 : 6) : 16) : top ? theme.length("--toolbar-gutter", 16) : theme.length("--toolbar-bottom-gutter", 28)
+  // What a row's tabs reach past to stand edge to edge
+  const rowEdge = useMemo(() => ({ left: gutter + (safeArea ? insets.left : 0), right: gutter + (safeArea ? insets.right : 0) }), [gutter, safeArea, insets.left, insets.right])
   const veil = withAlpha(canvas, parseFloat(String(theme.token("--page-bar-veil-opacity") ?? "55")) / 100)
   const edge = top ? "bottom" : "top"
   // A bottom bar's soft edge covers the content from the items down at all times, as the CSS draws it; the other
@@ -600,7 +649,16 @@ function ToolbarRoot({
     <ToolbarContext.Provider value={bar}>
       <BarItemContext.Provider value={item}>
         <BarFieldContext.Provider value={field}>
-          <View accessibilityRole="toolbar" {...rest} style={[{ paddingTop, paddingBottom }, sides(gutter), style]}>
+          <View
+            accessibilityRole="toolbar"
+            {...rest}
+            onLayout={(event) => {
+              rest.onLayout?.(event)
+              measuredHeight.current = event.nativeEvent.layout.height
+              if (floating) setInset?.(top ? "top" : "bottom", event.nativeEvent.layout.height)
+            }}
+            style={[{ paddingTop, paddingBottom }, sides(gutter), floating ? (top ? styles.floatTop : styles.floatBottom) : null, style]}
+          >
             {backdrop}
             <View
               ref={swap.ref}
@@ -622,11 +680,13 @@ function ToolbarRoot({
                 <BarTitle title={title.props} large start />
               </View>
             ) : null}
-            {rows.map((row, index) => (
-              <View key={row.key} style={{ marginTop: android ? 8 : index === 0 && large && title ? rowUnderTitle(theme, title.props.subtitle != null) : theme.length("--toolbar-row-gap", 10) }}>
-                {row}
-              </View>
-            ))}
+            <RowEdgeContext.Provider value={rowEdge}>
+              {rows.map((row, index) => (
+                <View key={row.key} style={{ marginTop: android ? 8 : index === 0 && large && title ? rowUnderTitle(theme, title.props.subtitle != null) : theme.length("--toolbar-row-gap", 10) }}>
+                  {row}
+                </View>
+              ))}
+            </RowEdgeContext.Provider>
           </View>
         </BarFieldContext.Provider>
       </BarItemContext.Provider>
@@ -754,6 +814,8 @@ const styles = StyleSheet.create({
   middle: { flexShrink: 1, alignItems: "center", minWidth: 0 },
   grow: { flex: 1, minWidth: 0 },
   groupGlass: { position: "absolute", top: 0, bottom: 0, end: 0 },
+  floatTop: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 2 },
+  floatBottom: { position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 2 },
   awayMiddle: { justifyContent: "center" },
   awayTrailing: { alignItems: "center" },
 })

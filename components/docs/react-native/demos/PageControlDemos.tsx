@@ -162,7 +162,7 @@ function Carousel({ count, look }: { count: number; look: Look }) {
         >
           {pages.map(({ icon, title, text }, index) => {
             const Icon = ICONS[icon];
-            // A card: the secondary surface, or Material's filled card on Android; on color, a color per card
+            // A card: Card's solid fill (iOS's gray fill, seen on a white screen), or Material's filled card on Android; on color, a color per card
             const colors = onColor ? cardColors(theme, CARD_COLORS[index % CARD_COLORS.length]) : null;
             return (
               <View key={title} style={vertical ? { height: pageSize, paddingVertical: gutter / 2 } : { width, paddingHorizontal: gutter / 2 }}>
@@ -174,7 +174,7 @@ function Carousel({ count, look }: { count: number; look: Look }) {
                     justifyContent: 'center',
                     gap: 4,
                     borderRadius: theme.length('--radius-2xl', 16),
-                    backgroundColor: colors?.fill ?? (theme.isAndroid ? theme.material.surfaceContainerHighest : theme.colors.surfaceSecondary),
+                    backgroundColor: colors?.fill ?? (theme.isAndroid ? theme.material.surfaceContainerHighest : theme.color('--card-solid-section-background', theme.colors.surfaceSecondary)),
                   }}
                 >
                   <View style={{ marginBottom: 4 }}>

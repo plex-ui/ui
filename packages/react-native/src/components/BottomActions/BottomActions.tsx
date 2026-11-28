@@ -135,6 +135,7 @@ export function BottomActions({ children, floating = false, background = "soft",
   const bottom = android ? Math.max(insets.bottom, 0) + 16 : insets.bottom > 0 ? insets.bottom + 2 : 16
   const height = android ? 48 : 52
   const canvas = canvasColor ?? theme.colors.background
+  const disabledGlass = theme.color("--button-disabled-glass", theme.scheme === "dark" ? "rgba(120, 120, 128, 0.36)" : "rgba(120, 120, 128, 0.34)")
   const paddingTop = 8
   const actions = Children.toArray(children).map((child, index) => {
     if (!isValidElement(child) || child.type !== Button) return child
@@ -146,20 +147,29 @@ export function BottomActions({ children, floating = false, background = "soft",
           ? { variant: "ghost" as const, color: props.color ?? ("secondary" as const) }
           : { variant: "soft" as const, color: props.color ?? ("secondary" as const), mobileMaterial: props.mobileMaterial ?? ("glass" as const) }
         : null
+    // iOS 26's floating action while it cannot be pressed (Health's Next before a choice): gray glass, the gray system
+    // fill over the screen's color (`--button-disabled-glass`), its label gray
+    const grayGlass = floating && !android && props.disabled
+    // A brand's accent button keeps its own height and corners (`--button-accent-height`, `--button-accent-radius`)
+    const own = props.color === "accent" && theme.token("--button-accent-height") != null ? theme.length("--button-accent-height") : height
+    const corner = props.color === "accent" && theme.token("--button-accent-radius") != null ? Math.min(theme.length("--button-accent-radius"), own / 2) : own / 2
+    // The main floating action on iOS 26 is prominent glass (`.glassProminent`): its color with the glass rim
+    const main = !second && floating && !android && (props.variant ?? "solid") === "solid" ? { mobileMaterial: props.mobileMaterial ?? ("glass" as const) } : null
     const button = cloneElement(child as ReactElement<ButtonProps>, {
       ...second,
+      ...main,
       block: props.block ?? true,
       size: props.size ?? "3xl",
-      style: [{ minHeight: height, borderRadius: height / 2 }, props.style],
+      style: [{ minHeight: own, borderRadius: corner }, grayGlass ? { backgroundColor: disabledGlass } : null, props.style],
     })
-    // A disabled button's fill is see-through (the gray of iOS's disabled button): floating over the content it stands
-    // on the screen's color, so the rows under it do not show through. The backing stays, clear, while the button is
+    // A disabled button's fill is see-through (the gray glass above): floating over the content it stands on the
+    // screen's color, so the rows under it do not show through and its face is the gray over that color. The backing stays, clear, while the button is
     // enabled: the button keeps its place in the tree, and with it focus, a screen reader's place and a press
     if (!floating || android) return button
     return (
       <View
         key={child.key ?? index}
-        style={{ borderRadius: height / 2, backgroundColor: props.disabled ? canvas : "transparent", alignSelf: (props.block ?? true) ? "stretch" : "flex-start" }}
+        style={{ borderRadius: corner, backgroundColor: props.disabled ? canvas : "transparent", alignSelf: (props.block ?? true) ? "stretch" : "flex-start" }}
       >
         {button}
       </View>

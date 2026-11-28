@@ -7,6 +7,24 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.10.0 (2026-11-28)
+
+### Added
+
+- **ProgressScale.** A value set on a row of labelled bands, iOS's tinted capsules or Material's segmented track: `bands`, `value`, `max`, a knob, handle or drop marker, the lit band in the accent, `animated`, `getValueLabel` for a screen reader. Tokens `--scale-*` for a brand.
+- **Reveal.** Children shown one after another, each fading and rising into place: `play`, `order`, `stagger`, `delay`, `duration`, `easing`, `rise`, `onDone`. With reduced motion everything is shown at once.
+- **Card.Value and Card.Group.** A figure beside a card's title (Title 2 in the accent on iOS, headlineSmall in primary on Android), and cards joined into one section with separators, or apart with `--card-group-gap`.
+- **Card.Media `size="lg"`, `fill`, `meta` and `action`.** A tall suggestion card with the title over a scrim; a color or a gradient in place of an image.
+- **Toolbar `floating`, `ToolbarInsetProvider` and `useToolbarInset()`.** Content runs under the bar, each scroll starting below it.
+- **Prominent glass outside a bar.** A solid Button with `mobileMaterial="glass"` on iOS is iOS 26's `.glassProminent`: its color with the rim and sheen of a bar's prominent action (`--button-prominent-glass-shadow`, `--button-prominent-glass-background`), the gray glass when disabled, the same element. Floating BottomActions give it to the main action on iOS.
+- **Button `mobileMaterial="clear-light"`.** Clear glass over a bright color, a dark label on a white veil.
+- **Brand tokens.** Badge (`--badge-background`, `--badge-color`, `--badge-font-family`, `--badge-text-transform`, `--badge-letter-spacing`, `--badge-font-weight`), the accent Button (`--button-accent-height`, `-radius`, `-font-size`, `-line-height`, `-font-weight`), Card (`--card-outline-width`, `--card-outline-color`, title and value fonts), `--button-disabled-glass`.
+- **Material tabs in Toolbar.Row.** On Android a SegmentedControl that follows a pager in a bar row is Material's primary tabs, edge to edge, the indicator following the swipe; `--segmented-control-style: tabs` asks for them anywhere.
+
+### Changed
+
+- **A disabled Button in floating BottomActions on iOS** is gray glass, and stays the same element when it is enabled, keeping focus.
+
 ## @plexui/react-native 0.9.0 (2026-11-28)
 
 ### Added

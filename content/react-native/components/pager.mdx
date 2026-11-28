@@ -6,16 +6,18 @@ metaDescription: A React Native horizontal pager whose pages a swipe turns one a
 
 import { RNExample } from "@/components/docs/react-native/RNExample"
 
-export const overviewCode = `import { List, ListItem, Pager, SegmentedControl, Toolbar } from "@plexui/react-native"
+export const overviewCode = `import { List, ListItem, Pager, SegmentedControl, Toolbar, ToolbarInsetProvider, useToolbarInset } from "@plexui/react-native"
 import { ScrollView, View } from "react-native"
 
 const tabs = ["Plan", "Stays", "Notes"]
 const [page, setPage] = useState(0)
 // The pages' scroll as a fractional page: the thumb follows it on every frame
 const [position, setPosition] = useState(0)
+// The floating bar's room (inside a ToolbarInsetProvider): each page starts under it
+const inset = useToolbarInset()
 
 <View style={{ flex: 1 }}>
-  <Toolbar>
+  <Toolbar floating background="soft" scrolled={scrolled}>
     <Toolbar.Title>Lisbon</Toolbar.Title>
     <Toolbar.Row>
       <SegmentedControl
@@ -31,7 +33,7 @@ const [position, setPosition] = useState(0)
   </Toolbar>
   <Pager page={page} onPageChange={setPage} onPageScroll={setPosition}[[^swipe]] scrollEnabled={false}[[/swipe]] style={{ flex: 1 }}>
     {tabs.map((tab) => (
-      <ScrollView key={tab} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}>
+      <ScrollView key={tab} onScroll={onScroll} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: inset.top + 16 }}>
         <List>{rows[tab].map((row) => <ListItem key={row.label} label={row.label} value={row.detail} />)}</List>
       </ScrollView>
     ))}
@@ -47,6 +49,7 @@ const [position, setPosition] = useState(0)
 <ComponentPreview details={<>
   <p>A pager holds pages side by side, each as wide as the pager, and a swipe turns them one at a time. Over it a <a href="/react-native/components/segmented-control">SegmentedControl</a> names the pages, as Material sets tabs over a pager: <code>onPageScroll</code> hands the scroll on every frame as a fractional page (1.5 halfway from the second page to the third), and the control&apos;s <code>position</code> takes it, so its thumb follows the finger and takes each width between. A segment pressed sets <code>page</code>, and the pager moves to that page, the thumb travelling with it.</p>
   <p>A swipe comes to rest on the nearest page, and <code>onPageChange</code> names it. Where a phone&apos;s browser stops a swipe a few points off a page, the pager finishes the move to the page rather than leaving it in between. Right to left the pages run from the right, the next one coming in from the left, and each page keeps the layout&apos;s direction inside. Only the page shown is read by a screen reader and reached by Tab on the web. <code>swipe</code> here turns off <code>scrollEnabled</code>, leaving the pages to the segments alone; with reduced motion a page set by <code>page</code> comes in at once.</p>
+  <p>The bar floats over the pages (<code>Toolbar floating</code>): each page starts its content under the bar and the control, and runs on under the bar&apos;s soft edge as it scrolls, as iOS sets a segmented control under a bar. <code>useToolbarInset()</code>, inside a <code>ToolbarInsetProvider</code> round the screen, gives the bar&apos;s height for each page&apos;s top padding. On Android a SegmentedControl that follows a pager in a <code>Toolbar.Row</code> is Material&apos;s primary tabs, edge to edge, the indicator following the swipe; a brand asks for the tabs anywhere with <code>--segmented-control-style: tabs</code>.</p>
   <p>For a carousel of cards with dots under it, the same <code>onPageScroll</code> drives a <a href="/react-native/components/page-control">PageControl</a>: set its <code>position</code> from it.</p>
 </>} code={overviewCode} codeValues={{ swipe: true }} previewMinHeight={520}>
   <RNExample demo="pager/Overview" />

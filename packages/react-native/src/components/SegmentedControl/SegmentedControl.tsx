@@ -1,5 +1,5 @@
 import { createContext, isValidElement, useContext, useEffect, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
-import { Animated, Easing, Platform, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Easing, I18nManager, Platform, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
 import { CssSlide } from "../../internal/CssSlide"
 import { childrenOfType, isRenderable, textOf } from "../../internal/children"
@@ -150,7 +150,7 @@ function iosLook(theme: Theme, size: ControlSize, material: "glass" | "flat" | u
   }
 }
 
-type ControlContext = { inRow: boolean }
+type ControlContext = { inRow: boolean; /** The bar's side padding, which tabs reach past to the screen's edges. */ edge?: { left: number; right: number } }
 /** A Toolbar.Row tells the control in it that it is in a row, not in the bar's own row. */
 export const SegmentedControlRowContext = createContext<ControlContext>({ inRow: false })
 
@@ -221,10 +221,21 @@ function SegmentedControlRoot<T extends string>({
           setRTL((old) => (old === next ? old : next))
         }
       : undefined
+  // Tabs over pages: Material's primary tabs on Android where the control in a Toolbar.Row follows a pager
+  // (`position`), and wherever a brand asks for them (`--segmented-control-style: tabs`)
+  const { inRow } = useContext(SegmentedControlRowContext)
+  const style_ = theme.token("--segmented-control-style")
+  const tabs = style_ === "tabs" || (style_ !== "segmented" && theme.isAndroid && inRow && position != null)
   const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" && !counted, showBadges, badgeColor, position, rtl }
   return (
     <View ref={root} accessibilityRole="tablist" aria-label={ariaLabel} accessibilityState={{ disabled }} testID={testID} onLayout={onLayout} style={[block ? styles.block : styles.hug, style]}>
-      {theme.isAndroid ? <AndroidControl {...common} size={size} /> : <IOSControl {...common} size={size} material={mobileMaterial} />}
+      {tabs ? (
+        <TabsControl {...common} />
+      ) : theme.isAndroid ? (
+        <AndroidControl {...common} size={size} />
+      ) : (
+        <IOSControl {...common} size={size} material={mobileMaterial} />
+      )}
     </View>
   )
 }
@@ -586,6 +597,131 @@ function AndroidSegment({ option, selected, off, framed, showBadges, badgeColor,
 }
 
 /**
+ * Tabs over pages: the names across the row on a hairline, the shown one's label in the ink with a line under it that
+ * follows the pages (`position`) and slides to a tab pressed. Android: Material 3's primary tabs (48 tall, Title Small,
+ * primary, a 3dp indicator as wide as the label, rounded on top, on an outline-variant divider). Elsewhere, as a brand
+ * asks for them: 44 tall, 15/20 semibold, the label color and a 2 line. Tokens: `--segmented-tabs-height`,
+ * `--segmented-tabs-color`, `--segmented-tabs-color-on`, `--segmented-tabs-indicator-color`,
+ * `--segmented-tabs-indicator-height`, `--segmented-tabs-divider-color`.
+ */
+function TabsControl({ options, value, select, keys, disabled, showBadges, badgeColor, position }: ControlProps) {
+  const theme = useTheme()
+  // In a bar's row the tabs and their divider run to the screen's edges, as Material's tabs under a top app bar
+  const { edge } = useContext(SegmentedControlRowContext)
+  const swapped = Platform.OS !== "web" && I18nManager.isRTL && I18nManager.doLeftAndRightSwapInRTL
+  const android = theme.isAndroid
+  const m = theme.material
+  const height = theme.length("--segmented-tabs-height", android ? 48 : 44)
+  const on = theme.color("--segmented-tabs-color-on", android ? m.primary : theme.colors.text)
+  const idle = theme.color("--segmented-tabs-color", android ? m.onSurfaceVariant : theme.colors.labelSecondary)
+  const line = theme.color("--segmented-tabs-indicator-color", on)
+  const thick = theme.length("--segmented-tabs-indicator-height", android ? 3 : 2)
+  const divider = theme.color("--segmented-tabs-divider-color", android ? m.outlineVariant : theme.colors.separator)
+  const type = android ? { fontSize: 14, lineHeight: 20 } : { fontSize: 15, lineHeight: 20 }
+  // Each label's frame in the row: its tab's place from the widths in the options' order (tabs moved keep their
+  // widths and tell no new layout), the label's width centered in the tab
+  const row = useRef<ComponentRef<typeof View>>(null)
+  const [tabs, setTabs] = useState<Record<string, number>>({})
+  const [labels, setLabels] = useState<Record<string, number>>({})
+  // The row's direction: right to left the first tab is at the right end
+  const [webRTL, setWebRTL] = useState(false)
+  const rtl = Platform.OS === "web" ? webRTL : I18nManager.isRTL
+  const widths = options.map((option) => tabs[option.value] ?? 0)
+  const total = widths.reduce((sum, w) => sum + w, 0)
+  const frames = options.map((option, at) => {
+    const tab = tabs[option.value]
+    const label = labels[option.value]
+    const from = widths.slice(0, at).reduce((sum, w) => sum + w, 0)
+    if (tab == null || label == null) return undefined
+    // Material's indicator is never under 24 wide
+    const width = Math.max(android ? 24 : 0, label)
+    // A physical x from the left
+    const left = rtl ? total - from - tab : from
+    return { x: left + (tab - width) / 2, width }
+  })
+  const index = options.findIndex((option) => option.value === value)
+  const follow = following(position, index)
+  const ready = frames.every(Boolean) && index >= 0
+  const target = !ready ? undefined : follow ? frameBetween(frames.map((f) => f!.x), frames.map((f) => f!.width), position!) : frames[index]
+  const [x] = useState(() => new Animated.Value(0))
+  const [width] = useState(() => new Animated.Value(0))
+  const placed = useRef(false)
+  useEffect(() => {
+    if (!target) return
+    if (!placed.current || theme.reducedMotion || follow) {
+      x.stopAnimation()
+      width.stopAnimation()
+      x.setValue(target.x)
+      width.setValue(target.width)
+      placed.current = true
+      return
+    }
+    const timing = { ...ANDROID_MOVE, useNativeDriver: false }
+    const move = Animated.parallel([Animated.timing(x, { ...timing, toValue: target.x }), Animated.timing(width, { ...timing, toValue: target.width })])
+    move.start()
+    return () => move.stop()
+  }, [target?.x, target?.width, follow, theme.reducedMotion, x, width]) // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <View ref={row} onLayout={() => setWebRTL(Platform.OS === "web" && isRTL(row.current))} style={[styles.tabsRow, { height, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: divider }, edge ? (swapped ? { marginLeft: -edge.right, marginRight: -edge.left } : { marginLeft: -edge.left, marginRight: -edge.right }) : null]}>
+      {options.map((option) => {
+        const selected = option.value === value
+        const off = disabled || !!option.disabled
+        const color = off ? withAlpha(android ? m.onSurface : theme.colors.text, 0.38) : selected ? on : idle
+        return (
+          <Pressable
+            key={option.value}
+            {...keys({ value: option.value, disabled: off })}
+            accessibilityRole="tab"
+            accessibilityLabel={optionName(option)}
+            accessibilityState={{ selected, disabled: off }}
+            aria-selected={selected}
+            disabled={off}
+            onPress={() => select(option)}
+            testID={option.testID}
+            onLayout={(event: LayoutChangeEvent) => {
+              const w = event.nativeEvent.layout.width
+              setTabs((prev) => (prev[option.value] === w ? prev : { ...prev, [option.value]: w }))
+            }}
+            style={styles.tab}
+          >
+            <View
+              style={styles.tabLabel}
+              onLayout={(event: LayoutChangeEvent) => {
+                const w = event.nativeEvent.layout.width
+                setLabels((prev) => (prev[option.value] === w ? prev : { ...prev, [option.value]: w }))
+              }}
+            >
+              {isRenderable(option.icon) ? (
+                <IconDefaultsProvider size={20} color={color}>
+                  {option.icon}
+                </IconDefaultsProvider>
+              ) : null}
+              {isRenderable(option.children) ? (
+                <Text numberOfLines={1} weight={android ? "medium" : "semibold"} color={color} style={type}>
+                  {option.children}
+                </Text>
+              ) : null}
+              {showBadges ? <SegmentCount badge={option.badge} selected={selected} off={off} color={badgeColor} /> : null}
+            </View>
+          </Pressable>
+        )
+      })}
+      {target ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.tabsLine,
+            // A measured x is physical; where React Native swaps left and right right to left, `right` is the left
+            swapped ? { height: thick, right: x, width, backgroundColor: line } : { height: thick, left: x, width, backgroundColor: line },
+            android ? { borderTopLeftRadius: thick, borderTopRightRadius: thick } : { borderRadius: thick / 2 },
+          ]}
+        />
+      ) : null}
+    </View>
+  )
+}
+
+/**
  * A tab's count drawn after its label (`showBadges`): a capsule 18 tall, the digits 12 semibold in the screen's color.
  * iOS: the label's color on the selected segment, so it reads on the thumb, the secondary label on the others.
  * Android: the accent on the selected segment, as its label, the gray on the others. `accent`: the accent's capsule and
@@ -636,6 +772,10 @@ const styles = StyleSheet.create({
   option: { alignItems: "center", justifyContent: "center", minWidth: 0 },
   label: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   androidRow: { flexDirection: "row", alignItems: "center", padding: 4 },
+  tabsRow: { flexDirection: "row", alignSelf: "stretch", alignItems: "stretch" },
+  tab: { flex: 1, minWidth: 0, alignItems: "center", justifyContent: "center", paddingHorizontal: 16 },
+  tabLabel: { flexDirection: "row", alignItems: "center", gap: 8, maxWidth: "100%" },
+  tabsLine: { position: "absolute", bottom: 0 },
   androidPill: { position: "absolute", top: 4 },
   androidOption: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 12.5, minWidth: 0 },
   share: { flexGrow: 1, flexShrink: 1, flexBasis: "auto" },

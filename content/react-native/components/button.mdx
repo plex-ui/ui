@@ -149,11 +149,11 @@ iOS's button styles are Filled, Tinted, Gray and Plain, with no outlined button:
 ## API
 
 <PropsTable data={[
-  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning" | "accent"', default: '"primary"', description: "Semantic color, or the brand's accent (accent): its words on a fill in the brand's onAccent" },
+  { prop: "color", type: '"primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning" | "accent"', default: '"primary"', description: "Semantic color, or the brand's accent (accent): its words on a fill in the brand's onAccent. A brand sizes its accent button round it with --button-accent-height, -font-size, -line-height, -font-weight and -radius (BottomActions keeps that height)" },
   { prop: "variant", type: '"solid" | "soft" | "outline" | "ghost"', default: '"solid"', description: "Fill style. On iOS outline is the Gray button (iOS has no outlined one): the neutral soft fill, the label in the button's color" },
   { prop: "size", type: '"3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"', default: '"md"', description: "Height step of the Plex UI scale, mapped to the platform's native sizes" },
   { prop: "shape", type: '"round" | "square"', default: '"round"', description: "The shape on Android: a pill, or 8dp corners" },
-  { prop: "mobileMaterial", type: '"glass" | "flat" | "clear"', description: "iOS 26 glass, or its clear glass over a photo, a video or a color, for a neutral soft or ghost button. Android has no glass" },
+  { prop: "mobileMaterial", type: '"glass" | "flat" | "clear" | "clear-light"', description: "iOS 26 glass, or its clear glass over a photo, a video or a color, for a neutral soft or ghost button; clear-light is the clear glass over a bright color, a white frost and a dark glyph (--mobile-glass-clear-light-background, -label). On a solid button outside a bar, glass is iOS 26's prominent glass: the button's color with the rim and sheen of a bar's prominent action (--button-prominent-glass-shadow, --button-prominent-glass-background), gray glass when disabled (--button-disabled-glass). Android has no glass" },
   { prop: "uniform", type: "boolean", default: "false", description: "As wide as tall: an icon alone" },
   { prop: "block", type: "boolean", default: "false", description: "Takes the whole width" },
   { prop: "labelLines", type: "number", default: "1", description: "The most lines a text label takes before its ellipsis: 2 lets a long label wrap within the button, which grows from its height" },

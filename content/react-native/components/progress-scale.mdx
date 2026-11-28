@@ -1,0 +1,67 @@
+---
+title: Progress Scale
+description: A value on a scale of a few labelled bands, read only, with a marker at the value.
+metaDescription: A React Native scale of labelled bands with a marker at the value, as iOS's linear gauge in Health and Material's linear indicator with a handle; tokens for the bands, the marker (a knob or a drop) and the labels, and motion for a value coming in.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { Card, ProgressScale, Text[[#marker=drop]], ThemeProvider[[/marker=drop]] } from "@plexui/react-native"
+import { View } from "react-native"
+
+<Card>
+  <View style={{ gap: 12 }}>
+    <Text variant="headline">Balance</Text>
+[[#marker=drop]]
+    {/* The brand's marker: a drop on a thin band */}
+    <ThemeProvider brand={{ tokens: { "--scale-marker": "drop", "--scale-band-height": "2", "--scale-marker-size": "13", "--scale-marker-fillet": "5", "--scale-marker-color": "var(--color-accent)" } }}>
+[[/marker=drop]]
+    <ProgressScale
+      aria-label="Balance"
+      bands={["Low", "Some", "Both", "Most", "High"]}
+      value={[[value]]}[[#animated=enter]]
+      animated={{ value: { duration: 1200, delay: 100 }, light: { duration: 450 } }}[[/animated=enter]][[#animated=none]]
+      animated={false}[[/animated=none]][[^labels]]
+      showLabels={false}[[/labels]]
+    />
+[[#marker=drop]]
+    </ThemeProvider>
+[[/marker=drop]]
+  </View>
+</Card>`
+
+<UsageBlock>{`import { ProgressScale } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A scale holds a few bands side by side, equally wide, and a marker at the value: the band the value falls in is lit, and its label under it stands out. On iOS it is Apple&apos;s linear gauge as Health draws a range: capsules 6 tall and 3 apart, the value&apos;s band in the accent and the others in the tertiary fill, a white knob 14 across with a slider thumb&apos;s shadow, the labels in Footnote. On Android it is Material&apos;s linear indicator: bands 4 tall and 4 apart, the value&apos;s in primary, a 4 × 16 handle.</p>
+  <p>A screen reader reads it as a progress bar whose value is the band and the share, &quot;Both, 50%&quot;; <code>getValueLabel</code> words it otherwise. Right to left the scale runs from the right.</p>
+  <p>A brand sets every part as a token round the scale: <code>--scale-band-height</code>, <code>--scale-band-gap</code>, <code>--scale-band-color</code> and <code>--scale-band-color-on</code>, <code>--scale-marker</code> (<code>knob</code>, <code>handle</code> or <code>drop</code>: a round mark flowing into its band through arcs above and under it), <code>--scale-marker-size</code>, <code>--scale-marker-fillet</code>, <code>--scale-marker-color</code>, <code>--scale-label-gap</code>, <code>--scale-label-size</code>, <code>--scale-label-line-height</code>, <code>--scale-label-color</code> and <code>--scale-label-color-on</code>. <code>marker</code> drop here sets them.</p>
+  <p>By default a new value moves the marker (iOS 0.35 s, Android 300 ms). <code>animated</code> as an object brings the first value in too: the marker runs from the scale&apos;s start over <code>value</code>, then the band lights over <code>light</code>. With reduced motion, or <code>animated=&#123;false&#125;</code>, a value lands at once.</p>
+</>} code={overviewCode} codeValues={{ value: 50, marker: "knob", animated: "change", labels: true }} previewMinHeight={240}>
+  <RNExample demo="progress-scale/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Gauge, linear (Health's ranges) | Linear progress indicator with a handle |
+| Look | Capsule bands, the value's in the accent, a white knob | Bands 4 tall, the value's in primary, a 4 × 16 handle |
+
+## API
+
+<PropsTable data={[
+  { prop: "bands", type: "(string | { label: string; accessibilityLabel?: string })[]", description: "The bands, side by side and equally wide, each with its label under it" },
+  { prop: "value", type: "number", description: "Where the value stands, between 0 and max; its band is the one it falls in" },
+  { prop: "max", type: "number", default: "100", description: "The scale's end" },
+  { prop: "animated", type: "boolean | { value?: { duration?, delay?, easing? }; light?: { duration?, delay? } }", default: "true", description: "true: a new value moves the marker. An object: the first value comes in too, the band lighting after the marker. false: at once" },
+  { prop: "showLabels", type: "boolean", default: "true", description: "Whether the labels show under the bands" },
+  { prop: "getValueLabel", type: "(value: number, max: number, band: string) => string", description: "The value read out; the band and the share by default" },
+  { prop: "aria-label", type: "string", description: "The name read out" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the scale" },
+]} />
