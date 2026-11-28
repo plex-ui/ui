@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Input, SystemKeyboard, Text, TextField, useTheme } from '@plexui/react-native';
+import { Input, SystemKeyboard, Text, TextField, Toolbar, useTheme } from '@plexui/react-native';
 import { StyleSheet, View } from 'react-native';
 import { Segments, controlsTableStyle } from '../../ButtonDemos';
+import { DemoControlsBottom } from '../../PreviewEmbed';
 import { RNScreen, docsDemo } from '../RNScreen';
 
 const KINDS = ['text', 'email', 'url', 'search', 'password', 'number', 'decimal', 'phone'] as const;
@@ -33,23 +34,29 @@ export const Overview = docsDemo(function Overview() {
   const [mode, setMode] = useState<Mode>('auto');
   return (
     <>
-      <div data-demo-controls style={controlsTableStyle}>
-        <Segments name="kind" options={KINDS} value={kind} onChange={setKind} />
-        <Segments name="returnKey" options={RETURNS} value={returnKey} onChange={setReturnKey} />
-        <Segments name="mode" options={MODES} value={mode} onChange={setMode} />
-      </div>
       <RNScreen screen minHeight={760} keyboard={false}>
+        {/* As the other examples' screens: a top bar named by the example, the field under it at the screen's margin */}
+        <Toolbar background="none">
+          <Toolbar.Title>Overview</Toolbar.Title>
+        </Toolbar>
         <Field kind={kind} />
         <SystemKeyboard mode={mode} field={{ kind, returnKey, caps: kind === 'text' || kind === 'search' }} />
       </RNScreen>
+      {/* Under the phone, by the keyboard they set */}
+      <DemoControlsBottom style={controlsTableStyle}>
+        <Segments name="kind" options={KINDS} value={kind} onChange={setKind} />
+        <Segments name="returnKey" options={RETURNS} value={returnKey} onChange={setReturnKey} />
+        <Segments name="mode" options={MODES} value={mode} onChange={setMode} />
+      </DemoControlsBottom>
     </>
   );
 });
 
 function Field({ kind }: { kind: Kind }) {
   const android = useTheme().isAndroid;
+  const inset = android ? 12 : 16;
   return (
-    <View style={[styles.field, { paddingHorizontal: android ? 12 : 16 }]}>
+    <View style={{ paddingTop: inset, paddingHorizontal: inset }}>
       <Input placeholder={PLACEHOLDER[kind]} accessibilityLabel={PLACEHOLDER[kind]} />
     </View>
   );
@@ -58,7 +65,7 @@ function Field({ kind }: { kind: Kind }) {
 /** A form: the keyboard comes up under the field the reader clicks, for its kind, and goes when it loses focus */
 export const FollowsFocus = docsDemo(function FollowsFocus() {
   return (
-    <RNScreen screen minHeight={760}>
+    <RNScreen minHeight={760}>
       <View style={styles.form}>
         <TextField label="Name" placeholder="Jane Appleseed" returnKeyType="next" />
         <TextField label="Email" placeholder="jane@example.com" keyboardType="email-address" autoCapitalize="none" returnKeyType="next" />
@@ -73,6 +80,5 @@ export const FollowsFocus = docsDemo(function FollowsFocus() {
 });
 
 const styles = StyleSheet.create({
-  field: { paddingTop: 72 },
-  form: { paddingTop: 72, paddingHorizontal: 16, gap: 16 },
+  form: { gap: 16 },
 });

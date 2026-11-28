@@ -4,14 +4,11 @@ import { createIcon, type IconComponent } from "../Icon/createIcon"
 import { useTheme } from "../../theme/ThemeProvider"
 import { clearDrawnKeyboard, setDrawnKeyboard } from "../../internal/keyboard"
 import ArrowRightLg from "../../icons/plex/ArrowRightLg"
-import ArrowUpLg from "../../icons/plex/ArrowUpLg"
 import CheckMd from "../../icons/plex/CheckMd"
 import ChevronDownMd from "../../icons/plex/ChevronDownMd"
 import ChevronRightMd from "../../icons/plex/ChevronRightMd"
 import Clipboard from "../../icons/plex/Clipboard"
-import Globe from "../../icons/plex/Globe"
 import Grid from "../../icons/plex/Grid"
-import Mic from "../../icons/plex/Mic"
 import MicFilled from "../../icons/plex/MicFilled"
 import Search from "../../icons/plex/Search"
 import SettingsCog from "../../icons/plex/SettingsCog"
@@ -24,6 +21,7 @@ import Palette from "../../icons/tabler/Palette"
 import Send from "../../icons/tabler/Send"
 import Space from "../../icons/tabler/Space"
 import Sticker from "../../icons/tabler/Sticker"
+import { IOS_GLYPH_SIZE as S, IosDelete, IosDeletePad, IosDone, IosEmoji, IosGlobe, IosGo, IosMic, IosNext, IosReturn, IosSearch, IosSend, IosShift } from "./glyphs"
 import { keyboardLayout, type KeySpec, type KeyboardKind, type KeyboardLayout, type KeyboardPlatform, type KeyboardReturnKey } from "./layout"
 
 export { keyboardLayout, type KeyboardKind, type KeyboardLayout, type KeyboardPlatform, type KeyboardReturnKey, type KeySpec } from "./layout"
@@ -36,19 +34,19 @@ const ShiftOn = createIcon("ShiftOn", "0 0 24 24", [
 /** The glyph of each named key, and its size: the drawn glyph's, as the native keyboard draws it */
 const GLYPHS: Record<KeyboardPlatform, Record<string, [IconComponent, number]>> = {
   ios: {
-    shift: [ArrowBigUp, 21],
-    "shift-on": [ShiftOn, 21],
-    delete: [Backspace, 27],
-    "delete-pad": [Backspace, 31],
-    emoji: [MoodSmile, 25],
-    return: [CornerDownLeft, 28],
-    next: [ChevronRightMd, 24],
-    go: [ArrowRightLg, 24],
-    search: [Search, 24],
-    send: [ArrowUpLg, 24],
-    done: [CheckMd, 26],
-    globe: [Globe, 32],
-    mic: [Mic, 33],
+    shift: [IosShift, S.shift],
+    "shift-on": [ShiftOn, S.shift],
+    delete: [IosDelete, S.delete],
+    "delete-pad": [IosDeletePad, S.deletePad],
+    emoji: [IosEmoji, S.emoji],
+    return: [IosReturn, S.return],
+    next: [IosNext, S.chevron],
+    go: [IosGo, S.arrow],
+    search: [IosSearch, S.arrow],
+    send: [IosSend, S.arrow],
+    done: [IosDone, S.done],
+    globe: [IosGlobe, S.globe],
+    mic: [IosMic, S.mic],
   },
   android: {
     shift: [ArrowBigUp, 25],
