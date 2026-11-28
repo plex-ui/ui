@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ComponentRef, type ReactNode } from "react"
-import { Platform, StyleSheet, Text, View, useWindowDimensions } from "react-native"
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentRef, type ReactNode } from "react"
+import { Animated, Easing, Platform, StyleSheet, Text, View, useWindowDimensions } from "react-native"
 import { createIcon, type IconComponent } from "../Icon/createIcon"
 import { useTheme } from "../../theme/ThemeProvider"
 import { clearDrawnKeyboard, setDrawnKeyboard } from "../../internal/keyboard"
@@ -21,28 +21,30 @@ import Palette from "../../icons/tabler/Palette"
 import Send from "../../icons/tabler/Send"
 import Space from "../../icons/tabler/Space"
 import Sticker from "../../icons/tabler/Sticker"
-import { IOS_GLYPH_SIZE as S, IosDelete, IosDeletePad, IosDone, IosEmoji, IosGlobe, IosGo, IosMic, IosNext, IosReturn, IosSearch, IosSend, IosShift } from "./glyphs"
+import { IOS_GLYPH_SIZE as S, IosDelete, IosDeletePad, IosDone, IosEmoji, IosEmojiFilled, IosGlobe, IosGo, IosMic, IosNext, IosReturn, IosSearch, IosSend, IosShift, IosShiftLock, IosShiftOn } from "./glyphs"
 import { keyboardLayout, type KeySpec, type KeyboardKind, type KeyboardLayout, type KeyboardPlatform, type KeyboardReturnKey } from "./layout"
 
 export { keyboardLayout, type KeyboardKind, type KeyboardLayout, type KeyboardPlatform, type KeyboardReturnKey, type KeySpec } from "./layout"
 
-/** Shift held for a capital: the arrow filled */
+/** Gboard's shift held for a capital: the arrow filled */
 const ShiftOn = createIcon("ShiftOn", "0 0 24 24", [
   ["path", { d: "M10.59 3 4 9.59A2 2 0 0 0 5.41 13H8v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7h2.59A2 2 0 0 0 20 9.59L13.41 3a2 2 0 0 0-2.82 0Z", fill: 0 }],
 ])
 
-/** Caps Lock: the arrow filled over a bar (the shift pressed twice) */
+/** Gboard's Caps Lock: the arrow filled over a bar (the shift pressed twice) */
 const ShiftLock = createIcon("ShiftLock", "0 0 24 24", [
   ["path", { d: "M10.59 2 4 8.59A2 2 0 0 0 5.41 12H8v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4h2.59A2 2 0 0 0 20 8.59L13.41 2a2 2 0 0 0-2.82 0Z", fill: 0 }],
   ["rect", { x: 8, y: 19.5, width: 8, height: 2.5, rx: 1.25, fill: 0 }],
 ])
 
+const IOS_EMOJI_DARK: [IconComponent, number] = [IosEmojiFilled, S.emoji]
+
 /** The glyph of each named key, and its size: the drawn glyph's, as the native keyboard draws it */
 const GLYPHS: Record<KeyboardPlatform, Record<string, [IconComponent, number]>> = {
   ios: {
     shift: [IosShift, S.shift],
-    "shift-on": [ShiftOn, S.shift],
-    "shift-lock": [ShiftLock, S.shift],
+    "shift-on": [IosShiftOn, S.shiftOn],
+    "shift-lock": [IosShiftLock, S.shiftOn],
     delete: [IosDelete, S.delete],
     "delete-pad": [IosDeletePad, S.deletePad],
     emoji: [IosEmoji, S.emoji],
@@ -82,16 +84,17 @@ const GLYPHS: Record<KeyboardPlatform, Record<string, [IconComponent, number]>> 
 /** The keyboards' own colors: they are the system's, not the app's, so the theme's tokens do not reach them */
 const COLORS: Record<KeyboardPlatform, Record<"light" | "dark", Palette>> = {
   ios: {
-    light: { panel: "#E2E4E8", key: "#FFFFFF", mod: "#FFFFFF", accent: "#007AFF", ink: "#000000", onAccent: "#FFFFFF", muted: "#3C3C43", divider: "#C2C4C9" },
-    dark: { panel: "#171717", key: "#3D3D3D", mod: "#3D3D3D", accent: "#0A84FF", ink: "#FFFFFF", onAccent: "#FFFFFF", muted: "#EBEBF5", divider: "#3A3A3C" },
+    light: { panel: "#E2E4E8", key: "#FFFFFF", mod: "#FFFFFF", accent: "#007AFF", ink: "#000000", onAccent: "#FFFFFF", muted: "#3C3C43", divider: "#C2C4C9", suggestion: "#36383B" },
+    dark: { panel: "#171717", key: "#3D3D3D", mod: "#3D3D3D", accent: "#0A84FF", ink: "#FFFFFF", onAccent: "#FFFFFF", muted: "#EBEBF5", divider: "#3A3A3C", suggestion: "#ACACAC" },
   },
   android: {
-    light: { panel: "#EEEDF4", key: "#FFFFFF", mod: "#DCE2F9", accent: "#DCE2F9", ink: "#1A1B20", onAccent: "#1A1B20", muted: "#74777F", divider: "#C4C6D0" },
-    dark: { panel: "#1E1F25", key: "#33343A", mod: "#404659", accent: "#404659", ink: "#E2E2E9", onAccent: "#E2E2E9", muted: "#8E9099", divider: "#44474F" },
+    light: { panel: "#EEEDF4", key: "#FFFFFF", mod: "#DCE2F9", accent: "#DCE2F9", ink: "#1A1B20", onAccent: "#1A1B20", muted: "#74777F", divider: "#C4C6D0", suggestion: "#1A1B20" },
+    dark: { panel: "#1E1F25", key: "#33343A", mod: "#404659", accent: "#404659", ink: "#E2E2E9", onAccent: "#E2E2E9", muted: "#8E9099", divider: "#44474F", suggestion: "#E2E2E9" },
   },
 }
 
-type Palette = Record<"panel" | "key" | "mod" | "accent" | "ink" | "onAccent" | "muted" | "divider", string>
+/** `suggestion`: the words of iOS's suggestion bar, a little softer than the keys' (the simulator's 54,56,59 and 172) */
+type Palette = Record<"panel" | "key" | "mod" | "accent" | "ink" | "onAccent" | "muted" | "divider" | "suggestion", string>
 
 /** The focused field, as the keyboard reads it */
 export type KeyboardField = {
@@ -290,8 +293,9 @@ function touchScreen() {
 // ---------------------------------------------------------------------------------------------------------------------
 // Drawing
 
-function KeyGlyph({ spec, platform, color }: { spec: KeySpec; platform: KeyboardPlatform; color: string }) {
-  const glyph = spec.icon ? GLYPHS[platform][spec.icon] : undefined
+function KeyGlyph({ spec, platform, color, dark }: { spec: KeySpec; platform: KeyboardPlatform; color: string; dark: boolean }) {
+  // iOS's emoji face is filled at night: a light disc, its eyes and mouth cut out of it
+  const glyph = spec.icon === "emoji" && platform === "ios" && dark ? IOS_EMOJI_DARK : spec.icon ? GLYPHS[platform][spec.icon] : undefined
   if (!glyph) return null
   const [Glyph, size] = glyph
   return <Glyph size={size} color={color} />
@@ -310,11 +314,17 @@ function KeyLabel({ spec, platform, palette }: { spec: KeySpec; platform: Keyboa
   })
   switch (spec.role) {
     case "letter":
-      return <Text style={[face(ios ? 25 : 26), ios ? styles.iosLetter : styles.gboardLetter]}>{spec.label}</Text>
+      // iOS draws its capitals smaller than its small letters: a capital 15.3pt tall, a small letter's x-height 13pt
+      // (the simulator's keys), Inter's at 21 and 24
+      if (ios) {
+        const capital = spec.label != null && spec.label !== spec.label.toLowerCase()
+        return <Text style={[face(capital ? 21 : 24), capital ? styles.iosCapital : styles.iosLetter]}>{spec.label}</Text>
+      }
+      return <Text style={[face(26), styles.gboardLetter]}>{spec.label}</Text>
     case "layout":
       return <Text style={face(ios ? 18 : 15, ios ? "regular" : "medium")}>{spec.label}</Text>
     case "suggestion":
-      return <Text style={face(17)}>{spec.label}</Text>
+      return <Text style={[face(17), { color: palette.suggestion }]}>{spec.label}</Text>
     case "symbol":
       return <Text style={face(spec.label === ".com" ? 18 : ios ? 22 : 24)}>{spec.label}</Text>
     case "label":
@@ -339,7 +349,7 @@ function KeyLabel({ spec, platform, palette }: { spec: KeySpec; platform: Keyboa
   }
 }
 
-function Key({ spec, platform, palette }: { spec: KeySpec; platform: KeyboardPlatform; palette: Palette }) {
+function Key({ spec, platform, palette, dark }: { spec: KeySpec; platform: KeyboardPlatform; palette: Palette; dark: boolean }) {
   const theme = useTheme()
   const fill = spec.fill === "none" ? "transparent" : palette[spec.fill]
   // Gboard's sticker and GIF tools stand dimmed by the others
@@ -350,7 +360,7 @@ function Key({ spec, platform, palette }: { spec: KeySpec; platform: KeyboardPla
   }
   return (
     <View testID={`keyboard-${spec.id}`} style={[styles.key, frame(spec), { backgroundColor: fill, borderRadius: spec.radius }]}>
-      {spec.icon ? <KeyGlyph spec={spec} platform={platform} color={glyphColor} /> : <KeyLabel spec={spec} platform={platform} palette={palette} />}
+      {spec.icon ? <KeyGlyph spec={spec} platform={platform} color={glyphColor} dark={dark} /> : <KeyLabel spec={spec} platform={platform} palette={palette} />}
       {spec.hint ? <Text style={[styles.hint, theme.font("regular"), { color: palette.muted }]}>{spec.hint}</Text> : null}
     </View>
   )
@@ -370,10 +380,51 @@ export function KeyboardKeys({ layout, scheme }: { layout: KeyboardLayout; schem
       ]}
     >
       {layout.keys.map((spec) => (
-        <Key key={spec.id} spec={spec} platform={layout.platform} palette={palette} />
+        <Key key={spec.id} spec={spec} platform={layout.platform} palette={palette} dark={scheme === "dark"} />
       ))}
     </View>
   )
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The motion
+
+/**
+ * How the keyboard comes up and goes, measured frame by frame (the iOS 26.2 and 27.2 simulators' keyboard layout guide,
+ * the Android 15 emulator's screen): iOS rides a critically damped spring of ω 23.6 rad/s, which UIKit reports as curve
+ * 7 over 0.3833s (the spring is done to 0.1% there), both ways; Gboard AOSP's IME inset animation, PathInterpolator(0.2,
+ * 0, 0, 1) over 285ms, both ways.
+ */
+const IOS_SPRING = 23.6
+const IOS_DURATION = 383
+const springAt = (seconds: number) => 1 - (1 + IOS_SPRING * seconds) * Math.exp(-IOS_SPRING * seconds)
+const IOS_END = springAt(IOS_DURATION / 1000)
+const MOTION = {
+  ios: { duration: IOS_DURATION, easing: (x: number) => (x >= 1 ? 1 : springAt((x * IOS_DURATION) / 1000) / IOS_END) },
+  android: { duration: 285, easing: Easing.bezier(0.2, 0, 0, 1) },
+}
+
+function reducedMotion() {
+  const match = (globalThis as { matchMedia?: (query: string) => { matches: boolean } }).matchMedia
+  return match?.("(prefers-reduced-motion: reduce)").matches ?? false
+}
+
+/** The keyboard's way up (1) and down (0), from under the screen's bottom edge; `onGone` once it is down */
+function useKeyboardMotion(up: boolean, android: boolean, onGone: () => void) {
+  const [progress] = useState(() => new Animated.Value(up ? 1 : 0))
+  useEffect(() => {
+    const { duration, easing } = MOTION[android ? "android" : "ios"]
+    const animation = Animated.timing(progress, { toValue: up ? 1 : 0, duration: reducedMotion() ? 0 : duration, easing, useNativeDriver: false })
+    animation.start(({ finished }) => {
+      if (finished && !up) onGone()
+    })
+    return () => animation.stop()
+  }, [progress, up, android, onGone])
+  return progress
+}
+
+function sameField(a: KeyboardField, b: KeyboardField | null) {
+  return b != null && a.kind === b.kind && a.returnKey === b.returnKey && a.caps === b.caps && a.autocorrect === b.autocorrect && a.multiline === b.multiline
 }
 
 /**
@@ -401,17 +452,40 @@ export function SystemKeyboard({ mode = "auto", field: still }: SystemKeyboardPr
   const field: KeyboardField | null = still
     ? { kind: still.kind ?? "text", returnKey: still.returnKey ?? "default", caps: still.caps ?? false, autocorrect: still.autocorrect ?? true, multiline: still.multiline ?? false }
     : focused
+  // The field the keyboard is up for; while it goes down it keeps the last one's keys, unless another keyboard took the
+  // page (a hidden one): the inset is that one's then, and these keys go at once
+  const target = enabled && drawing ? field : null
+  const [kept, setKept] = useState<KeyboardField | null>(target)
+  if (target && !sameField(target, kept)) setKept(target)
+  const drawn = target ?? (drawing ? kept : null)
+  const forget = useCallback(() => setKept(null), [])
+  // It slides up from under the screen's edge as the field takes focus and back as it loses it; from one field to the
+  // next it stays, and only its keys change
+  const progress = useKeyboardMotion(target != null, theme.isAndroid, forget)
   const window = useWindowDimensions().width
   const [boxWidth, setBoxWidth] = useState(0)
   const width = local ? boxWidth : window
-  const layout = enabled && drawing && field && width > 0 ? keyboardLayout({ platform: theme.isAndroid ? "android" : "ios", width, ...field }) : null
+  const layout = drawn && width > 0 ? keyboardLayout({ platform: theme.isAndroid ? "android" : "ios", width, ...drawn }) : null
   const inset = layout ? layout.height - layout.navigationBar : 0
   const full = layout ? layout.height : 0
+  // The inset follows the keys, as the system's keyboard layout guide and inset animation move a screen with them
+  const shown = useRef(target != null ? 1 : 0)
+  useEffect(() => {
+    const listener = progress.addListener(({ value }) => {
+      shown.current = value
+    })
+    return () => progress.removeListener(listener)
+  }, [progress])
   useEffect(() => {
     if (!owning) return
-    setDrawnKeyboard(id, inset, full)
-  }, [owning, id, inset, full])
+    // The navigation bar under Gboard stands still: the inset is the risen height less it
+    const publish = (value: number) => setDrawnKeyboard(id, Math.max(0, full * value - (full - inset)), full * value)
+    publish(shown.current)
+    const listener = progress.addListener(({ value }) => publish(value))
+    return () => progress.removeListener(listener)
+  }, [owning, id, inset, full, progress])
   useEffect(() => (owning ? () => clearDrawnKeyboard(id) : undefined), [owning, id])
+  const slide = useMemo(() => ({ transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [full, 0] }) }] }), [progress, full])
   // A press on the keyboard keeps the field's focus, as a key of the real one does
   const box = useRef<ComponentRef<typeof View>>(null)
   useEffect(() => {
@@ -422,18 +496,20 @@ export function SystemKeyboard({ mode = "auto", field: still }: SystemKeyboardPr
     return () => element.removeEventListener("mousedown", keep)
   }, [layout])
   if (local) {
-    if (!enabled) return null
+    if (!present) return null
     return (
-      <View ref={box} style={styles.still} aria-hidden onLayout={(event) => setBoxWidth(Math.round(event.nativeEvent.layout.width))}>
+      <Animated.View ref={box} style={[styles.still, slide]} aria-hidden onLayout={(event) => setBoxWidth(Math.round(event.nativeEvent.layout.width))}>
         {layout ? <KeyboardKeys layout={layout} scheme={theme.scheme === "dark" ? "dark" : "light"} /> : null}
-      </View>
+      </Animated.View>
     )
   }
-  if (!layout) return null
+  if (!present) return null
+  // The moving box stays mounted with no keys in it: mounted with the keys, its first effects (run twice under Strict
+  // Mode) would detach the progress and stop the motion just started for them
   const keyboard = (
-    <View ref={box} style={styles.window as never} aria-hidden>
-      <KeyboardKeys layout={layout} scheme={theme.scheme === "dark" ? "dark" : "light"} />
-    </View>
+    <Animated.View ref={box} style={[styles.window as never, slide]} aria-hidden>
+      {layout ? <KeyboardKeys layout={layout} scheme={theme.scheme === "dark" ? "dark" : "light"} /> : null}
+    </Animated.View>
   )
   const body = (globalThis as { document?: { body?: unknown } }).document?.body
   return portal && body ? portal(keyboard, body) : keyboard
@@ -445,7 +521,8 @@ const styles = StyleSheet.create({
   still: { position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 1 },
   panel: { width: "100%", overflow: "hidden" },
   key: { position: "absolute", alignItems: "center", justifyContent: "center" },
-  iosLetter: { marginTop: -2 },
+  iosLetter: { marginTop: -4 },
+  iosCapital: { marginTop: -2 },
   gboardLetter: { marginTop: -1 },
   iosDigit: { alignItems: "center", marginTop: 2 },
   iosLetters: { letterSpacing: 2, marginTop: -2 },

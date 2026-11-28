@@ -166,9 +166,10 @@ function AndroidFrame({ open, onClose, dismissible, a11y, testID, children }: Fr
   const insets = useSafeAreaInsets()
   // Android's modal window draws edge to edge and does not resize for the keyboard: the dialog rises by its height
   const raised = useKeyboardHeight(open && (Platform.OS === "android" || Platform.OS === "web"))
-  // The keyboard drawn on the web over Android's frame is cleared whole, from the screen's edge
+  // The keyboard drawn on the web over Android's frame is cleared whole, from the screen's edge, to the end of its way
+  // down (its inset passes under the navigation bar first)
   const drawn = useKeyboardInset()
-  const keyboard = open && raised ? Math.max(raised, drawn) : raised
+  const keyboard = open ? Math.max(raised, drawn) : raised
   const edge = Math.max(insets.top, insets.bottom) + 16
   const reduced = theme.reducedMotion
   return (

@@ -53,6 +53,8 @@ for (const platform of ["ios", "android"] as const) {
       await expect(page.getByTestId("keyboard")).toHaveCount(0)
       await page.getByLabel(label, { exact: true }).focus()
       await expect(page.getByTestId("keyboard")).toBeVisible()
+      // Up once it has slid in
+      await expect.poll(async () => (await drawnKeys(page)).bottom).toBe(0)
       const drawn = await drawnKeys(page)
       const expected = reference.layouts[layout]
       expect(drawn.bottom).toBe(0)
@@ -91,6 +93,54 @@ test("the keyboard follows focus: it goes on blur, stays from field to field, an
   await expect(page.getByTestId("keyboard-key-0")).toBeVisible()
   await page.getByLabel("Code", { exact: true }).blur()
   await expect(keyboard).toHaveCount(0)
+})
+
+/** How far the keyboard's top stands over the window's bottom, every frame */
+async function recordRise(page: Page) {
+  await page.evaluate(() => {
+    const view = window as unknown as { rise: (number | null)[] }
+    view.rise = []
+    const tick = () => {
+      const panel = document.querySelector("[data-testid='keyboard']")
+      view.rise.push(panel ? Math.round((window.innerHeight - panel.getBoundingClientRect().top) * 10) / 10 : null)
+      requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  })
+  return () => page.evaluate(() => (window as unknown as { rise: (number | null)[] }).rise.filter((value): value is number => value != null))
+}
+
+for (const platform of ["ios", "android"] as const) {
+  test(`the keyboard slides up from under the window's edge and back down: ${platform}`, async ({ page }) => {
+    await openGallery(page, { platform, scheme: "light", screen: "keyboard" })
+    const rise = await recordRise(page)
+    const keyboard = page.getByTestId("keyboard")
+    await page.getByLabel("Name", { exact: true }).focus()
+    await expect.poll(async () => (await drawnKeys(page)).bottom).toBe(0)
+    const up = await rise()
+    const height = up[up.length - 1]
+    // Frames on its way, each higher than the one before (iOS's spring, Gboard's 285ms curve)
+    const between = up.filter((value) => value > 1 && value < height - 1)
+    expect(between.length).toBeGreaterThan(5)
+    expect(up.every((value, index) => index === 0 || value >= up[index - 1] - 0.1)).toBe(true)
+    // On blur it is still there, going down, and then gone
+    await page.getByLabel("Name", { exact: true }).blur()
+    await expect(keyboard).toHaveCount(1)
+    await expect(keyboard).toHaveCount(0)
+    const all = await rise()
+    expect(all.slice(up.length).some((value) => value > 1 && value < height - 1)).toBe(true)
+  })
+}
+
+test("with reduced motion the keyboard stands up at once", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" })
+  await openGallery(page, { platform: "ios", scheme: "light", screen: "keyboard" })
+  const rise = await recordRise(page)
+  await page.getByLabel("Name", { exact: true }).focus()
+  await expect.poll(async () => (await drawnKeys(page)).bottom).toBe(0)
+  const up = await rise()
+  const height = up[up.length - 1]
+  expect(up.filter((value) => value > 1 && value < height - 1).length).toBeLessThanOrEqual(1)
 })
 
 test("the return key follows the field's returnKeyType", async ({ page }) => {

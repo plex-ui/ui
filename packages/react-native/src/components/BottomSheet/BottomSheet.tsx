@@ -294,8 +294,9 @@ export function BottomSheetBase({
   // The keyboard drawn on the web reports its whole height from the screen's edge too: a preview whose safe area has
   // no navigation bar under it still clears all of it
   const drawnKeyboard = useKeyboardInset()
-  // Android's sheet stands over its navigation bar, and over the keyboard while it is up
-  const androidBottom = keyboard ? Math.max(insets.bottom + keyboard, drawnKeyboard) : insets.bottom
+  // Android's sheet stands over its navigation bar, and over the keyboard while it is up: the drawn one's whole height
+  // too, through the last of its way down, when its inset has passed under the navigation bar
+  const androidBottom = Math.max(insets.bottom + keyboard, open ? drawnKeyboard : 0)
   const m = theme.material
   // Android's sheet: 35dp top corners, concentric with its bar's 46dp circles 12 in from its top and sides (23 + 12),
   // the dialog's background (white, near-black in dark mode)
@@ -418,14 +419,13 @@ export function BottomSheetBase({
   // The content starts where the bar's soft edge ends (--page-bar-soft-tail under the bar, Dialog.module.css), and
   // ends 16 over a footer, or over the home indicator
   // Android's footer stands 12 over the navigation bar and the keyboard; iOS 26's 16 over the keyboard, else concentric
-  // with the screen's corners, at least 2 over the home indicator
+  // with the screen's corners, at least 2 over the home indicator. The keyboard's rise passes the rest from where it
+  // reaches it, as a view on the keyboard layout guide, so a keyboard on its way moves nothing until it gets there
   const footerPad = android
     ? 12 + androidBottom
-    : keyboard
-      ? 16 + Math.max(0, keyboard - floatInset)
-      : Math.max(IOS_ACTION_SIDE - floatInset, insets.bottom + 2 - floatInset)
+    : Math.max(IOS_ACTION_SIDE - floatInset, insets.bottom + 2 - floatInset, keyboard ? 16 + keyboard - floatInset : 0)
   const footerHeight = footerTop + footerPad
-  const bottom = keyboard || footer ? 16 : Math.max(16, insets.bottom - floatInset)
+  const bottom = footer ? 16 : Math.max(16, insets.bottom - floatInset - keyboard)
   const hasIosBar = !android && (dismissible || title != null || action != null)
   const iosContent = {
     paddingTop: (hasIosBar ? iosBarHeight : 0) + theme.length("--page-bar-soft-tail", 32),

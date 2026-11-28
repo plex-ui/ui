@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.15.0 (2026-11-28)
+
+### Added
+
+- **SystemKeyboard motion.** The drawn keyboard slides up from under the window's edge and back down as the phone's does, measured frame by frame: on iOS the system keyboard's critically damped spring over 383ms (iOS 26.2 and 27.2), on Android Gboard's curve, (0.2, 0, 0, 1) over 285ms. The keyboard inset follows it on every frame, so a Bottom Sheet, a Phone Input's list and the screen rise with the keys; the keys of the last field stay while it goes down. With reduced motion it stands up and goes at once.
+
+### Changed
+
+- **SystemKeyboard on iOS: drawn to the simulator.** Each glyph is the kit's own simple outline in the iOS proportions, its box within about half a point of the iOS 26.2 keyboard's and its ink within a few percent; the held shift is a filled arrow, Caps Lock a filled arrow over a bar. Capitals are set smaller than small letters, as iOS sets them; the suggestion bar's words are gray; at night the emoji face is filled.
+- **BottomSheet, Dialog and Phone Input over the drawn keyboard** take its inset continuously, so they ride up and down with the keys instead of jumping when it lands; Android's sheet and dialog clear its whole height to the end of its way down.
+
 ## @plexui/react-native 0.14.0 (2026-11-28)
 
 ### Added

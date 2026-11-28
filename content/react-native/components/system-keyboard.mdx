@@ -39,7 +39,7 @@ On a phone the system brings up its own keyboard; a web preview of the app on a 
 
 <ComponentPreview details={<>
   <p>With no <code>field</code> the keyboard comes up when a field takes focus and goes when it loses it; moving from one field to the next keeps it up and changes its keys. A press on the keyboard keeps the field focused, as a key of the real one does. A field that opens no keyboard (<code>showSoftInputOnFocus={'{'}false{'}'}</code>), a read-only or a disabled one brings none.</p>
-  <p>Its height is the keyboard inset: a <a href="/react-native/components/bottom-sheet">Bottom Sheet</a> and a <a href="/react-native/components/phone-input">Phone Input</a>'s list rise over it, as over the system's. On Android the inset leaves out the navigation bar under Gboard, as Android reports it.</p>
+  <p>It slides up from under the window's edge and back down as the phone's does: on iOS on the system keyboard's spring (383ms, critically damped), on Android on Gboard's curve (285ms, <code>cubic-bezier(0.2, 0, 0, 1)</code>). Its height is the keyboard inset, and the inset moves with it frame by frame: a <a href="/react-native/components/bottom-sheet">Bottom Sheet</a> and a <a href="/react-native/components/phone-input">Phone Input</a>'s list rise over it, as over the system's. On Android the inset leaves out the navigation bar under Gboard, as Android reports it. With reduced motion it stands up and goes at once.</p>
 </>} code={followsFocusCode} previewMinHeight={760}>
   <RNExample demo="system-keyboard/FollowsFocus" />
 </ComponentPreview>
@@ -49,10 +49,11 @@ On a phone the system brings up its own keyboard; a web preview of the app on a 
 | | iOS 26 | Android |
 | --- | --- | --- |
 | Native | The system keyboard | Gboard |
+| Motion | A critically damped spring, 383ms both ways | Gboard's curve, (0.2, 0, 0, 1) over 285ms both ways |
 | Drawn | 335pt with its suggestion bar (308 for a phone pad), keys of 43 every 54, 6.5 from the sides and 6 apart | 336dp with its row of tools and the 24dp navigation bar (292 for a number pad), keys of 47 every 59, 4.57 from the sides and 5.33 apart |
 | On the device | Draws nothing: the system's keyboard comes up | Draws nothing: the system's keyboard comes up |
 
-Every key stands within 1pt of the native keyboard's, measured on the iOS 26.2 simulator (iPhone 17 Pro) and a Pixel 9 emulator with Gboard; the keys widen with the screen and the margins stay. The glyphs are the kit's icons, in Inter.
+Every key stands within 1pt of the native keyboard's, measured on the iOS 26.2 simulator (iPhone 17 Pro) and a Pixel 9 emulator with Gboard; the keys widen with the screen and the margins stay. The motion was measured frame by frame on the same simulator and emulator. The glyphs are the kit's own simple outlines in the iOS proportions: each one's box within about half a point of the native glyph and its ink within a few percent; iOS letters set capitals smaller than small letters, as the system does, and at night the emoji face is filled. The letters are Inter.
 
 ## API
 

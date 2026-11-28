@@ -448,7 +448,7 @@ function CountryPicker({ open, onClose, value, onSelect, countries, locale, flag
               />
             </View>
             <View style={styles.grow}>
-              <ScrollView ref={scroller} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ paddingHorizontal: android ? 0 : margin, gap: android ? 0 : 8, paddingBottom: keyboard ? 16 : insets.bottom + 16 }}>
+              <ScrollView ref={scroller} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ paddingHorizontal: android ? 0 : margin, gap: android ? 0 : 8, paddingBottom: Math.max(16, insets.bottom + 16 - keyboard) }}>
                 {sections.map((section) =>
                   section.items.length ? (
                     <View key={section.key} onLayout={(event: LayoutChangeEvent) => (offsets.current[section.key] = event.nativeEvent.layout.y)}>
