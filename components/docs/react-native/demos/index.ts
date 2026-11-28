@@ -46,6 +46,7 @@ export const demoModules: Record<string, () => Promise<DemoModule>> = {
   'rolling-number': () => import('./RollingNumberDemos'),
   'empty-message': () => import('./EmptyMessageDemos'),
   'page-control': () => import('./PageControlDemos'),
+  pager: () => import('./PagerDemos'),
   text: () => import('./TextDemos'),
   alert: () => import('./AlertDemos'),
   tip: () => import('./TipDemos'),

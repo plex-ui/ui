@@ -1,0 +1,72 @@
+---
+title: Pager
+description: Pages side by side that a swipe turns one at a time, under a segmented control or a page control.
+metaDescription: A React Native horizontal pager whose pages a swipe turns one at a time, bound to a segmented control whose thumb follows the swipe; iOS's page view controller, Material's horizontal pager under tabs.
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { List, ListItem, Pager, SegmentedControl, Toolbar } from "@plexui/react-native"
+import { ScrollView, View } from "react-native"
+
+const tabs = ["Plan", "Stays", "Notes"]
+const [page, setPage] = useState(0)
+// The pages' scroll as a fractional page: the thumb follows it on every frame
+const [position, setPosition] = useState(0)
+
+<View style={{ flex: 1 }}>
+  <Toolbar>
+    <Toolbar.Title>Lisbon</Toolbar.Title>
+    <Toolbar.Row>
+      <SegmentedControl
+        aria-label="Trip"
+        block
+        value={tabs[page]}
+        position={position}
+        onChange={(next) => setPage(tabs.indexOf(next))}
+      >
+        {tabs.map((tab) => <SegmentedControl.Tab key={tab} value={tab}>{tab}</SegmentedControl.Tab>)}
+      </SegmentedControl>
+    </Toolbar.Row>
+  </Toolbar>
+  <Pager page={page} onPageChange={setPage} onPageScroll={setPosition}[[^swipe]] scrollEnabled={false}[[/swipe]] style={{ flex: 1 }}>
+    {tabs.map((tab) => (
+      <ScrollView key={tab} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}>
+        <List>{rows[tab].map((row) => <ListItem key={row.label} label={row.label} value={row.detail} />)}</List>
+      </ScrollView>
+    ))}
+  </Pager>
+</View>`
+
+<UsageBlock>{`import { Pager } from "@plexui/react-native"`}</UsageBlock>
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>A pager holds pages side by side, each as wide as the pager, and a swipe turns them one at a time. Over it a <a href="/react-native/components/segmented-control">SegmentedControl</a> names the pages, as Material sets tabs over a pager: <code>onPageScroll</code> hands the scroll on every frame as a fractional page (1.5 halfway from the second page to the third), and the control&apos;s <code>position</code> takes it, so its thumb follows the finger and takes each width between. A segment pressed sets <code>page</code>, and the pager moves to that page, the thumb travelling with it.</p>
+  <p>A swipe comes to rest on the nearest page, and <code>onPageChange</code> names it. Where a phone&apos;s browser stops a swipe a few points off a page, the pager finishes the move to the page rather than leaving it in between. Right to left the pages run from the right, the next one coming in from the left, and each page keeps the layout&apos;s direction inside. Only the page shown is read by a screen reader and reached by Tab on the web. <code>swipe</code> here turns off <code>scrollEnabled</code>, leaving the pages to the segments alone; with reduced motion a page set by <code>page</code> comes in at once.</p>
+  <p>For a carousel of cards with dots under it, the same <code>onPageScroll</code> drives a <a href="/react-native/components/page-control">PageControl</a>: set its <code>position</code> from it.</p>
+</>} code={overviewCode} codeValues={{ swipe: true }} previewMinHeight={520}>
+  <RNExample demo="pager/Overview" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native component | Page view controller (a paging scroll view) | Horizontal pager |
+| Look | Pages a swipe turns, under a segmented control | Pages a swipe turns, under the tabs, the indicator following the swipe |
+
+## API
+
+<PropsTable data={[
+  { prop: "page", type: "number", description: "The page shown, by its index in the children's order (controlled)" },
+  { prop: "onPageChange", type: "(page: number) => void", description: "Called with the page a swipe comes to rest on" },
+  { prop: "onPageScroll", type: "(position: number) => void", description: "Called on every frame of a swipe or a move with a fractional page, for SegmentedControl's position or PageControl's" },
+  { prop: "scrollEnabled", type: "boolean", default: "true", description: "Whether a swipe turns the pages; off, only page does" },
+  { prop: "children", type: "ReactNode", description: "The pages, one child each, each as wide as the pager" },
+  { prop: "testID", type: "string", description: "Test id" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the pager" },
+]} />

@@ -107,6 +107,7 @@ export { ShimmerableText, ShimmerText, type ShimmerableTextProps, type ShimmerTe
 export { RollingNumber, rollingNumberParts, type RollingNumberProps } from "./components/RollingNumber/RollingNumber"
 export { EmptyMessage, EmptyState, type EmptyMessageProps } from "./components/EmptyMessage/EmptyMessage"
 export { Slider, type SliderMark, type SliderProps } from "./components/Slider/Slider"
+export { Pager, type PagerProps } from "./components/Pager/Pager"
 export { PageControl, pageControlDots, type PageControlChangeDetails, type PageControlDotSize, type PageControlProps } from "./components/PageControl/PageControl"
 export { Alert, type AlertColor, type AlertMobileActions, type AlertProps, type AlertVariant } from "./components/Alert/Alert"
 export { Tip, type TipArrowEdge, type TipMobileActions, type TipPopoverProps, type TipProps } from "./components/Tip/Tip"

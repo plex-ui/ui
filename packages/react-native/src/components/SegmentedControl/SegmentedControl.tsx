@@ -1,8 +1,9 @@
-import { createContext, isValidElement, useContext, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react"
+import { createContext, isValidElement, useContext, useEffect, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
 import { Animated, Easing, Platform, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
 import { CssSlide } from "../../internal/CssSlide"
 import { childrenOfType, isRenderable, textOf } from "../../internal/children"
+import { isRTL } from "../../internal/direction"
 import { Glass } from "../../internal/Glass"
 import { curves } from "../../internal/motion"
 import { useTabKeys } from "../../internal/tabKeys"
@@ -59,6 +60,13 @@ export type SegmentedControlProps<T extends string> = {
    * @default "label"
    */
   badgeColor?: "label" | "accent"
+  /**
+   * Where the thumb stands while something else moves the selection, as a fractional index of the segments in their
+   * order: a pager under the control passes its scroll position (`Pager`'s `onPageScroll`), 1.5 halfway from the
+   * second segment to the third, and the thumb follows the finger, taking each width between, as Material's tab
+   * indicator follows a pager. Unset or at the selected index, the thumb slides to the selection as usual.
+   */
+  position?: number
   style?: StyleProp<ViewStyle>
   testID?: string
   /** `SegmentedControl.Tab` elements. */
@@ -181,6 +189,7 @@ function SegmentedControlRoot<T extends string>({
   mobileSegmentWidth = "equal",
   showBadges = false,
   badgeColor = "label",
+  position,
   style,
   testID,
   children,
@@ -201,9 +210,20 @@ function SegmentedControlRoot<T extends string>({
   )
   // Drawn counts differ from tab to tab, so each segment takes its own width with them, as a messenger's folder tabs
   const counted = showBadges && options.some((option) => option.badge != null)
-  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" && !counted, showBadges, badgeColor }
+  // The web places the thumb from the left: right to left it counts from the right end (native rows flip `start`)
+  // (the control's own element: react-native-web's layout events carry no currentTarget)
+  const root = useRef<ComponentRef<typeof View>>(null)
+  const [rtl, setRTL] = useState(false)
+  const onLayout =
+    Platform.OS === "web"
+      ? () => {
+          const next = isRTL(root.current)
+          setRTL((old) => (old === next ? old : next))
+        }
+      : undefined
+  const common = { options, value, select, keys, disabled, block, equal: mobileSegmentWidth === "equal" && !counted, showBadges, badgeColor, position, rtl }
   return (
-    <View accessibilityRole="tablist" aria-label={ariaLabel} accessibilityState={{ disabled }} testID={testID} style={[block ? styles.block : styles.hug, style]}>
+    <View ref={root} accessibilityRole="tablist" aria-label={ariaLabel} accessibilityState={{ disabled }} testID={testID} onLayout={onLayout} style={[block ? styles.block : styles.hug, style]}>
       {theme.isAndroid ? <AndroidControl {...common} size={size} /> : <IOSControl {...common} size={size} material={mobileMaterial} />}
     </View>
   )
@@ -220,9 +240,31 @@ type ControlProps = {
   equal: boolean
   showBadges: boolean
   badgeColor: "label" | "accent"
+  position?: number
+  rtl: boolean
 }
 
-function IOSControl({ options, value, select, keys, disabled, block, equal, showBadges, badgeColor, size, material }: ControlProps & { size: ControlSize; material?: "glass" | "flat" }) {
+/** The web's thumb from the left: right to left, its offset from the start counted back from the track's right end. */
+const fromLeft = (rtl: boolean, x: number, width: number, track: number) => (rtl ? track - x - width : x)
+
+/**
+ * The thumb's frame between two segments at a fractional `position`, from each segment's start and width in their
+ * order; undefined until every segment is measured.
+ */
+function frameBetween(starts: number[], widths: (number | undefined)[], position: number) {
+  if (!widths.length || widths.some((w) => w == null)) return undefined
+  const last = widths.length - 1
+  const at = Math.max(0, Math.min(last, position))
+  const i = Math.min(Math.floor(at), last)
+  const j = Math.min(i + 1, last)
+  const t = at - i
+  return { x: starts[i] + (starts[j] - starts[i]) * t, width: widths[i]! + (widths[j]! - widths[i]!) * t }
+}
+
+/** Whether a position sets the thumb apart from the selection, so the thumb follows it at once. */
+const following = (position: number | undefined, index: number) => position != null && index >= 0 && Math.abs(position - index) > 0.001
+
+function IOSControl({ options, value, select, keys, disabled, block, equal, showBadges, badgeColor, size, material, position, rtl }: ControlProps & { size: ControlSize; material?: "glass" | "flat" }) {
   const theme = useTheme()
   const inBar = !!useContext(BarItemContext)
   const { inRow } = useContext(SegmentedControlRowContext)
@@ -244,7 +286,10 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
   const index = options.findIndex((option) => option.value === value)
   const measured = index >= 0 && options.slice(0, index + 1).every((option) => widths[option.value] != null)
   const left = measured ? look.gutter + options.slice(0, index).reduce((sum, option) => sum + widths[option.value] + look.gap, 0) : 0
-  const selected = measured ? { x: left, width: widths[value] } : undefined
+  const follow = following(position, index)
+  const starts = options.map((_, i) => look.gutter + options.slice(0, i).reduce((sum, option) => sum + (widths[option.value] ?? 0) + look.gap, 0))
+  const between = follow ? frameBetween(starts, options.map((option) => widths[option.value]), position!) : undefined
+  const selected = between ?? (measured ? { x: left, width: widths[value] } : undefined)
   const selectedX = selected?.x
   const selectedWidth = selected?.width
   const [x] = useState(() => new Animated.Value(0))
@@ -253,7 +298,9 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
   useEffect(() => {
     // The web's thumb slides in CSS
     if (selectedX == null || selectedWidth == null || Platform.OS === "web") return
-    if (!placed.current || theme.reducedMotion) {
+    if (!placed.current || theme.reducedMotion || follow) {
+      x.stopAnimation()
+      width.stopAnimation()
       x.setValue(selectedX)
       width.setValue(selectedWidth)
       placed.current = true
@@ -266,7 +313,7 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
       Animated.timing(x, { toValue: selectedX, duration: look.duration, easing, useNativeDriver: false }),
       Animated.timing(width, { toValue: selectedWidth, duration: look.duration, easing, useNativeDriver: false }),
     ]).start()
-  }, [selectedX, selectedWidth, look.duration, theme.reducedMotion, x, width])
+  }, [selectedX, selectedWidth, look.duration, theme.reducedMotion, follow, x, width])
   // The segments take the capsule's whole height, so a press anywhere on it lands (the thumb keeps its inset); a
   // minimum, so text a person enlarges is not cut
   const track: ViewStyle = {
@@ -284,18 +331,18 @@ function IOSControl({ options, value, select, keys, disabled, block, equal, show
       {selected && Platform.OS === "web" ? (
         // The web slides the thumb in CSS, off the JavaScript thread
         <CssSlide
-          x={selected.x}
+          x={fromLeft(rtl, selected.x, selected.width, starts[starts.length - 1] + (widths[options[options.length - 1]?.value] ?? 0) + look.gutter)}
           width={selected.width}
           side="left"
           duration={look.duration}
           easing="cubic-bezier(0.25, 0.1, 0.25, 1)"
-          still={theme.reducedMotion}
+          still={theme.reducedMotion || follow}
           style={[styles.thumb, { top: look.gutter, bottom: look.gutter, borderRadius: optionRadius, backgroundColor: look.thumb }]}
         />
       ) : selected ? (
         <Animated.View
           pointerEvents="none"
-          style={[styles.thumb, { top: look.gutter, bottom: look.gutter, left: x, width, borderRadius: optionRadius, backgroundColor: look.thumb }]}
+          style={[styles.thumb, { top: look.gutter, bottom: look.gutter, start: x, width, borderRadius: optionRadius, backgroundColor: look.thumb }]}
         />
       ) : null}
       {options.map((option) => {
@@ -387,7 +434,7 @@ const ANDROID_MOVE = { duration: 320, easing: curves.easeOutQuint }
  * its label in the accent, the others in the secondary gray. The pill slides to a new selection and takes its width.
  * In a bar's row of controls the capsule takes the height of the circles beside it (46dp).
  */
-function AndroidControl({ options, value, select, keys, disabled, block, equal, showBadges, badgeColor, size }: ControlProps & { size: ControlSize }) {
+function AndroidControl({ options, value, select, keys, disabled, block, equal, showBadges, badgeColor, size, position, rtl }: ControlProps & { size: ControlSize }) {
   const theme = useTheme()
   const m = theme.material
   const bar = useContext(BarItemContext)
@@ -404,12 +451,17 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal, 
   // a layout on a resize, not on a move)
   const index = options.findIndex((option) => option.value === value)
   const measured = index >= 0 && options.slice(0, index + 1).every((option) => widths[option.value] != null)
-  const frameX = measured ? 4 + options.slice(0, index).reduce((sum, option) => sum + widths[option.value], 0) : undefined
-  const frameWidth = measured ? widths[options[index].value] : undefined
+  const follow = following(position, index)
+  const starts = options.map((_, i) => 4 + options.slice(0, i).reduce((sum, option) => sum + (widths[option.value] ?? 0), 0))
+  const between = follow ? frameBetween(starts, options.map((option) => widths[option.value]), position!) : undefined
+  const frameX = between ? between.x : measured ? 4 + options.slice(0, index).reduce((sum, option) => sum + widths[option.value], 0) : undefined
+  const frameWidth = between ? between.width : measured ? widths[options[index].value] : undefined
   const frame = frameX != null
   useEffect(() => {
     if (frameX == null || frameWidth == null || Platform.OS === "web") return
-    if (!placed.current || theme.reducedMotion) {
+    if (!placed.current || theme.reducedMotion || follow) {
+      x.stopAnimation()
+      width.stopAnimation()
       x.setValue(frameX)
       width.setValue(frameWidth)
       placed.current = true
@@ -417,7 +469,7 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal, 
     }
     const timing = { ...ANDROID_MOVE, useNativeDriver: false }
     Animated.parallel([Animated.timing(x, { ...timing, toValue: frameX }), Animated.timing(width, { ...timing, toValue: frameWidth })]).start()
-  }, [frameX, frameWidth, x, width, theme.reducedMotion])
+  }, [frameX, frameWidth, x, width, theme.reducedMotion, follow])
   return (
     <View
       style={[
@@ -428,18 +480,18 @@ function AndroidControl({ options, value, select, keys, disabled, block, equal, 
     >
       {frame && Platform.OS === "web" ? (
         <CssSlide
-          x={frameX}
+          x={fromLeft(rtl, frameX!, frameWidth!, starts[starts.length - 1] + (widths[options[options.length - 1]?.value] ?? 0) + 4)}
           width={frameWidth!}
           side="left"
           duration={ANDROID_MOVE.duration}
           easing="cubic-bezier(0.23, 1, 0.32, 1)"
-          still={theme.reducedMotion}
+          still={theme.reducedMotion || follow}
           style={[styles.androidPill, { height: inner, borderRadius: inner / 2, backgroundColor: withAlpha(m.primary, 0.12) }]}
         />
       ) : frame ? (
         <Animated.View
           pointerEvents="none"
-          style={[styles.androidPill, { height: inner, borderRadius: inner / 2, backgroundColor: withAlpha(m.primary, 0.12), left: x, width }]}
+          style={[styles.androidPill, { height: inner, borderRadius: inner / 2, backgroundColor: withAlpha(m.primary, 0.12), start: x, width }]}
         />
       ) : null}
       {options.map((option) => (
