@@ -1,5 +1,5 @@
 import { Children, cloneElement, isValidElement, useId, useLayoutEffect, useMemo, useState, type ReactElement, type ReactNode } from "react"
-import { InSheetContext } from "./context"
+import { InSheetContext, SheetFloatInsetContext } from "./context"
 import { Animated, Easing, PanResponder, Platform, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
 import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -63,8 +63,9 @@ export type BottomSheetProps = {
   /**
    * iOS 26: a sheet short of the screen's height floats, as Maps' filter panels: 8 from the screen's sides and bottom,
    * every corner rounded concentric with the screen's (`--bottom-sheet-floating-inset`, `--bottom-sheet-floating-radius`),
-   * no grabber; a `large` sheet meets the edges. Android keeps Material's sheet at the screen's edge.
-   * @default true on iOS for a detent short of `large`
+   * no grabber; a `large` sheet meets the edges, and so does one as tall as its content that reaches the top. Android
+   * keeps Material's sheet at the screen's edge.
+   * @default true on iOS for a sheet short of the screen's height
    */
   floating?: boolean
   /**
@@ -316,8 +317,20 @@ export function BottomSheetBase({
     : { accessibilityViewIsModal: true, "aria-label": ariaLabel }
   // iOS 26's sheet short of the screen's height floats: 8 in from the screen's sides and bottom, its corners the
   // screen's (about 62) less the 8
-  const floating = !android && (floatingProp ?? detent !== "large")
-  const floatInset = floating ? theme.length("--bottom-sheet-floating-inset", 8) : 0
+  // A sheet as tall as its content that reaches the most a floating sheet takes meets the edges, as a large one: iOS
+  // floats only a sheet short of the screen
+  const inset = theme.length("--bottom-sheet-floating-inset", 8)
+  // Held while the sheet is open: at the screen's edges it is wider, and text that unwraps there must not float it again
+  const [reachedTop, setReachedTop] = useState(false)
+  const [wasOpen, setWasOpen] = useState(open)
+  if (wasOpen !== open) {
+    setWasOpen(open)
+    if (!open) setReachedTop(false)
+  }
+  const floatingMax = screen - insets.top - 16 - inset
+  const reachesTop = detent === "content" && (reachedTop || height >= floatingMax - 0.5)
+  const floating = !android && (floatingProp ?? (detent !== "large" && !reachesTop))
+  const floatInset = floating ? inset : 0
   const floatRadius = theme.length("--bottom-sheet-floating-radius", 54)
   // Android's sheet stands under the status bar at most; the phone layer's 16 under the top inset
   const maxHeight = screen - insets.top - (android ? 0 : 16) - floatInset
@@ -441,6 +454,8 @@ export function BottomSheetBase({
     >
       {(progress, _opening, focus) => (
         <InSheetContext.Provider value>
+        {/* A floating sheet stands 8 over the screen's bottom: a bottom Toolbar in it takes the safe area less those 8 */}
+        <SheetFloatInsetContext.Provider value={floatInset}>
         <View pointerEvents="box-none" style={styles.bottom}>
           <Animated.View
             {...a11y}
@@ -450,7 +465,11 @@ export function BottomSheetBase({
             // On the web the sheet itself takes the first focus, not its Close or a field
             tabIndex={focus.tabIndex}
             onBlur={focus.onBlur}
-            onLayout={(event) => setHeight(event.nativeEvent.layout.height)}
+            onLayout={(event) => {
+              const next = event.nativeEvent.layout.height
+              setHeight(next)
+              if (detent === "content" && next >= floatingMax - 0.5) setReachedTop(true)
+            }}
             style={[
               focus.style,
               styles.sheet,
@@ -562,6 +581,7 @@ export function BottomSheetBase({
             />
           ) : null}
         </View>
+        </SheetFloatInsetContext.Provider>
         </InSheetContext.Provider>
       )}
     </Overlay>

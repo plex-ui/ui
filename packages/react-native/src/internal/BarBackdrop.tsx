@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Animated, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { barSurface, withAlpha } from "../theme/material"
 import { useTheme } from "../theme/ThemeProvider"
 import type { Theme } from "../theme/types"
@@ -225,7 +225,10 @@ export function SoftBottomEdge({
  * 0), the color alone at 210/255, eased out over the last 48dp, as Android's fallback. Each fade eases with
  * cubic-bezier(0.42, 0, 0.58, 1) in eight steps.
  */
-export function SoftTopEdge({ fill, blur }: { fill: string; blur: number }) {
+/** A soft edge's strength, 0 to 1: set on each of its layers, as an ancestor's opacity would cut the blur off what it blurs */
+type EdgeOpacity = Animated.Value | Animated.AnimatedInterpolation<number> | undefined
+
+export function SoftTopEdge({ fill, blur, opacity }: { fill: string; blur: number; opacity?: EdgeOpacity }) {
   if (Platform.OS === "web") {
     const filter = blur > 0 ? `blur(${blur}px)` : null
     const mask = fadeMask(filter ? 56 : 48)
@@ -233,22 +236,22 @@ export function SoftTopEdge({ fill, blur }: { fill: string; blur: number }) {
     return (
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         {filter ? (
-          <View
-            style={[StyleSheet.absoluteFill, { maskImage: blurMask, WebkitMaskImage: blurMask, backdropFilter: filter, WebkitBackdropFilter: filter } as ViewStyle]}
+          <Animated.View
+            style={[StyleSheet.absoluteFill, { maskImage: blurMask, WebkitMaskImage: blurMask, backdropFilter: filter, WebkitBackdropFilter: filter } as ViewStyle, { opacity }]}
           />
         ) : null}
-        <View
-          style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(fill, filter ? 160 / 255 : 210 / 255), maskImage: mask, WebkitMaskImage: mask } as ViewStyle]}
+        <Animated.View
+          style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(fill, filter ? 160 / 255 : 210 / 255), maskImage: mask, WebkitMaskImage: mask } as ViewStyle, { opacity }]}
         />
       </View>
     )
   }
   const stops = fadeStops(210 / 255, 48).map(([alpha, from]) => `${withAlpha(fill, alpha)} ${from}px`)
   return (
-    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity }]}>
       <View style={{ flex: 1, backgroundColor: withAlpha(fill, 210 / 255) }} />
       <View style={{ height: 48, backgroundImage: `linear-gradient(to bottom, ${stops.join(", ")})` } as ViewStyle} />
-    </View>
+    </Animated.View>
   )
 }
 
@@ -269,7 +272,7 @@ const BOTTOM_VEIL: readonly [number, number][] = [
   [0.46, 77],
 ]
 
-export function SoftBottomVeil({ fill, top, bottom }: { fill: string; top?: number; bottom?: number }) {
+export function SoftBottomVeil({ fill, top, bottom, opacity }: { fill: string; top?: number; bottom?: number; opacity?: EdgeOpacity }) {
   // `top`: under a bottom bar whose items start there; `bottom`: turned over, under the status bar `bottom` tall
   const up = bottom != null
   const place: ViewStyle = up
@@ -281,8 +284,8 @@ export function SoftBottomVeil({ fill, top, bottom }: { fill: string; top?: numb
     const blurMask = `linear-gradient(${way}, transparent 12px, #000 40px)`
     return (
       <View pointerEvents="none" style={place}>
-        <View style={[StyleSheet.absoluteFill, { backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", maskImage: blurMask, WebkitMaskImage: blurMask } as ViewStyle]} />
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: fill, maskImage: veil, WebkitMaskImage: veil } as ViewStyle]} />
+        <Animated.View style={[StyleSheet.absoluteFill, { backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", maskImage: blurMask, WebkitMaskImage: blurMask } as ViewStyle, { opacity }]} />
+        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: fill, maskImage: veil, WebkitMaskImage: veil } as ViewStyle, { opacity }]} />
       </View>
     )
   }
@@ -291,10 +294,10 @@ export function SoftBottomVeil({ fill, top, bottom }: { fill: string; top?: numb
   const ramp = <View style={{ height: last[1], backgroundImage: gradient } as ViewStyle} />
   const rest = <View style={{ flex: 1, backgroundColor: withAlpha(fill, last[0]) }} />
   return (
-    <View pointerEvents="none" style={place}>
+    <Animated.View pointerEvents="none" style={[place, { opacity }]}>
       {up ? rest : ramp}
       {up ? ramp : rest}
-    </View>
+    </Animated.View>
   )
 }
 

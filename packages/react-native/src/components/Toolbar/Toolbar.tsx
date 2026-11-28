@@ -22,6 +22,7 @@ import { flattenChildren } from "../../internal/children"
 import { BarFieldContext, BarItemContext, type BarItemStyle } from "../Button/Button"
 import { SegmentedControlRowContext } from "../SegmentedControl/SegmentedControl"
 import { Text } from "../Text/Text"
+import { SheetFloatInsetContext } from "../BottomSheet/context"
 
 export type ToolbarPlacement = "top" | "bottom"
 export type ToolbarTitleStyle = "inline" | "large"
@@ -494,6 +495,8 @@ function ToolbarRoot({
     return () => setInset(edge, 0)
   }, [floating, placement, setInset])
   const insets = useSafeAreaInsets()
+  // In a floating sheet, which stands over the screen's bottom: the safe area under the sheet is that much less
+  const sheetLift = useContext(SheetFloatInsetContext)
   const { leading, title, content, trailing, rows } = parts(children)
   const top = placement === "top"
   const mode = background ?? (top && !theme.isAndroid ? "glass" : "soft")
@@ -533,7 +536,7 @@ function ToolbarRoot({
     : top
       ? theme.length("--toolbar-padding-bottom", 10)
       : safeArea
-        ? Math.max(bottomPadding, insets.bottom - 6)
+        ? Math.max(bottomPadding, insets.bottom - sheetLift - 6)
         : bottomPadding
   const gutter = android ? (top ? (plain ? 4 : 6) : 16) : top ? theme.length("--toolbar-gutter", 16) : theme.length("--toolbar-bottom-gutter", 28)
   // What a row's tabs reach past to stand edge to edge

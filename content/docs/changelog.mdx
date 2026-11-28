@@ -7,6 +7,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.13.0 (2026-11-28)
+
+### Added
+
+- **ListItem `leadingSize`.** The leading picture's size when it is not a symbol (a 40 photo): the row takes its height from the first frame.
+- **ScrollEdge `progress`.** The edge's strength, 0 to 1, set on each of its layers (the web's blur keeps the content under it), tied to the scroll (iOS shows it over the first 32 or so): `scrollY.interpolate({ inputRange: [0, 32], outputRange: [0, 1], extrapolate: "clamp" })`.
+
+### Changed
+
+- **List row with a picture.** A picture taller than the symbol (a 40 photo: a 60 row on iOS, 56 on Android) is read before the row's first frame where the element tells its size at once (the web, React Native's new architecture), so a sheet sized by its content no longer grows on the second frame.
+- **Floating BottomSheet.** A sheet as tall as its content that reaches the top meets the screen's edges, as a large one, and stays so while it is open: iOS floats only a sheet short of the screen.
+- **Bottom Toolbar inside a floating sheet** takes the safe area under it less the sheet's 8, so its controls keep their place over the home indicator; an overlay opened from the sheet stands on the screen's bottom again.
+
 ## @plexui/react-native 0.12.0 (2026-11-28)
 
 ### Added

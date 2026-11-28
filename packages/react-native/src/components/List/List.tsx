@@ -1,4 +1,4 @@
-import { cloneElement, createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
+import { cloneElement, createContext, isValidElement, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
 import { Animated, Easing, Platform, StyleSheet, View, type GestureResponderEvent, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Pressable } from "../../internal/Pressable"
@@ -374,6 +374,12 @@ export type ListItemProps = {
   leading?: ReactNode
   /** The fill of the leading tile; the symbol turns white on it. */
   leadingColor?: string
+  /**
+   * The leading picture's size when it is not a symbol (a 40 photo, a 32 avatar): the row takes its height from the
+   * first frame. Without it the row reads the picture's size before its first frame where the element can tell it (the
+   * web, React Native's new architecture), else on layout.
+   */
+  leadingSize?: number
   /** A value at the end, in the secondary label on iOS (`Wi-Fi … Home`) and the accent on Android. */
   value?: ReactNode
   /**
@@ -451,6 +457,7 @@ export function ListItem({
   description,
   leading,
   leadingColor,
+  leadingSize,
   value,
   valuePlacement = "end",
   valueColor,
@@ -564,9 +571,9 @@ export function ListItem({
     return (
       <RowFrameContext.Provider value={frame}>
         {theme.isAndroid ? (
-          <AndroidContent handPress={handPress} valueColor={valueColor ?? "accent"} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingMark={atStart != null || checkLeads} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} disabled={disabled} destructive={destructive} last={last} />
+          <AndroidContent handPress={handPress} valueColor={valueColor ?? "accent"} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingSize={atStart || checkLeads ? undefined : leadingSize} leadingMark={atStart != null || checkLeads} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} disabled={disabled} destructive={destructive} last={last} />
         ) : (
-          <IOSContent handPress={handPress} valueColor={valueColor ?? "secondary"} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
+          <IOSContent handPress={handPress} valueColor={valueColor ?? "secondary"} theme={theme} label={label} description={description} descriptionId={described.id} leading={start} leadingColor={startColor} leadingSize={atStart || checkLeads ? undefined : leadingSize} value={value} valuePlacement={valuePlacement} trailing={end} edgeControl={found != null || switchRow} error={error} chevron={chevron} disabled={disabled} destructive={destructive} last={last} />
         )}
       </RowFrameContext.Provider>
     )
@@ -851,7 +858,7 @@ function RowHighlight({ on, last }: { on: boolean; last: boolean }) {
   )
 }
 
-type ContentProps = Pick<ListItemProps, "label" | "description" | "leading" | "value" | "trailing" | "error"> & {
+type ContentProps = Pick<ListItemProps, "label" | "description" | "leading" | "leadingSize" | "value" | "trailing" | "error"> & {
   theme: Theme
   /** The end is a switch, a checkbox or a radio: with `columns` it stays at the row's edge. */
   edgeControl?: boolean
@@ -895,7 +902,25 @@ function useValueBelow(
   return { below, probe, onRowLayout: auto ? measure("row") : undefined, onTrailingLayout: auto ? measure("trailing") : undefined }
 }
 
-function IOSContent({ handPress, valueColor, theme, label, description, descriptionId, leading, leadingColor, value, valuePlacement, trailing, edgeControl = false, error, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean; handPress: RowEnd["press"]; valueColor: "secondary" | "accent" }) {
+/**
+ * The leading picture's size before the row's first frame, where the element tells it at once: the web's box, React
+ * Native's new architecture (`getBoundingClientRect`). Elsewhere the picture's `onLayout` tells it a frame later.
+ */
+function usePictureFrame(leading: ReactNode, onSize: (width: number, height: number) => void) {
+  const ref = useRef<ComponentRef<typeof View>>(null)
+  useLayoutEffect(() => {
+    const element = ref.current as unknown as { offsetWidth?: number; offsetHeight?: number; getBoundingClientRect?: () => { width: number; height: number } } | null
+    if (!element || leading == null) return
+    if (typeof element.offsetWidth === "number" && typeof element.offsetHeight === "number") onSize(element.offsetWidth, element.offsetHeight)
+    else if (typeof element.getBoundingClientRect === "function") {
+      const box = element.getBoundingClientRect()
+      onSize(box.width, box.height)
+    }
+  }, [leading, onSize])
+  return ref
+}
+
+function IOSContent({ handPress, valueColor, theme, label, description, descriptionId, leading, leadingColor, leadingSize, value, valuePlacement, trailing, edgeControl = false, error, chevron, disabled, destructive, last }: ContentProps & { leadingColor?: string; chevron: boolean; last: boolean; handPress: RowEnd["press"]; valueColor: "secondary" | "accent" }) {
   const inset = theme.length("--list-row-inset", 20)
   const tile = theme.length("--field-row-icon-size", 28)
   const gap = theme.length("--field-row-gap", 16)
@@ -927,10 +952,20 @@ function IOSContent({ handPress, valueColor, theme, label, description, descript
   const [fill, setFill] = useState(false)
   // A picture wider than the tile (a photo, an avatar) keeps its own size: it starts at the row's inset, where the
   // header and the footer stand, and the text follows 14 past it, as UIKit's image to text padding
-  const [wide, setWide] = useState(false)
+  const [wide, setWide] = useState(() => leadingColor == null && leadingSize != null && leadingSize > tile + 0.5)
   // A picture taller than the tile (a 40 photo) keeps the cell's margins over and under it, 10 as UIKit's content
   // configuration keeps them: a 40 photo makes a 60 row
-  const [tall, setTall] = useState(false)
+  const [tall, setTall] = useState(() => leadingColor == null && leadingSize != null && leadingSize > tile + 0.5)
+  const picture = usePictureFrame(
+    leading,
+    useCallback(
+      (width: number, height: number) => {
+        setWide(width > tile + 0.5)
+        setTall(height > tile + 0.5)
+      },
+      [tile],
+    ),
+  )
   // In a List with `columns` a field's value starts at one column, 40% into the row (`--field-row-column-width`)
   // A switch, a checkbox and a radio stay at the row's edge
   const columns = useContext(ListOptionsContext)?.columns === true && trailing != null
@@ -956,6 +991,7 @@ function IOSContent({ handPress, valueColor, theme, label, description, descript
             tall ? { marginVertical: theme.length("--field-row-picture-margin-block", 10) } : null,
             leadingColor ? { backgroundColor: leadingColor, borderRadius: theme.length("--field-row-icon-radius", 7) } : null,
           ]}
+          ref={picture}
           onLayout={(event) => {
             const next = event.nativeEvent.layout.width > tile + 0.5
             if (next !== wide) setWide(next)
@@ -1056,6 +1092,7 @@ function AndroidContent({
   descriptionId,
   leading,
   leadingColor,
+  leadingSize,
   leadingMark = false,
   value,
   valuePlacement,
@@ -1075,10 +1112,20 @@ function AndroidContent({
   const tile = leading != null && !!leadingColor
   // A picture wider than the symbol's 24 (a photo, an avatar) keeps its own size from the rows' inset (21, where the
   // header and the footer stand), the text 16 past it, as Material's list item with a leading avatar; 0 for a symbol
-  const [wide, setWide] = useState(0)
+  const [wide, setWide] = useState(() => (!tile && leadingSize != null && leadingSize > 24.5 ? leadingSize : 0))
   // A picture taller than the symbol's 24 (a 40 avatar) keeps 8 over and under it, Material's list item with a leading
   // avatar: a 40 photo makes a 56 row
-  const [tall, setTall] = useState(false)
+  const [tall, setTall] = useState(() => !tile && leadingSize != null && leadingSize > 24.5)
+  const picture = usePictureFrame(
+    tile || leadingMark ? null : leading,
+    useCallback((width: number, height: number) => {
+      setWide((was) => {
+        const next = width > 24.5 ? width : 0
+        return Math.abs(next - was) > 0.5 ? next : was
+      })
+      setTall(height > 24.5)
+    }, []),
+  )
   // The text (and the divider) 21 in, or 64 after a symbol, a tile or a choice's mark (its 20dp circle 22 in)
   const textStart = leading == null ? ANDROID_INSET : wide > 0 && !tile && !leadingMark ? ANDROID_INSET + wide + 16 : 64
   // A value that ends the row stands 17 from the end (a value row), 20 in a row with a tile (a tiled row)
@@ -1099,6 +1146,7 @@ function AndroidContent({
         <View style={styles.androidMark}>{leading}</View>
       ) : (
         <View
+          ref={tile ? undefined : picture}
           style={tile ? [styles.androidTile, { backgroundColor: leadingColor, opacity: disabled ? 0.5 : 1 }] : [styles.androidIcon, wide > 0 ? styles.androidWide : null, tall ? styles.androidTall : null]}
           onLayout={
             tile

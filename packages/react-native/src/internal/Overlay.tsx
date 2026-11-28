@@ -3,6 +3,7 @@ import { Animated, Easing, Modal, Platform, StyleSheet, View, type BlurEvent, ty
 import { useTheme } from "../theme/ThemeProvider"
 import type { Theme } from "../theme/types"
 import { liquidGlassModule } from "./optional"
+import { SheetFloatInsetContext } from "../components/BottomSheet/context"
 
 /** How an overlay moves: a dialog, a sheet (a panel that crosses the screen) or a menu. */
 export type OverlayMotion = "dialog" | "sheet" | "menu"
@@ -279,7 +280,8 @@ export function Overlay({ open, onDismiss, scrim = "transparent", dismissible = 
             {...(Platform.OS === "web" ? { onTouchEnd: endTouch as never } : null)}
             testID={testID ? `${testID}-scrim` : undefined}
           />
-          {children(progress, show, focus)}
+          {/* An overlay covers the screen: what it holds stands on the screen's bottom, not a floating sheet's */}
+          <SheetFloatInsetContext.Provider value={0}>{children(progress, show, focus)}</SheetFloatInsetContext.Provider>
         </View>
       ) : null}
     </Modal>

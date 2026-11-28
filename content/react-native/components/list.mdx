@@ -170,6 +170,7 @@ Returns `{ rowInset, radius }`: where a row's text starts and the section's corn
   { prop: "description", type: "ReactNode", description: "Secondary text under the label" },
   { prop: "leading", type: "ReactNode", description: "A symbol at the start" },
   { prop: "leadingColor", type: "string", description: "The fill of the leading tile, where the symbol turns white" },
+  { prop: "leadingSize", type: "number", description: "The leading picture's size when it is not a symbol (a 40 photo): the row takes its height from the first frame. Without it the row reads the picture before its first frame where it can (the web, the new architecture), else on layout" },
   { prop: "value", type: "ReactNode", description: "The current value at the end: in the secondary gray on iOS, in the accent on Android" },
   { prop: "valueColor", type: '"secondary" | "accent"', default: '"secondary" on iOS, "accent" on Android', description: "The color of the value at the end, and of a Select's value in the row: the secondary gray or the accent" },
   { prop: "valuePlacement", type: '"end" | "below" | "auto"', default: '"end"', description: "Where the value stands: at the end, below the label, or below only when the label and the value do not fit beside each other on one line; below the label it is in the secondary gray (13sp on Android)" },

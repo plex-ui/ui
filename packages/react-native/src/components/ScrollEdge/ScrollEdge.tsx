@@ -1,4 +1,5 @@
-import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import type { ReactNode } from "react"
+import { Animated, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SoftBottomVeil, SoftTopEdge } from "../../internal/BarBackdrop"
 import { normalizeCssColor } from "../../theme/cssColor"
@@ -25,6 +26,12 @@ export type ScrollEdgeProps = {
    * Under a row of filters over photos, where a blur would turn them to a smudge. @default "soft"
    */
   background?: "soft" | "fade"
+  /**
+   * The edge's strength, 0 to 1, tied to the scroll: iOS shows it over the first 32 or so of a scroll. Pass the scroll's
+   * offset interpolated, `scrollY.interpolate({ inputRange: [0, 32], outputRange: [0, 1], extrapolate: "clamp" })`;
+   * the top edge then stands whatever `scrolled` says.
+   */
+  progress?: Animated.Value | Animated.AnimatedInterpolation<number>
   testID?: string
   style?: StyleProp<ViewStyle>
 }
@@ -36,8 +43,11 @@ export type ScrollEdgeProps = {
  * the screen's color that grows to 46% at the screen's edge. On Android the top edge is the soft edge of its top bar
  * over the status bar alone, the bottom one draws nothing. Lay it over the screen, after the scroll view.
  */
-export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEnd, background = "soft", testID, style }: ScrollEdgeProps) {
+export function ScrollEdge({ edge = "top", scrolled: scrolledProp = false, canvasColor, fadeEnd, background = "soft", progress, testID, style }: ScrollEdgeProps): ReactNode {
   const theme = useTheme()
+  // With a progress the edge's strength follows the scroll; it is set on each layer, as an ancestor's opacity would
+  // cut a blur off the content it blurs
+  const scrolled = progress != null || scrolledProp
   const insets = useSafeAreaInsets()
   // A named or hsl() color given as rgb, so the fade's stops can take their alpha
   const canvas = normalizeCssColor(canvasColor ?? theme.colors.background)
@@ -58,7 +68,7 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEn
     }
     const gradient = `linear-gradient(${top ? "to bottom" : "to top"}, ${stops.join(", ")})`
     return (
-      <View
+      <Animated.View
         pointerEvents="none"
         testID={testID}
         style={[
@@ -66,6 +76,7 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEn
           top ? { top: 0 } : { bottom: 0 },
           style,
           { height: rowEnd + FADE_BELOW_ROW_END },
+          progress != null ? { opacity: progress } : null,
         ]}
       />
     )
@@ -77,7 +88,7 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEn
     if (!top) return null
     return (
       <View pointerEvents="none" testID={testID} style={[{ position: "absolute", top: 0, left: 0, right: 0, height: insets.top }, style]}>
-        <SoftTopEdge fill={canvas} blur={Platform.OS === "web" ? 6 : 0} />
+        <SoftTopEdge fill={canvas} blur={Platform.OS === "web" ? 6 : 0} opacity={progress} />
       </View>
     )
   }
@@ -92,7 +103,7 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEn
       testID={testID}
       style={[{ position: "absolute", left: 0, right: 0 }, top ? { top: 0, height: fadeEnd ?? insets.top } : { bottom: 0, height: insets.bottom }, style]}
     >
-      {top ? <SoftBottomVeil fill={canvas} bottom={reach} /> : <SoftBottomVeil fill={canvas} top={0} />}
+      {top ? <SoftBottomVeil fill={canvas} bottom={reach} opacity={progress} /> : <SoftBottomVeil fill={canvas} top={0} opacity={progress} />}
     </View>
   )
 }

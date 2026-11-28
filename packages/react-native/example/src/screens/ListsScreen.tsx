@@ -1,7 +1,7 @@
 import { Badge, Button, Card, List, ListItem, PageControl, Slider, Switch, Text, useTheme } from "@plexui/react-native"
 import { Bell, Globe, LockKeyHole, Moon, SoundOffSpeaker, SoundOnSpeaker } from "@plexui/react-native/icons"
 import { useState } from "react"
-import { StyleSheet, View } from "react-native"
+import { Image, StyleSheet, View } from "react-native"
 import photo from "../../assets/photo.jpg"
 import { Section } from "../demo"
 
@@ -29,6 +29,9 @@ export function ListsScreen() {
         </List>
         <List>
           <ListItem label="Sign out" destructive onPress={() => setOpened("sign out")} />
+        </List>
+        <List header="People">
+          <ListItem label="Jane Appleseed" leading={<Image source={photo} style={styles.photo} accessibilityIgnoresInvertColors />} onPress={() => setOpened("jane")} testID="row-photo" />
         </List>
         <Text variant="footnote" color="secondary" testID="list-value">
           Opened: {opened}
@@ -112,6 +115,8 @@ export function ListsScreen() {
 }
 
 const styles = StyleSheet.create({
+  // A 40 photo: the row keeps the cell's margins over and under it (60 on iOS, 56 on Android)
+  photo: { width: 40, height: 40, borderRadius: 20 },
   pages: { alignSelf: "stretch", gap: 4 },
   vertical: { flexDirection: "row", gap: 32, alignSelf: "center" },
 })
