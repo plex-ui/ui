@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from "react"
 import { Animated, Easing, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { useAndroidGlass } from "../../internal/BarBackdrop"
 import { Pressable } from "../../internal/Pressable"
-import ChevronDownSm from "../../icons/plex/ChevronDownSm"
+import ChevronDownMd from "../../icons/plex/ChevronDownMd"
 import CloseBold from "../../icons/plex/CloseBold"
 import XCircleFilled from "../../icons/plex/XCircleFilled"
 import { spaceToggles } from "../../internal/a11y"
@@ -48,6 +48,11 @@ export type ChipProps = {
    * insides in proportion, the target still 44. Android keeps Material's 32dp chip. @default "md"
    */
   size?: "md" | "sm"
+  /**
+   * iOS: the color a chosen chip takes, the app's accent as iOS tints a chosen filter, or the Plex primary (a brand
+   * whose selection marks are its primary). Android keeps Material's selected chip in the primary. @default "accent"
+   */
+  selectionColor?: "accent" | "primary"
   /** An input chip: called when the reader takes the value back (a cross on Android; see `removeStyle` on iOS). */
   onRemove?: () => void
   /** The remove action's name, for screen readers. @default "Remove" */
@@ -93,6 +98,7 @@ export function Chip({
   accessibilityLabel,
   appearance = "tag",
   size = "md",
+  selectionColor = "accent",
   onRemove,
   removeLabel = "Remove",
   removeStyle = "token",
@@ -156,7 +162,9 @@ export function Chip({
       ? androidColor.on
       : androidColor.off
     : selected
-      ? theme.color("--color-text-accent-solid", "#FFFFFF")
+      ? selectionColor === "primary"
+        ? theme.color("--color-text-primary-solid", "#FFFFFF")
+        : theme.color("--color-text-accent-solid", "#FFFFFF")
       : disabled
         ? theme.colors.textDisabled
         : theme.colors.text
@@ -167,7 +175,7 @@ export function Chip({
     : selected
       ? // The app's accent, as iOS tints a chosen filter; a disabled selected chip fades to 40%, so it still stands
         // apart from an off one
-        withAlpha(theme.colors.accent, disabled ? 0.4 : 1)
+        withAlpha(selectionColor === "primary" ? theme.color("--color-background-primary-solid") : theme.colors.accent, disabled ? 0.4 : 1)
       : glass
         ? "transparent"
         : theme.color("--color-background-secondary-soft-alpha")
@@ -193,8 +201,14 @@ export function Chip({
   const leading = icon
   // iOS: a 17pt symbol draws about 20 (the label's size), a 15pt one about 17
   const iconSize = android ? 18 : small ? 17 : 20
-  // A menu chip's chevron: Material's 18dp arrow_drop_down, iOS's small chevron.down at the label's weight
-  const trailing = trailingIcon ?? (menu ? android ? <MaterialArrowDropDown size={18} /> : <ChevronDownSm size={small ? 14 : 16} /> : null)
+  // A menu chip's chevron: Material's 18dp arrow_drop_down; iOS's chevron.down as Maps draws it, 10.7 by 6.3 (the
+  // Plex chevron at 18 draws its glyph 10.5 by 6, 9.3 at 16 for the small chip), in the secondary label (the label's
+  // color on a chosen chip), 6.7 from the label and 11.7 from the capsule's end. The glyph stands in a 24 grid with 5
+  // of air at each side: the margins take the air back, so the spaces count from the glyph
+  const chevronSize = small ? 16 : 18
+  const chevronAir = (chevronSize * 5) / 24
+  const ownChevron = trailingIcon == null && menu && !android
+  const trailing = trailingIcon ?? (menu ? android ? <MaterialArrowDropDown size={18} /> : <ChevronDownMd size={chevronSize} /> : null)
   const leadingColor = color
   // A symbol alone (Maps' filter button before its chips): a circle as tall as the chip, named by accessibilityLabel
   const symbolOnly = leading != null && (children == null || children === "") && trailing == null && !onRemove
@@ -209,8 +223,10 @@ export function Chip({
   const radius = 999
   const [pressed, setPressed] = useState(false)
   // iOS's glass filter: a glass capsule (its rim and sheen), filled with the accent once chosen
-  const glassLayer =
-    glass && !selected ? <Glass pointerEvents="none" radius={radius} style={[StyleSheet.absoluteFill, { top: inset, bottom: inset }]} /> : null
+  // a chosen one stays glass, tinted with its color: the same rim, the bands lighter in the color, as Maps' chosen filter
+  const glassLayer = glass ? (
+    <Glass pointerEvents="none" radius={radius} tint={selected ? fill : undefined} style={[StyleSheet.absoluteFill, { top: inset, bottom: inset }]} />
+  ) : null
   // Android's chip over content (`glass`): it stands on a glass of its size, the Android bar circles' (a see-through
   // card with a rim and a soft shadow), Material's fill and label over it
   const androidGlass = useAndroidGlass("bar")
@@ -231,9 +247,10 @@ export function Chip({
     minHeight: target,
     paddingVertical: inset + (height - label.lineHeight) / 2,
     // Android: 12 at the sides, 8 before an icon and 6 after it
-    paddingLeft: symbolOnly ? (height - iconSize) / 2 : leading != null ? (android ? 8 : small ? 10 : 12) : android ? 12 : small ? 14 : 16,
+    // iOS's glass capsule: 12 at either end, as Maps' filters
+    paddingLeft: symbolOnly ? (height - iconSize) / 2 : leading != null ? (android ? 8 : small ? 10 : 12) : android ? 12 : glass ? (small ? 10 : 12) : small ? 14 : 16,
     // Android: 8 after a trailing icon (Compose's FilterChip), iOS 12
-    paddingRight: symbolOnly ? (height - iconSize) / 2 : cross ? 0 : trailing != null ? (android ? 8 : small ? 10 : 12) : android ? 12 : small ? 14 : 16,
+    paddingRight: symbolOnly ? (height - iconSize) / 2 : cross ? 0 : trailing != null ? (android ? 8 : small ? 10 : 12) : android ? 12 : glass ? (small ? 10 : 12) : small ? 14 : 16,
     gap: 6,
     opacity: !android && pressed ? 0.7 : 1,
   }
@@ -262,8 +279,8 @@ export function Chip({
         </Text>
       )}
       {trailing != null ? (
-        <View>
-          <IconDefaultsProvider size={iconSize} color={leadingColor}>
+        <View style={ownChevron ? { marginLeft: 0.7 - chevronAir, marginRight: -chevronAir - 0.3 } : undefined}>
+          <IconDefaultsProvider size={ownChevron ? chevronSize : iconSize} color={ownChevron && !selected && !disabled ? theme.colors.labelSecondary : leadingColor}>
             {trailing}
           </IconDefaultsProvider>
         </View>

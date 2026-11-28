@@ -1,6 +1,8 @@
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SoftBottomVeil, SoftTopEdge } from "../../internal/BarBackdrop"
+import { normalizeCssColor } from "../../theme/cssColor"
+import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 
 export type ScrollEdgeProps = {
@@ -16,6 +18,13 @@ export type ScrollEdgeProps = {
    * (iOS 27.2's), not the status bar's alone.
    */
   fadeEnd?: number
+  /**
+   * `soft`: iOS 27.2's soft edge, a blur under a veil of the screen's color. `fade`: the screen's color alone, with no
+   * blur, as TabBar's `fade` turned over: 85% in full down to the middle of the row's 44pt controls (26 above its
+   * bottom), then easing out to nothing 32 below it, about half at the row's bottom; the same on iOS and Android.
+   * Under a row of filters over photos, where a blur would turn them to a smudge. @default "soft"
+   */
+  background?: "soft" | "fade"
   testID?: string
   style?: StyleProp<ViewStyle>
 }
@@ -27,13 +36,40 @@ export type ScrollEdgeProps = {
  * the screen's color that grows to 46% at the screen's edge. On Android the top edge is the soft edge of its top bar
  * over the status bar alone, the bottom one draws nothing. Lay it over the screen, after the scroll view.
  */
-export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEnd, testID, style }: ScrollEdgeProps) {
+export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEnd, background = "soft", testID, style }: ScrollEdgeProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
-  const canvas = canvasColor ?? theme.colors.background
+  // A named or hsl() color given as rgb, so the fade's stops can take their alpha
+  const canvas = normalizeCssColor(canvasColor ?? theme.colors.background)
   const top = edge === "top"
   if (top && !scrolled) return null
   const height = StyleSheet.flatten(style)?.height
+  if (background === "fade") {
+    // The row's bottom (from the screen's edge): a fade's end, a height given, or the safe area alone
+    const rowEnd = fadeEnd ?? (typeof height === "number" ? height : top ? insets.top : insets.bottom)
+    const full = Math.max(0, rowEnd - FADE_ABOVE_ROW_END)
+    const span = rowEnd + FADE_BELOW_ROW_END - full
+    const stops = [`${withAlpha(canvas, FADE_ALPHA)} ${full}px`]
+    for (let step = 1; step <= FADE_STEPS; step++) {
+      const t = step / FADE_STEPS
+      // smoothstep: no step where the full color ends, no line where it fades out
+      const eased = t * t * (3 - 2 * t)
+      stops.push(`${withAlpha(canvas, +(FADE_ALPHA * (1 - eased)).toFixed(4))} ${+(full + span * t).toFixed(2)}px`)
+    }
+    const gradient = `linear-gradient(${top ? "to bottom" : "to top"}, ${stops.join(", ")})`
+    return (
+      <View
+        pointerEvents="none"
+        testID={testID}
+        style={[
+          { position: "absolute", left: 0, right: 0, height: rowEnd + FADE_BELOW_ROW_END, backgroundImage: gradient } as ViewStyle,
+          top ? { top: 0 } : { bottom: 0 },
+          style,
+          { height: rowEnd + FADE_BELOW_ROW_END },
+        ]}
+      />
+    )
+  }
   // A row under the status bar (a height or a fade's end given): Android takes iOS's edge for it, as a row over
   // content reads on neither platform under the status bar's edge alone
   const row = top && (fadeEnd != null || typeof height === "number")
@@ -60,6 +96,15 @@ export function ScrollEdge({ edge = "top", scrolled = false, canvasColor, fadeEn
     </View>
   )
 }
+
+/** `fade`: the color's strength, TabBar's fade at full */
+const FADE_ALPHA = 0.85
+/** `fade`: the full color ends at the middle of the row's 44pt controls, 26 above its bottom (22 and a little more) */
+const FADE_ABOVE_ROW_END = 26
+/** `fade`: the color is gone 32 past the row's bottom */
+const FADE_BELOW_ROW_END = 32
+/** `fade`: the steps of its curve */
+const FADE_STEPS = 12
 
 /** The veil's blur is full 6 short of the edge it is turned over at (12 to 40 into its 34): a given height adds them. */
 const FULL_BLUR_SHORTFALL = 6

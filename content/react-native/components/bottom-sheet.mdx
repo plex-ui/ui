@@ -68,6 +68,28 @@ export const scrollingCode = `const [open, setOpen] = useState(false)
   </BottomSheet.Footer>
 </BottomSheet>`
 
+export const filtersCode = `import { BottomSheet, Button, Chip, NavigationButton } from "@plexui/react-native"
+
+const changed = draft.join() !== applied.join()
+
+<BottomSheet
+  open={open}
+  onOpenChange={setOpen}
+  title="All Amenities"
+  action={<NavigationButton action="confirm" accessibilityLabel="Apply" disabled={!changed} onPress={apply} />}
+>
+  <View style={styles.tagCard}>
+    {amenities.map((item) => <Chip key={item} selected={draft.includes(item)} onSelectedChange={toggle(item)}>{item}</Chip>)}
+  </View>
+  {draft.length > 0 ? (
+    <BottomSheet.Footer>
+      <Button color="secondary" variant="soft" mobileMaterial="glass" block={false} style={{ alignSelf: "center" }} onPress={clear}>
+        Clear Filters
+      </Button>
+    </BottomSheet.Footer>
+  ) : null}
+</BottomSheet>`
+
 <UsageBlock>{`import { BottomSheet } from "@plexui/react-native"`}</UsageBlock>
 
 A choice of actions is an [Action Sheet](/react-native/components/action-sheet).
@@ -92,6 +114,12 @@ A choice of actions is an [Action Sheet](/react-native/components/action-sheet).
   <RNExample demo="bottom-sheet/Scrolling" />
 </ComponentPreview>
 
+### Filters
+
+<ComponentPreview details={<>A sheet short of the screen floats on iOS 26, as Maps&apos; filter panels: 8pt in from the screen&apos;s sides and bottom, every corner rounded concentric with the screen&apos;s (<code>--bottom-sheet-floating-inset</code>, <code>--bottom-sheet-floating-radius</code>), with no grabber; a <code>large</code> sheet meets the edges, and <code>floating=&#123;false&#125;</code> keeps a shorter one there too. Android keeps Material&apos;s sheet at the screen&apos;s edge. <code>action</code> puts a <code>NavigationButton action=&quot;confirm&quot;</code> at the bar&apos;s trailing end, across from Close: the bar&apos;s prominent action, gray while <code>disabled</code> (the draft is what is applied) and the accent once it differs, the same element. The tags stand in an inset card; Clear Filters, a glass capsule in <code>BottomSheet.Footer</code>, shows only while something is chosen, and the panel grows to take it.</>} code={filtersCode} previewMinHeight={168}>
+  <RNExample demo="bottom-sheet/Filters" />
+</ComponentPreview>
+
 ## Platforms
 
 | | iOS 26 | Android |
@@ -111,6 +139,8 @@ On Android the content and the actions stand 12dp from the sheet's sides, as a p
   { prop: "title", type: "ReactNode", description: "A title in the sheet's bar: centered on iOS, at the start on Android" },
   { prop: "hero", type: '{ icon?: ReactNode; title: ReactNode; description?: ReactNode; tone?: "accent" | "secondary" | "success" | "warning" | "danger" }', description: "A hero header at the top of the content instead of a title in the bar: a symbol over a large centered title; the bar keeps Close alone" },
   { prop: "children", type: "ReactNode", description: "The content; it scrolls when it is taller than the screen" },
+  { prop: "floating", type: "boolean", default: "true on iOS short of large", description: "iOS 26: a sheet short of the screen floats 8pt in from the sides and bottom, every corner rounded; large meets the edges. Android keeps its sheet at the edge" },
+  { prop: "action", type: "ReactNode", description: "The bar's trailing action across from Close: a NavigationButton action=\"confirm\", the bar's prominent action, gray while disabled" },
   { prop: "detent", type: '"content" | "medium" | "large" | number', default: '"content"', description: "The sheet's height: as tall as its content, half the screen, as tall as it can be (16pt under the status bar on iOS, at it on Android), or a height in points; a fixed height leaves the room under short content empty" },
   { prop: "dismissible", type: "boolean", default: "true", description: "A tap on the dim, a drag down, Close, Android's back and Escape close it; Close is drawn only then" },
   { prop: "aria-label", type: "string", description: "Accessible name when there is no title" },

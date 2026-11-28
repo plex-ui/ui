@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BottomSheet, Button, Input, Text } from '@plexui/react-native';
+import { BottomSheet, Button, Card, Chip, Input, NavigationButton, Text } from '@plexui/react-native';
 import { View } from 'react-native';
 import { Email } from '@plexui/react-native/icons';
 import { DemoControlBoolean, controlsTableStyle } from '../../ButtonDemos';
@@ -131,3 +131,71 @@ export const Scrolling = docsDemo(function Scrolling() {
     </RNScreen>
   );
 });
+
+const AMENITIES = ['Wi-Fi', 'Outdoor Seating', 'Wheelchair Access', 'Parking', 'Takeout', 'Delivery', 'Kid Friendly', 'Pets Allowed'];
+
+/**
+ * A filter panel as Maps draws one on iOS 26: the sheet, short of the screen, floats 8 in from its sides and bottom
+ * with every corner rounded; Close at the leading end, the title, and a confirm at the trailing end that turns from
+ * the bar's gray to the accent once the draft differs from what is applied. The tags stand in an inset card; Clear
+ * Filters, a glass capsule at the foot, shows only while something is chosen, and the panel grows to take it.
+ */
+export const Filters = docsDemo(function Filters() {
+  const { open, setOpen, hideTrigger } = useSheetState();
+  const [applied, setApplied] = useState<string[]>([]);
+  const [draft, setDraft] = useState<string[]>([]);
+  const changed = draft.length !== applied.length || draft.some((item) => !applied.includes(item));
+  const show = (next: boolean) => {
+    if (next) setDraft(applied);
+    setOpen(next);
+  };
+  return (
+    <RNScreen screen minHeight={520}>
+      <Trigger label="All Amenities" hidden={hideTrigger} onPress={() => show(true)} />
+      <BottomSheet
+        open={open}
+        onOpenChange={show}
+        title="All Amenities"
+        action={
+          <NavigationButton
+            action="confirm"
+            accessibilityLabel="Apply"
+            disabled={!changed}
+            onPress={() => {
+              setApplied(draft);
+              setOpen(false);
+            }}
+          />
+        }
+      >
+        <TagCard selected={draft} onChange={setDraft} />
+        {draft.length > 0 ? (
+          <BottomSheet.Footer>
+            <Button color="secondary" variant="soft" mobileMaterial="glass" block={false} style={{ alignSelf: 'center' }} onPress={() => setDraft([])}>
+              Clear Filters
+            </Button>
+          </BottomSheet.Footer>
+        ) : null}
+      </BottomSheet>
+    </RNScreen>
+  );
+});
+
+/** The tags in an inset card of the sheet: Card's solid fill */
+function TagCard({ selected, onChange }: { selected: string[]; onChange: (next: string[]) => void }) {
+  return (
+    <Card variant="solid">
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {AMENITIES.map((item) => (
+          <Chip
+            key={item}
+            selected={selected.includes(item)}
+            onSelectedChange={(on: boolean) => onChange(on ? [...selected, item] : selected.filter((other) => other !== item))}
+          >
+            {item}
+          </Chip>
+        ))}
+      </View>
+    </Card>
+  );
+}

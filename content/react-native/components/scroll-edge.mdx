@@ -30,6 +30,7 @@ A screen with a bar has its edge in the bar: [Toolbar](/react-native/components/
 <ComponentPreview details={<>
   <p>A screen with no top bar, such as an account page with its own header, lets its content scroll up under the clock and the status icons. <code>ScrollEdge</code> mutes it there, as iOS 27 draws its soft scroll edge: from the safe area's edge 34pt further into the screen, a 10pt blur under a veil of the screen's color that grows to 46% at the screen's edge. The top edge shows once <code>scrolled</code> says content is under it; lay it over the screen after the scroll view, in the screen's <code>canvasColor</code> (a grouped screen's gray).</p>
   <p><code>edge="bottom"</code> mutes the content that runs on to the bottom of a screen with no bottom bar, in the same way turned over, from 34pt above the home indicator's safe area; it stays drawn, as iOS draws it, since over the screen's color alone it shows nothing. On Android the top edge is the soft edge of its top bar over the status bar alone, and the bottom one draws nothing.</p>
+  <p><code>background="fade"</code> mutes with the screen&apos;s color alone, no blur, as Tab Bar&apos;s <code>fade</code> turned over, the same on iOS and Android: under a floating row of filters over photos, where a blur would turn them to a smudge. Give it the row&apos;s bottom in <code>fadeEnd</code>: the color stands at 85% down to the middle of the row&apos;s 44pt controls (26 above its bottom), then eases out on a smooth curve, about half at the row&apos;s bottom, to nothing 32 below it.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="scroll-edge/Overview" />
 </ComponentPreview>
@@ -47,6 +48,7 @@ A screen with a bar has its edge in the bar: [Toolbar](/react-native/components/
   { prop: "edge", type: '"top" | "bottom"', default: '"top"', description: "Under the status bar, or at the bottom of the screen" },
   { prop: "scrolled", type: "boolean", default: "false", description: "Content is under the edge; the top edge shows only then, the bottom one stays" },
   { prop: "fadeEnd", type: "number", description: "Top edge: where the fade ends, from the screen's top (a bar of buttons under the status bar). The content blurs in full down to the row and eases out past it; Android draws the same veil in place of its scrim" },
+  { prop: "background", type: '"soft" | "fade"', default: '"soft"', description: "soft: iOS 27.2's blur under a veil of the screen's color. fade: the screen's color alone, no blur, 85% down to the middle of the row's controls (26 above fadeEnd), easing out to nothing 32 past it; iOS and Android alike" },
   { prop: "canvasColor", type: "string", default: "the theme's background", description: "The color of the screen it fades into (a grouped screen's canvas)" },
   { prop: "testID", type: "string", description: "Test id" },
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the edge. A numeric height on the top edge on iOS (a row of buttons under the status bar) blurs the content in full down to it, and the veil and the blur ease out over the 34pt below it" },

@@ -195,8 +195,8 @@ function BadgeView({
   // A brand's badge (a date on a capsule): its fill and words round the badge (`--badge-background`, `--badge-color`)
   const colors = {
     ...own,
-    background: !counter && theme.token("--badge-background") != null ? theme.color("--badge-background") : own.background,
-    text: !counter && theme.token("--badge-color") != null ? theme.color("--badge-color") : own.text,
+    background: counter ? own.background : theme.color("--badge-background", own.background),
+    text: counter ? own.text : theme.color("--badge-color", own.text),
   }
   // and its face: `--badge-font-family` (a family, or `mono` for the brand's mono), `--badge-text-transform`,
   // `--badge-letter-spacing`, `--badge-font-weight`

@@ -60,6 +60,19 @@ export type BottomSheetProps = {
    * changes (pages that open inside it), its content scrolling within. @default "content"
    */
   detent?: "content" | "medium" | "large" | number
+  /**
+   * iOS 26: a sheet short of the screen's height floats, as Maps' filter panels: 8 from the screen's sides and bottom,
+   * every corner rounded concentric with the screen's (`--bottom-sheet-floating-inset`, `--bottom-sheet-floating-radius`),
+   * no grabber; a `large` sheet meets the edges. Android keeps Material's sheet at the screen's edge.
+   * @default true on iOS for a detent short of `large`
+   */
+  floating?: boolean
+  /**
+   * The bar's trailing action, across from Close: a `NavigationButton action="confirm"` that applies the sheet's
+   * draft, as Maps' filter panels. In the bar a confirm is its prominent action: on iOS the accent circle, the bar's
+   * gray glass while `disabled` (nothing changed yet), the same element as it turns on.
+   */
+  action?: ReactNode
 }
 
 export type BottomSheetFooterProps = {
@@ -247,6 +260,8 @@ export function BottomSheetBase({
   contentStyle,
   closeLabel = "Close",
   detent = "content",
+  floating: floatingProp,
+  action,
   exit,
   onExited,
   androidClose = true,
@@ -294,8 +309,13 @@ export function BottomSheetBase({
   const a11y = web
     ? { role: "dialog" as const, "aria-modal": true, "aria-labelledby": title != null || hero ? titleId : undefined, "aria-label": title != null || hero ? undefined : ariaLabel }
     : { accessibilityViewIsModal: true, "aria-label": ariaLabel }
+  // iOS 26's sheet short of the screen's height floats: 8 in from the screen's sides and bottom, its corners the
+  // screen's (about 62) less the 8
+  const floating = !android && (floatingProp ?? detent !== "large")
+  const floatInset = floating ? theme.length("--bottom-sheet-floating-inset", 8) : 0
+  const floatRadius = theme.length("--bottom-sheet-floating-radius", 54)
   // Android's sheet stands under the status bar at most; the phone layer's 16 under the top inset
-  const maxHeight = screen - insets.top - (android ? 0 : 16)
+  const maxHeight = screen - insets.top - (android ? 0 : 16) - floatInset
   // A detent holds the sheet's height whatever its content: half the screen, the most it takes, or a height
   const fixedHeight =
     detent === "large" ? maxHeight : detent === "medium" ? Math.min(Math.round(screen / 2), maxHeight) : typeof detent === "number" ? Math.min(detent, maxHeight) : undefined
@@ -315,8 +335,13 @@ export function BottomSheetBase({
   // (69 in all). Content scrolled under it shows through the sheet's color at
   // 63% over a light blur, let go over its last 32dp (12 past the bar), with no line
   const barItem = useMemoBarItem(background)
+  // iOS: the bar's 44 circles, its confirm the prominent one
+  const iosBarItem = useMemo<BarItemStyle>(
+    () => ({ height: closeSize, fontSize: 17, lineHeight: 22, weight: "medium", prominentWeight: "semibold", iconSize: 24, gutter: 16, canvas: background }),
+    [closeSize, background],
+  )
   // Android's bar stands with a title, or with Close alone where the sheet can be closed (as iOS's)
-  const androidBar = android && (title != null || (dismissible && androidClose))
+  const androidBar = android && (title != null || (dismissible && androidClose) || action != null)
   const header = android ? (
     androidBar ? (
       <View onStartShouldSetResponderCapture={gesture.chrome} onLayout={(event) => setAndroidBarHeight(Math.max(ANDROID_BAR_HEIGHT, event.nativeEvent.layout.height))} style={[styles.androidBar, { paddingHorizontal: androidInline }]}>
@@ -333,12 +358,13 @@ export function BottomSheetBase({
             {title}
           </Text>}
         </View>
-        <View style={styles.androidCircle} />
+        {/* The trailing action takes its own width: Android's confirm is a word on a pill, wider than a circle */}
+        <View style={styles.androidTrailing}>{action ? <BarItemContext.Provider value={barItem}>{action}</BarItemContext.Provider> : null}</View>
       </View>
     ) : (
       <View onStartShouldSetResponderCapture={gesture.chrome} style={styles.androidGrip} />
     )
-  ) : dismissible || title != null ? (
+  ) : dismissible || title != null || action != null ? (
     // The web's phone Sheet bar: one 44 row 16 under the top edge, Close at the leading edge and the title alone centered
     // The bar is the web's Toolbar: 16 above the row and --toolbar-padding-bottom under it
     // It stands over the content: scrolled under it, the content goes soft (the veil of the canvas over a blur), as
@@ -362,15 +388,17 @@ export function BottomSheetBase({
           </Text>
         ) : null}
       </View>
-      <View style={{ width: closeSize }} />
+      <View style={[styles.iosTrailing, { minWidth: closeSize }]}>
+        {action ? <BarItemContext.Provider value={iosBarItem}>{action}</BarItemContext.Provider> : null}
+      </View>
     </View>
   ) : null
   const footer = childrenOfType<BottomSheetFooterProps>(children, BottomSheetFooter)[0]
   const content = footer ? flattenChildren(children).filter((child) => !isFooter(child)) : children
   // The content starts where the bar's soft edge ends (--page-bar-soft-tail under the bar, Dialog.module.css), and
   // ends 16 over a footer, or over the home indicator
-  const bottom = keyboard || footer ? 16 : Math.max(16, insets.bottom)
-  const hasIosBar = !android && (dismissible || title != null)
+  const bottom = keyboard || footer ? 16 : Math.max(16, insets.bottom - floatInset)
+  const hasIosBar = !android && (dismissible || title != null || action != null)
   const iosContent = {
     paddingTop: (hasIosBar ? iosBarHeight : 0) + theme.length("--page-bar-soft-tail", 32),
     // iOS 26's sheets set their fields and cards 20 from the sides, in line with Close (Health's Medication Name
@@ -384,7 +412,7 @@ export function BottomSheetBase({
   const slide = (progress: Animated.Value) =>
     android
       ? Animated.add(progress.interpolate({ inputRange: [0, 1], outputRange: [(height || screen) + ANDROID_OFFSCREEN, 0] }), Animated.multiply(drag, progress))
-      : Animated.add(progress.interpolate({ inputRange: [0, 1], outputRange: [height || screen, 0] }), drag)
+      : Animated.add(progress.interpolate({ inputRange: [0, 1], outputRange: [(height || screen) + floatInset, 0] }), drag)
   return (
     <Overlay
       open={open}
@@ -416,11 +444,14 @@ export function BottomSheetBase({
                 // A fixed sheet grows by the keyboard it stands over, within the screen, so its content keeps its room
                 height: fixedHeight == null ? undefined : Math.min(fixedHeight + keyboard, maxHeight),
                 maxWidth,
-                borderTopLeftRadius: radius,
-                borderTopRightRadius: radius,
+                borderTopLeftRadius: floating ? floatRadius : radius,
+                borderTopRightRadius: floating ? floatRadius : radius,
+                ...(floating
+                  ? { borderBottomLeftRadius: floatRadius, borderBottomRightRadius: floatRadius, width: width - 2 * floatInset, marginBottom: floatInset }
+                  : null),
                 backgroundColor: background,
                 // Over the keyboard: Android's height is over its navigation bar, iOS's from the screen's edge
-                paddingBottom: android ? insets.bottom + keyboard : keyboard,
+                paddingBottom: android ? insets.bottom + keyboard : Math.max(0, keyboard - floatInset),
                 // With reduced motion it fades in place, and follows only the finger
                 opacity: reduced ? progress : undefined,
                 transform: [{ translateY: reduced ? drag : slide(progress) }],
@@ -488,7 +519,14 @@ export function BottomSheetBase({
                       // concentric with them: 36 from the sides and from the bottom (Apple Account's Add Email: 38
                       // and 39), 52 tall, at least 2 over the home indicator; 16 over the keyboard
                       // It stands over the content's end, over the keyboard while it is up
-                      [styles.iosFooter, { paddingHorizontal: IOS_ACTION_SIDE, paddingBottom: keyboard ? 16 + keyboard : Math.max(IOS_ACTION_SIDE, insets.bottom + 2) }],
+                      // A floating sheet's corners are the screen's less its inset: its actions keep their place on the screen
+                      [
+                        styles.iosFooter,
+                        {
+                          paddingHorizontal: IOS_ACTION_SIDE - floatInset,
+                          paddingBottom: keyboard ? 16 + Math.max(0, keyboard - floatInset) : Math.max(IOS_ACTION_SIDE - floatInset, insets.bottom + 2 - floatInset),
+                        },
+                      ],
                   footer.props.style,
                 ]}
               >
@@ -632,6 +670,7 @@ const ANDROID_BAR_HEIGHT = 12 + 46 + 11
 
 const styles = StyleSheet.create({
   bottom: { flex: 1, justifyContent: "flex-end", alignItems: "center" },
+  iosTrailing: { alignItems: "flex-end" },
   sheet: { alignSelf: "stretch", overflow: "hidden", borderCurve: "continuous", marginHorizontal: "auto", width: "100%" },
   scroll: { flexGrow: 0, flexShrink: 1 },
   grow: { flexGrow: 1 },
@@ -643,6 +682,7 @@ const styles = StyleSheet.create({
   androidBar: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 1, flexDirection: "row", alignItems: "center", paddingTop: 12, paddingBottom: 11, paddingHorizontal: 12, gap: 6 },
   androidBarFade: { position: "absolute", top: 0, left: 0, right: 0, bottom: -12 },
   androidCircle: { width: 46, height: 46 },
+  androidTrailing: { minWidth: 46, height: 46, alignItems: "flex-end", justifyContent: "center" },
   androidHeading: { flex: 1, minWidth: 0, alignItems: "center", justifyContent: "center" },
   androidGrip: { height: 8 },
   hero: { alignItems: "center" },

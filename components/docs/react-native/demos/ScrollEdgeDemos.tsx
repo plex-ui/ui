@@ -10,6 +10,8 @@ type ScrollEvent = { nativeEvent: { contentOffset: { y: number }; contentSize: {
 
 const EDGES = ['top', 'bottom'] as const;
 type Edge = (typeof EDGES)[number];
+const BACKGROUNDS = ['soft', 'fade'] as const;
+type Background = (typeof BACKGROUNDS)[number];
 
 const SECTIONS = [
   ['Personal details', 'Password & Security', 'Payment & Shipping', 'Subscriptions'],
@@ -23,19 +25,21 @@ const SECTIONS = [
  */
 export const Overview = docsDemo(function Overview() {
   const [edge, setEdge] = useState<Edge>('top');
+  const [background, setBackground] = useState<Background>('soft');
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <Segments name="edge" options={EDGES} value={edge} onChange={setEdge} />
+        <Segments name="background" options={BACKGROUNDS} value={background} onChange={setBackground} />
       </div>
       <RNScreen screen grouped minHeight={640}>
-        <Account edge={edge} />
+        <Account edge={edge} background={background} />
       </RNScreen>
     </>
   );
 });
 
-function Account({ edge }: { edge: Edge }) {
+function Account({ edge, background }: { edge: Edge; background: Background }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const canvas = useScreenCanvas();
@@ -65,7 +69,7 @@ function Account({ edge }: { edge: Edge }) {
           </List>
         ))}
       </ScrollView>
-      <ScrollEdge edge={edge} scrolled={offset > 0} canvasColor={canvas} />
+      <ScrollEdge edge={edge} background={background} scrolled={offset > 0} canvasColor={canvas} />
     </View>
   );
 }

@@ -281,7 +281,7 @@ CardAction.displayName = "Card.Action"
 function CardValue({ children, style, testID }: SlotProps) {
   const { theme, ink } = useCard("Card.Value")
   const type = theme.isAndroid ? materialType.headlineSmall : { fontSize: 22, lineHeight: 28 }
-  const color = theme.token("--card-value-color") != null ? theme.color("--card-value-color") : (ink ?? (theme.isAndroid ? theme.material.primary : theme.colors.accent))
+  const color = theme.color("--card-value-color", ink ?? (theme.isAndroid ? theme.material.primary : theme.colors.accent))
   const text = {
     fontSize: theme.length("--card-value-font-size", type.fontSize),
     lineHeight: theme.length("--card-value-line-height", type.lineHeight),
@@ -429,7 +429,7 @@ function CardMedia({
   const bodyType = theme.isAndroid ? materialType.bodyMedium : large ? { fontSize: 15, lineHeight: 20 } : { fontSize: theme.length("--card-description-font-size", 15), lineHeight: theme.length("--card-description-line-height", 20) }
   const titleSize = large ? { fontSize: theme.length("--media-card-title-font-size", titleType.fontSize), lineHeight: theme.length("--media-card-title-line-height", titleType.lineHeight) } : titleType
   // The words over the media: white, or the brand's ink; under it (Android's large card) the card's own colors
-  const ink = under ? (cardInk ?? theme.material.onSurface) : theme.token("--media-card-ink") != null ? theme.color("--media-card-ink") : "#ffffff"
+  const ink = under ? (cardInk ?? theme.material.onSurface) : theme.color("--media-card-ink", "#ffffff")
   const soft = under ? (cardInk ? withAlpha(cardInk, 0.8) : theme.material.onSurfaceVariant) : withAlpha(ink, 0.8)
   const shown = fill ?? (theme.token("--media-card-fill") != null ? String(theme.token("--media-card-fill")) : undefined)
   const paint = shown ? (/gradient\(/.test(shown) ? ({ backgroundImage: shown } as ViewStyle) : { backgroundColor: theme.color(shown, shown) }) : source || background ? null : { backgroundColor: theme.colors.surfaceSecondary }

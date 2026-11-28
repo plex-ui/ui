@@ -68,26 +68,39 @@ const WEB_DENSE: Record<string, { fill: string; light: string; dark: string; fil
 }
 
 /**
- * The web's plain glass drawn as iOS 26's Liquid Glass reads (measured on its tab bars and bar buttons): a lighter fill
- * than a tint of white in the dark, a sheen down the glass (a shade under its top edge in the light, a lift toward its
- * bottom in the dark), a bright rim on every side, and a lens at the edge, where what is under the glass is blurred and
- * lit more, as Liquid Glass bends it there (a browser cannot bend it). Each part a token a theme may set.
+ * The web's plain glass drawn as iOS 26's Liquid Glass reads, measured on Maps' capsules (both schemes): a thin dark
+ * line down its sides (a shadow offset sideways, which on a capsule's round end fades out toward its top and bottom by
+ * itself), almost none along its top and bottom; inside, a bright band under its top edge and a fainter one over its
+ * bottom, nothing down its sides; a shadow hardly there. The lens is off: a browser's blur inside a blur sees only the
+ * glass's own fill, not what is under it, so the ring would come out whiter than the middle. Each part a token a theme
+ * may set (`--mobile-glass-web-lens-filter` turns a lens on).
  */
 const WEB_LIQUID = {
-  sheen: { token: "--mobile-glass-web-sheen", light: "linear-gradient(to bottom, rgb(0 0 0 / 3.5%), rgb(0 0 0 / 0) 35%)", dark: "linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 5%))" },
+  sheen: {
+    token: "--mobile-glass-web-sheen",
+    light:
+      "linear-gradient(to bottom, rgb(255 255 255 / 75%), rgb(255 255 255 / 0) 7px), linear-gradient(to top, rgb(255 255 255 / 55%), rgb(255 255 255 / 0) 6px), linear-gradient(to bottom, rgb(0 0 0 / 2.5%), rgb(0 0 0 / 0) 30%)",
+    dark: "linear-gradient(to bottom, rgb(255 255 255 / 14%), rgb(255 255 255 / 0) 7px), linear-gradient(to top, rgb(255 255 255 / 12%), rgb(255 255 255 / 0) 6px)",
+  },
+  // A tinted glass (a chosen filter): the same bands, fainter, so the color stays its own under them
+  tintSheen: {
+    token: "--mobile-glass-web-tint-sheen",
+    light: "linear-gradient(to bottom, rgb(255 255 255 / 34%), rgb(255 255 255 / 0) 5px), linear-gradient(to top, rgb(255 255 255 / 24%), rgb(255 255 255 / 0) 4px)",
+    dark: "linear-gradient(to bottom, rgb(255 255 255 / 24%), rgb(255 255 255 / 0) 4px), linear-gradient(to top, rgb(255 255 255 / 16%), rgb(255 255 255 / 0) 3px)",
+  },
   shadow: {
     token: "--mobile-glass-web-shadow",
     light:
-      "0 8px 24px rgb(0 0 0 / 6%), 0 0 0 0.5px rgb(0 0 0 / 12%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 90%), inset 1px 0 0 rgb(255 255 255 / 70%), inset -1px 0 0 rgb(255 255 255 / 70%)",
-    dark: "0 8px 24px rgb(0 0 0 / 25%), inset 0 1px 0 rgb(255 255 255 / 36%), inset 0 -1px 0 rgb(255 255 255 / 20%), inset 1px 0 0 rgb(255 255 255 / 12%), inset -1px 0 0 rgb(255 255 255 / 12%)",
+      "-0.5px 0 0 rgb(0 0 0 / 24%), 0.5px 0 0 rgb(0 0 0 / 24%), 0 0 0 0.5px rgb(0 0 0 / 9%), 0 6px 16px rgb(0 0 0 / 3%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 85%)",
+    dark: "-0.5px 0 0 rgb(0 0 0 / 70%), 0.5px 0 0 rgb(0 0 0 / 70%), 0 6px 16px rgb(0 0 0 / 20%), inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(255 255 255 / 30%)",
   },
   shadowRaised: {
     token: "--mobile-glass-web-shadow-raised",
     light:
-      "0 8px 40px rgb(0 0 0 / 12%), 0 0 0 0.5px rgb(0 0 0 / 12%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 90%), inset 1px 0 0 rgb(255 255 255 / 70%), inset -1px 0 0 rgb(255 255 255 / 70%)",
-    dark: "0 8px 40px rgb(0 0 0 / 30%), inset 0 1px 0 rgb(255 255 255 / 36%), inset 0 -1px 0 rgb(255 255 255 / 20%), inset 1px 0 0 rgb(255 255 255 / 12%), inset -1px 0 0 rgb(255 255 255 / 12%)",
+      "-0.5px 0 0 rgb(0 0 0 / 24%), 0.5px 0 0 rgb(0 0 0 / 24%), 0 0 0 0.5px rgb(0 0 0 / 9%), 0 8px 40px rgb(0 0 0 / 12%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 85%)",
+    dark: "-0.5px 0 0 rgb(0 0 0 / 70%), 0.5px 0 0 rgb(0 0 0 / 70%), 0 8px 40px rgb(0 0 0 / 30%), inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(255 255 255 / 30%)",
   },
-  lens: { token: "--mobile-glass-web-lens-filter", value: "blur(3px) brightness(1.12) saturate(200%)" },
+  lens: { token: "--mobile-glass-web-lens-filter", value: "none" },
 }
 
 /**
@@ -214,7 +227,8 @@ export function Glass({
     }
     const ownShadow = shadowToken == null && surface == null && overrides?.["--mobile-glass-shadow"] == null && overrides?.["--mobile-glass-shadow-raised"] == null
     const liquidShadow = liquid && ownShadow ? own(elevation === "raised" ? WEB_LIQUID.shadowRaised : WEB_LIQUID.shadow) : boxShadow
-    const sheen = liquid && tint == null ? own(WEB_LIQUID.sheen) : undefined
+    // A see-through tint (a popover's own surface) takes no bands
+    const sheen = !liquid || tint === "transparent" ? undefined : own(tint == null ? WEB_LIQUID.sheen : WEB_LIQUID.tintSheen)
     const lensToken = theme.token(WEB_LIQUID.lens.token)
     const lensFilter = typeof lensToken === "string" ? lensToken : WEB_LIQUID.lens.value
     const mask = size != null && size.width > 0 && size.height > 0 ? lensMask(size.width, size.height, radius) : undefined

@@ -262,8 +262,14 @@ function channels(color: string): [number, number, number, number] | undefined {
     const a = color.length === 9 ? parseInt(color.slice(7, 9), 16) / 255 : 1
     return [parseInt(color.slice(1, 3), 16), parseInt(color.slice(3, 5), 16), parseInt(color.slice(5, 7), 16), a]
   }
-  const match = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/.exec(color)
-  return match ? [Number(match[1]), Number(match[2]), Number(match[3]), match[4] != null ? Number(match[4]) : 1] : undefined
+  // rgb() and rgba() in either syntax: commas, or spaces with the alpha after a slash; channels as numbers or
+  // percentages, the alpha as a number or a percentage
+  const match = /^rgba?\(\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)\s*(?:[,/]\s*([\d.]+%?)\s*)?\)$/i.exec(color.trim())
+  if (!match) return undefined
+  const channel = (value: string) => (value.endsWith("%") ? Math.round((parseFloat(value) / 100) * 255) : Math.round(Number(value)))
+  const alpha = match[4] == null ? 1 : match[4].endsWith("%") ? parseFloat(match[4]) / 100 : Number(match[4])
+  const out: [number, number, number, number] = [channel(match[1]), channel(match[2]), channel(match[3]), alpha]
+  return out.every((n) => Number.isFinite(n)) ? out : undefined
 }
 
 /**

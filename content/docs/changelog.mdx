@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.11.0 (2026-11-28)
+
+### Added
+
+- **ScrollEdge `background="fade"`.** The screen's color alone, with no blur, as TabBar's `fade` turned over, the same on iOS and Android: 85% down to the middle of a floating row's controls (26 above `fadeEnd`), then a smooth curve to nothing 32 past it. Under a row of filters over photos, where a blur turns them to a smudge.
+- **Chip `selectionColor`.** A chosen chip on iOS in the app's accent (the default) or the Plex primary.
+- **Floating BottomSheet on iOS.** A sheet short of the screen floats as iOS 26's do (Maps' filter panels): 8pt in from the sides and bottom, every corner rounded concentric with the screen's, no grabber (`floating`, on by default short of `large`; `--bottom-sheet-floating-inset`, `--bottom-sheet-floating-radius`). Android keeps its sheet at the edge.
+- **BottomSheet `action`.** The bar's trailing action across from Close, a `NavigationButton action="confirm"`: the bar's prominent action, gray while disabled.
+
+### Changed
+
+- **The web's Liquid Glass edge**, measured on Maps' capsules in both schemes: a thin dark line down the sides only, a bright band under the top edge and a fainter one over the bottom, nothing down the sides, a shadow hardly there. The lens is off by default (`--mobile-glass-web-lens-filter` turns it on): a blur inside a blur sees only the glass's own fill, so its ring came out whiter than the middle.
+- **Chip on iOS.** The menu chevron is the Plex chevron at Maps' size (10.5 by 6), in the secondary label color, 6.7pt from the label and 11.7pt from the end; a glass capsule keeps 12pt at either end; a selected glass capsule stays glass, tinted in its color, with the same rim and lighter bands.
+
 ## @plexui/react-native 0.10.0 (2026-11-28)
 
 ### Added
