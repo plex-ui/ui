@@ -7,6 +7,15 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.8.0 (2026-11-28)
+
+### Added
+
+- **Button `color="accent"`.** The brand's accent in each style: `solid` the accent with its words in `--color-text-accent-solid`, `soft` the accent's soft fill, `outline` iOS's Gray button with the accent's words (a line of the accent on Android), `ghost` the accent's words alone. A section in a brand of its own sets the accent on a nested `ThemeProvider brand` round it, and its buttons and `Card color="accent"` take it.
+- **`brand.colors.onAccent`.** The words on an accent fill (`--color-text-accent-solid`), beside `colors.accent`.
+- **RollingNumber `animation="count"`.** The whole number counts to a new value through the numbers between, rather than rolling each digit, with `from` (where it starts when it first shows), `delay`, `easing` and `onCountEnd` (called when it gets there, so the next step can start). Each number is written in the format, rounded to its own digits. With reduced motion it stands at the value at once.
+- **BottomActions `hidden` and `useHideOnScroll`.** Floating actions move off the screen by their height and fade as the content scrolls down past 24, and come back on the way up and at the end, as iOS 26 minimizes its bars and Material's bottom app bar hides on scroll. `atEnd="hide"` keeps them away at the end, for a page whose own actions stand there. On iOS and Android they stay while a screen reader is on.
+
 ## @plexui/react-native 0.7.0 (2026-11-28)
 
 ### Added

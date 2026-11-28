@@ -93,7 +93,7 @@ export { Toaster, toast, type ToasterProps, type ToastId, type ToastOptions, typ
 
 export { Avatar, AvatarGroup, type AvatarColor, type AvatarGroupProps, type AvatarProps, type AvatarVariant } from "./components/Avatar/Avatar"
 export { Badge, type BadgeColor, type BadgeProps, type BadgeSize, type BadgeVariant } from "./components/Badge/Badge"
-export { BottomActions, type BottomActionsBackground, type BottomActionsProps } from "./components/BottomActions/BottomActions"
+export { BottomActions, useHideOnScroll, type BottomActionsBackground, type BottomActionsProps, type HideOnScrollOptions } from "./components/BottomActions/BottomActions"
 export { IntroHeader, type IntroHeaderAlign, type IntroHeaderProps } from "./components/IntroHeader/IntroHeader"
 export { Card, cardColors, type CardColor, type CardMediaProps, type CardProps, type CardSize, type CardVariant } from "./components/Card/Card"
 export { List, ListItem, ListStack, useListMetrics, type ListItemProps, type ListProps, type ListStackProps } from "./components/List/List"

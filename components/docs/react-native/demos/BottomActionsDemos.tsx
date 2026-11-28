@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BottomActions, Button, List, ListItem, NavigationButton, Text, Toolbar, useTheme } from '@plexui/react-native';
+import { BottomActions, Button, List, ListItem, NavigationButton, Text, Toolbar, useHideOnScroll, useTheme } from '@plexui/react-native';
 import { CheckMd, Health } from '@plexui/react-native/icons';
 import { View } from 'react-native';
 import { DemoControlBoolean, Segments, controlsTableStyle } from '../../ButtonDemos';
@@ -17,29 +17,33 @@ const MORE_FORMS = ['Cream', 'Device', 'Drops', 'Foam', 'Gel', 'Inhaler', 'Injec
  * A step of a setup flow with every setting, after the iOS 27 Health app's "Choose the Medication Type": the sheet's
  * bar (Back, the medication's name, Close), a symbol 24 under it, the step's title and two lists of choices, Next at the bottom (disabled until a choice is made) and, with `second`, Skip
  * under it (iOS's glass capsule, Android's ghost button). `floating` lays the actions over the lists, which then scroll
- * under them and keep their room at their end; `background` sets the edge under them.
+ * under them and keep their room at their end; `background` sets the edge under them; `hideOnScroll` moves them away
+ * as the lists scroll down (useHideOnScroll) and back on the way up and at the end.
  */
 export const Overview = docsDemo(function Overview() {
   const [second, setSecond] = useState(true);
   const [floating, setFloating] = useState(true);
   const [background, setBackground] = useState<Background>('soft');
+  const [hideOnScroll, setHideOnScroll] = useState(false);
   return (
     <>
       <div data-demo-controls style={controlsTableStyle}>
         <DemoControlBoolean name="second" value={second} onChange={setSecond} />
         <DemoControlBoolean name="floating" value={floating} onChange={setFloating} />
         {floating ? <Segments name="background" options={BACKGROUNDS} value={background} onChange={setBackground} /> : null}
+        {floating ? <DemoControlBoolean name="hideOnScroll" value={hideOnScroll} onChange={setHideOnScroll} /> : null}
       </div>
       <RNScreen screen minHeight={640}>
-        <MedicationType second={second} floating={floating} background={background} />
+        <MedicationType second={second} floating={floating} background={background} hideOnScroll={floating && hideOnScroll} />
       </RNScreen>
     </>
   );
 });
 
 /** The step's content and its actions, inside the screen so that they take its theme */
-function MedicationType({ second, floating, background }: { second: boolean; floating: boolean; background: Background }) {
+function MedicationType({ second, floating, background, hideOnScroll }: { second: boolean; floating: boolean; background: Background; hideOnScroll: boolean }) {
   const theme = useTheme();
+  const hide = useHideOnScroll();
   const [form, setForm] = useState<string | null>(null);
   const row = (choice: string) => (
     <ListItem
@@ -63,9 +67,10 @@ function MedicationType({ second, floating, background }: { second: boolean; flo
           </Toolbar.Trailing>
         </Toolbar>
       )}
+      onScroll={hideOnScroll ? hide.onScroll : undefined}
       // Floating actions stand over the lists, which scroll under them and keep their room at their end
       bottom={() => (
-        <BottomActions floating={floating} background={background}>
+        <BottomActions floating={floating} background={background} hidden={hideOnScroll && hide.hidden}>
           <Button color="primary" variant="solid" disabled={form === null}>
             Next
           </Button>

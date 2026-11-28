@@ -11,7 +11,8 @@ export const overviewCode = `import { Button, RollingNumber } from "@plexui/reac
 const [value, setValue] = useState(1284)
 
 <RollingNumber
-  value={value}
+  value={value}[[^animation=roll]]
+  animation="[[animation]]"[[/animation=roll]]
   locales="en-US"
   format={{ style: "currency", currency: "USD" }}
   weight="semibold"
@@ -38,7 +39,8 @@ const secondary = useTheme().color("--color-text-secondary")
 <ComponentPreview details={<>
   <p>A rolling number turns each changed digit to its new value, as the wheels of an odometer do, so a total or a count that changes in front of the reader shows the change. Use it where a number moves while it is watched, such as a total as items are added; a number that only loads once needs none.</p>
   <p>Pass the number as <code>value</code>; a new value rolls each digit that changes, and the digits that stay still do not move. <code>format</code> and <code>locales</code> write it as <code>Intl.NumberFormat</code> does: here as a currency, a percent or a plain number, with its grouping. It takes the props of <code>Text</code> for its size, weight and color, as the web's classes. Separators, signs and the currency stand still; tabular figures keep each digit as wide, so the number does not shift while it rolls. On iOS each digit is a reel of 0 to 9 that turns in 600ms, as on the web; on Android it is the Plex Android look's animated text, a changed character fading out and away while the new one comes in, up for a larger number, in 320ms. It is read out as the written number, and with reduced motion the digits change at once.</p>
-</>} code={overviewCode} previewMinHeight={240}>
+  <p><code>animation="count"</code> counts the whole number to a new value instead, through the numbers between, as a result runs up beside its bar: in <code>duration</code> on <code>easing</code> after <code>delay</code>, from <code>from</code> when it first shows (a result running up from 0). Each number is written in the format, rounded to the format&apos;s own digits (a percent, a currency) or to the value&apos;s decimals. <code>onCountEnd</code> is called when it gets there, so what comes next (the next result, a button fading in) can start then; with reduced motion it stands at the value at once and calls it. A screen reader reads the value it counts to.</p>
+</>} code={overviewCode} codeValues={{ animation: "roll" }} previewMinHeight={240}>
   <RNExample demo="rolling-number/Overview" />
 </ComponentPreview>
 
@@ -67,5 +69,10 @@ const secondary = useTheme().color("--color-text-secondary")
   { prop: "style", type: "StyleProp<TextStyle>", description: "Style of the characters, such as a font size" },
   { prop: "containerStyle", type: "StyleProp<ViewStyle>", description: "Style of the row of characters" },
   { prop: "duration", type: "number", default: "600 on iOS, 320 on Android", description: "How long a change takes, in ms" },
+  { prop: "animation", type: '"roll" | "count"', default: '"roll"', description: "roll turns each changed digit; count counts the whole number to the new value" },
+  { prop: "from", type: "number", default: "value", description: "count: the number it counts up from when it first shows" },
+  { prop: "delay", type: "number", default: "0", description: "count: how long it waits before counting, in ms" },
+  { prop: "easing", type: "(t: number) => number", default: "--rolling-number-ease on iOS, ease-out quint on Android", description: "count: the curve of the count" },
+  { prop: "onCountEnd", type: "() => void", description: "count: called when the count reaches its value (at once with reduced motion)" },
   { prop: "testID", type: "string", description: "Test id" },
 ]} />

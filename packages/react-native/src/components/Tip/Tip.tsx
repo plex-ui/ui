@@ -222,7 +222,7 @@ function ActionButton({ item }: { item: ReactNode }) {
   /* eslint-enable @typescript-eslint/no-unused-vars */
   // As the Button: a loading or inert action takes no presses and keeps its look; a disabled one dims
   const inert = disabled || inertProp
-  const ink = color === "primary" ? theme.colors.accent : theme.color(`--color-text-${color}-ghost`, theme.colors.accent)
+  const ink = color === "primary" || color === "accent" ? theme.colors.accent : theme.color(`--color-text-${color}-ghost`, theme.colors.accent)
   return (
     <Pressable
       accessibilityRole="button"
@@ -274,7 +274,7 @@ function ActionRow({ item }: { item: ReactNode }) {
       </Pressable>
     )
   }
-  const ink = theme.color(`--color-text-${color}-ghost`, theme.colors.text)
+  const ink = color === "accent" ? theme.color("--color-text-accent", theme.colors.accent) : theme.color(`--color-text-${color}-ghost`, theme.colors.text)
   return (
     <Pressable
       accessibilityRole="button"

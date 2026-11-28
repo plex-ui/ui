@@ -14,6 +14,7 @@ const ACTIONS: Record<ButtonColor, string> = {
   discovery: "Upgrade",
   caution: "Retry",
   warning: "Review",
+  accent: "Next",
 }
 const VARIANTS: ButtonVariant[] = ["solid", "soft", "outline", "ghost"]
 const SIZES: ControlSize[] = ["3xs", "2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"]

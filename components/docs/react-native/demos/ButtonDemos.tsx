@@ -9,7 +9,7 @@ import { useNativePlatform } from '../platform';
 // The phone's colors and sizes, as the React page's Phone view offers them: iOS has an accent, a gray and a
 // destructive button in three heights (small 28, medium 34, large 50); Android draws them as the Android button: its
 // 48dp, and 32 and 40dp steps of ours in its proportions
-const COLORS = ['primary', 'secondary', 'danger'] as const;
+const COLORS = ['primary', 'secondary', 'danger', 'accent'] as const;
 const VARIANTS = ['solid', 'soft', 'outline', 'ghost'] as const;
 const SIZES = ['sm', 'md', 'xl'] as const;
 const ICONS = ['none', 'start', 'end', 'only'] as const;

@@ -13,7 +13,11 @@ import type { Theme } from "../../theme/types"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { Text, TextColorProvider } from "../Text/Text"
 
-export type ButtonColor = "primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning"
+/**
+ * `accent` is the brand's accent (`colors.accent`, the tint), with its words in `colors.onAccent` on a fill: a section
+ * in a brand of its own sets both on a nested ThemeProvider.
+ */
+export type ButtonColor = "primary" | "secondary" | "danger" | "success" | "info" | "discovery" | "caution" | "warning" | "accent"
 export type ButtonVariant = "solid" | "soft" | "outline" | "ghost"
 export type ControlSize = "3xs" | "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl"
 
@@ -241,7 +245,7 @@ export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVa
       text: disabledLabel(theme),
     }
   }
-  const colors = ((): Colors => {
+  const colors = color === "accent" ? accentColors(theme, variant, selected) : ((): Colors => {
     switch (variant) {
       case "solid":
         return { background: c(`background-${color}-solid`), pressed: c(`background-${color}-solid-active`), text: c(`text-${color}-solid`) }
@@ -274,6 +278,31 @@ export function buttonColors(theme: Theme, color: ButtonColor, variant: ButtonVa
     }
   })()
   return theme.isIOS ? iosPress(theme, variant, colors) : colors
+}
+
+/**
+ * The accent's styles: the palette has the accent's solid fill, its soft fill and its text, so the presses and the
+ * outline are drawn from them. Solid: the accent, its words `--color-text-accent-solid` (a brand's `onAccent`). Soft:
+ * the accent's soft fill. Outline: iOS's Gray button with the words in the accent (iOS has no outlined button), a line
+ * of the accent on Android. Ghost: the words alone. On Android the words take Material's primary text.
+ */
+function accentColors(theme: Theme, variant: ButtonVariant, selected: boolean): Colors {
+  const accent = theme.color("--color-background-accent-solid", theme.colors.accent)
+  const onAccent = theme.color("--color-text-accent-solid", "#FFFFFF")
+  const ink = theme.isAndroid ? accentText(theme) : theme.color("--color-text-accent", accent)
+  const layer = withAlpha(accent, theme.scheme === "dark" ? 0.16 : 0.12)
+  const solid = { background: accent, pressed: theme.color("--color-background-accent-solid-active", accent), text: onAccent }
+  switch (variant) {
+    case "solid":
+      return solid
+    case "soft":
+      return selected ? solid : { background: theme.color("--color-background-accent-soft"), pressed: layer, text: ink }
+    case "outline":
+      if (theme.isIOS) return { background: selected ? layer : theme.color("--color-background-secondary-soft"), pressed: theme.color("--color-background-secondary-soft-active"), text: ink }
+      return { background: selected ? layer : "transparent", pressed: layer, text: ink, border: accent }
+    case "ghost":
+      return { background: selected ? layer : "transparent", pressed: layer, text: ink }
+  }
 }
 
 /** The colors of a button in a bar: glass labels, the prominent accent, the bar's circles on Android. */

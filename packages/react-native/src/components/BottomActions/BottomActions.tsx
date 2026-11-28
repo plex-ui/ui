@@ -1,7 +1,9 @@
-import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react"
-import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
+import { Children, cloneElement, isValidElement, useCallback, useEffect, useRef, useState, type ComponentRef, type ReactElement, type ReactNode } from "react"
+import { AccessibilityInfo, Animated, Platform, StyleSheet, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ANDROID_FADE_ALPHA, ANDROID_FADE_STOPS, SoftBottomEdge, TabBarFade } from "../../internal/BarBackdrop"
+import { curves } from "../../internal/motion"
+import { useTransitionValue } from "../../internal/transition"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import { Button, type ButtonProps } from "../Button/Button"
@@ -38,8 +40,64 @@ export type BottomActionsProps = {
    * as a step whose rows move on by themselves keeps only its way past ("Skip"). @default false
    */
   secondary?: boolean
+  /**
+   * Floating actions out of the way: they move down off the screen by their height and fade, and take no presses
+   * while away (iOS 300ms ease in and out; Android Material's 175ms out and 225ms back). `useHideOnScroll` sets it
+   * from the scroll view under them. With reduced motion they fade at once. @default false
+   */
+  hidden?: boolean
   testID?: string
   style?: StyleProp<ViewStyle>
+}
+
+export type HideOnScrollOptions = {
+  /** How far down the content scrolls before the actions go. @default 24 */
+  threshold?: number
+  /**
+   * Near the end of the content (within `endDistance`): `show` brings the actions back, as Safari's bar comes back
+   * at a page's end; `hide` keeps them away, for a page whose own actions stand at its end. @default "show"
+   */
+  atEnd?: "show" | "hide"
+  /** How near the end counts as the end. @default 24 */
+  endDistance?: number
+}
+
+/**
+ * Floating actions that go as the content scrolls down past `threshold` and come back on the way up, as iOS 26
+ * minimizes its bars and Material's bottom app bar hides on scroll. Spread the scroll props on the scroll view and
+ * pass `hidden` to BottomActions. A bounce past either end moves nothing, and with a screen reader on (iOS, Android)
+ * the actions stay.
+ */
+export function useHideOnScroll({ threshold = 24, atEnd = "show", endDistance = 24 }: HideOnScrollOptions = {}) {
+  const [hidden, setHidden] = useState(false)
+  const [reader, setReader] = useState(false)
+  const last = useRef(0)
+  useEffect(() => {
+    // react-native-web cannot tell and answers yes, so the web goes by the scroll alone
+    if (Platform.OS === "web") return
+    let live = true
+    AccessibilityInfo.isScreenReaderEnabled().then((on) => live && setReader(on), () => undefined)
+    const subscription = AccessibilityInfo.addEventListener("screenReaderChanged", setReader)
+    return () => {
+      live = false
+      subscription.remove()
+    }
+  }, [])
+  const onScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent
+      const most = Math.max(0, contentSize.height - layoutMeasurement.height)
+      const y = Math.min(Math.max(contentOffset.y, 0), most)
+      const delta = y - last.current
+      last.current = y
+      if (y <= threshold) return setHidden(false)
+      if (most - y <= endDistance) return setHidden(atEnd === "hide")
+      if (delta > 0) setHidden(true)
+      else if (delta < 0) setHidden(false)
+    },
+    [threshold, atEnd, endDistance],
+  )
+  return { hidden: hidden && !reader, onScroll, scrollEventThrottle: 16 }
 }
 
 /**
@@ -49,8 +107,27 @@ export type BottomActionsProps = {
  * action stands under it, 8 apart. Android: the Plex Android look's 48dp full-width button, 16dp from the sides and
  * 16 above the gesture bar. Each Button inside is a block of the size `3xl` unless it sets its own.
  */
-export function BottomActions({ children, floating = false, background = "soft", canvasColor, secondary = false, testID, style }: BottomActionsProps) {
+export function BottomActions({ children, floating = false, background = "soft", canvasColor, secondary = false, hidden = false, testID, style }: BottomActionsProps) {
   const theme = useTheme()
+  const away = floating && hidden
+  // The web: away, the actions leave the Tab order too (pointerEvents and aria-hidden keep them focusable there)
+  const bar = useRef<ComponentRef<typeof View>>(null)
+  useEffect(() => {
+    if (Platform.OS !== "web") return
+    const node = bar.current as unknown as HTMLElement | null
+    if (node && "inert" in node) node.inert = away
+  }, [away])
+  const [own, setOwn] = useState(0)
+  const onLayout = (event: LayoutChangeEvent) => {
+    const next = event.nativeEvent.layout.height
+    setOwn((old) => (old === next ? old : next))
+  }
+  const shift = useTransitionValue(away ? 1 : 0, {
+    duration: theme.isAndroid ? (away ? 175 : 225) : 300,
+    easing: theme.isAndroid ? (away ? curves.accelerate : curves.decelerate) : curves.easeInOut,
+    native: true,
+    reducedMotion: theme.reducedMotion,
+  })
   const insets = useSafeAreaInsets()
   const android = theme.isAndroid
   const side = android ? 16 : 36
@@ -88,11 +165,23 @@ export function BottomActions({ children, floating = false, background = "soft",
       </View>
     )
   })
+  const motion = floating
+    ? {
+        opacity: shift.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+        // With reduced motion the actions fade where they stand
+        transform: [{ translateY: theme.reducedMotion ? 0 : shift.interpolate({ inputRange: [0, 1], outputRange: [0, own] }) }],
+      }
+    : null
   return (
-    <View
+    <Animated.View
+      ref={bar}
       testID={testID}
-      pointerEvents="box-none"
-      style={[styles.bar, { paddingHorizontal: side, paddingTop, paddingBottom: bottom, gap: 8 }, floating ? styles.floating : null, style]}
+      pointerEvents={away ? "none" : "box-none"}
+      accessibilityElementsHidden={away}
+      aria-hidden={away || undefined}
+      importantForAccessibility={away ? "no-hide-descendants" : "auto"}
+      onLayout={floating ? onLayout : undefined}
+      style={[styles.bar, { paddingHorizontal: side, paddingTop, paddingBottom: bottom, gap: 8 }, floating ? styles.floating : null, motion, style]}
     >
       {floating && background !== "none" ? (
         android ? (
@@ -104,7 +193,7 @@ export function BottomActions({ children, floating = false, background = "soft",
         )
       ) : null}
       {actions}
-    </View>
+    </Animated.View>
   )
 }
 

@@ -27,12 +27,13 @@ export type RadiusName = "2xs" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl
  * A brand theme: what a product changes of Plex UI, as it would on `:root` on the web.
  *
  * - `colors.accent` is `--color-accent`, the tint of the kit (links, focus, the iOS tint, Material's primary role);
- *   its lighter and darker steps follow. Other keys are token names without `--` (`"color-text"`).
+ *   its lighter and darker steps follow. `colors.onAccent` is `--color-text-accent-solid`, the words on an accent fill
+ *   (a Button or a Card in `color="accent"`). Other keys are token names without `--` (`"color-text"`).
  * - `tokens` overrides any token with a CSS value: `{ "--color-surface": "light-dark(#fff, #101418)" }`.
  * - `fonts` sets the faces; `radius` the radius scale.
  */
 export type BrandTheme = {
-  colors?: { accent?: string } & Record<string, string | undefined>
+  colors?: { accent?: string; onAccent?: string } & Record<string, string | undefined>
   tokens?: Record<string, string>
   fonts?: FontFamilies
   radius?: Partial<Record<RadiusName, number>>

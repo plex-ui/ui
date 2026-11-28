@@ -121,13 +121,17 @@ function useReducedMotion() {
   return reduced
 }
 
+/** The token a brand color names: `accent` and `onAccent` by their names, any other by the token's name. */
+const brandToken = (name: string) =>
+  name === "accent" ? "--color-accent" : name === "onAccent" ? "--color-text-accent-solid" : name.startsWith("--") ? name : `--${name}`
+
 function brandOverrides(brand: BrandTheme | undefined): Record<string, string> | undefined {
   if (!brand) return undefined
   const out: Record<string, string> = {}
   // Colors in a syntax the resolver does not read (hsl(), oklch(), a name) are written as hex or rgba first
   for (const [name, value] of Object.entries(brand.colors ?? {})) {
     if (value === undefined) continue
-    out[name === "accent" ? "--color-accent" : name.startsWith("--") ? name : `--${name}`] = normalizeCssColor(value)
+    out[brandToken(name)] = normalizeCssColor(value)
   }
   for (const [name, value] of Object.entries(brand.radius ?? {})) {
     if (value !== undefined) out[`--radius-${name}`] = `${value}px`
@@ -143,7 +147,7 @@ function warnUnresolvedColors(brand: BrandTheme | undefined, resolver: TokenReso
   if (!brand?.colors || !isDev()) return
   for (const [name, value] of Object.entries(brand.colors)) {
     if (value === undefined) continue
-    const token = name === "accent" ? "--color-accent" : name.startsWith("--") ? name : `--${name}`
+    const token = brandToken(name)
     const resolved = [resolver.get(token, "light"), resolver.get(token, "dark")]
     if (resolved.some((color) => typeof color !== "string" || !(color.startsWith("#") || color.startsWith("rgba")))) {
       console.warn(`@plexui/react-native: the brand color ${name} (${JSON.stringify(value)}) does not resolve to a color; it draws as transparent.`)

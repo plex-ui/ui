@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useState } from "react"
-import { Animated, Platform, StyleSheet, View, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { Animated, Platform, StyleSheet, View, type EasingFunction, type LayoutChangeEvent, type StyleProp, type TextStyle, type ViewStyle } from "react-native"
 import { curves } from "../../internal/motion"
 import { cssEasing, nativeDriver, useTransitionValue } from "../../internal/transition"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -16,6 +16,19 @@ export type RollingNumberProps = Omit<TextProps, "children"> & {
   containerStyle?: StyleProp<ViewStyle>
   /** How long a change takes, in ms. @default `--rolling-number-duration` (600) on iOS, 320 on Android */
   duration?: number
+  /**
+   * How a change is shown. `roll`: each changed digit rolls to its new one. `count`: the whole number counts to the
+   * new value, through the numbers between, in `duration` on `easing` after `delay`. @default "roll"
+   */
+  animation?: "roll" | "count"
+  /** `count`: the number it counts up from when it first shows (a result running up from 0). @default value */
+  from?: number
+  /** `count`: how long it waits before counting, in ms. @default 0 */
+  delay?: number
+  /** `count`: the curve of the count. @default `--rolling-number-ease` on iOS, ease-out quint on Android */
+  easing?: EasingFunction
+  /** `count`: called when a count reaches its value (at once with reduced motion), to start what comes after it. */
+  onCountEnd?: () => void
 }
 
 type Character = { character: string; digit: number | null; key: string }
@@ -63,9 +76,14 @@ export const rollingNumberParts = (value: number, locales: Intl.LocalesArgument 
  * figures. iOS, as the web: each changed digit's reel of 0 to 9 turns to it in `--rolling-number-duration` (600ms) on
  * `--rolling-number-ease`. Android, the Plex Android look's animated text: a changed character fades out and away by
  * 0.3 of the font size while the new one comes in, in 320ms (ease-out quint), up for a larger number. With reduced
- * motion it changes at once. A screen reader reads the written number.
+ * motion it changes at once. A screen reader reads the written number. `animation="count"` counts the whole number
+ * to a new value instead (a result running up beside its bar), with `from`, `delay`, `easing` and `onCountEnd`.
  */
-export function RollingNumber({ value, locales, format, containerStyle, duration, style, size, variant, weight, mono, testID, accessibilityLabel, ...text }: RollingNumberProps) {
+export function RollingNumber(props: RollingNumberProps) {
+  return props.animation === "count" ? <CountingNumber {...props} /> : <RollingDigits {...props} />
+}
+
+function RollingDigits({ value, locales, format, containerStyle, duration, style, size, variant, weight, mono, testID, accessibilityLabel, animation: _animation, from: _from, delay: _delay, easing: _easing, onCountEnd: _onCountEnd, ...text }: RollingNumberProps) {
   const theme = useTheme()
   const { text: written, glyphs, characters } = rollingNumberParts(value, locales, format)
   const flat = StyleSheet.flatten(style) as TextStyle | undefined
@@ -97,6 +115,85 @@ export function RollingNumber({ value, locales, format, containerStyle, duration
           <Reel key={key} digit={digit} character={character} glyphs={glyphs} lineHeight={lineHeight} duration={duration} text={glyphProps} />
         ),
       )}
+    </View>
+  )
+}
+
+/** The decimals a plain number is written to, so a count between whole numbers shows no fraction of its own. */
+function decimalsOf(value: number) {
+  const [mantissa, exponent] = String(Math.abs(value)).split("e")
+  const point = mantissa.indexOf(".")
+  const places = (point < 0 ? 0 : mantissa.length - point - 1) - Number(exponent ?? 0)
+  return Math.min(20, Math.max(0, places))
+}
+
+/**
+ * The count: one line of text written at each frame's number, in tabular figures so its width holds. A format that
+ * sets its own digits (a percent, a currency, `maximumFractionDigits`) rounds each number as it writes it; a plain one
+ * rounds to the value's own decimals. A screen reader reads the value it counts to.
+ */
+function CountingNumber({ value, locales, format, containerStyle, duration, from, delay = 0, easing, onCountEnd, style, size, variant, weight, mono, testID, accessibilityLabel, animation: _animation, ...text }: RollingNumberProps) {
+  const theme = useTheme()
+  const [count] = useState(() => new Animated.Value(from ?? value))
+  const [shown, setShown] = useState(from ?? value)
+  const end = useRef(onCountEnd)
+  // The value whose end was told, so a rerun of the effect (reduced motion turned on, StrictMode) tells it once
+  const told = useRef<number | null>(null)
+  const target = useRef<number | null>(null)
+  const finish = (target: number) => {
+    if (told.current === target) return
+    told.current = target
+    end.current?.()
+  }
+  useEffect(() => {
+    end.current = onCountEnd
+  }, [onCountEnd])
+  const time = duration ?? (theme.isAndroid ? 320 : theme.duration("--rolling-number-duration", 600))
+  // One curve while the token stays, so a frame's render does not start the count again
+  const android = theme.isAndroid
+  const ease = theme.token("--rolling-number-ease")
+  const curve = useMemo(() => easing ?? (android ? curves.easeOutQuint : cssEasing(ease, curves.easeInOut)), [easing, android, ease])
+  useEffect(() => {
+    const id = count.addListener(({ value: next }) => setShown(next))
+    return () => count.removeListener(id)
+  }, [count])
+  useEffect(() => {
+    // A new target is a new count, told again when it ends (back to a value told before, too)
+    if (target.current !== value) {
+      target.current = value
+      told.current = null
+    }
+    if (theme.reducedMotion || time <= 0) {
+      count.stopAnimation()
+      // The listener writes the value
+      count.setValue(value)
+      finish(value)
+      return
+    }
+    const animation = Animated.timing(count, { toValue: value, duration: time, delay, easing: curve, useNativeDriver: false, isInteraction: false })
+    animation.start(({ finished }) => {
+      if (finished) finish(value)
+    })
+    return () => animation.stop()
+  }, [count, value, time, delay, curve, theme.reducedMotion])
+  const { text: written } = rollingNumberParts(value, locales, format)
+  // A format that sets its own digits rounds each number itself; the count's end is the value as it is
+  const own =
+    format?.style === "percent" ||
+    format?.style === "currency" ||
+    (format?.notation != null && format.notation !== "standard") ||
+    format?.maximumFractionDigits != null ||
+    format?.minimumFractionDigits != null ||
+    format?.maximumSignificantDigits != null ||
+    format?.minimumSignificantDigits != null
+  const places = decimalsOf(value)
+  const rounded = shown === value || own ? shown : Number(shown.toFixed(places))
+  const { text: current } = rollingNumberParts(rounded, locales, format)
+  return (
+    <View accessible accessibilityRole="text" accessibilityLabel={accessibilityLabel ?? written} testID={testID} {...(Platform.OS === "web" ? { dir: "ltr" } : null)} style={[styles.row, styles.ltr, containerStyle]}>
+      <Text {...text} size={size} variant={variant} weight={weight} mono={mono} tabularNums style={style}>
+        {current}
+      </Text>
     </View>
   )
 }
