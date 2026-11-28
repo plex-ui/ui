@@ -7,6 +7,14 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.16.0 (2026-11-28)
+
+### Changed
+
+- **BottomSheet floats only when asked.** `floating` is `boolean | "auto"` and is false by default, so an iOS sheet meets the screen's edges with 38 on its top corners, as before 0.11.0. `floating` floats it 8 from the screen's sides and bottom; `floating="auto"` floats only a sheet short of the screen, the rule of 0.11–0.15. A floating sheet's corners are measured on Pages' and Preview's option sheets: 36 on top (`--bottom-sheet-floating-radius-top`) and 44 at the bottom, the screen's less the 8 (`--bottom-sheet-floating-radius`, which was 54 on all four).
+- **SystemKeyboard on Android: drawn to Gboard.** Every glyph is the kit's own outline at Gboard's 2dp stroke: shift, Caps Lock, delete, return, go, next, done, search, send, space, dash and emoji. The row of tools is apps, stickers and GIFs (dimmed), clipboard, settings, theme and the mic, a filled circle that an email field dims. Modifier glyphs, hint digits and the hide chevron take Gboard's colors. The phone pad sets the letters by each digit, a plus by the 0 and `* #` in its corner.
+- **SystemKeyboard on iOS: every key rechecked.** The phone pad stands in the middle, the same distance from both edges. A password field drops the emoji key and the mic and shows the Passwords bar, and a URL field has no mic. The delete, shift, Next and pad `+ * #` glyphs and the pad's period were redrawn to the simulator.
+
 ## @plexui/react-native 0.15.0 (2026-11-28)
 
 ### Added

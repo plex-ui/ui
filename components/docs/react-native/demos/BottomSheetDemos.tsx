@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { BottomSheet, Button, Card, Chip, Input, NavigationButton, Text } from '@plexui/react-native';
 import { View } from 'react-native';
 import { Email } from '@plexui/react-native/icons';
-import { DemoControlBoolean, controlsTableStyle } from '../../ButtonDemos';
+import { DemoControlBoolean, DemoControlSelect, controlsTableStyle } from '../../ButtonDemos';
 import { usePreviewEmbed } from '../../PreviewEmbed';
 import { RNScreen, docsDemo } from '../RNScreen';
 import { useNativePlatform } from '../platform';
+
+/** The sheet at the screen's edges (the default), floating, or floating while short of the screen */
+const FLOATING = ['false', 'true', 'auto'] as const;
 
 /** The terms of the React Dialog page's Scrolling body, and more of them, so the sheet scrolls */
 const TERMS = [
@@ -61,6 +64,7 @@ export const Overview = docsDemo(function Overview() {
   const [title, setTitle] = useState(true);
   const [hero, setHero] = useState(false);
   const [dismissible, setDismissible] = useState(true);
+  const [floating, setFloating] = useState<(typeof FLOATING)[number]>('false');
   const [email, setEmail] = useState('');
   return (
     <>
@@ -68,6 +72,7 @@ export const Overview = docsDemo(function Overview() {
         <DemoControlBoolean name="hero" value={hero} onChange={setHero} />
         {!hero && <DemoControlBoolean name="title" value={title} onChange={setTitle} />}
         <DemoControlBoolean name="dismissible" value={dismissible} onChange={setDismissible} />
+        <DemoControlSelect name="floating" options={FLOATING} value={floating} onChange={setFloating} />
       </div>
       <RNScreen screen minHeight={200}>
         <Trigger label="Sign in" hidden={hideTrigger} onPress={() => setOpen(true)} />
@@ -75,6 +80,7 @@ export const Overview = docsDemo(function Overview() {
           hero={hero ? { icon: <Email />, title: 'Sign in', description: 'We’ll send a code to this address.' } : undefined}
           aria-label="Sign in"
           dismissible={dismissible}
+          floating={floating === 'auto' ? 'auto' : floating === 'true'}
         >
           <View style={{ gap: 20 }}>
             {!hero && <Text color="secondary">We’ll send a code to this address.</Text>}
@@ -135,7 +141,7 @@ export const Scrolling = docsDemo(function Scrolling() {
 const AMENITIES = ['Wi-Fi', 'Outdoor Seating', 'Wheelchair Access', 'Parking', 'Takeout', 'Delivery', 'Kid Friendly', 'Pets Allowed'];
 
 /**
- * A filter panel as Maps draws one on iOS 26: the sheet, short of the screen, floats 8 in from its sides and bottom
+ * A filter panel as Maps draws one on iOS 26: the sheet floats (`floating`) 8 in from the screen's sides and bottom
  * with every corner rounded; Close at the leading end, the title, and a confirm at the trailing end that turns from
  * the bar's gray to the accent once the draft differs from what is applied. The tags stand in an inset card; Clear
  * Filters, a glass capsule at the foot, shows only while something is chosen, and the panel grows to take it.
@@ -156,6 +162,7 @@ export const Filters = docsDemo(function Filters() {
         open={open}
         onOpenChange={show}
         title="All Amenities"
+        floating
         action={
           <NavigationButton
             action="confirm"

@@ -3,7 +3,8 @@ import native from "./keyboard-native.json"
 import { openGallery } from "./gallery"
 
 // The drawn keyboard against the native ones: every key's frame within 1pt of the iOS 26.2 simulator's (iPhone 17 Pro,
-// 402pt) and the Pixel 9 emulator's Gboard (411.43dp), measured from their screenshots
+// 402pt) and the Pixel 9 emulator's Gboard (411.43dp), measured from their screenshots; Gboard's mic, a filled circle
+// at the end of its row of tools, counts as a key
 type Frame = { x: number; y: number; w: number; h: number }
 type Native = { device: { width: number; height: number }; layouts: Record<string, { height: number; keys: Frame[] }> }
 
@@ -27,6 +28,15 @@ const CASES = {
     ["Phone", "phone"],
   ],
 } as const
+
+// iOS's phone pad stands 1.67 from the simulator's left edge and 7.33 from its right; the drawn one keeps its keys'
+// sizes and gaps and stands in the middle, as far from both edges
+const IOS_PADS = new Set(["number", "decimal", "phone"])
+function centred(keys: Frame[], width: number): Frame[] {
+  const left = Math.min(...keys.map((key) => key.x))
+  const right = width - Math.max(...keys.map((key) => key.x + key.w))
+  return keys.map((key) => ({ ...key, x: key.x + (right - left) / 2 }))
+}
 
 async function drawnKeys(page: Page) {
   return page.getByTestId("keyboard").evaluate((panel) => {
@@ -57,10 +67,11 @@ for (const platform of ["ios", "android"] as const) {
       await expect.poll(async () => (await drawnKeys(page)).bottom).toBe(0)
       const drawn = await drawnKeys(page)
       const expected = reference.layouts[layout]
+      const keys = platform === "ios" && IOS_PADS.has(layout) ? centred(expected.keys, reference.device.width) : expected.keys
       expect(drawn.bottom).toBe(0)
       expect(Math.abs(drawn.height - expected.height)).toBeLessThanOrEqual(1)
-      expect(drawn.keys).toHaveLength(expected.keys.length)
-      const off = expected.keys.flatMap((key) => {
+      expect(drawn.keys).toHaveLength(keys.length)
+      const off = keys.flatMap((key) => {
         const mine = drawn.keys.reduce((best, k) => (Math.hypot(k.x - key.x, k.y - key.y) < Math.hypot(best.x - key.x, best.y - key.y) ? k : best))
         const distance = Math.max(Math.abs(mine.x - key.x), Math.abs(mine.y - key.y), Math.abs(mine.w - key.w), Math.abs(mine.h - key.h))
         return distance > 1 ? [`native ${JSON.stringify(key)} drawn ${JSON.stringify(mine)}`] : []

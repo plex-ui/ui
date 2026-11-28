@@ -29,6 +29,7 @@ export type KeyRole =
   | "hide"
   | "tool"
   | "suggestion"
+  | "autofill"
   | "divider"
 
 /** `key`: a key's own fill; `mod`: a function key's (Gboard); `accent`: the tinted return key; `none`: no fill */
@@ -45,12 +46,18 @@ export type KeySpec = {
   radius: number
   /** The key's words: a letter, "123", a digit */
   label?: string
-  /** The letters under a phone pad's digit (ABC) */
+  /** The letters under a phone pad's digit (ABC); on Gboard's phone pad beside it, "" for none, "+" by its 0 */
   sub?: string
   /** Gboard's small digit at the top row's corner */
   hint?: string
   /** A named glyph the renderer draws (shift, delete, return-search…) */
   icon?: string
+  /** How far the label stands below the key's middle, in points: iOS sets its symbols off it (`@` and `.` high) */
+  nudge?: number
+  /** The label's size where its keyboard sets it apart (Gboard's number pad: its comma and period larger) */
+  size?: number
+  /** A tool Gboard cannot offer here, drawn dimmed */
+  dim?: boolean
 }
 
 export type KeyboardLayout = {
@@ -114,8 +121,9 @@ function key(spec: KeySpec): KeySpec {
 
 // iOS 26: 6.5 at the sides, 6 between keys, rows of 43 every 54 under the 52 of the suggestion bar
 const IOS = { side: 6.5, gap: 6, rowTop: 52, rowPitch: 54, rowHeight: 43, radius: 8.5, height: 335, panel: 30 }
-// iOS 26's phone pad: three keys of 48 every 54 from 24, 1.67 from the left edge and 7.33 from the right
-const IOS_PAD = { left: 1.67, right: 7.33, gap: 6, rowTop: 24, rowPitch: 54, rowHeight: 48, radius: 9.5, height: 308 }
+// iOS 26's phone pad: three keys of 48 every 54 from 24, as wide as the simulator's and as far from both edges (the
+// simulator sets them 1.67 from the left edge and 7.33 from the right; the pad stands in the middle here)
+const IOS_PAD = { left: 4.5, right: 4.5, gap: 6, rowTop: 24, rowPitch: 54, rowHeight: 48, radius: 9.5, height: 308 }
 // Gboard: 4.57 at the sides, 5.33 between keys, rows of 47.24 every 59.05 under its 48 of tools; the navigation bar's 24
 const GBOARD = { side: 4.57, gap: 5.33, rowTop: 52.19, rowPitch: 59.05, rowHeight: 47.24, radius: 6, height: 336.38, nav: 24 }
 // Gboard's number pad: four capsules of 53.33 every 59.05 from 8
@@ -125,6 +133,20 @@ const GBOARD_PAD = { side: 4.19, gap: 4.57, rowTop: 8, rowPitch: 59.05, rowHeigh
 function shiftGlyph(caps: KeyboardLayoutOptions["caps"]) {
   return caps === "lock" ? "shift-lock" : caps ? "shift-on" : "shift"
 }
+
+// The symbols' offsets from their keys' middle, measured on the iOS 26.2 simulator
+const AT_NUDGE = -3.1
+const DOT_NUDGE = -3.3
+const URL_DOT_NUDGE = 1
+const SLASH_NUDGE = -2.2
+const COM_NUDGE = -3
+const PAD_DOT_NUDGE = -1
+// Gboard's period a dp lower than its comma; its navigation bar's chevron 23.8 over the screen's bottom edge (the bar
+// stands 48 tall under a keyboard)
+const GBOARD_DOT_NUDGE = 0.7
+const HIDE_RISE = 24.1
+const HIDE_X = 43.05
+const GBOARD_PAD_SYMBOL = { size: 30, nudge: -0.6 }
 
 function iosText({ kind, returnKey = "default", width, caps, autocorrect }: KeyboardLayoutOptions): KeyboardLayout {
   const { side, gap, rowTop, rowPitch, rowHeight: h, radius } = IOS
@@ -147,35 +169,48 @@ function iosText({ kind, returnKey = "default", width, caps, autocorrect }: Keyb
   const back = IOS_RETURN[search && returnKey === "default" ? "go" : returnKey]
   const returnWidth = (search ? 63 : 93) * scale
   const returnX = width - side - returnWidth
-  keys.push(key({ id: "layout", role: "layout", x: side, y: y(3), w: small, h, fill: "key", radius, label: "123" }))
-  keys.push(key({ id: "emoji", role: "emoji", x: side + small + gap, y: y(3), w: small, h, fill: "key", radius, icon: "emoji" }))
+  // A password field brings no emoji: its 123 takes the emoji's place too
+  const password = kind === "password"
+  keys.push(key({ id: "layout", role: "layout", x: side, y: y(3), w: password ? 2 * small + gap : small, h, fill: "key", radius, label: "123" }))
+  if (!password) keys.push(key({ id: "emoji", role: "emoji", x: side + small + gap, y: y(3), w: small, h, fill: "key", radius, icon: "emoji" }))
   const spaceX = side + 2 * (small + gap)
   const spaceEnd = returnX - gap
-  const extras: Array<{ id: string; label: string; w: number }> =
+  // The symbols stand off the key's middle as iOS sets them (the simulator's keys): the address's `@` and `.` high, the
+  // URL's row lower
+  const extras: Array<{ id: string; label: string; w: number; nudge: number }> =
     kind === "email"
-      ? [{ id: "at", label: "@", w: small }, { id: "dot", label: ".", w: small }]
+      ? [{ id: "at", label: "@", w: small, nudge: AT_NUDGE }, { id: "dot", label: ".", w: small, nudge: DOT_NUDGE }]
       : kind === "url"
         ? (() => {
             const each = (spaceEnd - spaceX - 2 * gap) / 3
-            return [{ id: "dot", label: ".", w: each }, { id: "slash", label: "/", w: each }, { id: "com", label: ".com", w: each }]
+            return [{ id: "dot", label: ".", w: each, nudge: URL_DOT_NUDGE }, { id: "slash", label: "/", w: each, nudge: SLASH_NUDGE }, { id: "com", label: ".com", w: each, nudge: COM_NUDGE }]
           })()
         : search
-          ? [{ id: "dot", label: ".", w: k }]
+          ? [{ id: "dot", label: ".", w: k, nudge: DOT_NUDGE }]
           : []
   const extrasWidth = extras.reduce((sum, extra) => sum + extra.w + gap, 0)
   if (kind !== "url") keys.push(key({ id: "space", role: "space", x: spaceX, y: y(3), w: spaceEnd - spaceX - extrasWidth, h, fill: "key", radius }))
   let at = kind === "url" ? spaceX : spaceEnd - extrasWidth + gap
   for (const extra of extras) {
-    keys.push(key({ id: `key-${extra.id}`, role: "symbol", x: at, y: y(3), w: extra.w, h, fill: "key", radius, label: extra.label }))
+    keys.push(key({ id: `key-${extra.id}`, role: "symbol", x: at, y: y(3), w: extra.w, h, fill: "key", radius, label: extra.label, nudge: extra.nudge }))
     at += extra.w + gap
   }
   keys.push(key({ id: "return", role: "return", x: returnX, y: y(3), w: returnWidth, h, fill: back.accent ? "accent" : "key", radius, icon: back.icon }))
-  // Under the keys: the globe and the microphone, 42.67 from each side
+  // Under the keys: the globe and the microphone, 42.67 from each side; an address on the web and a password take no
+  // dictation, so no microphone
   keys.push(key({ id: "globe", role: "globe", x: 42.67 - 16, y: 295 - 16, w: 32, h: 32, fill: "none", radius: 0, icon: "globe" }))
-  keys.push(key({ id: "mic", role: "mic", x: width - 42.67 - 16, y: 295 - 16, w: 32, h: 32, fill: "none", radius: 0, icon: "mic" }))
+  if (kind !== "url" && !password) keys.push(key({ id: "mic", role: "mic", x: width - 42.67 - 16, y: 295 - 16, w: 32, h: 32, fill: "none", radius: 0, icon: "mic" }))
+  if (password) {
+    // A password's bar offers the saved passwords: one cell between two dividers 30.33 in from the sides
+    const inset = 30.33
+    keys.push(key({ id: "autofill", role: "autofill", x: inset, y: 6, w: width - 2 * inset, h: 38, fill: "none", radius: 0, label: "Passwords" }))
+    for (const [i, x] of [inset, width - inset].entries()) keys.push(key({ id: `divider-${i + 1}`, role: "divider", x: x - 0.5, y: 12.5, w: 1, h: 25, fill: "none", radius: 0 }))
+    return { platform: "ios", height: IOS.height, navigationBar: 0, radius: IOS.panel, keys }
+  }
   // The suggestion bar: three cells over the keys, the first words of an empty field when it corrects
   const cell = width / 3
-  const words = kind === "password" || autocorrect === false ? ["", "", ""] : ["I", "The", "I’m"]
+  // An address's bar spells I'm with a straight apostrophe, as it types it
+  const words = autocorrect === false ? ["", "", ""] : ["I", "The", kind === "email" || kind === "url" ? "I'm" : "I’m"]
   words.forEach((word, i) => keys.push(key({ id: `suggestion-${i}`, role: "suggestion", x: i * cell, y: 6, w: cell, h: 38, fill: "none", radius: 0, label: word })))
   for (const i of [1, 2]) keys.push(key({ id: `divider-${i}`, role: "divider", x: i * cell - 0.5, y: 12.5, w: 1, h: 25, fill: "none", radius: 0 }))
   return { platform: "ios", height: IOS.height, navigationBar: 0, radius: IOS.panel, keys }
@@ -191,7 +226,7 @@ function iosPad({ kind, width }: KeyboardLayoutOptions): KeyboardLayout {
     keys.push(key({ id: `key-${digit}`, role: "digit", x, y, w, h, fill: "key", radius, label: String(digit), sub: PAD_LETTERS[digit - 1] }))
   }
   const corner = kind === "decimal" ? "." : kind === "phone" ? "+*#" : ""
-  if (corner) keys.push(key({ id: "corner", role: "label", ...at(0, 3), w, h, fill: "none", radius, label: corner }))
+  if (corner) keys.push(key({ id: "corner", role: "label", ...at(0, 3), w, h, fill: "none", radius, label: corner, nudge: corner === "." ? PAD_DOT_NUDGE : 0 }))
   keys.push(key({ id: "key-0", role: "digit", ...at(1, 3), w, h, fill: "key", radius, label: "0" }))
   keys.push(key({ id: "delete", role: "delete", ...at(2, 3), w, h, fill: "none", radius, icon: "delete-pad" }))
   return { platform: "ios", height: IOS_PAD.height, navigationBar: 0, radius: IOS.panel, keys }
@@ -225,7 +260,7 @@ function gboardText({ kind, returnKey = "default", width, caps }: KeyboardLayout
   const returnX = width - side - wide
   const dotX = returnX - gap - k
   keys.push(key({ id: "space", role: "space", x, y: y(3), w: dotX - gap - x, h, fill: "key", radius }))
-  keys.push(key({ id: "key-dot", role: "symbol", x: dotX, y: y(3), w: k, h, fill: "mod", radius, label: "." }))
+  keys.push(key({ id: "key-dot", role: "symbol", x: dotX, y: y(3), w: k, h, fill: "mod", radius, label: ".", nudge: GBOARD_DOT_NUDGE }))
   keys.push(key({ id: "return", role: "return", x: returnX, y: y(3), w: wide, h, fill: "mod", radius: h / 2, icon: ANDROID_RETURN[returnKey] }))
   // Over the keys: Gboard's tools, or a row of digits over a password's keys
   const pitch = (width - 2 * 22.7) / 6
@@ -234,11 +269,16 @@ function gboardText({ kind, returnKey = "default", width, caps }: KeyboardLayout
       keys.push(key({ id: `top-${digit}`, role: "label", x: side + i * (k + gap), y: 4, w: k, h: 40, fill: "none", radius: 0, label: digit })),
     )
   } else {
-    ;["apps", "sticker", "gif", "clipboard", "settings", "palette", "mic"].forEach((tool, i) =>
-      keys.push(key({ id: `tool-${tool}`, role: "tool", x: 22.7 + i * pitch - 17, y: 21.9 - 17, w: 34, h: 34, fill: "none", radius: 17, icon: tool })),
-    )
+    // Stickers and GIFs dimmed (a plain field takes neither); the microphone on a disc of a key's fill, dimmed with none
+    // for an address, which takes no dictation
+    const email = kind === "email"
+    ;["apps", "sticker", "gif", "clipboard", "settings", "palette", "mic"].forEach((tool, i) => {
+      const mic = tool === "mic"
+      const dim = tool === "sticker" || tool === "gif" || (mic && email)
+      keys.push(key({ id: `tool-${tool}`, role: "tool", x: 22.7 + i * pitch - 17, y: 21.9 - 17, w: 34, h: 34, fill: mic && !email ? "key" : "none", radius: 17, icon: tool, dim }))
+    })
   }
-  keys.push(key({ id: "hide", role: "hide", x: 43.05 - 12, y: GBOARD.height - GBOARD.nav / 2 - 12, w: 24, h: 24, fill: "none", radius: 0, icon: "hide" }))
+  keys.push(key({ id: "hide", role: "hide", x: HIDE_X - 12, y: GBOARD.height - HIDE_RISE - 12, w: 24, h: 24, fill: "none", radius: 0, icon: "hide" }))
   return { platform: "android", height: GBOARD.height, navigationBar: GBOARD.nav, radius: 0, keys }
 }
 
@@ -259,18 +299,19 @@ function gboardPad({ kind, returnKey = "default", width }: KeyboardLayoutOptions
         fill: "key",
         radius: h / 2,
         label: String(digit),
-        sub: phone ? PAD_LETTERS[digit - 1] || undefined : undefined,
+        sub: phone ? PAD_LETTERS[digit - 1] : undefined,
       }),
     )
   }
-  keys.push(key({ id: "corner", role: "symbol", ...at(0, 3), w, h, fill: "key", radius: h / 2, label: phone ? "*#" : "," }))
+  // The phone pad's star and hash a space apart
+  keys.push(key({ id: "corner", role: "symbol", ...at(0, 3), w, h, fill: "key", radius: h / 2, label: phone ? "* #" : ",", ...(phone ? { nudge: -0.4 } : GBOARD_PAD_SYMBOL) }))
   keys.push(key({ id: "key-0", role: "digit", ...at(1, 3), w, h, fill: "key", radius: h / 2, label: "0", sub: phone ? "+" : undefined }))
-  keys.push(key({ id: "key-dot", role: "symbol", ...at(2, 3), w, h, fill: "key", radius: h / 2, label: "." }))
-  keys.push(key({ id: "key-dash", role: "symbol", ...at(3, 0), w, h, fill: "mod", radius: h / 2, label: "–" }))
+  keys.push(key({ id: "key-dot", role: "symbol", ...at(2, 3), w, h, fill: "key", radius: h / 2, label: ".", ...GBOARD_PAD_SYMBOL }))
+  keys.push(key({ id: "key-dash", role: "symbol", ...at(3, 0), w, h, fill: "mod", radius: h / 2, icon: "dash" }))
   keys.push(key({ id: "space", role: "space", ...at(3, 1), w, h, fill: "mod", radius: h / 2, icon: "space" }))
   keys.push(key({ id: "delete", role: "delete", ...at(3, 2), w, h, fill: "mod", radius: h / 2, icon: "delete" }))
   keys.push(key({ id: "return", role: "return", ...at(3, 3), w, h, fill: "mod", radius: h / 2, icon: ANDROID_RETURN[returnKey] }))
-  keys.push(key({ id: "hide", role: "hide", x: 43.05 - 12, y: GBOARD_PAD.height - GBOARD.nav / 2 - 12, w: 24, h: 24, fill: "none", radius: 0, icon: "hide" }))
+  keys.push(key({ id: "hide", role: "hide", x: HIDE_X - 12, y: GBOARD_PAD.height - HIDE_RISE - 12, w: 24, h: 24, fill: "none", radius: 0, icon: "hide" }))
   return { platform: "android", height: GBOARD_PAD.height, navigationBar: GBOARD.nav, radius: 0, keys }
 }
 

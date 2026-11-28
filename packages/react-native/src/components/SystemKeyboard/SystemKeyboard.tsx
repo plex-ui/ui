@@ -1,41 +1,59 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentRef, type ReactNode } from "react"
 import { Animated, Easing, Platform, StyleSheet, Text, View, useWindowDimensions } from "react-native"
-import { createIcon, type IconComponent } from "../Icon/createIcon"
+import { type IconComponent } from "../Icon/createIcon"
 import { useTheme } from "../../theme/ThemeProvider"
 import { clearDrawnKeyboard, setDrawnKeyboard } from "../../internal/keyboard"
-import ArrowRightLg from "../../icons/plex/ArrowRightLg"
-import CheckMd from "../../icons/plex/CheckMd"
 import ChevronDownMd from "../../icons/plex/ChevronDownMd"
-import ChevronRightMd from "../../icons/plex/ChevronRightMd"
-import Clipboard from "../../icons/plex/Clipboard"
-import Grid from "../../icons/plex/Grid"
-import MicFilled from "../../icons/plex/MicFilled"
-import Search from "../../icons/plex/Search"
-import SettingsCog from "../../icons/plex/SettingsCog"
-import ArrowBigUp from "../../icons/tabler/ArrowBigUp"
-import Backspace from "../../icons/tabler/Backspace"
-import CornerDownLeft from "../../icons/tabler/CornerDownLeft"
 import Gif from "../../icons/tabler/Gif"
-import MoodSmile from "../../icons/tabler/MoodSmile"
-import Palette from "../../icons/tabler/Palette"
-import Send from "../../icons/tabler/Send"
-import Space from "../../icons/tabler/Space"
-import Sticker from "../../icons/tabler/Sticker"
-import { IOS_GLYPH_SIZE as S, IosDelete, IosDeletePad, IosDone, IosEmoji, IosEmojiFilled, IosGlobe, IosGo, IosMic, IosNext, IosReturn, IosSearch, IosSend, IosShift, IosShiftLock, IosShiftOn } from "./glyphs"
+import {
+  GBOARD_GLYPH_SIZE as G,
+  GboardApps,
+  GboardClipboard,
+  GboardDash,
+  GboardDelete,
+  GboardDone,
+  GboardEmoji,
+  GboardMic,
+  GboardGo,
+  GboardNext,
+  GboardPadPlus,
+  GboardPalette,
+  GboardReturn,
+  GboardSearch,
+  GboardSend,
+  GboardSettings,
+  GboardShift,
+  GboardShiftLock,
+  GboardShiftOn,
+  GboardSpace,
+  GboardSticker,
+  IOS_GLYPH_SIZE as S,
+  IosDelete,
+  IosDeletePad,
+  IosDone,
+  IosEmoji,
+  IosEmojiFilled,
+  IosGlobe,
+  IosGo,
+  IosMic,
+  IosNext,
+  IosPadHash,
+  IosPadPlus,
+  IosPadStar,
+  IosPasswordKey,
+  IosReturn,
+  IosSearch,
+  IosSend,
+  IosShift,
+  IosShiftLock,
+  IosShiftOn,
+} from "./glyphs"
 import { keyboardLayout, type KeySpec, type KeyboardKind, type KeyboardLayout, type KeyboardPlatform, type KeyboardReturnKey } from "./layout"
 
 export { keyboardLayout, type KeyboardKind, type KeyboardLayout, type KeyboardPlatform, type KeyboardReturnKey, type KeySpec } from "./layout"
 
-/** Gboard's shift held for a capital: the arrow filled */
-const ShiftOn = createIcon("ShiftOn", "0 0 24 24", [
-  ["path", { d: "M10.59 3 4 9.59A2 2 0 0 0 5.41 13H8v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7h2.59A2 2 0 0 0 20 9.59L13.41 3a2 2 0 0 0-2.82 0Z", fill: 0 }],
-])
-
-/** Gboard's Caps Lock: the arrow filled over a bar (the shift pressed twice) */
-const ShiftLock = createIcon("ShiftLock", "0 0 24 24", [
-  ["path", { d: "M10.59 2 4 8.59A2 2 0 0 0 5.41 12H8v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4h2.59A2 2 0 0 0 20 8.59L13.41 2a2 2 0 0 0-2.82 0Z", fill: 0 }],
-  ["rect", { x: 8, y: 19.5, width: 8, height: 2.5, rx: 1.25, fill: 0 }],
-])
+/** Gboard's symbols at their sizes: its @ and / smaller than its comma and period (the emulator's) */
+const GBOARD_SYMBOL: Record<string, number> = { "@": 20, "/": 18, "* #": 22 }
 
 const IOS_EMOJI_DARK: [IconComponent, number] = [IosEmojiFilled, S.emoji]
 
@@ -58,43 +76,49 @@ const GLYPHS: Record<KeyboardPlatform, Record<string, [IconComponent, number]>> 
     mic: [IosMic, S.mic],
   },
   android: {
-    shift: [ArrowBigUp, 25],
-    "shift-on": [ShiftOn, 25],
-    "shift-lock": [ShiftLock, 25],
-    delete: [Backspace, 28],
-    emoji: [MoodSmile, 24],
-    return: [CornerDownLeft, 26],
-    next: [ChevronRightMd, 26],
-    go: [ArrowRightLg, 26],
-    search: [Search, 26],
-    send: [Send, 24],
-    done: [CheckMd, 28],
-    space: [Space, 24],
-    hide: [ChevronDownMd, 20],
-    apps: [Grid, 23],
-    sticker: [Sticker, 23],
+    shift: [GboardShift, G.key],
+    "shift-on": [GboardShiftOn, G.key],
+    "shift-lock": [GboardShiftLock, G.key],
+    delete: [GboardDelete, G.key],
+    emoji: [GboardEmoji, G.small],
+    return: [GboardReturn, G.key],
+    next: [GboardNext, G.key],
+    go: [GboardGo, G.key],
+    search: [GboardSearch, G.key],
+    send: [GboardSend, G.key],
+    done: [GboardDone, G.key],
+    space: [GboardSpace, G.small],
+    dash: [GboardDash, G.small],
+    // The navigation bar's: a small chevron, 10dp wide
+    hide: [ChevronDownMd, 17.3],
+    apps: [GboardApps, G.tool],
+    sticker: [GboardSticker, G.tool],
     gif: [Gif, 24],
-    clipboard: [Clipboard, 23],
-    settings: [SettingsCog, 23],
-    palette: [Palette, 23],
-    mic: [MicFilled, 23],
+    clipboard: [GboardClipboard, G.tool],
+    settings: [GboardSettings, G.tool],
+    palette: [GboardPalette, G.tool],
+    mic: [GboardMic, G.tool],
   },
 }
 
 /** The keyboards' own colors: they are the system's, not the app's, so the theme's tokens do not reach them */
 const COLORS: Record<KeyboardPlatform, Record<"light" | "dark", Palette>> = {
   ios: {
-    light: { panel: "#E2E4E8", key: "#FFFFFF", mod: "#FFFFFF", accent: "#007AFF", ink: "#000000", onAccent: "#FFFFFF", muted: "#3C3C43", divider: "#C2C4C9", suggestion: "#36383B" },
-    dark: { panel: "#171717", key: "#3D3D3D", mod: "#3D3D3D", accent: "#0A84FF", ink: "#FFFFFF", onAccent: "#FFFFFF", muted: "#EBEBF5", divider: "#3A3A3C", suggestion: "#ACACAC" },
+    light: { panel: "#E2E4E8", key: "#FFFFFF", mod: "#FFFFFF", accent: "#007AFF", ink: "#000000", onAccent: "#FFFFFF", onMod: "#000000", muted: "#3C3C43", hint: "#3C3C43", dim: "#3C3C43", nav: "#3C3C43", divider: "#C2C4C9", suggestion: "#36383B" },
+    dark: { panel: "#171717", key: "#3D3D3D", mod: "#3D3D3D", accent: "#0A84FF", ink: "#FFFFFF", onAccent: "#FFFFFF", onMod: "#FFFFFF", muted: "#EBEBF5", hint: "#EBEBF5", dim: "#EBEBF5", nav: "#EBEBF5", divider: "#3A3A3C", suggestion: "#ACACAC" },
   },
   android: {
-    light: { panel: "#EEEDF4", key: "#FFFFFF", mod: "#DCE2F9", accent: "#DCE2F9", ink: "#1A1B20", onAccent: "#1A1B20", muted: "#74777F", divider: "#C4C6D0", suggestion: "#1A1B20" },
-    dark: { panel: "#1E1F25", key: "#33343A", mod: "#404659", accent: "#404659", ink: "#E2E2E9", onAccent: "#E2E2E9", muted: "#8E9099", divider: "#44474F", suggestion: "#E2E2E9" },
+    light: { panel: "#EEEDF4", key: "#FFFFFF", mod: "#DCE2F9", accent: "#DCE2F9", ink: "#1A1B20", onAccent: "#404659", onMod: "#404659", muted: "#74777F", hint: "#44464F", dim: "#9E9EA4", nav: "#666666", divider: "#C4C6D0", suggestion: "#1A1B20" },
+    dark: { panel: "#1E1F25", key: "#33343A", mod: "#404659", accent: "#404659", ink: "#E2E2E9", onAccent: "#DCE2F9", onMod: "#DCE2F9", muted: "#8E9099", hint: "#C5C6D0", dim: "#68686F", nav: "#FFFFFF", divider: "#44474F", suggestion: "#E2E2E9" },
   },
 }
 
-/** `suggestion`: the words of iOS's suggestion bar, a little softer than the keys' (the simulator's 54,56,59 and 172) */
-type Palette = Record<"panel" | "key" | "mod" | "accent" | "ink" | "onAccent" | "muted" | "divider" | "suggestion", string>
+/**
+ * `suggestion`: the words of iOS's suggestion bar, a little softer than the keys' (the simulator's 54,56,59 and 172).
+ * Gboard's: `onMod` its function keys' glyphs (slate on their blue), `hint` the digits over its top row and the phone
+ * pad's letters, `dim` a tool it cannot offer, `nav` the navigation bar's chevron (the emulator's)
+ */
+type Palette = Record<"panel" | "key" | "mod" | "accent" | "ink" | "onAccent" | "onMod" | "muted" | "hint" | "dim" | "nav" | "divider" | "suggestion", string>
 
 /** The focused field, as the keyboard reads it */
 export type KeyboardField = {
@@ -304,7 +328,7 @@ function KeyGlyph({ spec, platform, color, dark }: { spec: KeySpec; platform: Ke
 function KeyLabel({ spec, platform, palette }: { spec: KeySpec; platform: KeyboardPlatform; palette: Palette }) {
   const theme = useTheme()
   const ios = platform === "ios"
-  const ink = spec.fill === "accent" ? palette.onAccent : palette.ink
+  const ink = spec.fill === "accent" ? palette.onAccent : spec.fill === "mod" ? palette.onMod : palette.ink
   const face = (size: number, weight: "regular" | "medium" | "semibold" = "regular", lineHeight = Math.round(size * 1.2)) => ({
     ...theme.font(weight),
     fontSize: size,
@@ -312,6 +336,8 @@ function KeyLabel({ spec, platform, palette }: { spec: KeySpec; platform: Keyboa
     letterSpacing: 0,
     color: ink,
   })
+  // A symbol set off its key's middle, as iOS sets it
+  const nudge = spec.nudge ? { transform: [{ translateY: spec.nudge }] } : null
   switch (spec.role) {
     case "letter":
       // iOS draws its capitals smaller than its small letters: a capital 15.3pt tall, a small letter's x-height 13pt
@@ -320,28 +346,60 @@ function KeyLabel({ spec, platform, palette }: { spec: KeySpec; platform: Keyboa
         const capital = spec.label != null && spec.label !== spec.label.toLowerCase()
         return <Text style={[face(capital ? 21 : 24), capital ? styles.iosCapital : styles.iosLetter]}>{spec.label}</Text>
       }
-      return <Text style={[face(26), styles.gboardLetter]}>{spec.label}</Text>
+      return <Text style={[face(26.8), styles.gboardLetter]}>{spec.label}</Text>
     case "layout":
-      return <Text style={face(ios ? 18 : 15, ios ? "regular" : "medium")}>{spec.label}</Text>
+      return <Text style={[face(ios ? 18 : 17, ios ? "regular" : "medium"), ios ? styles.iosLayout : styles.gboardLayout]}>{spec.label}</Text>
     case "suggestion":
-      return <Text style={[face(17), { color: palette.suggestion }]}>{spec.label}</Text>
+      // iOS's 17pt text tracks -0.43
+      return <Text style={[face(17), { color: palette.suggestion, letterSpacing: ios ? -0.43 : 0 }]}>{spec.label}</Text>
+    case "autofill":
+      // The saved passwords: a key and the word, gray as the suggestions
+      return (
+        <View style={styles.autofill}>
+          <IosPasswordKey size={24} color={palette.suggestion} style={styles.autofillKey} />
+          <Text style={[face(17), { color: palette.suggestion, letterSpacing: -0.43 }]}>{spec.label}</Text>
+        </View>
+      )
     case "symbol":
-      return <Text style={face(spec.label === ".com" ? 18 : ios ? 22 : 24)}>{spec.label}</Text>
+      // iOS's @ and / are smaller than its period; Gboard's @ and / too
+      return (
+        <Text style={[face(spec.size ?? (spec.label === ".com" ? 18 : !ios ? GBOARD_SYMBOL[spec.label ?? ""] ?? 24 : spec.label === "@" || spec.label === "/" ? 20 : 22)), nudge]}>
+          {spec.label}
+        </Text>
+      )
     case "label":
-      return <Text style={face(ios ? 20 : 20)}>{spec.label}</Text>
-    case "digit":
-      if (ios) {
+      if (ios && spec.label === "+*#") {
+        // The phone pad's corner: three drawn symbols, 15.5 apart, over the key's middle
         return (
-          <View style={styles.iosDigit}>
-            <Text style={face(22, "regular", 26)}>{spec.label}</Text>
-            <Text style={[face(10, "semibold", 12), styles.iosLetters]}>{spec.sub || " "}</Text>
+          <View style={styles.padSymbols}>
+            <IosPadPlus size={12} color={ink} />
+            <IosPadStar size={12} color={ink} />
+            <IosPadHash size={12} color={ink} />
           </View>
         )
       }
+      return <Text style={[face(20), nudge]}>{spec.label}</Text>
+    case "digit":
+      if (ios) {
+        // A 15.3pt digit and its letters 6.7pt tall, spaced 1.67, under it (the simulator's pad)
+        return (
+          <View style={styles.iosDigit}>
+            <Text style={face(21, "regular", 25)}>{spec.label}</Text>
+            <Text style={[face(9.2, "semibold", 11), styles.iosLetters]}>{spec.sub || " "}</Text>
+          </View>
+        )
+      }
+      // The phone pad's: the digit 7.8 left of the key's middle, its letters (the 0's plus) in a column 24.4 right of it,
+      // both on the digit's middle; the number pad's digit in the middle
+      if (spec.sub == null) return <Text style={[face(29, "regular", 34), styles.gboardPadDigit]}>{spec.label}</Text>
       return (
-        <View style={styles.gboardDigit}>
-          <Text style={face(29, "regular", 34)}>{spec.label}</Text>
-          {spec.sub ? <Text style={[face(13, "regular", 16), styles.gboardLetters]}>{spec.sub}</Text> : null}
+        <View style={StyleSheet.absoluteFill}>
+          <Text style={[face(29, "regular", 34), styles.gboardPhoneDigit, { left: spec.w / 2 - 7.8 - 20, top: (spec.h - 34) / 2 + 0.25 }]}>{spec.label}</Text>
+          {spec.sub === "+" ? (
+            <GboardPadPlus size={9.52} color={ink} style={[styles.gboardPhonePlus, { left: spec.w / 2 + 24.27 - 4.76, top: spec.h / 2 + 2.54 - 4.76 }]} />
+          ) : spec.sub ? (
+            <Text style={[face(13.6, "regular", 16), styles.gboardLetters, { color: palette.hint, left: spec.w / 2 + 24.4 - 30, top: (spec.h - 16) / 2 + 0.43 }]}>{spec.sub}</Text>
+          ) : null}
         </View>
       )
     default:
@@ -352,16 +410,16 @@ function KeyLabel({ spec, platform, palette }: { spec: KeySpec; platform: Keyboa
 function Key({ spec, platform, palette, dark }: { spec: KeySpec; platform: KeyboardPlatform; palette: Palette; dark: boolean }) {
   const theme = useTheme()
   const fill = spec.fill === "none" ? "transparent" : palette[spec.fill]
-  // Gboard's sticker and GIF tools stand dimmed by the others
-  const dim = spec.role === "hide" || spec.icon === "sticker" || spec.icon === "gif"
-  const glyphColor = spec.fill === "accent" ? palette.onAccent : dim ? palette.muted : palette.ink
+  // Gboard's function keys draw their glyphs slate; a tool it cannot offer stands dimmed; the navigation bar's chevron
+  const glyphColor =
+    spec.fill === "accent" ? palette.onAccent : spec.fill === "mod" ? palette.onMod : spec.role === "hide" ? palette.nav : spec.dim ? palette.dim : palette.ink
   if (spec.role === "divider") {
     return <View testID={`keyboard-${spec.id}`} style={[styles.key, frame(spec), { backgroundColor: palette.divider }]} />
   }
   return (
     <View testID={`keyboard-${spec.id}`} style={[styles.key, frame(spec), { backgroundColor: fill, borderRadius: spec.radius }]}>
       {spec.icon ? <KeyGlyph spec={spec} platform={platform} color={glyphColor} dark={dark} /> : <KeyLabel spec={spec} platform={platform} palette={palette} />}
-      {spec.hint ? <Text style={[styles.hint, theme.font("regular"), { color: palette.muted }]}>{spec.hint}</Text> : null}
+      {spec.hint ? <Text style={[styles.hint, theme.font("medium"), { color: palette.hint }]}>{spec.hint}</Text> : null}
     </View>
   )
 }
@@ -523,10 +581,20 @@ const styles = StyleSheet.create({
   key: { position: "absolute", alignItems: "center", justifyContent: "center" },
   iosLetter: { marginTop: -4 },
   iosCapital: { marginTop: -2 },
-  gboardLetter: { marginTop: -1 },
-  iosDigit: { alignItems: "center", marginTop: 2 },
-  iosLetters: { letterSpacing: 2, marginTop: -2 },
-  gboardDigit: { flexDirection: "row", alignItems: "baseline", gap: 6 },
-  gboardLetters: { letterSpacing: 0.5 },
-  hint: { position: "absolute", top: 3, right: 4, fontSize: 11, lineHeight: 13 },
+  gboardLetter: { marginTop: -1, transform: [{ translateY: -1.9 }] },
+  iosDigit: { alignItems: "center", marginTop: 2.67 },
+  // The letters' spacing follows each letter, the last one's too: a lead as wide keeps them in the middle
+  iosLetters: { letterSpacing: 1.67, paddingLeft: 1.67, marginTop: 1.33 },
+  iosLayout: { transform: [{ translateX: 0.7 }, { translateY: -0.7 }] },
+  gboardLayout: { transform: [{ translateX: 0.6 }, { translateY: -0.6 }] },
+  padSymbols: { flexDirection: "row", gap: 3.5, transform: [{ translateX: 0.15 }, { translateY: -2 }] },
+  autofill: { flexDirection: "row", alignItems: "center", gap: 2 },
+  // The key's glyph is 11.2 of its 24: its box's lead left out, the key and the word stand in the middle together
+  autofillKey: { marginLeft: -6.4 },
+  gboardPhoneDigit: { position: "absolute", width: 40, textAlign: "center" },
+  gboardPadDigit: { transform: [{ translateY: 0.4 }] },
+  gboardLetters: { position: "absolute", width: 60, textAlign: "center", letterSpacing: -0.3 },
+  gboardPhonePlus: { position: "absolute" },
+  // Gboard's digit over a letter of its top row, in its corner
+  hint: { position: "absolute", top: 2.94, right: 1.2, fontSize: 11.5, lineHeight: 13 },
 })
