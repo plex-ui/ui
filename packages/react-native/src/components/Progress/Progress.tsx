@@ -34,6 +34,11 @@ export type ProgressProps = {
   size?: ProgressSize
   /** The color of the filled part. A segmented bar's parts take their own colors. @default "primary" */
   color?: ProgressColor
+  /**
+   * Whether a new value moves the fill by itself. `false` puts the fill at each value at once, for a value the screen
+   * moves itself, frame by frame in its own time. @default true
+   */
+  animated?: boolean
   /** The value read out; the rounded percentage by default, such as "67%". */
   getValueLabel?: (value: number, max: number) => string
   /** The name read out, when no visible label names the bar. */
@@ -88,7 +93,8 @@ function valueMotion(theme: Theme) {
  * back in `--progress-indeterminate-duration` (1.5s, ease-in-out). Android: the Plex Android look's line progress,
  * the accent on the ink at 8%, a new value in 300ms decelerating, and Material's indeterminate pair of lines (1750ms).
  * A segmented bar puts its parts side by side with `--progress-segment-gap` (2) of track between them. With reduced
- * motion a value lands at once and the sweep stands still in the middle.
+ * motion a value lands at once and the sweep stands still in the middle. With `animated={false}` a value lands at once
+ * too, for a value the screen moves itself.
  */
 export function Progress({
   value = null,
@@ -96,6 +102,7 @@ export function Progress({
   segments,
   size = "sm",
   color = "primary",
+  animated = true,
   getValueLabel = defaultValueLabel,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -125,7 +132,7 @@ export function Progress({
     text = segmentsLabel(parts, rootMax)
     content = (
       <View style={[styles.segments, { gap: theme.length("--progress-segment-gap", 2) }]}>
-        {parts.map((part, index) => (part.value > 0 ? <Segment key={index} share={part.value / rootMax} color={fillColor(theme, part.color ?? "primary")} theme={theme} /> : null))}
+        {parts.map((part, index) => (part.value > 0 ? <Segment key={index} share={part.value / rootMax} color={fillColor(theme, part.color ?? "primary")} instant={!animated} theme={theme} /> : null))}
       </View>
     )
   } else {
@@ -141,7 +148,7 @@ export function Progress({
           <Sweep width={width} rtl={rtl} color={fill} theme={theme} />
         )
       ) : (
-        <Fill fraction={resolved / rootMax} width={width} rtl={rtl} color={fill} theme={theme} />
+        <Fill fraction={resolved / rootMax} width={width} rtl={rtl} color={fill} instant={!animated} theme={theme} />
       )
   }
 
@@ -164,9 +171,9 @@ export function Progress({
 }
 
 /** The filled part: the whole track's width, moved back by what is left (rounded at its leading end). */
-function Fill({ fraction, width, rtl, color, theme }: { fraction: number; width: number; rtl: boolean; color: string; theme: Theme }) {
+function Fill({ fraction, width, rtl, color, instant, theme }: { fraction: number; width: number; rtl: boolean; color: string; instant: boolean; theme: Theme }) {
   const motion = valueMotion(theme)
-  const shown = useTransitionValue(fraction, { ...motion, native: true, reducedMotion: theme.reducedMotion })
+  const shown = useTransitionValue(fraction, { ...motion, native: true, reducedMotion: theme.reducedMotion || instant })
   const [span] = useState(() => new Animated.Value(width))
   useEffect(() => span.setValue(width), [span, width])
   const translateX = Animated.multiply(shown.interpolate({ inputRange: [0, 1], outputRange: rtl ? [1, 0] : [-1, 0] }), span)
@@ -235,8 +242,8 @@ function AndroidSweep({ width, color, theme }: { width: number; color: string; t
 }
 
 /** A part of a segmented bar: its share of the track, which a change moves as the CSS transition of its width. */
-function Segment({ share, color, theme }: { share: number; color: string; theme: Theme }) {
-  const shown = useTransitionValue(share, { ...valueMotion(theme), reducedMotion: theme.reducedMotion })
+function Segment({ share, color, instant, theme }: { share: number; color: string; instant: boolean; theme: Theme }) {
+  const shown = useTransitionValue(share, { ...valueMotion(theme), reducedMotion: theme.reducedMotion || instant })
   return (
     <Animated.View
       pointerEvents="none"
