@@ -30,7 +30,7 @@ On a phone the system brings up its own keyboard; a web preview of the app on a 
 
 <ComponentPreview details={<>
   <p>The keyboard follows the theme's platform and scheme: iOS 26's keyboard, or Gboard on Android. The field's kind chooses its keys, as the system does: React Native's <code>keyboardType</code> (on the web the field's <code>inputMode</code> and <code>type</code>) brings the <code>@</code> and the period for an email address, <code>.</code> <code>/</code> <code>.com</code> for a URL, a period and Go for a search, and the phone pad for a number, an amount or a phone number. <code>returnKeyType</code> (the field's <code>enterKeyHint</code>) names the return key: on iOS go, search, send and done tint it blue with their glyph, next draws a chevron; Gboard draws the glyph on its key.</p>
-  <p>An auto-capitalizing field shows capitals and a filled shift where a sentence starts; a field that corrects shows the suggestion bar's first words on iOS, and Gboard its row of tools. Here the keyboard is drawn still, with <code>field</code>, as it stands under a focused field; <code>mode=&quot;hidden&quot;</code> draws none.</p>
+  <p>An auto-capitalizing field shows capitals and a filled shift where a sentence starts; a field that corrects shows the suggestion bar's first words on iOS, and Gboard its row of tools. Here the keyboard is drawn still, with <code>field</code>, as it stands under a focused field: its <code>caps</code> sets the shift, <code>true</code> for the next capital or <code>&quot;lock&quot;</code> for Caps Lock (the shift filled over a bar); <code>mode=&quot;hidden&quot;</code> draws none.</p>
 </>} code={overviewCode} previewMinHeight={760}>
   <RNExample demo="system-keyboard/Overview" />
 </ComponentPreview>
@@ -58,7 +58,7 @@ Every key stands within 1pt of the native keyboard's, measured on the iOS 26.2 s
 
 <PropsTable data={[
   { prop: "mode", type: '"auto" | "hidden"', default: '"auto"', description: "auto: drawn while a field has focus. hidden: never drawn, nor any other on the page (a still of a form as it stands)" },
-  { prop: "field", type: "{ kind?: KeyboardKind; returnKey?: KeyboardReturnKey; caps?: boolean; autocorrect?: boolean }", description: "Draws the keyboard for this field with no field focused, still, at the foot of its own box: it takes neither the page's keyboard nor its inset. kind: text, email, url, search, password, number, decimal, phone. returnKey: default, go, search, send, next, done, join, route, previous" },
+  { prop: "field", type: "{ kind?: KeyboardKind; returnKey?: KeyboardReturnKey; caps?: boolean | \"lock\"; autocorrect?: boolean }", description: "Draws the keyboard for this field with no field focused, still, at the foot of its own box: it takes neither the page's keyboard nor its inset. kind: text, email, url, search, password, number, decimal, phone. returnKey: default, go, search, send, next, done, join, route, previous. caps: capitals for the next letter (a filled shift), or \"lock\" for Caps Lock (the shift filled over a bar)" },
 ]} />
 
 Nothing is drawn on a touch screen, whose browser brings up its own keyboard, nor on iOS and Android themselves. One keyboard draws on a page however many are mounted, on the page's body over the app and its sheets; a hidden one keeps the others from drawing. `keyboardLayout()` gives the keys' frames for a platform, a field and a width, and `KeyboardKeys` draws them where a picture of the keyboard is wanted.

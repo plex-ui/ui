@@ -31,11 +31,18 @@ const ShiftOn = createIcon("ShiftOn", "0 0 24 24", [
   ["path", { d: "M10.59 3 4 9.59A2 2 0 0 0 5.41 13H8v7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7h2.59A2 2 0 0 0 20 9.59L13.41 3a2 2 0 0 0-2.82 0Z", fill: 0 }],
 ])
 
+/** Caps Lock: the arrow filled over a bar (the shift pressed twice) */
+const ShiftLock = createIcon("ShiftLock", "0 0 24 24", [
+  ["path", { d: "M10.59 2 4 8.59A2 2 0 0 0 5.41 12H8v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4h2.59A2 2 0 0 0 20 8.59L13.41 2a2 2 0 0 0-2.82 0Z", fill: 0 }],
+  ["rect", { x: 8, y: 19.5, width: 8, height: 2.5, rx: 1.25, fill: 0 }],
+])
+
 /** The glyph of each named key, and its size: the drawn glyph's, as the native keyboard draws it */
 const GLYPHS: Record<KeyboardPlatform, Record<string, [IconComponent, number]>> = {
   ios: {
     shift: [IosShift, S.shift],
     "shift-on": [ShiftOn, S.shift],
+    "shift-lock": [ShiftLock, S.shift],
     delete: [IosDelete, S.delete],
     "delete-pad": [IosDeletePad, S.deletePad],
     emoji: [IosEmoji, S.emoji],
@@ -51,6 +58,7 @@ const GLYPHS: Record<KeyboardPlatform, Record<string, [IconComponent, number]>> 
   android: {
     shift: [ArrowBigUp, 25],
     "shift-on": [ShiftOn, 25],
+    "shift-lock": [ShiftLock, 25],
     delete: [Backspace, 28],
     emoji: [MoodSmile, 24],
     return: [CornerDownLeft, 26],
@@ -89,7 +97,8 @@ type Palette = Record<"panel" | "key" | "mod" | "accent" | "ink" | "onAccent" | 
 export type KeyboardField = {
   kind: KeyboardKind
   returnKey: KeyboardReturnKey
-  caps: boolean
+  /** Capitals for the next letter; `"lock"` is Caps Lock */
+  caps: boolean | "lock"
   autocorrect: boolean
   /** A field of several lines (a textarea) */
   multiline?: boolean

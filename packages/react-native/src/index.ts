@@ -105,6 +105,7 @@ export { ScrollEdge, type ScrollEdgeProps } from "./components/ScrollEdge/Scroll
 export { DatePicker, type DatePickerDisplay, type DatePickerMode, type DatePickerProps } from "./components/DatePicker/DatePicker"
 export { ActionSheet, type ActionSheetAction, type ActionSheetProps } from "./components/ActionSheet/ActionSheet"
 export { BottomSheet, type BottomSheetFooterProps, type BottomSheetHero, type BottomSheetHeroTone, type BottomSheetProps } from "./components/BottomSheet/BottomSheet"
+export { useSheetFloatInset } from "./components/BottomSheet/context"
 export { Dialog, type DialogAction, type DialogProps } from "./components/Dialog/Dialog"
 export { Toaster, toast, type ToasterProps, type ToastId, type ToastOptions, type ToastT, type ToastType } from "./components/Toast/Toast"
 

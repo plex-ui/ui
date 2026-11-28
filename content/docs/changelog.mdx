@@ -7,6 +7,17 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.14.0 (2026-11-28)
+
+### Added
+
+- **SystemKeyboard Caps Lock.** A still keyboard's `field.caps` takes `"lock"`: capitals, and the shift filled over a bar, as iOS 26 and Gboard draw Caps Lock (the shift pressed twice). `true` stays the shift for the next capital.
+- **`useSheetFloatInset()`.** How far the sheet around the caller floats over the screen's bottom: 8 in a floating iOS sheet, 0 in one at the edges (large, a content sheet that reached the top, Android's) and outside a sheet. An app's own chrome on the safe area (a footer over the home indicator, a bottom search field) takes the safe area less it, as the kit's bottom Toolbar does.
+
+### Docs
+
+- **System Keyboard: native fields.** The examples' fields are the platform's own: on iOS rows of a grouped list (the Overview's one row named by its placeholder, the form's values in one column), on Android outlined fields with their names floating in them. The Overview sets `caps` (false, true, lock) for a keyboard with letters.
+
 ## @plexui/react-native 0.13.1 (2026-11-28)
 
 ### Changed

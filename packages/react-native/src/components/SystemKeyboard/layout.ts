@@ -70,8 +70,8 @@ export type KeyboardLayoutOptions = {
   returnKey?: KeyboardReturnKey
   /** The screen's width */
   width: number
-  /** Capitals: the field starts a sentence with an auto-capitalizing field */
-  caps?: boolean
+  /** Capitals: the field starts a sentence with an auto-capitalizing field; `"lock"` is Caps Lock (shift pressed twice) */
+  caps?: boolean | "lock"
   /** The field has autocorrection: iOS fills the suggestion bar */
   autocorrect?: boolean
   /** The field takes several lines: its default return key is a new line (Android's single-line default is Done) */
@@ -121,6 +121,11 @@ const GBOARD = { side: 4.57, gap: 5.33, rowTop: 52.19, rowPitch: 59.05, rowHeigh
 // Gboard's number pad: four capsules of 53.33 every 59.05 from 8
 const GBOARD_PAD = { side: 4.19, gap: 4.57, rowTop: 8, rowPitch: 59.05, rowHeight: 53.33, height: 292.19 }
 
+/** The shift key's glyph: outlined, filled for the next capital, filled over a bar for Caps Lock */
+function shiftGlyph(caps: KeyboardLayoutOptions["caps"]) {
+  return caps === "lock" ? "shift-lock" : caps ? "shift-on" : "shift"
+}
+
 function iosText({ kind, returnKey = "default", width, caps, autocorrect }: KeyboardLayoutOptions): KeyboardLayout {
   const { side, gap, rowTop, rowPitch, rowHeight: h, radius } = IOS
   const k = (width - 2 * side - 9 * gap) / 10
@@ -134,7 +139,7 @@ function iosText({ kind, returnKey = "default", width, caps, autocorrect }: Keyb
   const third = 7 * k + 6 * gap
   Array.from(LETTER_ROWS[2]).forEach((char, i) => letter(char, (width - third) / 2 + i * (k + gap), 2))
   const shift = 45.5 * scale
-  keys.push(key({ id: "shift", role: "shift", x: side, y: y(2), w: shift, h, fill: "key", radius, icon: caps ? "shift-on" : "shift" }))
+  keys.push(key({ id: "shift", role: "shift", x: side, y: y(2), w: shift, h, fill: "key", radius, icon: shiftGlyph(caps) }))
   keys.push(key({ id: "delete", role: "delete", x: width - side - shift, y: y(2), w: shift, h, fill: "key", radius, icon: "delete" }))
   // The bottom row: 123 and emoji, the space, the field's keys, return
   const small = 43.33 * scale
@@ -205,7 +210,7 @@ function gboardText({ kind, returnKey = "default", width, caps }: KeyboardLayout
   Array.from(LETTER_ROWS[1]).forEach((char, i) => letter(char, side + (k + gap) / 2 + i * (k + gap), 1))
   const wide = 55.62 * scale
   Array.from(LETTER_ROWS[2]).forEach((char, i) => letter(char, side + wide + gap + i * (k + gap), 2))
-  keys.push(key({ id: "shift", role: "shift", x: side, y: y(2), w: wide, h, fill: "mod", radius, icon: caps ? "shift-on" : "shift" }))
+  keys.push(key({ id: "shift", role: "shift", x: side, y: y(2), w: wide, h, fill: "mod", radius, icon: shiftGlyph(caps) }))
   keys.push(key({ id: "delete", role: "delete", x: width - side - wide, y: y(2), w: wide, h, fill: "mod", radius, icon: "delete" }))
   // ?123, the field's symbol, emoji (not for a password), the space, the period, return
   keys.push(key({ id: "layout", role: "layout", x: side, y: y(3), w: wide, h, fill: "mod", radius: h / 2, label: "?123" }))
