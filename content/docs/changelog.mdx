@@ -7,6 +7,20 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.12.0 (2026-11-28)
+
+### Added
+
+- **SystemKeyboard** — the phone's keyboard drawn on the web: iOS 26's keyboard or Gboard, in the theme's platform and scheme, for the field that has focus. The field's `keyboardType` (`inputMode`, `type`) chooses the keys (email, URL, search, password, number, decimal and phone pads) and its `returnKeyType` the return key; capitals and a filled shift where an auto-capitalizing field starts a sentence. It comes up on focus and goes on blur, keeps the field focused when pressed, draws nothing on a touch screen or on iOS and Android themselves, and one draws per page. `mode="hidden"` draws none; `field` draws it still, at the foot of its own box. On Android a single-line field with no `returnKeyType` ends on Done, as React Native's does. Every key within 1pt of the native keyboards (iOS 26.2 simulator, Pixel 9 with Gboard). See [System Keyboard](/react-native/components/system-keyboard).
+- **Keyboard inset on the web** — the drawn keyboard's height is the keyboard inset: Bottom Sheet and Phone Input's list rise over it, as over the system's (Android's leaves out the navigation bar).
+- **Keyboard inset on the web**, continued: a Dialog's field rises over the drawn keyboard too, and a docs preview's page leaves it room. `useKeyboardInset()` gives its whole height from the screen's edge on the web (0 elsewhere).
+- **keyboardLayout() and KeyboardKeys** — the keys' frames for a platform, a field and a width, and their drawing.
+
+### Fixed
+
+- **The country picker on the web** clears the drawn keyboard whole.
+- **BottomSheet footer on the web.** Its actions' room over the content followed a change of the footer's padding alone (the keyboard coming up), so a field no longer hides under Continue.
+
 ## @plexui/react-native 0.11.0 (2026-11-28)
 
 ### Added

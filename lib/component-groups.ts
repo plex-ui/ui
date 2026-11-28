@@ -94,6 +94,7 @@ export const NATIVE_ONLY_GROUPS: Readonly<Record<string, ComponentGroup['id']>> 
   reveal: 'feedback',
   'scroll-edge': 'navigation',
   'sign-in-button': 'actions',
+  'system-keyboard': 'text-input',
   text: 'content',
 };
 

@@ -7,6 +7,7 @@ import { FieldsScreen } from "./FieldsScreen"
 import { FieldsMoreScreen } from "./FieldsMoreScreen"
 import { IconButtonsScreen } from "./IconButtonsScreen"
 import { IconsScreen } from "./IconsScreen"
+import { KeyboardScreen } from "./KeyboardScreen"
 import { ListsScreen } from "./ListsScreen"
 import { MessagesScreen } from "./MessagesScreen"
 import { OverlaysScreen } from "./OverlaysScreen"
@@ -35,6 +36,7 @@ export const screens: Screen[] = [
   { id: "fields", title: "Fields", stage: 3, Component: FieldsScreen },
   { id: "fields-more", title: "More fields", stage: 3, grouped: true, Component: FieldsMoreScreen },
   { id: "overlays", title: "Overlays", stage: 3, Component: OverlaysScreen },
+  { id: "keyboard", title: "Keyboard", stage: 3, Component: KeyboardScreen },
   { id: "content", title: "Content", stage: 4, Component: ContentScreen },
   { id: "lists", title: "Lists & cards", stage: 4, grouped: true, Component: ListsScreen },
   { id: "progress", title: "Progress", stage: 4, Component: ProgressScreen },

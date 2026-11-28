@@ -1,0 +1,64 @@
+---
+title: System Keyboard
+description: "The phone's keyboard drawn on the web: iOS 26's or Gboard's, for the field that has focus, with its height as the keyboard inset."
+metaDescription: "A React Native system keyboard for web previews: the iOS 26 keyboard and Gboard drawn with react-native-web for the focused field's type and return key, within 1pt of the native ones."
+---
+
+import { RNExample } from "@/components/docs/react-native/RNExample"
+
+export const overviewCode = `import { SystemKeyboard } from "@plexui/react-native"
+
+// Once, at the root of the app's web preview
+<SystemKeyboard />
+
+// A field brings up its keyboard: keyboardType and returnKeyType choose its keys
+<Input placeholder="Email" keyboardType="email-address" returnKeyType="next" />`
+
+export const followsFocusCode = `<TextField label="Name" returnKeyType="next" />
+<TextField label="Email" keyboardType="email-address" autoCapitalize="none" returnKeyType="next" />
+<TextField label="Phone" keyboardType="phone-pad" />
+<TextField label="Amount" keyboardType="decimal-pad" />
+<SystemKeyboard />`
+
+<UsageBlock>{`import { SystemKeyboard } from "@plexui/react-native"`}</UsageBlock>
+
+On a phone the system brings up its own keyboard; a web preview of the app on a computer has none, so a form there shows the screen as it never stands on the phone. `SystemKeyboard` draws the keyboard the phone would show, at the bottom of the window and as wide as it, while a field has focus. Its keys do not type: the reader types with their own keyboard.
+
+## Examples
+
+### Overview
+
+<ComponentPreview details={<>
+  <p>The keyboard follows the theme's platform and scheme: iOS 26's keyboard, or Gboard on Android. The field's kind chooses its keys, as the system does: React Native's <code>keyboardType</code> (on the web the field's <code>inputMode</code> and <code>type</code>) brings the <code>@</code> and the period for an email address, <code>.</code> <code>/</code> <code>.com</code> for a URL, a period and Go for a search, and the phone pad for a number, an amount or a phone number. <code>returnKeyType</code> (the field's <code>enterKeyHint</code>) names the return key: on iOS go, search, send and done tint it blue with their glyph, next draws a chevron; Gboard draws the glyph on its key.</p>
+  <p>An auto-capitalizing field shows capitals and a filled shift where a sentence starts; a field that corrects shows the suggestion bar's first words on iOS, and Gboard its row of tools. Here the keyboard is drawn still, with <code>field</code>, as it stands under a focused field; <code>mode=&quot;hidden&quot;</code> draws none.</p>
+</>} code={overviewCode} previewMinHeight={760}>
+  <RNExample demo="system-keyboard/Overview" />
+</ComponentPreview>
+
+### Follows focus
+
+<ComponentPreview details={<>
+  <p>With no <code>field</code> the keyboard comes up when a field takes focus and goes when it loses it; moving from one field to the next keeps it up and changes its keys. A press on the keyboard keeps the field focused, as a key of the real one does. A field that opens no keyboard (<code>showSoftInputOnFocus={'{'}false{'}'}</code>), a read-only or a disabled one brings none.</p>
+  <p>Its height is the keyboard inset: a <a href="/react-native/components/bottom-sheet">Bottom Sheet</a> and a <a href="/react-native/components/phone-input">Phone Input</a>'s list rise over it, as over the system's. On Android the inset leaves out the navigation bar under Gboard, as Android reports it.</p>
+</>} code={followsFocusCode} previewMinHeight={760}>
+  <RNExample demo="system-keyboard/FollowsFocus" />
+</ComponentPreview>
+
+## Platforms
+
+| | iOS 26 | Android |
+| --- | --- | --- |
+| Native | The system keyboard | Gboard |
+| Drawn | 335pt with its suggestion bar (308 for a phone pad), keys of 43 every 54, 6.5 from the sides and 6 apart | 336dp with its row of tools and the 24dp navigation bar (292 for a number pad), keys of 47 every 59, 4.57 from the sides and 5.33 apart |
+| On the device | Draws nothing: the system's keyboard comes up | Draws nothing: the system's keyboard comes up |
+
+Every key stands within 1pt of the native keyboard's, measured on the iOS 26.2 simulator (iPhone 17 Pro) and a Pixel 9 emulator with Gboard; the keys widen with the screen and the margins stay. The glyphs are the kit's icons, in Inter.
+
+## API
+
+<PropsTable data={[
+  { prop: "mode", type: '"auto" | "hidden"', default: '"auto"', description: "auto: drawn while a field has focus. hidden: never drawn, nor any other on the page (a still of a form as it stands)" },
+  { prop: "field", type: "{ kind?: KeyboardKind; returnKey?: KeyboardReturnKey; caps?: boolean; autocorrect?: boolean }", description: "Draws the keyboard for this field with no field focused, still, at the foot of its own box: it takes neither the page's keyboard nor its inset. kind: text, email, url, search, password, number, decimal, phone. returnKey: default, go, search, send, next, done, join, route, previous" },
+]} />
+
+Nothing is drawn on a touch screen, whose browser brings up its own keyboard, nor on iOS and Android themselves. One keyboard draws on a page however many are mounted, on the page's body over the app and its sheets; a hidden one keeps the others from drawing. `keyboardLayout()` gives the keys' frames for a platform, a field and a width, and `KeyboardKeys` draws them where a picture of the keyboard is wanted.

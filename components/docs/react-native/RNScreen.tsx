@@ -10,7 +10,7 @@ import { Component, createContext, useContext, useEffect, useId, useLayoutEffect
 import { createPortal } from 'react-dom';
 import { createRoot, type Root } from 'react-dom/client';
 import { useTheme as useSiteTheme } from 'next-themes';
-import { ThemeProvider, Toaster, Toolbar, useTheme } from '@plexui/react-native';
+import { SystemKeyboard, ThemeProvider, Toaster, Toolbar, useKeyboardInset, useTheme } from '@plexui/react-native';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DemoControlHostContext, usePreviewEmbed } from '../PreviewEmbed';
@@ -40,6 +40,8 @@ export type RNScreenProps = {
   bare?: boolean;
   /** The height of the screen on a narrow page, where the example stands on the page itself */
   minHeight?: number;
+  /** The phone's keyboard comes up under a focused field (off for an example that draws its own) */
+  keyboard?: boolean;
 };
 
 /** An example that brings its own controls (a docs component around RNScreen), so RNExample renders it as is. */
@@ -156,6 +158,7 @@ type StageProps = {
   title?: string;
   insets: Insets;
   toaster: boolean;
+  keyboard: boolean;
   onBackground: (color: string) => void;
   children: ReactNode;
 };
@@ -167,15 +170,23 @@ type StageProps = {
 const WINDOW = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 12001 } as const;
 
 /** The example's app, in a React root of its own */
-function StageApp({ id, platform, scheme, layout, grouped, headerFirst, minHeight, title, insets, toaster, onBackground, children }: StageProps) {
+function StageApp({ id, platform, scheme, layout, grouped, headerFirst, minHeight, title, insets, toaster, keyboard: drawsKeyboard, onBackground, children }: StageProps) {
   const active = useSyncExternalStore(subscribeStage, readStage, () => null) === id;
+  // The keyboard drawn over the phone's screen takes its bottom, as Android resizes the window for it and iOS lifts what
+  // is pinned to its layout guide: the screen ends over it. The safe area stays (a bottom bar's own inset stands under
+  // the bar, over the keys, and a full-window sheet keeps Android's navigation bar), so the screen gives up the rest
+  const fills = layout === 'screen' || layout === 'page';
+  const drawnKeyboard = useKeyboardInset();
+  const keyboard = fills ? Math.max(0, drawnKeyboard - insets.bottom) : 0;
   return (
     <Boundary>
       <SafeAreaProvider initialMetrics={{ insets, frame: { x: 0, y: 0, width: 0, height: 0 } }}>
         <ThemeProvider platform={platform} scheme={scheme} fonts={FONTS}>
-          <Canvas layout={layout} grouped={grouped} headerFirst={headerFirst} minHeight={minHeight} title={title} bottom={insets.bottom} onBackground={onBackground}>
-            {children}
-          </Canvas>
+          <View style={{ flex: 1, paddingBottom: keyboard }}>
+            <Canvas layout={layout} grouped={grouped} headerFirst={headerFirst} minHeight={minHeight} title={title} bottom={insets.bottom} onBackground={onBackground}>
+              {children}
+            </Canvas>
+          </View>
           {toaster ? (
             <Toaster />
           ) : active ? (
@@ -189,6 +200,9 @@ function StageApp({ id, platform, scheme, layout, grouped, headerFirst, minHeigh
               document.body,
             )
           ) : null}
+          {/* The phone's keyboard while a field has focus, as the device brings it up (one per page; none on a touch
+              screen, which brings up its own) */}
+          {drawsKeyboard ? <SystemKeyboard /> : null}
         </ThemeProvider>
       </SafeAreaProvider>
     </Boundary>
@@ -228,7 +242,7 @@ function useFrameInsets(embed: boolean): Insets {
  * An example runs in a React root of its own, as a React Native app does (AppRegistry), outside the page's Strict
  * Mode: its doubled effects left react-native-web's animations detached, so an overlay stayed at its closed frame.
  */
-export function RNScreen({ children, screen = false, grouped = false, headerFirst = false, bare = false, minHeight = 160 }: RNScreenProps) {
+export function RNScreen({ children, screen = false, grouped = false, headerFirst = false, bare = false, minHeight = 160, keyboard = true }: RNScreenProps) {
   const id = useId();
   const embed = usePreviewEmbed() !== null;
   // On a wide page the example is drawn in the phone preview; the page keeps its controls only
@@ -289,6 +303,7 @@ export function RNScreen({ children, screen = false, grouped = false, headerFirs
         title={title}
         insets={insets}
         toaster={embed}
+        keyboard={keyboard}
         onBackground={setBackground}
       >
         {children}

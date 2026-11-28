@@ -4,7 +4,7 @@ import { Animated, Easing, PanResponder, Platform, ScrollView, StyleSheet, View,
 import { Pressable } from "../../internal/Pressable"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { childrenOfType, flattenChildren } from "../../internal/children"
-import { useKeyboardHeight } from "../../internal/keyboard"
+import { useKeyboardHeight, useKeyboardInset } from "../../internal/keyboard"
 import { iosDim, Overlay, ANDROID_DIM } from "../../internal/Overlay"
 import { BarBackdrop, SoftBottomEdge } from "../../internal/BarBackdrop"
 import { withAlpha } from "../../theme/material"
@@ -290,6 +290,11 @@ export function BottomSheetBase({
     if (open) drag.setValue(0)
   }, [open, drag])
   const keyboard = useKeyboardHeight(open)
+  // The keyboard drawn on the web reports its whole height from the screen's edge too: a preview whose safe area has
+  // no navigation bar under it still clears all of it
+  const drawnKeyboard = useKeyboardInset()
+  // Android's sheet stands over its navigation bar, and over the keyboard while it is up
+  const androidBottom = keyboard ? Math.max(insets.bottom + keyboard, drawnKeyboard) : insets.bottom
   const m = theme.material
   // Android's sheet: 35dp top corners, concentric with its bar's 46dp circles 12 in from its top and sides (23 + 12),
   // the dialog's background (white, near-black in dark mode)
@@ -326,7 +331,9 @@ export function BottomSheetBase({
   const [scrolled, setScrolled] = useState(false)
   // The Android bar's height: 69 with a title on one line, a line more when it wraps to a second
   const [androidBarHeight, setAndroidBarHeight] = useState(ANDROID_BAR_HEIGHT)
-  const [footerHeight, setFooterHeight] = useState(0)
+  // The footer's actions, over its bottom padding: the web's layout events miss a change of padding alone, so the
+  // footer's height is its actions' and the padding it stands on now
+  const [footerTop, setFooterTop] = useState(0)
   // iOS: the bar and the footer stand over the content, which scrolls under them (iOS 26's sheets)
   const [iosBarHeight, setIosBarHeight] = useState(0)
   // Android's sheet has no handle: the whole sheet takes the drag. With a title its bar is the reference's sheet bar,
@@ -397,6 +404,14 @@ export function BottomSheetBase({
   const content = footer ? flattenChildren(children).filter((child) => !isFooter(child)) : children
   // The content starts where the bar's soft edge ends (--page-bar-soft-tail under the bar, Dialog.module.css), and
   // ends 16 over a footer, or over the home indicator
+  // Android's footer stands 12 over the navigation bar and the keyboard; iOS 26's 16 over the keyboard, else concentric
+  // with the screen's corners, at least 2 over the home indicator
+  const footerPad = android
+    ? 12 + androidBottom
+    : keyboard
+      ? 16 + Math.max(0, keyboard - floatInset)
+      : Math.max(IOS_ACTION_SIDE - floatInset, insets.bottom + 2 - floatInset)
+  const footerHeight = footerTop + footerPad
   const bottom = keyboard || footer ? 16 : Math.max(16, insets.bottom - floatInset)
   const hasIosBar = !android && (dismissible || title != null || action != null)
   const iosContent = {
@@ -451,7 +466,7 @@ export function BottomSheetBase({
                   : null),
                 backgroundColor: background,
                 // Over the keyboard: Android's height is over its navigation bar, iOS's from the screen's edge
-                paddingBottom: android ? insets.bottom + keyboard : Math.max(0, keyboard - floatInset),
+                paddingBottom: android ? androidBottom : Math.max(0, keyboard - floatInset),
                 // With reduced motion it fades in place, and follows only the finger
                 opacity: reduced ? progress : undefined,
                 transform: [{ translateY: reduced ? drag : slide(progress) }],
@@ -490,7 +505,7 @@ export function BottomSheetBase({
                       // 2 under the bar: 71 under a one-line title
                       androidBar ? { paddingTop: androidBarHeight + 2 } : null,
                       // Over a footer: 8 above its height, which reaches over the sheet's bottom padding
-                      footer ? { paddingBottom: 8 + Math.max(0, footerHeight - insets.bottom - keyboard) } : null,
+                      footer ? { paddingBottom: 8 + Math.max(0, footerHeight - androidBottom) } : null,
                     ]
                   : iosContent,
                 contentStyle,
@@ -506,14 +521,14 @@ export function BottomSheetBase({
             {footer ? (
               <View
                 onStartShouldSetResponderCapture={android ? gesture.chrome : undefined}
-                onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
+                onLayout={(event) => setFooterTop(event.nativeEvent.layout.height - footerPad)}
                 style={[
                   android
                     ? [
                         styles.androidFooter,
                         { paddingHorizontal: androidInline },
                         // Over the sheet's color at 80%, faded in over its top 24dp, down over the gesture bar
-                        { paddingBottom: 12 + insets.bottom + keyboard, backgroundImage: `linear-gradient(to bottom, ${withAlpha(background, 0)}, ${withAlpha(background, 0.8)} 24px)` } as ViewStyle,
+                        { paddingBottom: footerPad, backgroundImage: `linear-gradient(to bottom, ${withAlpha(background, 0)}, ${withAlpha(background, 0.8)} 24px)` } as ViewStyle,
                       ]
                     : // iOS 26: the sheet's bottom corners are the screen's, so its actions stand as BottomActions does,
                       // concentric with them: 36 from the sides and from the bottom (Apple Account's Add Email: 38
@@ -524,7 +539,7 @@ export function BottomSheetBase({
                         styles.iosFooter,
                         {
                           paddingHorizontal: IOS_ACTION_SIDE - floatInset,
-                          paddingBottom: keyboard ? 16 + Math.max(0, keyboard - floatInset) : Math.max(IOS_ACTION_SIDE - floatInset, insets.bottom + 2 - floatInset),
+                          paddingBottom: footerPad,
                         },
                       ],
                   footer.props.style,

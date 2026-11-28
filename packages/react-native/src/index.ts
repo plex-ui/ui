@@ -64,6 +64,20 @@ export {
 } from "./components/SegmentedControl/SegmentedControl"
 
 export { Switch, type SwitchProps } from "./components/Switch/Switch"
+export {
+  KeyboardKeys,
+  SystemKeyboard,
+  keyboardLayout,
+  readKeyboardField,
+  type KeySpec,
+  type KeyboardField,
+  type KeyboardKind,
+  type KeyboardLayout,
+  type KeyboardPlatform,
+  type KeyboardReturnKey,
+  type SystemKeyboardProps,
+} from "./components/SystemKeyboard/SystemKeyboard"
+export { useKeyboardInset } from "./internal/keyboard"
 export { SignInButton, type SignInAction, type SignInButtonProps, type SignInProvider } from "./components/SignInButton/SignInButton"
 export { Checkbox, type CheckboxProps } from "./components/Checkbox/Checkbox"
 export { RadioGroup, type RadioGroupItemProps, type RadioGroupProps } from "./components/RadioGroup/RadioGroup"

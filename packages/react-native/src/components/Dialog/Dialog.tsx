@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Glass } from "../../internal/Glass"
 import { useRipple } from "../../internal/ripple"
 import { buttonColors } from "../Button/Button"
-import { useKeyboardHeight } from "../../internal/keyboard"
+import { useKeyboardHeight, useKeyboardInset } from "../../internal/keyboard"
 import { androidDialogMotion, canTransformGlass, glassOpacity, iosDim, Overlay, ANDROID_DIALOG, ANDROID_DIM } from "../../internal/Overlay"
 import { withAlpha, dangerText } from "../../theme/material"
 import { ThemeProvider, useTheme } from "../../theme/ThemeProvider"
@@ -85,7 +85,7 @@ function DialogView({ open, onOpenChange, title, description, actions = [], chil
   const insets = useSafeAreaInsets()
   // Android's modal window draws edge to edge and does not resize for the keyboard: the dialog rises by its height
   // (the Android look rises in its own frame)
-  const keyboard = useKeyboardHeight(open && Platform.OS === "android" && !theme.isAndroid)
+  const keyboard = useKeyboardHeight(open && ((Platform.OS === "android" && !theme.isAndroid) || Platform.OS === "web"))
   // Centred in the whole screen, as the web's alert (16 from the edges of the viewport): the larger inset on both
   // sides, so the status bar and the home indicator do not move it off the middle
   const edge = Math.max(insets.top, insets.bottom) + 16
@@ -165,7 +165,10 @@ function AndroidFrame({ open, onClose, dismissible, a11y, testID, children }: Fr
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   // Android's modal window draws edge to edge and does not resize for the keyboard: the dialog rises by its height
-  const keyboard = useKeyboardHeight(open && Platform.OS === "android")
+  const raised = useKeyboardHeight(open && (Platform.OS === "android" || Platform.OS === "web"))
+  // The keyboard drawn on the web over Android's frame is cleared whole, from the screen's edge
+  const drawn = useKeyboardInset()
+  const keyboard = open && raised ? Math.max(raised, drawn) : raised
   const edge = Math.max(insets.top, insets.bottom) + 16
   const reduced = theme.reducedMotion
   return (

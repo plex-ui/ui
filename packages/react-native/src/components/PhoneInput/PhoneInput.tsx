@@ -16,7 +16,7 @@ import CheckMd from "../../icons/plex/CheckMd"
 import Search from "../../icons/plex/Search"
 import { Pressable } from "../../internal/Pressable"
 import { ANDROID_DIM, iosDim, Overlay } from "../../internal/Overlay"
-import { useKeyboardHeight } from "../../internal/keyboard"
+import { useKeyboardHeight, useKeyboardInset } from "../../internal/keyboard"
 import { useTheme } from "../../theme/ThemeProvider"
 import { Field } from "../Field/Field"
 import { FloatingLabelInput } from "../FloatingLabelInput/FloatingLabelInput"
@@ -311,7 +311,10 @@ function CountryPicker({ open, onClose, value, onSelect, countries, locale, flag
   const android = theme.isAndroid
   const insets = useSafeAreaInsets()
   const { height: screen } = useWindowDimensions()
-  const keyboard = useKeyboardHeight(open)
+  // The keyboard drawn on the web is cleared whole, from the screen's edge (the picker leaves out the safe area under it)
+  const raised = useKeyboardHeight(open)
+  const drawn = useKeyboardInset()
+  const keyboard = open ? Math.max(raised, drawn) : 0
   const [query, setQuery] = useState("")
   // A list that opens again starts from its top, with no search
   const [wasOpen, setWasOpen] = useState(open)

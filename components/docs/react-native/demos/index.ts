@@ -16,6 +16,7 @@ export const demoModules: Record<string, () => Promise<DemoModule>> = {
   'context-menu': () => import('./ContextMenuDemos'),
   'date-picker': () => import('./DatePickerDemos'),
   'scroll-edge': () => import('./ScrollEdgeDemos'),
+  'system-keyboard': () => import('./SystemKeyboardDemos'),
   menu: () => import('./MenuDemos'),
   toast: () => import('./ToastDemos'),
   toolbar: () => import('./ToolbarDemos'),
