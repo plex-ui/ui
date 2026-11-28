@@ -4,6 +4,7 @@ import { useTheme } from "../theme/ThemeProvider"
 import type { Theme } from "../theme/types"
 import { liquidGlassModule } from "./optional"
 import { SheetFloatInsetContext } from "../components/BottomSheet/context"
+import { criticalSpringEasing } from "./motion"
 
 /** How an overlay moves: a dialog, a sheet (a panel that crosses the screen) or a menu. */
 export type OverlayMotion = "dialog" | "sheet" | "menu"
@@ -20,7 +21,8 @@ export type OverlayTiming = {
 /**
  * The times and curves of an overlay, as the CSS motion tokens give them (variables-semantic.css, Dialog.module.css,
  * Menu.module.css): `--motion-enter` / `--motion-exit` (`-large` for a sheet) on `--cubic-enter` and
- * `--cubic-exit-snappy` (`--cubic-exit` for a sheet). With reduced motion the exit is at once (the motion tokens
+ * `--cubic-exit-snappy` (`--cubic-exit` for a sheet); an iOS sheet rides UIKit's spring instead (500ms both ways).
+ * With reduced motion the exit is at once (the motion tokens
  * resolve to 0) and the entrance is a fade on iOS's time and curve (`--motion-reduced-enter-dialog`, `-menu`), which
  * the components draw without a slide or a scale.
  */
@@ -50,13 +52,22 @@ export function overlayTiming(theme: Theme, motion: OverlayMotion = "dialog"): O
       ? { enter: 400, exit: 250, enterEasing: bezier(0.23, 1, 0.32, 1), exitEasing: bezier(0, 0, 0.58, 1), enterDelay: 20 }
       : { enter: 200, exit: 150, enterEasing: bezier(0, 0, 0.2, 1), exitEasing: ACCELERATE_DECELERATE }
   }
+  if (large) {
+    // iOS's sheet, measured frame by frame (a UIKit sheet's presentation layers on the iOS 26.2 and 27.2 simulators,
+    // medium, large and a custom detent): a critically damped spring of ω 18.2 rad/s both ways, within a point of its
+    // place at 500ms; so the sheet slides in from the screen's edge rather than appearing
+    return { enter: IOS_SHEET.duration, exit: IOS_SHEET.duration, enterEasing: IOS_SHEET.easing, exitEasing: IOS_SHEET.easing }
+  }
   return {
-    enter: theme.duration(large ? "--motion-enter-large" : "--motion-enter", large ? 300 : 250),
+    enter: theme.duration("--motion-enter", 250),
     exit,
     enterEasing: curve(theme, "--cubic-enter", [0.19, 1, 0.22, 1]),
     exitEasing,
   }
 }
+
+/** iOS's sheet presentation: UIKit's critically damped spring, ω 18.2 rad/s, over 500ms both ways */
+const IOS_SHEET = { duration: 500, easing: criticalSpringEasing(18.2, 500) }
 
 /** One easing per curve: a new function each render would restart a running animation. */
 const curves = new Map<string, EasingFunction>()

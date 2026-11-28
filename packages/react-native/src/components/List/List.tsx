@@ -5,6 +5,8 @@ import { Pressable } from "../../internal/Pressable"
 import CheckMd from "../../icons/plex/CheckMd"
 import Disclosure from "../../icons/plex/Disclosure"
 import ExclamationMarkCircle from "../../icons/plex/ExclamationMarkCircle"
+import DotsHorizontal from "../../icons/plex/DotsHorizontal"
+import DotsVertical from "../../icons/plex/DotsVertical"
 import { describedBy, spaceToggles, useDescription, useHint } from "../../internal/a11y"
 import { useRipple } from "../../internal/ripple"
 import { flattenChildren, textOf } from "../../internal/children"
@@ -14,12 +16,13 @@ import { RowActionContext, RowEndContext, RowFrameContext, RowHoldContext, RowSt
 import { accentText, controlHighlight, dangerText, divider, withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
 import type { Theme } from "../../theme/types"
-import { Button, ListActionContext } from "../Button/Button"
+import { Button, ListActionContext, buttonColors, buttonMetrics } from "../Button/Button"
 import { Checkbox, type CheckboxProps } from "../Checkbox/Checkbox"
 import { IconDefaultsProvider } from "../Icon/createIcon"
 import { RadioContext, RadioGroup, type RadioGroupContext, type RadioGroupItemProps } from "../RadioGroup/RadioGroup"
 import { Switch, SwitchTrack, type SwitchProps } from "../Switch/Switch"
 import { Text } from "../Text/Text"
+import { Menu } from "../Menu/Menu"
 
 export type ListProps = {
   children: ReactNode
@@ -421,6 +424,16 @@ export type ListItemProps = {
   /** The switch row's state when it holds its own. */
   defaultChecked?: boolean
   onCheckedChange?: (checked: boolean) => void
+  /**
+   * A menu the row opens: a `Menu.Content` with its items. The row is the menu's one button (a press anywhere opens
+   * it), and its end draws More as a mark, not a second button: iOS's ellipsis, Android's vertical dots, in a
+   * secondary ghost IconButton's box and color. The menu stands at the More as at a trigger: on iOS at its trailing
+   * edge, on Android under the row at its end, the screen dimmed around the row. A `trailing` takes the More's place.
+   */
+  menu?: ReactElement
+  /** Whether the row's menu shows, when the app holds it (with `onMenuOpenChange`); else the row holds its own. */
+  menuOpen?: boolean
+  onMenuOpenChange?: (open: boolean) => void
   /** The chevron of a row that opens a page. @default true when the row has `onPress`, no `trailing` and is not `destructive` */
   disclosure?: boolean
   onPress?: () => void
@@ -468,6 +481,9 @@ export function ListItem({
   defaultChecked,
   onCheckedChange,
   disclosure,
+  menu,
+  menuOpen,
+  onMenuOpenChange,
   onPress,
   onLongPress,
   longPressLabel,
@@ -482,7 +498,24 @@ export function ListItem({
   // A menu opened from the row finds the row (Android lights it over the dim of the screen)
   const frameNode = useRef<unknown>(null)
   const frame = useMemo<RowFrame>(() => ({ node: frameNode, radius: { top, bottom } }), [top, bottom])
-  const trailing = trailingProp ?? (selected === undefined ? undefined : <CheckSlot selected={selected} />)
+  // A row's menu: the row opens it, its More (or `trailing`) is where it stands
+  const [ownMenu, setOwnMenu] = useState(false)
+  const menuShown = menuOpen ?? ownMenu
+  const showMenu = (next: boolean) => {
+    if (menuOpen === undefined) setOwnMenu(next)
+    onMenuOpenChange?.(next)
+  }
+  const more = menu != null ? <MoreMark disabled={disabled} /> : null
+  const trailingOwn = trailingProp ?? more ?? (selected === undefined ? undefined : <CheckSlot selected={selected} />)
+  const trailing =
+    menu != null ? (
+      <Menu open={menuShown} onOpenChange={showMenu}>
+        <Menu.Anchor>{trailingOwn}</Menu.Anchor>
+        {menu}
+      </Menu>
+    ) : (
+      trailingOwn
+    )
   const switchRow = checkedProp !== undefined || defaultChecked !== undefined || onCheckedChange !== undefined
   const [own, setOwn] = useState(defaultChecked ?? false)
   const checked = checkedProp ?? own
@@ -520,7 +553,8 @@ export function ListItem({
     if (open != null) setEndHands(true)
   }, [])
   const handed = !switchRow && !onPress && !control && !disabled ? endPress : null
-  const press = switchRow ? toggle : (onPress ?? control?.toggle ?? handed ?? undefined)
+  const menuPress = menu != null && !disabled ? () => showMenu(!menuShown) : undefined
+  const press = switchRow ? toggle : (menuPress ?? onPress ?? control?.toggle ?? handed ?? undefined)
   const hinted = useHint(accessibilityHint)
   // On the web the hint is an unseen text the row's element, or the control that takes its focus, is described by
   const hintNode = hinted.id != null ? <Text nativeID={hinted.id} style={styles.unseen}>{accessibilityHint}</Text> : null
@@ -602,6 +636,7 @@ export function ListItem({
         accessibilityLabel={endOwnsFocus ? undefined : name}
         accessibilityState={endOwnsFocus ? undefined : switchRow ? { checked, disabled } : { disabled, ...(selected !== undefined ? { selected } : null) }}
         aria-checked={switchRow ? checked : undefined}
+        {...(menu != null ? ({ "aria-haspopup": "menu", "aria-expanded": menuShown } as object) : null)}
         // React Native Web drops a button's selected state: the web reads a chosen row as a pressed button
         {...(Platform.OS === "web" && !endOwnsFocus && !switchRow && selected !== undefined ? ({ "aria-pressed": selected } as object) : null)}
         disabled={disabled || (press == null && onLongPress == null)}
@@ -648,6 +683,22 @@ export function ListItem({
 }
 
 /** The check of a choice row, or its empty room: the accent's checkmark, 20 on iOS (a 17pt symbol), 24 on Android. */
+/**
+ * The More at the end of a row that opens a menu: the platform's dots in a secondary ghost IconButton's box and color,
+ * drawn only, since the row is the button
+ */
+function MoreMark({ disabled }: { disabled: boolean }) {
+  const theme = useTheme()
+  const box = buttonMetrics(theme, "md", "round", true)
+  const color = buttonColors(theme, "secondary", "ghost", disabled, false).text
+  const Dots = theme.isAndroid ? DotsVertical : DotsHorizontal
+  return (
+    <View pointerEvents="none" style={{ width: box.height, height: box.height, alignItems: "center", justifyContent: "center" }}>
+      <Dots size={box.iconSize} color={color} />
+    </View>
+  )
+}
+
 function CheckSlot({ selected }: { selected: boolean }) {
   const theme = useTheme()
   const size = theme.isAndroid ? 24 : 20

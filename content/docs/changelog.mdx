@@ -7,6 +7,19 @@ This changelog documents significant updates, bug fixes, and improvements to com
 
 ---
 
+## @plexui/react-native 0.17.0 (2026-11-28)
+
+### Added
+
+- **ListItem opens a menu.** `menu` takes a `Menu.Content` element: the whole row opens it, with a «…» mark at the trailing end that is a picture, not a second button, so the web gets no button inside a button. `menuOpen` and `onMenuOpenChange` control it. `Menu.Anchor` ties a menu to any element without making it a trigger.
+- **Menu.Content `align="center"`.** Without `align`, the menu picks its side as UIKit does from where its button stands: a button in the left third gets a menu at its leading edge, one in the right third at its trailing edge, one in the middle a centred menu. A wide capsule at the bottom gets a centred menu that opens upward, and the panel grows from the middle of the edge it is tied to.
+
+### Changed
+
+- **The iOS sheet slides in on UIKit's spring.** An iOS Bottom Sheet moves on a critically damped spring (ω 18.2 rad/s, 500ms), in and out alike, measured frame by frame on UIKit's own sheet on iOS 26.2 and 27.2. It had come in over 300ms on a curve that covers most of the way in the first frames, so it seemed to appear rather than slide. Reduced motion keeps the fade.
+- **ScrollEdge's top edge is iOS's own.** Measured on a scroll view's soft top edge on iOS 27.2: the content stays faintly there, lightly softened under a wide haze of itself (a 30pt blur, 64% of what shows at the screen's edge in light and 49% in dark). Over it lies a veil of the screen's color, 49% in light and 59% in dark. Both ease out to nothing 34pt past the status bar. It had been one 10pt blur faded in by a mask. `fadeEnd` still ends the edge where it says; a style height still blurs in full down to it.
+- **Glass in dark has a faint rim.** Glass on the web gets a 0.5pt ring after its side shadows in dark. The light theme already matched the native edge, which is darker at the sides than at the top and bottom, and stays as it was.
+
 ## @plexui/react-native 0.16.0 (2026-11-28)
 
 ### Changed

@@ -48,3 +48,13 @@ export const curves = {
 
 /** A spring with no bounce at `stiffness` (damping ratio 1, mass 1), in Animated.spring's terms. */
 export const stiffSpring = (stiffness: number, ratio = 1) => ({ stiffness, damping: ratio * 2 * Math.sqrt(stiffness), mass: 1 })
+
+/**
+ * A critically damped spring of ω rad/s from rest, as UIKit runs its keyboard and its sheets, as an easing over
+ * `duration` ms: 1 − (1 + ωt)e^(−ωt), scaled to land on 1 at the end, where it is within a fraction of a point.
+ */
+export function criticalSpringEasing(omega: number, duration: number) {
+  const at = (seconds: number) => 1 - (1 + omega * seconds) * Math.exp(-omega * seconds)
+  const end = at(duration / 1000)
+  return (x: number) => (x >= 1 ? 1 : at((x * duration) / 1000) / end)
+}

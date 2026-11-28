@@ -3,6 +3,7 @@ import { Animated, Easing, Platform, StyleSheet, Text, View, useWindowDimensions
 import { type IconComponent } from "../Icon/createIcon"
 import { useTheme } from "../../theme/ThemeProvider"
 import { clearDrawnKeyboard, setDrawnKeyboard } from "../../internal/keyboard"
+import { criticalSpringEasing } from "../../internal/motion"
 import ChevronDownMd from "../../icons/plex/ChevronDownMd"
 import Gif from "../../icons/tabler/Gif"
 import {
@@ -453,12 +454,9 @@ export function KeyboardKeys({ layout, scheme }: { layout: KeyboardLayout; schem
  * 7 over 0.3833s (the spring is done to 0.1% there), both ways; Gboard AOSP's IME inset animation, PathInterpolator(0.2,
  * 0, 0, 1) over 285ms, both ways.
  */
-const IOS_SPRING = 23.6
 const IOS_DURATION = 383
-const springAt = (seconds: number) => 1 - (1 + IOS_SPRING * seconds) * Math.exp(-IOS_SPRING * seconds)
-const IOS_END = springAt(IOS_DURATION / 1000)
 const MOTION = {
-  ios: { duration: IOS_DURATION, easing: (x: number) => (x >= 1 ? 1 : springAt((x * IOS_DURATION) / 1000) / IOS_END) },
+  ios: { duration: IOS_DURATION, easing: criticalSpringEasing(23.6, IOS_DURATION) },
   android: { duration: 285, easing: Easing.bezier(0.2, 0, 0, 1) },
 }
 

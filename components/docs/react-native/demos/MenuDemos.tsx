@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { View } from 'react-native';
 import { Button, IconButton, List as Rows, ListItem, Menu, NavigationButton, Toolbar } from '@plexui/react-native';
 import {
   Chat,
@@ -250,6 +251,104 @@ export const FromRow = docsDemo(function FromRow() {
                     </Menu.Item>
                   </Menu.Content>
                 </Menu>
+              }
+            />
+          ))}
+        </Rows>
+      </PhonePage>
+    </RNScreen>
+  );
+});
+
+/**
+ * A wide capsule's menu at the foot of the screen, as Notes opens New: with no `align` the menu stands where UIKit puts
+ * it, centred on a button in the middle of the screen, and it opens up over the button, since there is no room under
+ * it, growing from the middle of its bottom edge. In the phone preview it stands open.
+ */
+export const FromButton = docsDemo(function FromButton() {
+  const embed = usePreviewEmbed() !== null;
+  const [open, setOpen] = useState(embed);
+  return (
+    <RNScreen screen minHeight={560}>
+      <PhonePage
+        top={(scrolled, canvas) => (
+          <Toolbar scrolled={scrolled} canvasColor={canvas}>
+            <Toolbar.Leading>
+              <NavigationButton action="back" />
+            </Toolbar.Leading>
+            <Toolbar.Title>Documents</Toolbar.Title>
+          </Toolbar>
+        )}
+        bottom={() => (
+          <View style={{ paddingHorizontal: 20, paddingBottom: 34 }}>
+            <Menu open={open} onOpenChange={setOpen}>
+              <Menu.Trigger style={{ alignSelf: 'stretch' }}>
+                <Button size="3xl" pill block>
+                  New
+                </Button>
+              </Menu.Trigger>
+              <Menu.Content aria-label="New">
+                <Menu.Item icon={<FileDocument />} onSelect={noop}>
+                  Document
+                </Menu.Item>
+                <Menu.Item icon={<FolderPlus />} onSelect={noop}>
+                  Folder
+                </Menu.Item>
+                <Menu.Item icon={<Copy />} onSelect={noop}>
+                  Paste
+                </Menu.Item>
+              </Menu.Content>
+            </Menu>
+          </View>
+        )}
+      >
+        <View />
+      </PhonePage>
+    </RNScreen>
+  );
+});
+
+const PEOPLE = [
+  { id: 'anna', name: 'Anna', detail: 'Shared 12 photos' },
+  { id: 'liam', name: 'Liam', detail: 'Shared 3 albums' },
+];
+
+/**
+ * A row that opens a menu as a whole, as a shared person's row: `menu` makes the row the menu's one button and draws
+ * its More as a mark at the end, where the menu stands. In the phone preview the first row's menu stands open.
+ */
+export const RowMenu = docsDemo(function RowMenu() {
+  const embed = usePreviewEmbed() !== null;
+  const [open, setOpen] = useState<string | null>(embed ? PEOPLE[0].id : null);
+  return (
+    <RNScreen screen grouped minHeight={560}>
+      <PhonePage
+        top={(scrolled, canvas) => (
+          <Toolbar scrolled={scrolled} canvasColor={canvas}>
+            <Toolbar.Leading>
+              <NavigationButton action="back" />
+            </Toolbar.Leading>
+            <Toolbar.Title>Shared With</Toolbar.Title>
+          </Toolbar>
+        )}
+      >
+        <Rows>
+          {PEOPLE.map((person) => (
+            <ListItem
+              key={person.id}
+              label={person.name}
+              description={person.detail}
+              menuOpen={open === person.id}
+              onMenuOpenChange={(next: boolean) => setOpen(next ? person.id : null)}
+              menu={
+                <Menu.Content aria-label={`${person.name} actions`}>
+                  <Menu.Item icon={<Chat />} onSelect={noop}>
+                    Message
+                  </Menu.Item>
+                  <Menu.Item icon={<RemoveTrash />} danger onSelect={noop}>
+                    Stop Sharing
+                  </Menu.Item>
+                </Menu.Content>
               }
             />
           ))}

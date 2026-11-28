@@ -70,7 +70,9 @@ const WEB_DENSE: Record<string, { fill: string; light: string; dark: string; fil
 /**
  * The web's plain glass drawn as iOS 26's Liquid Glass reads, measured on Maps' capsules (both schemes): a thin dark
  * line down its sides (a shadow offset sideways, which on a capsule's round end fades out toward its top and bottom by
- * itself), almost none along its top and bottom; inside, a bright band under its top edge and a fainter one over its
+ * itself) over a fainter even ring, so along its top and bottom the line is about a third of the sides' (a glass circle
+ * in Maps, Health and Settings, light, @3x: the edge 33% darker than the screen at the sides, 18% at the diagonals,
+ * 10–12% at the top and bottom; 24% sideways and 9% all round here, 70% and 26% in the dark); inside, a bright band under its top edge and a fainter one over its
  * bottom, nothing down its sides; a shadow hardly there. The lens is off: a browser's blur inside a blur sees only the
  * glass's own fill, not what is under it, so the ring would come out whiter than the middle. Each part a token a theme
  * may set (`--mobile-glass-web-lens-filter` turns a lens on).
@@ -92,13 +94,13 @@ const WEB_LIQUID = {
     token: "--mobile-glass-web-shadow",
     light:
       "-0.5px 0 0 rgb(0 0 0 / 24%), 0.5px 0 0 rgb(0 0 0 / 24%), 0 0 0 0.5px rgb(0 0 0 / 9%), 0 6px 16px rgb(0 0 0 / 3%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 85%)",
-    dark: "-0.5px 0 0 rgb(0 0 0 / 70%), 0.5px 0 0 rgb(0 0 0 / 70%), 0 6px 16px rgb(0 0 0 / 20%), inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(255 255 255 / 30%)",
+    dark: "-0.5px 0 0 rgb(0 0 0 / 70%), 0.5px 0 0 rgb(0 0 0 / 70%), 0 0 0 0.5px rgb(0 0 0 / 26%), 0 6px 16px rgb(0 0 0 / 20%), inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(255 255 255 / 30%)",
   },
   shadowRaised: {
     token: "--mobile-glass-web-shadow-raised",
     light:
       "-0.5px 0 0 rgb(0 0 0 / 24%), 0.5px 0 0 rgb(0 0 0 / 24%), 0 0 0 0.5px rgb(0 0 0 / 9%), 0 8px 40px rgb(0 0 0 / 12%), inset 0 1px 0 rgb(255 255 255), inset 0 -1px 0 rgb(255 255 255 / 85%)",
-    dark: "-0.5px 0 0 rgb(0 0 0 / 70%), 0.5px 0 0 rgb(0 0 0 / 70%), 0 8px 40px rgb(0 0 0 / 30%), inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(255 255 255 / 30%)",
+    dark: "-0.5px 0 0 rgb(0 0 0 / 70%), 0.5px 0 0 rgb(0 0 0 / 70%), 0 0 0 0.5px rgb(0 0 0 / 26%), 0 8px 40px rgb(0 0 0 / 30%), inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(255 255 255 / 30%)",
   },
   lens: { token: "--mobile-glass-web-lens-filter", value: "none" },
 }

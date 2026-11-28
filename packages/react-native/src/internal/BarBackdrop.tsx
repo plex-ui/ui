@@ -272,16 +272,11 @@ const BOTTOM_VEIL: readonly [number, number][] = [
   [0.46, 77],
 ]
 
-export function SoftBottomVeil({ fill, top, bottom, opacity }: { fill: string; top?: number; bottom?: number; opacity?: EdgeOpacity }) {
-  // `top`: under a bottom bar whose items start there; `bottom`: turned over, under the status bar `bottom` tall
-  const up = bottom != null
-  const place: ViewStyle = up
-    ? { position: "absolute", top: 0, left: 0, right: 0, height: bottom + BOTTOM_REACH, overflow: "hidden", justifyContent: "flex-end" }
-    : { position: "absolute", top: (top ?? 0) - BOTTOM_REACH, left: 0, right: 0, bottom: 0 }
-  const way = up ? "to top" : "to bottom"
+export function SoftBottomVeil({ fill, top, opacity }: { fill: string; top: number; opacity?: EdgeOpacity }) {
+  const place: ViewStyle = { position: "absolute", top: top - BOTTOM_REACH, left: 0, right: 0, bottom: 0 }
   if (Platform.OS === "web") {
-    const veil = `linear-gradient(${way}, ${BOTTOM_VEIL.map(([alpha, at]) => `${black(alpha)} ${at}px`).join(", ")})`
-    const blurMask = `linear-gradient(${way}, transparent 12px, #000 40px)`
+    const veil = `linear-gradient(to bottom, ${BOTTOM_VEIL.map(([alpha, at]) => `${black(alpha)} ${at}px`).join(", ")})`
+    const blurMask = "linear-gradient(to bottom, transparent 12px, #000 40px)"
     return (
       <View pointerEvents="none" style={place}>
         <Animated.View style={[StyleSheet.absoluteFill, { backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", maskImage: blurMask, WebkitMaskImage: blurMask } as ViewStyle, { opacity }]} />
@@ -290,13 +285,105 @@ export function SoftBottomVeil({ fill, top, bottom, opacity }: { fill: string; t
     )
   }
   const last = BOTTOM_VEIL[BOTTOM_VEIL.length - 1]
-  const gradient = `linear-gradient(${way}, ${BOTTOM_VEIL.map(([alpha, at]) => `${withAlpha(fill, alpha)} ${at}px`).join(", ")})`
-  const ramp = <View style={{ height: last[1], backgroundImage: gradient } as ViewStyle} />
-  const rest = <View style={{ flex: 1, backgroundColor: withAlpha(fill, last[0]) }} />
+  const gradient = `linear-gradient(to bottom, ${BOTTOM_VEIL.map(([alpha, at]) => `${withAlpha(fill, alpha)} ${at}px`).join(", ")})`
   return (
     <Animated.View pointerEvents="none" style={[place, { opacity }]}>
-      {up ? rest : ramp}
-      {up ? ramp : rest}
+      <View style={{ height: last[1], backgroundImage: gradient } as ViewStyle} />
+      <View style={{ flex: 1, backgroundColor: withAlpha(fill, last[0]) }} />
+    </Animated.View>
+  )
+}
+
+/**
+ * iOS 27.2's soft scroll edge at the top of a screen with no bar (a SwiftUI scroll view's `.soft` top edge, measured
+ * at 3x over a black and white step and plain colors, 28.11): from the screen's edge down to `edge` (the status bar's
+ * bottom, or a row's) and 34pt past it. It does not blur the content away: the content stays, lightly softened (σ 3
+ * at the screen's edge, 2 by `edge`, 1 18 below it), under a haze of it blurred wide (σ 30) that is 64% of what shows
+ * in light and 49% in dark at the screen's edge, 92% of that 14 above `edge`, 58% 2 below it, 18% 18 below and none 34
+ * below; over both a veil of the screen's color, 49% in light and 59% in dark at the edge, easing out from 28 above
+ * `edge` to nothing 34 below it. Native draws the veil alone.
+ */
+export const TOP_EDGE_TAIL = 34
+/** The veil's strength by `[fraction of the peak, px up from the edge's end]` */
+const TOP_VEIL: readonly [number, number][] = [
+  [0, 0],
+  [0.04, 3],
+  [0.077, 6],
+  [0.14, 10],
+  [0.217, 14],
+  [0.305, 18],
+  [0.395, 22],
+  [0.49, 26],
+  [0.58, 30],
+  [0.69, 36],
+  [0.81, 44],
+  [0.89, 52],
+  [0.95, 62],
+  [0.985, 82],
+  [1, 96],
+]
+/** The veil at the screen's edge, light and dark */
+const TOP_VEIL_PEAK = { light: 0.486, dark: 0.588 }
+/** The haze's share of what shows, by `[fraction of the peak, px up from the edge's end]` */
+const TOP_HAZE: readonly [number, number][] = [
+  [0, 0],
+  [0.09, 8],
+  [0.18, 16],
+  [0.39, 24],
+  [0.51, 28],
+  [0.58, 32],
+  [0.73, 36],
+  [0.83, 40],
+  [0.92, 48],
+  [1, 76],
+]
+/** The haze's share at the screen's edge, light and dark */
+const TOP_HAZE_PEAK = { light: 0.64, dark: 0.49 }
+/** The haze's blur */
+const TOP_HAZE_BLUR = 30
+/**
+ * The light blur of the content under the haze, in layers over one another so their radii add up (σ 1.2, 2 and 3 in
+ * all): each `[σ, px up from the edge's end where it starts, px where it is whole]`
+ */
+const TOP_SOFTEN: readonly [number, number, number][] = [
+  [1.2, 0, 8],
+  [1.6, 24, 32],
+  [2.24, 36, 48],
+]
+/** How far above the edge the content is blurred in full (14): a height it is blurred in full down to sets the edge this far under it */
+export const TOP_EDGE_WHOLE = TOP_SOFTEN[TOP_SOFTEN.length - 1][2] - TOP_EDGE_TAIL
+/** Room under the edge's end where the haze reads the content it blurs (its masks are clear there), as native blurs what lies past it */
+const TOP_HAZE_ROOM = 60
+
+export function SoftTopVeil({ fill, edge, opacity }: { fill: string; edge: number; opacity?: EdgeOpacity }) {
+  const theme = useTheme()
+  const scheme = theme.scheme === "dark" ? "dark" : "light"
+  const reach = Math.max(0, edge) + TOP_EDGE_TAIL
+  const veil = TOP_VEIL.map(([share, at]) => [+(share * TOP_VEIL_PEAK[scheme]).toFixed(4), at] as const)
+  if (Platform.OS === "web") {
+    const room = TOP_HAZE_ROOM
+    const mask = (stops: readonly (readonly [number, number])[]) => `linear-gradient(to top, ${stops.map(([alpha, at]) => `${black(alpha)} ${at + room}px`).join(", ")})`
+    const layer = (filter: string, maskImage: string, key: string) => (
+      <Animated.View key={key} style={[StyleSheet.absoluteFill, { backdropFilter: filter, WebkitBackdropFilter: filter, maskImage, WebkitMaskImage: maskImage } as ViewStyle, { opacity }]} />
+    )
+    return (
+      <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, height: reach + room }}>
+        {TOP_SOFTEN.map(([sigma, from, whole]) => layer(`blur(${sigma}px)`, mask([[0, from], [1, whole]]), `soften-${sigma}`))}
+        {layer(`blur(${TOP_HAZE_BLUR}px)`, mask(TOP_HAZE.map(([share, at]) => [share * TOP_HAZE_PEAK[scheme], at] as const)), "haze")}
+        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: fill, maskImage: mask(veil), WebkitMaskImage: mask(veil) } as ViewStyle, { opacity }]} />
+      </View>
+    )
+  }
+  // Native draws the veil alone
+  const last = veil[veil.length - 1]
+  const gradient = `linear-gradient(to top, ${veil.map(([alpha, at]) => `${withAlpha(fill, alpha)} ${at}px`).join(", ")})`
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[{ position: "absolute", top: 0, left: 0, right: 0, height: reach, overflow: "hidden", justifyContent: "flex-end" }, { opacity }]}
+    >
+      <View style={{ flex: 1, backgroundColor: withAlpha(fill, last[0]) }} />
+      <View style={{ height: last[1], backgroundImage: gradient } as ViewStyle} />
     </Animated.View>
   )
 }

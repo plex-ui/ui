@@ -150,9 +150,10 @@ function useMenu(part: string) {
   return context
 }
 
-/** The element that opens the menu: a Button or anything with `onPress`. */
-function MenuTrigger({ children, style }: { children: ReactElement<{ onPress?: (event: GestureResponderEvent) => void }>; style?: StyleProp<ViewStyle> }) {
-  const { open, setOpen, setTrigger, setRowFrame, setHeader, place } = useMenu("Menu.Trigger")
+/** The menu's place: a trigger or an anchor in a List row tells the menu its row, one in a bar that it is the bar's */
+function useMenuPlace(part: string) {
+  const menu = useMenu(part)
+  const { setRowFrame, setHeader } = menu
   // A trigger in a List row tells the menu its row; one in a bar that it is the bar's (Android's header menu)
   const frame = useContext(RowFrameContext)
   const inBar = useContext(BarItemContext) != null
@@ -164,6 +165,12 @@ function MenuTrigger({ children, style }: { children: ReactElement<{ onPress?: (
     setHeader(inBar)
     return () => setHeader(false)
   }, [inBar, setHeader])
+  return menu
+}
+
+/** The element that opens the menu: a Button or anything with `onPress`. */
+function MenuTrigger({ children, style }: { children: ReactElement<{ onPress?: (event: GestureResponderEvent) => void }>; style?: StyleProp<ViewStyle> }) {
+  const { open, setOpen, setTrigger, place } = useMenuPlace("Menu.Trigger")
   const onPress = isValidElement(children) ? children.props.onPress : undefined
   const child = isValidElement(children)
     ? cloneElement(children, {
@@ -184,10 +191,30 @@ function MenuTrigger({ children, style }: { children: ReactElement<{ onPress?: (
 }
 MenuTrigger.displayName = "Menu.Trigger"
 
+/**
+ * Where the menu stands when something else opens it through `open`: a List row whose press opens the menu, its More
+ * drawn at the end as a mark, not a button (a button inside the row's button would be a second control). The menu
+ * stands at the anchor as at a trigger.
+ */
+function MenuAnchorPoint({ children, style }: { children?: ReactNode; style?: StyleProp<ViewStyle> }) {
+  const { open, setTrigger, place } = useMenuPlace("Menu.Anchor")
+  return (
+    <View ref={setTrigger as never} collapsable={false} onLayout={open ? place : undefined} style={[styles.trigger, style]}>
+      {children}
+    </View>
+  )
+}
+MenuAnchorPoint.displayName = "Menu.Anchor"
+
 export type MenuContentProps = {
   children: ReactNode
-  /** The menu's edge that lines up with the trigger's: `start` is the right edge in a right-to-left layout. @default "start" */
-  align?: "start" | "end"
+  /**
+   * The menu's edge that lines up with the trigger's (`start` is the right edge in a right-to-left layout), or
+   * `center` for the menu centred on the trigger. By default iOS places it as UIKit does, by where the trigger
+   * stands: in the screen's leading third at its leading edge, in the trailing third at its trailing edge, else
+   * centred on it; Android at its start edge, as its popup menu.
+   */
+  align?: "start" | "center" | "end"
   /** @default 250 on iOS; on Android the popup fits its items, 196 to 288 */
   width?: number
   /**
@@ -240,7 +267,7 @@ export function MenuSurface(props: SurfaceProps) {
 }
 
 /** iOS 26's pop-up menu: glass, a submenu over the menu at its row while the menu steps back. */
-function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check = false, multiple = false, cover, context, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
+function IOSMenuSurface({ open, anchor, onClose, align, width, check = false, multiple = false, cover, context, children, "aria-label": ariaLabel, testID }: SurfaceProps) {
   const theme = useTheme()
   const insets = useSafeAreaInsets()
   const window = useWindowDimensions()
@@ -279,13 +306,24 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
   const topEdge = Math.max(insets.top + 8, 30)
   const bottomEdge = Math.max(insets.bottom + 8, 30)
   const rtl = isRTL()
-  const alignsLeft = (align === "start") !== rtl
-  let left = alignsLeft ? box.x : box.x + box.width - measured
+  // UIKit lines a button's menu up by where the button stands, as it places a context menu (ref-app menus-context):
+  // in the left third at the button's left edge, in the right third at its right edge, else centred on it; `align`
+  // sets the edge
+  const centre = box.x + box.width / 2
+  const edge =
+    align === "center" ? "centre"
+    : align != null ? ((align === "start") !== rtl ? "left" : "right")
+    : centre < window.width / 3 ? "left"
+    : centre > (window.width * 2) / 3 ? "right"
+    : "centre"
+  let left = edge === "left" ? box.x : edge === "right" ? box.x + box.width - measured : centre - measured / 2
   left = Math.max(margin, Math.min(left, window.width - measured - margin))
   const below = over ? box.y : box.y + box.height + gap
   const fitsBelow = below + height <= window.height - bottomEdge
   const above = over ? box.y + box.height - height : box.y - gap - height
   let top = size == null ? -window.height - 1000 : fitsBelow ? below : Math.max(topEdge, above)
+  // It grows from the middle of the edge it is tied to: its top as it opens down, its bottom as it opens up
+  let opensUp = size != null && !fitsBelow
   // A preview wider than the screen less 16 a side is scaled down about its middle to fit, as iOS 27.2 shrinks a
   // lifted cell or card, and one that would cross the 16 is moved in: `seen` is where it shows
   const fit = 16
@@ -311,7 +349,8 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
     const underIt = seen.y + seen.height + lift
     const lower = seen.y + seen.height / 2 > window.height / 2
     if (size != null) {
-      if (lower && overIt >= topEdge) top = overIt
+      opensUp = lower && overIt >= topEdge
+      if (opensUp) top = overIt
       else {
         // Where the menu does not fit under the element it lifts the element up with it, as iOS moves the preview, so
         // the menu never covers it
@@ -452,6 +491,7 @@ function IOSMenuSurface({ open, anchor, onClose, align = "start", width, check =
                 maxHeight,
                 opacity: glassOpacity(progress, opening),
                 // With reduced motion it fades in place
+                transformOrigin: opensUp ? "50% 100%" : "50% 0",
                 transform: scale ? [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] : undefined,
               },
             ]}
@@ -716,7 +756,8 @@ function AndroidMenuSurface({ open, anchor, row, header = false, onClose, align 
       const fitsUnder = under + panel.height <= window.height - bottomEdge
       return { left, top: fitsUnder ? under : Math.max(topEdge, lit.y - ROW_MENU_GAP - panel.height), fromBottom: !fitsUnder }
     }
-    const left = Math.max(margin, Math.min(alignsLeft ? box.x : box.x + box.width - panel.width, window.width - panel.width - margin))
+    const start = align === "center" ? box.x + (box.width - panel.width) / 2 : alignsLeft ? box.x : box.x + box.width - panel.width
+    const left = Math.max(margin, Math.min(start, window.width - panel.width - margin))
     const below = over ? box.y : box.y + box.height
     const fitsBelow = below + panel.height <= window.height - bottomEdge
     const top = fitsBelow ? below : Math.max(topEdge, over ? box.y + box.height - panel.height : box.y - panel.height)
@@ -1384,6 +1425,7 @@ MenuLabel.displayName = "Menu.Label"
 
 export const Menu = Object.assign(MenuRoot, {
   Trigger: MenuTrigger,
+  Anchor: MenuAnchorPoint,
   Content: MenuContent,
   Item: MenuItem,
   Separator: MenuSeparator,

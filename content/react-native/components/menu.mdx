@@ -170,6 +170,40 @@ import { DotsVertical, EditPencil, RemoveTrash } from "@plexui/react-native/icon
   ))}
 </List>`
 
+export const rowMenuCode = `import { List, ListItem, Menu } from "@plexui/react-native"
+import { Chat, RemoveTrash } from "@plexui/react-native/icons"
+
+<List>
+  {people.map((person) => (
+    <ListItem
+      key={person.id}
+      label={person.name}
+      description={person.detail}
+      menu={
+        <Menu.Content aria-label={\`\${person.name} actions\`}>
+          <Menu.Item icon={<Chat />} onSelect={() => message(person)}>Message</Menu.Item>
+          <Menu.Item icon={<RemoveTrash />} danger onSelect={() => stopSharing(person)}>Stop Sharing</Menu.Item>
+        </Menu.Content>
+      }
+    />
+  ))}
+</List>`
+
+export const fromButtonCode = `import { Button, Menu } from "@plexui/react-native"
+import { Copy, FileDocument, FolderPlus } from "@plexui/react-native/icons"
+
+// A wide capsule in the middle of the screen: the menu is centred on it, and opens up where there is no room under it
+<Menu>
+  <Menu.Trigger style={{ alignSelf: "stretch" }}>
+    <Button size="3xl" pill block>New</Button>
+  </Menu.Trigger>
+  <Menu.Content aria-label="New">
+    <Menu.Item icon={<FileDocument />} onSelect={newDocument}>Document</Menu.Item>
+    <Menu.Item icon={<FolderPlus />} onSelect={newFolder}>Folder</Menu.Item>
+    <Menu.Item icon={<Copy />} onSelect={paste}>Paste</Menu.Item>
+  </Menu.Content>
+</Menu>`
+
 <UsageBlock>{`import { Menu } from "@plexui/react-native"`}</UsageBlock>
 
 ## Examples
@@ -181,7 +215,7 @@ import { DotsVertical, EditPencil, RemoveTrash } from "@plexui/react-native/icon
   <p>In a browser (react-native-web) the iOS menu is nearly opaque, white at 90% (rgb(28, 28, 30) at 90% at night) over a 30px blur, as a CSS blur shows far more of what is under it than iOS draws; the glass of buttons, chips and bars there reads as iOS 26's Liquid Glass: rgb(250, 250, 252) at 62% (rgb(52, 52, 56) at 74% at night) over an 8px blur that saturates what is under it, a sheen down the glass, a bright rim on every side, and a lens at the edge, where what is under the glass is blurred and lit more (a browser cannot bend it as iOS does). A theme sets them with <code>--menu-mobile-web-background</code>, <code>--menu-mobile-web-backdrop-filter</code>, <code>--mobile-glass-web-background</code>, <code>--mobile-glass-web-background-active</code>, <code>--mobile-glass-web-backdrop-filter</code>, <code>--mobile-glass-web-sheen</code>, <code>--mobile-glass-web-shadow</code>, <code>--mobile-glass-web-shadow-raised</code> and <code>--mobile-glass-web-lens-filter</code> (<code>none</code> draws no lens); a brand that sets <code>--menu-mobile-background</code> or <code>--mobile-glass-background</code> keeps its own. On a tinted page, give the glass the page's own color so it does not read gray next to it: <code>{"<ThemeProvider brand={{ tokens: { \"--mobile-glass-web-background\": \"rgba(240, 236, 255, 0.6)\", \"--mobile-glass-web-backdrop-filter\": \"blur(24px) saturate(180%)\" } }}>"}</code>, the page's color at 60% over a saturated blur.</p>
   <p>A folder's menu, as Files opens it on iOS: actions with their icons, then the view and the sort order as options, Date with its order under it (<code>description</code>) while it is the chosen sort, and Group by, a submenu of its own options. Turn off <code>icons</code> for the same menu in plain text, and <code>checkmarks</code> for the folder's actions alone, a shorter menu with no checkmark column.</p>
   <p>An item takes its symbol as <code>icon</code>, in the label's color: 20pt on iOS, centred in a 36pt slot (in a menu with checkmarks it stands 2pt past the labels' line, its label 14 after it), 24dp on Android. An option is an item with <code>checked</code>: a menu whose items set it, true or false, keeps a column for the checkmark on iOS, so every label lines up, and on Android a chosen item shows a thin check in the text color at the end of its row, 18dp after the text. Choosing an item runs its <code>onSelect</code> and closes the menu, an option too.</p>
-  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos; in the phone preview it stands open when the screen appears. <code>align="end"</code> lines the menu's end up with the button's. On iOS the menu is the 250pt panel of iOS menus unless <code>width</code> sets another.</p>
+  <p>On a phone each example is a screen whose menu opens from the More button of its top bar, as iOS opens the menu of an album in Photos; in the phone preview it stands open when the screen appears. <code>align="end"</code> lines the menu's end up with the button's, where iOS would put it anyway for a button at the screen's trailing end. On iOS the menu is the 250pt panel of iOS menus unless <code>width</code> sets another.</p>
   <p>A submenu's row ends in a chevron. On iOS, as iOS 26 menus, the submenu opens over the menu with its heading on that row, in Semibold with a chevron down, while the menu steps back (a touch smaller, its rows at half strength); a press on the heading or on the menu behind goes back. On Android the submenu slides in from the end, headed by a Back row and an 8dp band, while the menu moves back under a dim and the popup takes the submenu's size; Back, a swipe towards the end or a flick goes back. Choosing an item of a submenu closes the whole menu.</p>
 </>} code={overviewCode} previewMinHeight={168}>
   <RNExample demo="menu/Overview" />
@@ -210,8 +244,20 @@ import { DotsVertical, EditPencil, RemoveTrash } from "@plexui/react-native/icon
 
 ### From a list row
 
-<ComponentPreview details={<>A menu whose trigger stands in a <code>ListItem</code>, as a row's More, finds its row. On Android the screen dims to black at 40% (20% at night) around the row, which stays lit to its corners (the card's, where the row meets the card's edge), and the popup stands 8dp under the row with its end on the row's end (8dp over it when the screen ends first); the dim fades with the menu, and a tap anywhere closes it. On iOS the menu opens at its button, as any other.</>} code={rowCode} previewMinHeight={168}>
+<ComponentPreview details={<>A menu whose trigger stands in a <code>ListItem</code>, as a row's More, finds its row. On Android the screen dims to black at 40% (20% at night) around the row, which stays lit to its corners (the card's, where the row meets the card's edge), and the popup stands 8dp under the row with its end on the row's end (8dp over it when the screen ends first); the dim fades with the menu, and a tap anywhere closes it. On iOS the menu opens at its button, as any other. When the whole row opens the menu, give the <code>ListItem</code> a <code>menu</code> instead: the row is then the one button and its More a mark, with no button inside it.</>} code={rowCode} previewMinHeight={168}>
   <RNExample demo="menu/FromRow" />
+</ComponentPreview>
+
+### A row that opens a menu
+
+<ComponentPreview details={<>A row that opens a menu as a whole takes <code>menu</code> on its <code>ListItem</code>: the row is the menu&apos;s one button, read as one that opens a menu, and its end draws More as a mark (iOS&apos;s ellipsis, Android&apos;s vertical dots, in a secondary ghost IconButton&apos;s box and color), not as a button inside the row. The menu stands at the More: on iOS at its trailing edge, on Android under the row at its end with the screen dimmed around the row. <code>menuOpen</code> and <code>onMenuOpenChange</code> hold it from the app.</>} code={rowMenuCode} previewMinHeight={168}>
+  <RNExample demo="menu/RowMenu" />
+</ComponentPreview>
+
+### From a wide button
+
+<ComponentPreview details={<>A menu stands where iOS puts a button&apos;s menu, by where the button stands on the screen: at a button in the leading third its leading edge lines up with the button&apos;s, at one in the trailing third its trailing edge, and at one in the middle it is centred on it, as this wide capsule at the foot of the screen shows. It opens over its button, down from the button&apos;s top or, with no room under it, up from its bottom, and grows from the middle of that edge. <code>align</code> sets the edge instead: <code>&quot;start&quot;</code>, <code>&quot;center&quot;</code> or <code>&quot;end&quot;</code>. Android&apos;s popup lines up with the trigger&apos;s start unless <code>align</code> says otherwise.</>} code={fromButtonCode} previewMinHeight={168}>
+  <RNExample demo="menu/FromButton" />
 </ComponentPreview>
 
 ## Platforms
@@ -240,11 +286,20 @@ import { DotsVertical, EditPencil, RemoveTrash } from "@plexui/react-native/icon
   { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the view around the trigger, measured to place the menu" },
 ]} />
 
+### Menu.Anchor
+
+Where the menu stands when something else opens it through <code>open</code>: a row whose press opens the menu, with its More drawn as a mark rather than a button, so the web gets no button inside a button. A <code>ListItem</code> with <code>menu</code> sets one up for you.
+
+<PropsTable data={[
+  { prop: "children", type: "ReactNode", description: "What marks the menu's place: the menu stands at it as at a trigger" },
+  { prop: "style", type: "StyleProp<ViewStyle>", description: "Style of the view around the anchor, measured to place the menu" },
+]} />
+
 ### Menu.Content
 
 <PropsTable data={[
   { prop: "children", type: "ReactNode", description: "Items, separators and labels" },
-  { prop: "align", type: '"start" | "end"', default: '"start"', description: "The menu's edge that lines up with the trigger's" },
+  { prop: "align", type: '"start" | "center" | "end"', description: "The menu's edge that lines up with the trigger's, or center for the menu centred on it. By default iOS places it as UIKit does, by where the trigger stands (the leading third: its leading edge; the trailing third: its trailing edge; else centred); Android at its start" },
   { prop: "width", type: "number", default: "250 on iOS", description: "Width of the menu; on Android it fits its items, 196 to 288" },
   { prop: "multiple", type: "boolean", default: "false", description: "Several options to pick: a press on an item with `checked` checks or unchecks it and the menu stays open; the items read as checkboxes" },
   { prop: "cover", type: "boolean", default: "true", description: "Opens over the trigger; `false` opens it under the trigger, its top at the trigger's bottom edge, as Material's dropdown menu under a chip" },

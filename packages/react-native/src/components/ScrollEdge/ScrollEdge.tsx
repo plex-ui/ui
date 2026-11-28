@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { Animated, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { SoftBottomVeil, SoftTopEdge } from "../../internal/BarBackdrop"
+import { SoftBottomVeil, SoftTopEdge, SoftTopVeil, TOP_EDGE_TAIL, TOP_EDGE_WHOLE } from "../../internal/BarBackdrop"
 import { normalizeCssColor } from "../../theme/cssColor"
 import { withAlpha } from "../../theme/material"
 import { useTheme } from "../../theme/ThemeProvider"
@@ -15,8 +15,9 @@ export type ScrollEdgeProps = {
   canvasColor?: string
   /**
    * Top edge under a floating row (filters, tabs): where the fade ends, from the screen's top. Only what went under the
-   * row is muted, the content below it stays sharp: pass the row's bottom. On Android, too, the edge then is the row's
-   * (iOS 27.2's), not the status bar's alone.
+   * row is muted, the content below it stays sharp: pass the row's bottom. The edge is then iOS's soft edge 34pt short
+   * of it. On Android, too, the edge then is the row's (iOS 27.2's), not the status bar's alone. A height in `style`
+   * instead: the content is blurred in full down to that height, and eases out over the 48 below it.
    */
   fadeEnd?: number
   /**
@@ -38,10 +39,13 @@ export type ScrollEdgeProps = {
 
 /**
  * The soft scroll edge of a screen with no bar at that edge: content that scrolls up under the clock and the status
- * icons, or down to the screen's bottom, is muted there. On iOS it is iOS 27.2's soft edge of a bottom bar (as
- * TabBar's `fade`), turned over at the top: from the safe area's edge 34pt further in, a 10pt blur under a veil of
- * the screen's color that grows to 46% at the screen's edge. On Android the top edge is the soft edge of its top bar
- * over the status bar alone, the bottom one draws nothing. Lay it over the screen, after the scroll view.
+ * icons, or down to the screen's bottom, is muted there. On iOS the top edge is iOS 27.2's own (a scroll view's soft
+ * top edge, measured): from the screen's edge to 34pt past the status bar, the content lightly softened under a haze
+ * of it blurred wide (σ 30, about half of what shows at the edge) and a veil of the screen's color, 49% in light and
+ * 59% in dark at the edge, all easing out over the same span; native draws the veil alone. The bottom edge
+ * is the soft edge of a bottom bar: a 10pt blur under a veil that grows to 46% at the screen's edge. On Android the top
+ * edge is the soft edge of its top bar over the status bar alone, the bottom one draws nothing. Lay it over the
+ * screen, after the scroll view.
  */
 export function ScrollEdge({ edge = "top", scrolled: scrolledProp = false, canvasColor, fadeEnd, background = "soft", progress, testID, style }: ScrollEdgeProps): ReactNode {
   const theme = useTheme()
@@ -92,18 +96,16 @@ export function ScrollEdge({ edge = "top", scrolled: scrolledProp = false, canva
       </View>
     )
   }
-  // The safe area at that edge, or the height the style gives the top edge (a bar's row of buttons under the status
-  // bar): the content is blurred in full down to it, and the veil and the blur ease out over the 34 past it. A fade's
-  // end is where the veil's 34 end, so the content under it shows clear
-  const reach =
-    top && fadeEnd != null ? fadeEnd - FADE_PAST - FULL_BLUR_SHORTFALL : top && typeof height === "number" ? height + FULL_BLUR_SHORTFALL : insets.top
+  // The top edge's line: the status bar's bottom, or under a row, 14 below the height the style gives it (the content
+  // is blurred in full down to that height) or 34 above a fade's end (the content under it shows clear)
+  const line = fadeEnd != null ? fadeEnd - TOP_EDGE_TAIL : typeof height === "number" ? height + TOP_EDGE_WHOLE : insets.top
   return (
     <View
       pointerEvents="none"
       testID={testID}
       style={[{ position: "absolute", left: 0, right: 0 }, top ? { top: 0, height: fadeEnd ?? insets.top } : { bottom: 0, height: insets.bottom }, style]}
     >
-      {top ? <SoftBottomVeil fill={canvas} bottom={reach} opacity={progress} /> : <SoftBottomVeil fill={canvas} top={0} opacity={progress} />}
+      {top ? <SoftTopVeil fill={canvas} edge={line} opacity={progress} /> : <SoftBottomVeil fill={canvas} top={0} opacity={progress} />}
     </View>
   )
 }
@@ -116,8 +118,3 @@ const FADE_ABOVE_ROW_END = 26
 const FADE_BELOW_ROW_END = 32
 /** `fade`: the steps of its curve */
 const FADE_STEPS = 12
-
-/** The veil's blur is full 6 short of the edge it is turned over at (12 to 40 into its 34): a given height adds them. */
-const FULL_BLUR_SHORTFALL = 6
-/** From the height where the blur is whole, the fade runs on 28 more (the 34 of the veil less its shortfall). */
-const FADE_PAST = 28
